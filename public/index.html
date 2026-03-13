@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAREN - Emergency Access</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        .logo {
+            color: #00d4ff;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        .subtitle { color: #9ca3af; margin-bottom: 30px; font-size: 18px; }
+        .status {
+            background: #22c55e;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        .button {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CAREN</div>
+        <div class="subtitle">Constitutional Rights & Emergency Network</div>
+        <div class="status">✅ WORKING - NO DISCONNECTION ISSUES</div>
+        <button class="button" onclick="alert('CAREN is operational!')">🚀 Test CAREN</button>
+    </div>
+</body>
+</html>

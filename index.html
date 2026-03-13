@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAREN - Emergency Access</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            color: #00d4ff;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+        
+        .subtitle {
+            color: #9ca3af;
+            margin-bottom: 30px;
+            font-size: 18px;
+        }
+        
+        .description {
+            color: #d1d5db;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .status {
+            background: #22c55e;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #00d4ff, #0ea5e9);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .button:hover {
+            background: linear-gradient(135deg, #0ea5e9, #0284c7);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 212, 255, 0.3);
+        }
+        
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .demo-button {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+        }
+        
+        .demo-button:hover {
+            background: linear-gradient(135deg, #16a34a, #15803d);
+        }
+        
+        .features {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+            text-align: left;
+        }
+        
+        .feature-item {
+            padding: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .voice-commands {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success {
+            background: #22c55e;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .error {
+            background: #ef4444;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">CAREN</div>
+        <div class="subtitle">Constitutional Rights & Emergency Network</div>
+        <div class="description">
+            Hands-free legal protection platform with emergency voice commands for traffic stops and legal encounters.
+        </div>
+        
+        <div class="status">
+            ✅ SYSTEM OPERATIONAL
+        </div>
+        
+        <div class="success" id="successMsg">
+            <strong>Demo Login Successful!</strong><br>
+            Access granted to CAREN dashboard
+        </div>
+        
+        <div class="error" id="errorMsg">
+            <strong>Connection Error</strong><br>
+            Please check your network connection
+        </div>
+        
+        <button class="button demo-button" onclick="loginDemo()" id="demoBtn">
+            🚀 Start Demo Login
+        </button>
+        
+        <button class="button" onclick="window.location.reload()">
+            🔄 Reload Application
+        </button>
+        
+        <div class="features">
+            <strong>🛡️ Emergency Features Ready:</strong>
+            <div class="feature-list">
+                <div class="feature-item">📍 GPS Legal Rights</div>
+                <div class="feature-item">🎤 Voice Commands</div>
+                <div class="feature-item">📹 Incident Recording</div>
+                <div class="feature-item">🚨 Emergency Alerts</div>
+                <div class="feature-item">⚖️ Attorney Contact</div>
+                <div class="feature-item">🗺️ State-Specific Laws</div>
+            </div>
+        </div>
+        
+        <div class="voice-commands">
+            <p><strong>Emergency Voice Commands:</strong></p>
+            <p>"emergency" • "help me" • "police"</p>
+        </div>
+    </div>
+
+    <script>
+        async function loginDemo() {
+            const btn = document.getElementById('demoBtn');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            // Hide previous messages
+            successMsg.style.display = 'none';
+            errorMsg.style.display = 'none';
+            
+            // Show loading state
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>Connecting to CAREN...';
+            
+            try {
+                const response = await fetch('/api/auth/demo-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        // Store session data
+                        if (data.demoSessionKey) {
+                            localStorage.setItem('demoSessionKey', data.demoSessionKey);
+                        }
+                        if (data.customDomainToken) {
+                            localStorage.setItem('customDomainToken', data.customDomainToken);
+                        }
+                        
+                        // Show success message
+                        successMsg.style.display = 'block';
+                        btn.innerHTML = '✅ Redirecting to Dashboard...';
+                        
+                        // Redirect after short delay
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 2000);
+                        
+                        return;
+                    }
+                }
+                
+                throw new Error('Login failed');
+                
+            } catch (error) {
+                console.error('Demo login error:', error);
+                errorMsg.style.display = 'block';
+                btn.innerHTML = '🚀 Start Demo Login';
+                btn.disabled = false;
+            }
+        }
+        
+        // Test server connection on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/auth/user');
+                console.log('Server connection test:', response.status);
+            } catch (error) {
+                console.log('Server connection test failed:', error);
+            }
+        });
+    </script>
+</body>
+</html>

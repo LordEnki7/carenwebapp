@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAREN - Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            text-align: center;
+            background: rgba(0,0,0,0.3);
+            padding: 40px;
+            border-radius: 20px;
+            border: 2px solid #00d4ff;
+            max-width: 600px;
+        }
+        h1 {
+            font-size: 3rem;
+            color: #00d4ff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(0,212,255,0.5);
+        }
+        .status {
+            background: rgba(34,197,94,0.2);
+            border: 2px solid #22c55e;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .timestamp {
+            font-size: 0.9rem;
+            color: #fbbf24;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CAREN</h1>
+        <div class="status">
+            ✅ BACKUP RESTORATION SUCCESSFUL<br>
+            Server responding on port 5000
+        </div>
+        <p>Constitutional Rights & Emergency Network</p>
+        <p>If you can see this page, the server is working correctly.</p>
+        <div class="timestamp">
+            Test page loaded at: <span id="timestamp"></span>
+        </div>
+    </div>
+    <script>
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+    </script>
+</body>
+</html>

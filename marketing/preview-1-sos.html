@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1242px;
+    height: 2688px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: linear-gradient(160deg, #0a0e1a 0%, #0d1526 30%, #0a1628 60%, #0f1a2e 100%);
+    color: white;
+    overflow: hidden;
+    position: relative;
+  }
+  .grid-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow-1 {
+    position: absolute; width: 600px; height: 600px; border-radius: 50%;
+    background: #00e5ff; filter: blur(150px); opacity: 0.1;
+    top: -100px; right: -200px;
+  }
+  .glow-2 {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: #ef4444; filter: blur(150px); opacity: 0;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    transition: opacity 1.5s ease;
+  }
+  .glow-2.active { opacity: 0.2; }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .top-text {
+    text-align: center;
+    margin-top: 140px;
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 1s ease;
+  }
+  .top-text.show { opacity: 1; transform: translateY(0); }
+  .top-text h1 {
+    font-size: 72px; font-weight: 800; line-height: 1.15;
+  }
+  .top-text p {
+    font-size: 36px; color: rgba(255,255,255,0.6); margin-top: 24px; padding: 0 100px;
+  }
+  .cyan { color: #00e5ff; }
+  .red { color: #ef4444; }
+  .green { color: #22c55e; }
+  .purple { color: #a855f7; }
+
+  .phone {
+    width: 680px;
+    height: 1380px;
+    border-radius: 60px;
+    border: 4px solid rgba(255,255,255,0.12);
+    background: #0d1117;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0,229,255,0.1), 0 40px 100px rgba(0,0,0,0.5);
+    margin-top: 60px;
+    position: relative;
+    opacity: 0;
+    transform: translateY(60px);
+    transition: all 1s ease;
+  }
+  .phone.show { opacity: 1; transform: translateY(0); }
+
+  .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 220px; height: 40px; background: #000; border-radius: 0 0 24px 24px; z-index: 10;
+  }
+  .status-bar {
+    display: flex; justify-content: space-between; padding: 16px 30px;
+    font-size: 18px; font-weight: 600; margin-top: 10px;
+  }
+  .screen { padding: 20px 28px; }
+
+  .app-title {
+    text-align: center; font-size: 32px; font-weight: 700; margin: 20px 0 16px;
+  }
+  .location-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 30px; padding: 10px 22px; font-size: 18px; color: #00e5ff;
+    margin: 0 auto 24px; display: block; text-align: center; width: fit-content;
+    margin-left: auto; margin-right: auto;
+  }
+
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 28px; border-radius: 20px; font-size: 26px; font-weight: 700;
+    margin: 14px 0; border: none; width: 100%; cursor: pointer;
+    transition: all 0.3s ease; position: relative; overflow: hidden;
+  }
+  .btn-red { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
+  .btn-cyan { background: linear-gradient(135deg, #0891b2, #0e7490); color: white; }
+  .btn-green { background: linear-gradient(135deg, #16a34a, #15803d); color: white; }
+  .btn-red.pressed { transform: scale(0.95); filter: brightness(1.3); }
+
+  .sos-screen {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(180deg, #1a0505, #0d0808);
+    padding: 70px 28px 28px;
+    opacity: 0; transform: scale(1.05);
+    transition: all 0.6s ease;
+    z-index: 5;
+  }
+  .sos-screen.show { opacity: 1; transform: scale(1); }
+
+  .emergency-badge {
+    text-align: center; color: #ef4444; font-size: 22px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 30px;
+  }
+  .red-dot { width: 14px; height: 14px; border-radius: 50%; background: #ef4444; }
+  .red-dot.blink { animation: blink 1s infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  .sos-circle-wrap {
+    display: flex; justify-content: center; align-items: center;
+    position: relative; height: 280px; margin-bottom: 20px;
+  }
+  .sos-circle {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 72px;
+    box-shadow: 0 0 60px rgba(239,68,68,0.4);
+  }
+  .pulse-ring {
+    position: absolute; border-radius: 50%;
+    border: 3px solid rgba(239,68,68,0.3);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+  }
+  .pulse-ring.r1 { width: 240px; height: 240px; animation: pulse 2s infinite; }
+  .pulse-ring.r2 { width: 300px; height: 300px; animation: pulse 2s infinite 0.5s; }
+  .pulse-ring.r3 { width: 360px; height: 360px; animation: pulse 2s infinite 1s; }
+  @keyframes pulse {
+    0% { opacity: 0.6; transform: translate(-50%,-50%) scale(1); }
+    100% { opacity: 0; transform: translate(-50%,-50%) scale(1.3); }
+  }
+
+  .alert-card {
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 16px; padding: 20px 24px; margin: 10px 0;
+    opacity: 0; transform: translateX(-30px);
+    transition: all 0.5s ease;
+  }
+  .alert-card.show { opacity: 1; transform: translateX(0); }
+  .alert-card h3 { font-size: 20px; font-weight: 700; color: #ef4444; margin-bottom: 4px; }
+  .alert-card p { font-size: 16px; color: rgba(255,255,255,0.6); }
+
+  .alert-card.green-card {
+    background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.25);
+  }
+  .alert-card.green-card h3 { color: #22c55e; }
+
+  .quick-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px; padding: 24px; margin: 14px 0;
+  }
+  .quick-card h3 { font-size: 22px; font-weight: 700; color: #00e5ff; margin-bottom: 6px; }
+  .quick-card p { font-size: 17px; color: rgba(255,255,255,0.5); }
+
+  .bottom-text {
+    position: absolute; bottom: 80px; left: 0; right: 0;
+    text-align: center; z-index: 2;
+    opacity: 0; transition: opacity 1s ease;
+  }
+  .bottom-text.show { opacity: 1; }
+  .bottom-text p { font-size: 30px; color: rgba(255,255,255,0.5); }
+  .bottom-text h2 { font-size: 42px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="glow-1"></div>
+<div class="glow-2" id="redGlow"></div>
+
+<div class="content">
+  <div class="top-text" id="topText">
+    <h1>One Tap.<br><span class="red">Instant</span> Protection.</h1>
+    <p>Emergency SOS activates everything at once.</p>
+  </div>
+
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="status-bar"><span>9:41</span><span>📶</span></div>
+    <div class="screen" id="dashScreen">
+      <div class="app-title"><span class="cyan">C.A.R.E.N.™</span> Dashboard</div>
+      <div class="location-pill">📍 Cleveland, Ohio</div>
+      <div class="btn btn-red" id="sosBtn">🆘 Emergency SOS</div>
+      <div class="btn btn-cyan">🎬 Record Encounter</div>
+      <div class="btn btn-green">📋 My Legal Rights</div>
+      <div class="quick-card">
+        <h3>⚡ Quick Actions</h3>
+        <p>Voice commands, Bluetooth, family alerts — ready when you need them.</p>
+      </div>
+    </div>
+
+    <div class="sos-screen" id="sosScreen">
+      <div class="emergency-badge"><div class="red-dot blink"></div> EMERGENCY ACTIVE</div>
+      <div class="sos-circle-wrap">
+        <div class="sos-circle">🆘</div>
+        <div class="pulse-ring r1"></div>
+        <div class="pulse-ring r2"></div>
+        <div class="pulse-ring r3"></div>
+      </div>
+      <div class="alert-card" id="alert1">
+        <h3>✅ Recording Started</h3>
+        <p>Audio + Video • GPS: 41.4993° N, 81.6944° W</p>
+      </div>
+      <div class="alert-card" id="alert2">
+        <h3>✅ Contacts Notified</h3>
+        <p>3 emergency contacts alerted via SMS & email</p>
+      </div>
+      <div class="alert-card" id="alert3">
+        <h3>✅ Attorney Connected</h3>
+        <p>Live stream active • Sarah Mitchell, Esq.</p>
+      </div>
+      <div class="alert-card green-card" id="alert4">
+        <h3>🎤 Voice Commands Active</h3>
+        <p>Say "I need help" or "Call my lawyer"</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-text" id="bottomText">
+    <h2 class="cyan">C.A.R.E.N.™</h2>
+    <p>Your safety. One tap away.</p>
+  </div>
+</div>
+
+<script>
+const timeline = [
+  { time: 300, fn: () => document.getElementById('topText').classList.add('show') },
+  { time: 1200, fn: () => document.getElementById('phone').classList.add('show') },
+  { time: 3000, fn: () => {
+    document.getElementById('sosBtn').classList.add('pressed');
+  }},
+  { time: 3400, fn: () => {
+    document.getElementById('sosBtn').classList.remove('pressed');
+    document.getElementById('sosScreen').classList.add('show');
+    document.getElementById('redGlow').classList.add('active');
+  }},
+  { time: 4200, fn: () => document.getElementById('alert1').classList.add('show') },
+  { time: 5000, fn: () => document.getElementById('alert2').classList.add('show') },
+  { time: 5800, fn: () => document.getElementById('alert3').classList.add('show') },
+  { time: 6600, fn: () => document.getElementById('alert4').classList.add('show') },
+  { time: 8000, fn: () => document.getElementById('bottomText').classList.add('show') },
+];
+timeline.forEach(t => setTimeout(t.fn, t.time));
+</script>
+</body>
+</html>

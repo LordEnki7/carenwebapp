@@ -1,0 +1,16 @@
+{
+  "id": "@caren/legal",
+  "name": "Legal Module",
+  "version": "1.0.0",
+  "type": "core",
+  "dependencies": [
+    "@caren/core"
+  ],
+  "exports": {
+    "components": [],
+    "hooks": [],
+    "services": []
+  },
+  "routes": [],
+  "permissions": []
+}

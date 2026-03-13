@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clear Authentication - CAREN</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: #111;
+            color: #fff;
+        }
+        .card { 
+            background: #1f1f1f; 
+            padding: 30px; 
+            border-radius: 10px; 
+            border: 1px solid #333;
+        }
+        .btn { 
+            background: #dc2626; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #b91c1c; }
+        .success { color: #10b981; }
+        .info { color: #0ea5e9; }
+        .warning { color: #f59e0b; }
+        .result { 
+            margin-top: 20px; 
+            padding: 15px; 
+            border-radius: 5px; 
+            background: #0f1419;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🔒 Clear Authentication Cache</h1>
+        
+        <p class="warning">⚠️ This will log you out and clear all cached session data.</p>
+        
+        <div id="currentTokens"></div>
+        
+        <button class="btn" onclick="clearAllAuth()">🗑️ Clear All Authentication Data</button>
+        <button class="btn" onclick="checkTokens()" style="background: #0ea5e9;">🔍 Check Current Tokens</button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <br><br>
+        
+        <p class="info">After clearing, visit <a href="/" style="color: #0ea5e9;">the homepage</a> to test the sign-in flow.</p>
+    </div>
+
+    <script>
+        function checkTokens() {
+            const tokens = {
+                sessionToken: localStorage.getItem('sessionToken'),
+                customDomainToken: localStorage.getItem('customDomainToken'),
+                demoSessionKey: localStorage.getItem('demoSessionKey'),
+                regularSessionToken: localStorage.getItem('regularSessionToken'),
+                user: localStorage.getItem('user'),
+                isAuthenticated: localStorage.getItem('isAuthenticated')
+            };
+            
+            const activeTokens = Object.entries(tokens).filter(([key, value]) => value !== null);
+            
+            if (activeTokens.length === 0) {
+                showResult('✅ No authentication tokens found.', 'success');
+            } else {
+                const tokenList = activeTokens.map(([key, value]) => 
+                    `${key}: ${value ? value.substring(0, 20) + '...' : 'null'}`
+                ).join('\n');
+                showResult(`Found ${activeTokens.length} tokens:\n\n${tokenList}`, 'warning');
+            }
+        }
+        
+        function clearAllAuth() {
+            // Clear all possible authentication data
+            const keysToRemove = [
+                'sessionToken',
+                'customDomainToken', 
+                'demoSessionKey',
+                'regularSessionToken',
+                'user',
+                'isAuthenticated',
+                'caren_onboarding_state',
+                'adminKey',
+                'adminAuthenticated'
+            ];
+            
+            let clearedCount = 0;
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    clearedCount++;
+                }
+            });
+            
+            // Clear session storage too
+            sessionStorage.clear();
+            
+            showResult(`✅ Authentication cleared! Removed ${clearedCount} items from localStorage and cleared sessionStorage.`, 'success');
+            
+            // Auto-redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 2000);
+        }
+        
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.textContent = message;
+            resultDiv.className = `result ${type}`;
+            resultDiv.style.display = 'block';
+        }
+        
+        // Check tokens on page load
+        window.onload = checkTokens;
+    </script>
+</body>
+</html>

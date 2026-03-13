@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C.A.R.E.N.™ App Store Screenshots</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0a0a0a;
+    color: white;
+  }
+
+  .screenshot {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 40px auto;
+  }
+
+  .screenshot-portrait {
+    width: 1242px;
+    height: 2688px;
+  }
+
+  .bg-gradient-1 {
+    background: linear-gradient(160deg, #0a0e1a 0%, #0d1526 20%, #0a1628 40%, #0f1a2e 60%, #0a0e1a 100%);
+  }
+  .bg-gradient-2 {
+    background: linear-gradient(160deg, #0a0e1a 0%, #1a0a2e 30%, #0d1526 60%, #0a1628 100%);
+  }
+  .bg-gradient-3 {
+    background: linear-gradient(160deg, #0a1a0e 0%, #0a0e1a 30%, #0d1526 60%, #0a2818 100%);
+  }
+  .bg-gradient-4 {
+    background: linear-gradient(160deg, #1a0a0a 0%, #0a0e1a 30%, #261015 60%, #0a0e1a 100%);
+  }
+  .bg-gradient-5 {
+    background: linear-gradient(160deg, #0a0e1a 0%, #0a1a2e 30%, #15202e 60%, #0a0e1a 100%);
+  }
+  .bg-gradient-6 {
+    background: linear-gradient(160deg, #0e0a1a 0%, #1a0e2e 30%, #0a0e1a 60%, #1a0a28 100%);
+  }
+
+  .grid-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(0,255,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  .glow-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+  }
+
+  .headline {
+    font-size: 72px;
+    font-weight: 800;
+    text-align: center;
+    line-height: 1.15;
+    letter-spacing: -1px;
+    padding: 0 80px;
+    z-index: 2;
+  }
+
+  .subheadline {
+    font-size: 38px;
+    font-weight: 400;
+    text-align: center;
+    color: rgba(255,255,255,0.7);
+    padding: 0 100px;
+    line-height: 1.4;
+    margin-top: 30px;
+    z-index: 2;
+  }
+
+  .cyan { color: #00e5ff; }
+  .purple { color: #a855f7; }
+  .green { color: #22c55e; }
+  .red { color: #ef4444; }
+  .yellow { color: #eab308; }
+  .white { color: #ffffff; }
+
+  .phone-frame {
+    position: relative;
+    width: 680px;
+    height: 1380px;
+    border-radius: 60px;
+    border: 4px solid rgba(255,255,255,0.15);
+    background: #0d1117;
+    overflow: hidden;
+    box-shadow: 0 0 80px rgba(0,229,255,0.15), 0 40px 100px rgba(0,0,0,0.5);
+    z-index: 2;
+    margin-top: 60px;
+  }
+
+  .phone-notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 220px;
+    height: 40px;
+    background: #000;
+    border-radius: 0 0 24px 24px;
+    z-index: 10;
+  }
+
+  .phone-screen {
+    width: 100%;
+    height: 100%;
+    padding: 60px 30px 30px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    font-size: 18px;
+    font-weight: 600;
+    color: white;
+  }
+
+  .app-header {
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+
+  .app-header h2 {
+    font-size: 32px;
+    font-weight: 700;
+  }
+
+  .feature-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 20px;
+    padding: 28px;
+    margin: 12px 20px;
+  }
+
+  .feature-card h3 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    font-size: 17px;
+    color: rgba(255,255,255,0.6);
+    line-height: 1.4;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 6px;
+  }
+
+  .badge-cyan { background: rgba(0,229,255,0.15); color: #00e5ff; border: 1px solid rgba(0,229,255,0.3); }
+  .badge-purple { background: rgba(168,85,247,0.15); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+  .badge-green { background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+  .badge-red { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+  .badge-yellow { background: rgba(234,179,8,0.15); color: #eab308; border: 1px solid rgba(234,179,8,0.3); }
+
+  .big-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 28px 40px;
+    border-radius: 20px;
+    font-size: 26px;
+    font-weight: 700;
+    margin: 12px 20px;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-red { background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; }
+  .btn-cyan { background: linear-gradient(135deg, #0891b2, #0e7490); color: white; }
+  .btn-green { background: linear-gradient(135deg, #16a34a, #15803d); color: white; }
+  .btn-purple { background: linear-gradient(135deg, #9333ea, #7e22ce); color: white; }
+
+  .icon-circle {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+  }
+
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px 30px;
+    z-index: 2;
+  }
+
+  .stat-number {
+    font-size: 64px;
+    font-weight: 800;
+  }
+
+  .stat-label {
+    font-size: 28px;
+    color: rgba(255,255,255,0.6);
+  }
+
+  .logo-text {
+    font-size: 48px;
+    font-weight: 900;
+    letter-spacing: 8px;
+    z-index: 2;
+  }
+
+  .logo-subtitle {
+    font-size: 20px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    margin-top: 10px;
+    z-index: 2;
+  }
+
+  .divider {
+    width: 120px;
+    height: 3px;
+    background: linear-gradient(90deg, #00e5ff, #a855f7);
+    margin: 30px auto;
+    border-radius: 2px;
+    z-index: 2;
+  }
+
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 20px;
+  }
+
+  .bottom-bar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: rgba(255,255,255,0.5);
+  }
+
+  .bottom-bar-item.active { color: #00e5ff; }
+
+  .rights-card {
+    background: rgba(0,229,255,0.08);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 16px;
+    padding: 22px;
+    margin: 8px 20px;
+  }
+
+  .rights-card .title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #00e5ff;
+    margin-bottom: 6px;
+  }
+
+  .rights-card .text {
+    font-size: 15px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.4;
+  }
+
+  .pulse-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid rgba(239,68,68,0.4);
+  }
+
+  .location-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(0,229,255,0.1);
+    border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 30px;
+    padding: 10px 22px;
+    font-size: 18px;
+    color: #00e5ff;
+    margin-bottom: 16px;
+  }
+
+  .recording-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #ef4444;
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  .red-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #ef4444;
+  }
+
+  .attorney-card {
+    background: rgba(168,85,247,0.08);
+    border: 1px solid rgba(168,85,247,0.2);
+    border-radius: 16px;
+    padding: 22px;
+    margin: 8px 20px;
+    display: flex;
+    gap: 16px;
+  }
+
+  .attorney-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #a855f7, #7c3aed);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .stars { color: #eab308; font-size: 16px; }
+
+  .screenshot-label {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.8);
+    color: #00e5ff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 100;
+  }
+</style>
+</head>
+<body>
+
+<!-- SCREENSHOT 1: Hero / Welcome -->
+<div id="screenshot-1" class="screenshot screenshot-portrait bg-gradient-1">
+  <div class="grid-overlay"></div>
+  <div class="glow-circle" style="width:600px;height:600px;background:#00e5ff;top:-100px;right:-200px;"></div>
+  <div class="glow-circle" style="width:500px;height:500px;background:#a855f7;bottom:200px;left:-200px;"></div>
+  <div class="screenshot-label">1 - Hero</div>
+
+  <div style="height:120px;"></div>
+
+  <div class="logo-text cyan">C.A.R.E.N.™</div>
+  <div class="logo-subtitle">Citizen Assistance for Roadside Emergencies</div>
+
+  <div class="divider"></div>
+
+  <div class="headline">
+    Your <span class="cyan">Rights.</span><br>
+    Your <span class="purple">Safety.</span><br>
+    Your Hands on the Wheel.
+  </div>
+
+  <div class="subheadline">
+    AI-powered legal protection for every driver, every stop, every state.
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;padding:0 60px;z-index:2;">
+    <span class="badge badge-cyan">🛡️ 50-State Legal Rights</span>
+    <span class="badge badge-purple">🤖 AI Legal Assistant</span>
+    <span class="badge badge-green">🎙️ Voice Commands</span>
+    <span class="badge badge-red">🆘 Emergency SOS</span>
+    <span class="badge badge-yellow">⚖️ Attorney Connect</span>
+    <span class="badge badge-cyan">📍 GPS-Enabled</span>
+  </div>
+
+  <div style="height:80px;"></div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:linear-gradient(180deg, #0a0e1a, #0d1526);">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>⚡ 📶</span>
+      </div>
+      <div class="app-header">
+        <h2><span class="cyan">C.A.R.E.N.™</span> Dashboard</h2>
+      </div>
+      <div class="location-pill" style="align-self:center;">📍 Cleveland, Ohio</div>
+      <div class="big-button btn-red">🆘 Emergency SOS</div>
+      <div class="big-button btn-cyan">🎬 Record Encounter</div>
+      <div class="big-button btn-green">📋 My Legal Rights</div>
+      <div style="height:20px;"></div>
+      <div class="feature-card">
+        <h3 class="cyan">⚡ Quick Actions</h3>
+        <p>Voice commands, Bluetooth hands-free, family notifications — all ready when you need them most.</p>
+      </div>
+      <div class="bottom-bar">
+        <div class="bottom-bar-item active">🏠 Home</div>
+        <div class="bottom-bar-item">⚖️ Rights</div>
+        <div class="bottom-bar-item">🎙️ Record</div>
+        <div class="bottom-bar-item">👤 Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- SCREENSHOT 2: GPS Legal Rights -->
+<div id="screenshot-2" class="screenshot screenshot-portrait bg-gradient-2">
+  <div class="grid-overlay"></div>
+  <div class="glow-circle" style="width:500px;height:500px;background:#a855f7;top:100px;left:-150px;"></div>
+  <div class="glow-circle" style="width:400px;height:400px;background:#00e5ff;bottom:400px;right:-100px;"></div>
+  <div class="screenshot-label">2 - GPS Rights</div>
+
+  <div style="height:120px;"></div>
+
+  <div class="headline">
+    Know Your <span class="cyan">Exact Rights</span><br>
+    Based on Your <span class="purple">Location</span>
+  </div>
+
+  <div class="subheadline">
+    467+ legal protections across all 50 states + DC.<br>Real statutes. Real case law. Real protection.
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:linear-gradient(180deg, #0a0e1a, #0d1526);">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>📍 📶</span>
+      </div>
+      <div class="app-header">
+        <h2>⚖️ Your Rights in <span class="cyan">Ohio</span></h2>
+      </div>
+      <div class="location-pill" style="align-self:center;">📍 Cuyahoga County, OH</div>
+
+      <div class="rights-card">
+        <div class="title">🚗 Traffic Stops</div>
+        <div class="text">You must provide license, registration & insurance. You do NOT have to answer questions about where you're going. Ohio Rev. Code § 4549.02</div>
+      </div>
+      <div class="rights-card">
+        <div class="title">📹 Recording Rights</div>
+        <div class="text">Ohio is a one-party consent state. You may legally record police officers performing their duties in public. State v. Bock (2017)</div>
+      </div>
+      <div class="rights-card">
+        <div class="title">🔍 Search & Seizure</div>
+        <div class="text">Officers cannot search your vehicle without probable cause, a warrant, or your consent. You have the right to refuse a search. Ohio Rev. Code § 2933.51</div>
+      </div>
+      <div class="rights-card">
+        <div class="title">🛡️ Police Accountability</div>
+        <div class="text">Officers must identify themselves when asked. You have the right to file complaints with Internal Affairs. Cleveland Municipal Code § 623.01</div>
+      </div>
+      <div class="rights-card">
+        <div class="title">📱 Phone Privacy</div>
+        <div class="text">Police need a warrant to search your phone, per Riley v. California (2014). Do not unlock your device voluntarily.</div>
+      </div>
+
+      <div class="bottom-bar">
+        <div class="bottom-bar-item">🏠 Home</div>
+        <div class="bottom-bar-item active">⚖️ Rights</div>
+        <div class="bottom-bar-item">🎙️ Record</div>
+        <div class="bottom-bar-item">👤 Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- SCREENSHOT 3: Emergency SOS -->
+<div id="screenshot-3" class="screenshot screenshot-portrait bg-gradient-4">
+  <div class="grid-overlay"></div>
+  <div class="glow-circle" style="width:600px;height:600px;background:#ef4444;top:200px;left:50%;transform:translateX(-50%);"></div>
+  <div class="screenshot-label">3 - Emergency SOS</div>
+
+  <div style="height:120px;"></div>
+
+  <div class="headline">
+    One Tap.<br>
+    <span class="red">Instant</span> Protection.
+  </div>
+
+  <div class="subheadline">
+    Emergency SOS activates recording, notifies your contacts, and connects your attorney — all at once.
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:linear-gradient(180deg, #1a0505, #0d0808);">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>🔴 📶</span>
+      </div>
+
+      <div style="text-align:center;padding:20px;">
+        <div class="recording-indicator" style="justify-content:center;">
+          <div class="red-dot"></div>
+          <span>EMERGENCY ACTIVE</span>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;align-items:center;position:relative;height:300px;">
+        <div style="width:200px;height:200px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#991b1b);display:flex;align-items:center;justify-content:center;font-size:80px;box-shadow:0 0 60px rgba(239,68,68,0.4);">
+          🆘
+        </div>
+        <div class="pulse-ring" style="width:260px;height:260px;top:20px;left:50%;transform:translateX(-50%);"></div>
+        <div class="pulse-ring" style="width:320px;height:320px;top:-10px;left:50%;transform:translateX(-50%);opacity:0.5;"></div>
+      </div>
+
+      <div class="feature-card" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">
+        <h3 class="red">✅ Recording Started</h3>
+        <p>Audio + Video • GPS: 41.4993° N, 81.6944° W</p>
+      </div>
+      <div class="feature-card" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">
+        <h3 class="red">✅ Contacts Notified</h3>
+        <p>3 emergency contacts alerted via SMS & email</p>
+      </div>
+      <div class="feature-card" style="border-color:rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);">
+        <h3 class="red">✅ Attorney Connected</h3>
+        <p>Live stream active • Sarah Mitchell, Esq.</p>
+      </div>
+      <div class="feature-card" style="border-color:rgba(34,197,94,0.3);background:rgba(34,197,94,0.08);">
+        <h3 class="green">🎤 Voice Commands Active</h3>
+        <p>Say "I need help" or "Call my lawyer" for hands-free control</p>
+      </div>
+
+      <div class="bottom-bar" style="background:rgba(100,0,0,0.5);">
+        <div class="bottom-bar-item">🏠 Home</div>
+        <div class="bottom-bar-item">⚖️ Rights</div>
+        <div class="bottom-bar-item active" style="color:#ef4444;">🆘 SOS</div>
+        <div class="bottom-bar-item">👤 Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- SCREENSHOT 4: AI Voice Coaching -->
+<div id="screenshot-4" class="screenshot screenshot-portrait bg-gradient-3">
+  <div class="grid-overlay"></div>
+  <div class="glow-circle" style="width:500px;height:500px;background:#22c55e;top:100px;right:-100px;"></div>
+  <div class="glow-circle" style="width:400px;height:400px;background:#00e5ff;bottom:300px;left:-100px;"></div>
+  <div class="screenshot-label">4 - AI Voice Coaching</div>
+
+  <div style="height:120px;"></div>
+
+  <div class="headline">
+    <span class="green">AI Voice Coach</span><br>
+    Guides You in Real Time
+  </div>
+
+  <div class="subheadline">
+    Calm, clear guidance during traffic stops.<br>Spoken instructions. Risk assessment. De-escalation tips.
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:linear-gradient(180deg, #0a1a0e, #0d1526);">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>🎤 📶</span>
+      </div>
+      <div class="app-header">
+        <h2>🤖 <span class="green">AI Voice Coach</span></h2>
+      </div>
+
+      <div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:22px;margin:8px 20px;text-align:center;">
+        <div style="font-size:16px;color:rgba(255,255,255,0.5);margin-bottom:4px;">RISK LEVEL</div>
+        <div style="font-size:36px;font-weight:800;color:#22c55e;">LOW</div>
+        <div style="font-size:14px;color:rgba(255,255,255,0.5);margin-top:4px;">Routine traffic stop detected</div>
+      </div>
+
+      <div style="padding:20px;">
+        <div style="background:rgba(34,197,94,0.08);border-left:3px solid #22c55e;border-radius:0 12px 12px 0;padding:18px;margin-bottom:12px;">
+          <div style="font-size:14px;color:#22c55e;font-weight:600;margin-bottom:4px;">🤖 AI COACH</div>
+          <div style="font-size:17px;color:rgba(255,255,255,0.85);line-height:1.4;">Keep your hands visible on the steering wheel. Wait for the officer to speak first. You're doing great.</div>
+        </div>
+        <div style="background:rgba(0,229,255,0.08);border-left:3px solid #00e5ff;border-radius:0 12px 12px 0;padding:18px;margin-bottom:12px;">
+          <div style="font-size:14px;color:#00e5ff;font-weight:600;margin-bottom:4px;">⚖️ YOUR RIGHTS</div>
+          <div style="font-size:17px;color:rgba(255,255,255,0.85);line-height:1.4;">In Ohio, you must provide license and registration. You are NOT required to answer questions about where you're going.</div>
+        </div>
+        <div style="background:rgba(34,197,94,0.08);border-left:3px solid #22c55e;border-radius:0 12px 12px 0;padding:18px;margin-bottom:12px;">
+          <div style="font-size:14px;color:#22c55e;font-weight:600;margin-bottom:4px;">🤖 AI COACH</div>
+          <div style="font-size:17px;color:rgba(255,255,255,0.85);line-height:1.4;">If asked to search your vehicle, you can calmly say: "I do not consent to searches." This is your constitutional right.</div>
+        </div>
+        <div style="background:rgba(168,85,247,0.08);border-left:3px solid #a855f7;border-radius:0 12px 12px 0;padding:18px;margin-bottom:12px;">
+          <div style="font-size:14px;color:#a855f7;font-weight:600;margin-bottom:4px;">💡 DE-ESCALATION TIP</div>
+          <div style="font-size:17px;color:rgba(255,255,255,0.85);line-height:1.4;">Speak slowly and clearly. Use "sir" or "ma'am." Avoid sudden movements. Stay calm — you are protected.</div>
+        </div>
+      </div>
+
+      <div class="big-button btn-green" style="margin-top:auto;margin-bottom:120px;">
+        🎤 Listening for voice commands...
+      </div>
+
+      <div class="bottom-bar">
+        <div class="bottom-bar-item">🏠 Home</div>
+        <div class="bottom-bar-item">⚖️ Rights</div>
+        <div class="bottom-bar-item active" style="color:#22c55e;">🤖 Coach</div>
+        <div class="bottom-bar-item">👤 Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- SCREENSHOT 5: Attorney Connect -->
+<div id="screenshot-5" class="screenshot screenshot-portrait bg-gradient-5">
+  <div class="grid-overlay"></div>
+  <div class="glow-circle" style="width:500px;height:500px;background:#a855f7;top:200px;right:-100px;"></div>
+  <div class="glow-circle" style="width:400px;height:400px;background:#0ea5e9;bottom:400px;left:-150px;"></div>
+  <div class="screenshot-label">5 - Attorney Connect</div>
+
+  <div style="height:120px;"></div>
+
+  <div class="headline">
+    <span class="purple">Attorney Connect</span><br>
+    Help When You Need It
+  </div>
+
+  <div class="subheadline">
+    AI matches you with the right attorney for your situation. Chat securely. Stream live during encounters.
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div class="phone-frame">
+    <div class="phone-notch"></div>
+    <div class="phone-screen" style="background:linear-gradient(180deg, #0e0a1a, #0d1526);">
+      <div class="status-bar">
+        <span>9:41</span>
+        <span>🔒 📶</span>
+      </div>
+      <div class="app-header">
+        <h2>⚖️ <span class="purple">Attorney Match</span></h2>
+      </div>
+      <div class="location-pill" style="align-self:center;background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.2);color:#a855f7;">📍 Near Cleveland, OH</div>
+
+      <div class="attorney-card">
+        <div class="attorney-avatar">SM</div>
+        <div>
+          <div style="font-size:20px;font-weight:700;">Sarah Mitchell, Esq.</div>
+          <div style="font-size:15px;color:rgba(255,255,255,0.5);margin:4px 0;">Civil Rights • Traffic Law</div>
+          <div class="stars">★★★★★ <span style="color:rgba(255,255,255,0.5);font-size:14px;">4.9 (127 reviews)</span></div>
+          <div style="font-size:14px;color:#22c55e;margin-top:4px;">● Available Now</div>
+        </div>
+      </div>
+      <div class="attorney-card">
+        <div class="attorney-avatar" style="background:linear-gradient(135deg,#0ea5e9,#0284c7);">JR</div>
+        <div>
+          <div style="font-size:20px;font-weight:700;">James Rodriguez, Esq.</div>
+          <div style="font-size:15px;color:rgba(255,255,255,0.5);margin:4px 0;">Criminal Defense • DUI</div>
+          <div class="stars">★★★★★ <span style="color:rgba(255,255,255,0.5);font-size:14px;">4.8 (94 reviews)</span></div>
+          <div style="font-size:14px;color:#22c55e;margin-top:4px;">● Available Now</div>
+        </div>
+      </div>
+      <div class="attorney-card">
+        <div class="attorney-avatar" style="background:linear-gradient(135deg,#22c55e,#16a34a);">KW</div>
+        <div>
+          <div style="font-size:20px;font-weight:700;">Karen Washington, Esq.</div>
+          <div style="font-size:15px;color:rgba(255,255,255,0.5);margin:4px 0;">Police Misconduct • Civil Litigation</div>
+          <div class="stars">★★★★☆ <span style="color:rgba(255,255,255,0.5);font-size:14px;">4.7 (83 reviews)</span></div>
+          <div style="font-size:14px;color:#eab308;margin-top:4px;">● Busy — responds within 1hr</div>
+        </div>
+      </div>
+
+      <div class="feature-card" style="border-color:rgba(168,85,247,0.3);background:rgba(168,85,247,0.08);">
+        <h3 class="purple">🔒 End-to-End Encrypted</h3>
+        <p>All attorney communications are secured with AES-256-GCM encryption. Attorney-client privilege protected.</p>
+      </div>
+
+      <div class="big-button btn-purple" style="margin-bottom:120px;">💬 Start Secure Chat</div>
+
+      <div class="bottom-bar">
+        <div class="bottom-bar-item">🏠 Home</div>
+        <div class="bottom-bar-item">⚖️ Rights</div>
+        <div class="bottom-bar-item active" style="color:#a855f7;">👨‍⚖️ Attorney</div>
+        <div class="bottom-bar-item">👤 Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+<!-- SCREENSHOT 6: All Features Overview -->
+<div id="screenshot-6" class="screenshot screenshot-portrait bg-gradient-6">
+  <div class="grid-overlay"></div>
+  <div class="glow-circle" style="width:500px;height:500px;background:#a855f7;top:0;left:-100px;"></div>
+  <div class="glow-circle" style="width:500px;height:500px;background:#00e5ff;bottom:200px;right:-100px;"></div>
+  <div class="screenshot-label">6 - Features</div>
+
+  <div style="height:120px;"></div>
+
+  <div class="logo-text cyan">C.A.R.E.N.™</div>
+  <div class="divider"></div>
+
+  <div class="headline">
+    <span class="cyan">8 AI-Powered</span> Features<br>
+    Built to <span class="purple">Protect</span> You
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 80px;z-index:2;">
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">🤖</div>
+      <h3 class="cyan" style="font-size:20px;">AI Legal Assistant</h3>
+      <p style="font-size:15px;">Quick answers about your rights in plain language</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">🎤</div>
+      <h3 class="green" style="font-size:20px;">Voice Coaching</h3>
+      <p style="font-size:15px;">Real-time spoken guidance during encounters</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">🚨</div>
+      <h3 class="red" style="font-size:20px;">Smart Detection</h3>
+      <p style="font-size:15px;">AI-powered distress signal analysis</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">📝</div>
+      <h3 class="purple" style="font-size:20px;">Incident Reports</h3>
+      <p style="font-size:15px;">Auto-generated comprehensive summaries</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">🌍</div>
+      <h3 class="yellow" style="font-size:20px;">15+ Languages</h3>
+      <p style="font-size:15px;">Legal translation with glossary support</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">⚖️</div>
+      <h3 class="purple" style="font-size:20px;">Attorney Match</h3>
+      <p style="font-size:15px;">AI-matched attorneys for your case</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">🔍</div>
+      <h3 class="cyan" style="font-size:20px;">Recording Analysis</h3>
+      <p style="font-size:15px;">AI finds key moments & violations</p>
+    </div>
+    <div class="feature-card" style="text-align:center;">
+      <div style="font-size:48px;margin-bottom:12px;">📄</div>
+      <h3 class="green" style="font-size:20px;">Legal Documents</h3>
+      <p style="font-size:15px;">Auto-generate FOIA requests & complaints</p>
+    </div>
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div style="display:flex;justify-content:center;gap:40px;z-index:2;">
+    <div style="text-align:center;">
+      <div class="stat-number cyan">50+</div>
+      <div class="stat-label">States Covered</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="stat-number purple">467+</div>
+      <div class="stat-label">Legal Protections</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="stat-number green">200+</div>
+      <div class="stat-label">Voice Commands</div>
+    </div>
+  </div>
+
+  <div style="height:60px;"></div>
+
+  <div class="subheadline" style="font-size:32px;font-weight:600;color:white;">
+    Download Free. Stay Protected.
+  </div>
+  <div class="subheadline" style="margin-top:10px;font-size:24px;">
+    Starting at just $1
+  </div>
+
+  <div style="height:80px;"></div>
+</div>
+
+</body>
+</html>

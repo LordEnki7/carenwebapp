@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAREN Admin Access</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: #111;
+            color: #fff;
+        }
+        .card { 
+            background: #1f1f1f; 
+            padding: 30px; 
+            border-radius: 10px; 
+            border: 1px solid #333;
+        }
+        .btn { 
+            background: #0ea5e9; 
+            color: white; 
+            padding: 15px 30px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        .btn:hover { background: #0284c7; }
+        .response { 
+            background: #0f1419; 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin-top: 20px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🛡️ CAREN Admin Dashboard Access</h1>
+        
+        <p><strong>Admin Key:</strong> CAREN_ADMIN_2025_PRODUCTION</p>
+        
+        <h3>Access Options:</h3>
+        
+        <button class="btn" onclick="openAdmin()">🖥️ Open Admin Dashboard</button>
+        <button class="btn" onclick="fetchStats()">📊 Get User Stats</button>
+        <button class="btn" onclick="fetchSessions()">👥 Get Login Sessions</button>
+        
+        <div id="response" class="response" style="display: none;"></div>
+    </div>
+
+    <script>
+        const ADMIN_TOKEN = 'CAREN_ADMIN_2025_PRODUCTION';
+        
+        function openAdmin() {
+            localStorage.setItem('adminKey', ADMIN_TOKEN);
+            window.open('/admin', '_blank');
+        }
+        
+        async function fetchStats() {
+            try {
+                const response = await fetch('/api/admin/user-stats', {
+                    headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` }
+                });
+                const data = await response.json();
+                showResponse('User Statistics:', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('Error:', error.message);
+            }
+        }
+        
+        async function fetchSessions() {
+            try {
+                const response = await fetch('/api/admin/sessions', {
+                    headers: { 'Authorization': `Bearer ${ADMIN_TOKEN}` }
+                });
+                const data = await response.json();
+                showResponse('Login Sessions:', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('Error:', error.message);
+            }
+        }
+        
+        function showResponse(title, content) {
+            const responseDiv = document.getElementById('response');
+            responseDiv.textContent = `${title}\n\n${content}`;
+            responseDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

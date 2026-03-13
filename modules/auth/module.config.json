@@ -1,0 +1,16 @@
+{
+  "id": "@caren/auth",
+  "name": "Auth Module",
+  "version": "1.0.0",
+  "type": "core",
+  "dependencies": [
+    "@caren/core"
+  ],
+  "exports": {
+    "components": ["LoginForm", "AuthProvider"],
+    "hooks": ["useAuth", "clearAllSessionData", "performLogout"],
+    "services": ["AuthService"]
+  },
+  "routes": [],
+  "permissions": []
+}

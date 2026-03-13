@@ -1,0 +1,412 @@
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { Check, CreditCard, ArrowLeft, Shield, Zap, Users, Building, Home, RotateCcw, Smartphone } from "lucide-react";
+import { Link } from "wouter";
+import iapService, { type PlanId } from "@/lib/iapService";
+
+interface Plan {
+  id: string;
+  name: string;
+  price: number;
+  description: string;
+  features: string[];
+  icon: any;
+  color: string;
+}
+
+const plans: Record<string, Plan> = {
+  legal_shield: {
+    id: "legal_shield",
+    name: "Legal Shield",
+    price: 9.99,
+    description: "Essential constitutional protection for individual drivers",
+    features: [
+      "GPS-aware legal rights database",
+      "Voice-activated constitutional rights",
+      "Basic incident recording",
+      "Emergency contact notifications",
+      "Standard legal consultation",
+      "50-state legal coverage"
+    ],
+    icon: Shield,
+    color: "from-blue-500 to-cyan-500"
+  },
+  constitutional_pro: {
+    id: "constitutional_pro", 
+    name: "Constitutional Pro",
+    price: 19.99,
+    description: "Advanced legal protection with AI-powered assistance",
+    features: [
+      "Everything in Legal Shield",
+      "AI legal assistant & analysis",
+      "Live attorney communication",
+      "Advanced voice commands",
+      "Multi-device sync",
+      "Evidence catalog",
+      "Priority support",
+      "Complaint filing system"
+    ],
+    icon: Zap,
+    color: "from-purple-500 to-pink-500"
+  },
+  family_protection: {
+    id: "family_protection",
+    name: "Family Protection", 
+    price: 29.99,
+    description: "Comprehensive protection for up to 6 family members",
+    features: [
+      "Everything in Constitutional Pro",
+      "Up to 6 family accounts",
+      "Family emergency coordination",
+      "Teen driver protection",
+      "Cross-device recording sync",
+      "Family location sharing",
+      "Bulk evidence management",
+      "Family-wide notifications"
+    ],
+    icon: Users,
+    color: "from-green-500 to-emerald-500"
+  },
+  enterprise_fleet: {
+    id: "enterprise_fleet",
+    name: "Enterprise Fleet",
+    price: 49.99,
+    description: "Professional fleet management for up to 5 business users",
+    features: [
+      "Everything in Family Protection",
+      "Business fleet management",
+      "Employee protection tracking",
+      "Corporate legal compliance",
+      "Fleet-wide incident reporting",
+      "Administrative dashboard",
+      "API access",
+      "Dedicated support"
+    ],
+    icon: Building,
+    color: "from-orange-500 to-red-500"
+  },
+  // Legacy support for old plan IDs
+  basic: {
+    id: "basic",
+    name: "Legal Shield",
+    price: 9.99,
+    description: "Essential constitutional protection for individual drivers",
+    features: [
+      "GPS-aware legal rights database",
+      "Voice-activated constitutional rights",
+      "Basic incident recording",
+      "Emergency contact notifications",
+      "Standard legal consultation",
+      "50-state legal coverage"
+    ],
+    icon: Shield,
+    color: "from-blue-500 to-cyan-500"
+  }
+};
+
+const IAP_PLAN_MAP: Record<string, PlanId> = {
+  legal_shield: 'safety_pro',
+  constitutional_pro: 'constitutional_pro',
+  family_protection: 'family_protection',
+  enterprise_fleet: 'enterprise_fleet',
+  basic: 'safety_pro',
+};
+
+export default function Payment() {
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [planId, setPlanId] = useState<string>('');
+  const [isNativeApp, setIsNativeApp] = useState(false);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedPlan = urlParams.get('plan') || 'basic';
+    setPlanId(selectedPlan);
+    setIsNativeApp(iapService.isAvailable());
+    setLoading(false);
+  }, []);
+
+  const selectedPlan = plans[planId];
+
+  const handleIAPPurchase = async () => {
+    if (!selectedPlan) return;
+
+    const iapPlanId = IAP_PLAN_MAP[planId];
+    if (!iapPlanId) {
+      toast({ title: "Error", description: "This plan is not available for in-app purchase.", variant: "destructive" });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const transaction = await iapService.purchase(iapPlanId);
+      if (transaction) {
+        toast({ title: "Purchase Complete!", description: `You now have ${selectedPlan.name} protection.` });
+        setLocation('/dashboard');
+      }
+    } catch (error: any) {
+      toast({ title: "Purchase Failed", description: error.message || "Please try again.", variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleRestorePurchases = async () => {
+    setIsRestoring(true);
+    try {
+      const transactions = await iapService.restorePurchases();
+      if (transactions.length > 0) {
+        toast({ title: "Purchases Restored", description: "Your previous purchases have been restored." });
+        setLocation('/dashboard');
+      } else {
+        toast({ title: "No Purchases Found", description: "No previous purchases were found for your account." });
+      }
+    } catch (error: any) {
+      toast({ title: "Restore Failed", description: error.message || "Please try again.", variant: "destructive" });
+    } finally {
+      setIsRestoring(false);
+    }
+  };
+
+  const handlePayment = async () => {
+    if (!selectedPlan) return;
+
+    if (isNativeApp) {
+      return handleIAPPurchase();
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      const paymentData = {
+        planId: selectedPlan.id,
+        planName: selectedPlan.name,
+        amount: Math.round(selectedPlan.price * 100)
+      };
+      
+      const response = await apiRequest("POST", "/api/subscription/create-checkout-session", paymentData);
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.sessionUrl) {
+          toast({ title: "Redirecting to Payment", description: "Opening secure Stripe checkout page..." });
+          
+          const newWindow = window.open(data.sessionUrl, '_blank');
+          if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+            setTimeout(() => { window.location.href = data.sessionUrl; }, 1000);
+          }
+        } else {
+          throw new Error('No session URL returned from server');
+        }
+      } else {
+        const errorData = await response.text();
+        throw new Error(`Server error: ${response.status} - ${errorData}`);
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      toast({ title: "Payment Error", description: `Unable to process payment: ${errorMessage}. Please try again or contact support.`, variant: "destructive" });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+
+
+  if (loading) return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 flex items-center justify-center">
+      <div className="animate-spin w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full" />
+    </div>
+  );
+
+  if (!selectedPlan) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">Plan not found</h1>
+            <Link href="/pricing">
+              <Button>Back to Pricing</Button>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const IconComponent = selectedPlan.icon;
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white p-6">
+      <div className="max-w-4xl mx-auto">
+        {/* Header with Back Button */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
+              Complete Your Subscription
+            </h1>
+            <p className="text-gray-300 text-lg">
+              Secure your legal protection with {selectedPlan.name}
+            </p>
+          </div>
+          <div className="flex gap-4">
+            <Link href="/pricing">
+              <Button variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Plans
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button variant="outline" className="border-green-500/30 text-green-400 hover:bg-green-500/10">
+                <Home className="w-4 h-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Plan Summary */}
+          <Card className="bg-gray-800/50 border-cyan-500/30">
+            <CardHeader>
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-full bg-gradient-to-r ${selectedPlan.color}`}>
+                  <IconComponent className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl text-white">{selectedPlan.name}</CardTitle>
+                  <CardDescription className="text-gray-300">
+                    {selectedPlan.description}
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="text-center py-4">
+                <div className="text-4xl font-bold text-cyan-400">
+                  ${selectedPlan.price}
+                </div>
+                <div className="text-gray-400">per month</div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="font-semibold text-white">What's included:</h4>
+                {selectedPlan.features.map((feature, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <span className="text-gray-300">{feature}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Form */}
+          <Card className="bg-gray-800/50 border-purple-500/30">
+            <CardHeader>
+              <CardTitle className="text-purple-400 flex items-center">
+                <CreditCard className="w-5 h-5 mr-2" />
+                Payment Method
+              </CardTitle>
+              <CardDescription>
+                Secure payment processing powered by Stripe
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="p-4 bg-blue-900/30 rounded-lg border border-blue-500/30">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Shield className="w-5 h-5 text-blue-400" />
+                    <span className="font-medium text-blue-400">Secure Payment</span>
+                  </div>
+                  <p className="text-sm text-gray-300">
+                    Your payment information is encrypted and processed securely through Stripe.
+                    We never store your credit card details.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <Badge variant="outline" className="border-green-500/30 text-green-400">
+                    ✓ 30-day money-back guarantee
+                  </Badge>
+                  <Badge variant="outline" className="border-cyan-500/30 text-cyan-400">
+                    ✓ Cancel anytime
+                  </Badge>
+                  <Badge variant="outline" className="border-purple-500/30 text-purple-400">
+                    ✓ Instant activation
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {isNativeApp && (
+                  <div className="p-3 bg-green-900/30 rounded-lg border border-green-500/30 mb-2">
+                    <div className="flex items-center gap-2">
+                      <Smartphone className="w-4 h-4 text-green-400" />
+                      <span className="text-sm text-green-400 font-medium">In-App Purchase via Apple</span>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  onClick={handlePayment}
+                  className="w-full h-12 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? (
+                    "Processing..."
+                  ) : (
+                    <>
+                      {isNativeApp ? <Smartphone className="w-4 h-4 mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                      {isNativeApp ? `Subscribe - $${selectedPlan.price}/month` : `Pay $${selectedPlan.price}/month`}
+                    </>
+                  )}
+                </Button>
+
+                {isNativeApp && (
+                  <Button
+                    onClick={handleRestorePurchases}
+                    variant="outline"
+                    className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                    disabled={isRestoring}
+                  >
+                    <RotateCcw className={`w-4 h-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
+                    {isRestoring ? 'Restoring...' : 'Restore Purchases'}
+                  </Button>
+                )}
+
+                <p className="text-xs text-gray-500 text-center">
+                  By continuing, you agree to our Terms of Service and Privacy Policy.
+                  Your subscription will automatically renew monthly.
+                  {isNativeApp && ' Payment will be charged to your Apple ID account.'}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Support Information */}
+        <Card className="mt-8 bg-gray-800/30 border-gray-600/30">
+          <CardContent className="p-6">
+            <div className="text-center text-gray-400">
+              <p className="text-sm">
+                Need help? Contact our support team at{" "}
+                <a href="https://carenalert.com/help" className="text-cyan-400 hover:text-cyan-300">
+                  carenalert.com/help
+                </a>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

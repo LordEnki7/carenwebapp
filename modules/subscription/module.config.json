@@ -1,0 +1,13 @@
+{
+  "id": "@caren/subscription",
+  "name": "Subscription Feature",
+  "version": "1.0.0",
+  "type": "feature",
+  "dependencies": [
+    "@caren/core"
+  ],
+  "exports": {
+    "components": [],
+    "hooks": []
+  }
+}

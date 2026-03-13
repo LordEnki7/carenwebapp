@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAREN Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {}
+      }
+    }
+  </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+  <div class="container mx-auto p-6">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold mb-4">CAREN Admin Dashboard</h1>
+      <p class="text-gray-300">User Login Tracking & Session Analytics</p>
+      <div class="mt-4 p-3 bg-yellow-900/30 border border-yellow-600 rounded-lg">
+        <p class="text-yellow-300 font-semibold">💰 Payment Tracking Available!</p>
+        <p class="text-yellow-200 text-sm">After login, click the "Payment Tracking" tab to view revenue data</p>
+        <p class="text-xs text-yellow-400">Updated: Jan 10, 2025 6:47 PM</p>
+      </div>
+    </div>
+
+    <!-- Admin Key Input -->
+    <div id="admin-auth" class="max-w-md mx-auto bg-gray-800 p-6 rounded-lg">
+      <h2 class="text-xl font-semibold mb-4">Admin Authentication</h2>
+      <div class="space-y-4">
+        <input 
+          type="password" 
+          id="admin-key" 
+          placeholder="Enter admin key"
+          class="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600 focus:border-blue-500 focus:outline-none"
+        >
+        <button 
+          onclick="authenticateAdmin()"
+          class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded font-semibold"
+        >
+          Access Dashboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div id="dashboard-content" class="hidden">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">Total Users</h3>
+          <p class="text-3xl font-bold text-blue-400" id="total-users">-</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">Active Users</h3>
+          <p class="text-3xl font-bold text-green-400" id="active-users">-</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">Total Logins</h3>
+          <p class="text-3xl font-bold text-yellow-400" id="total-logins">-</p>
+        </div>
+        <div class="bg-gray-800 p-6 rounded-lg">
+          <h3 class="text-lg font-semibold mb-2">Avg Session</h3>
+          <p class="text-3xl font-bold text-purple-400" id="avg-session">-</p>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="bg-gray-800 rounded-lg overflow-hidden">
+        <div class="flex border-b border-gray-700">
+          <button 
+            onclick="showTab('analytics')"
+            id="analytics-tab"
+            class="px-6 py-3 font-semibold bg-blue-600 text-white"
+          >
+            User Analytics
+          </button>
+          <button 
+            onclick="showTab('sessions')"
+            id="sessions-tab"
+            class="px-6 py-3 font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600"
+          >
+            Live Sessions
+          </button>
+          <button 
+            onclick="showTab('payments')"
+            id="payments-tab"
+            class="px-6 py-3 font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600"
+          >
+            Payment Tracking
+          </button>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics-content" class="p-6">
+          <h3 class="text-xl font-semibold mb-4">User Statistics</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h4 class="font-semibold mb-2">User Types</h4>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span>Demo Users:</span>
+                  <span id="demo-users" class="font-semibold text-blue-400">-</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Regular Users:</span>
+                  <span id="regular-users" class="font-semibold text-green-400">-</span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <h4 class="font-semibold mb-2">Activity</h4>
+              <div class="space-y-2">
+                <div class="flex justify-between">
+                  <span>Users Today:</span>
+                  <span id="users-today" class="font-semibold text-yellow-400">-</span>
+                </div>
+                <div class="flex justify-between">
+                  <span>Users This Week:</span>
+                  <span id="users-week" class="font-semibold text-purple-400">-</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sessions Tab -->
+        <div id="sessions-content" class="p-6 hidden">
+          <h3 class="text-xl font-semibold mb-4">Live User Sessions</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-700">
+                  <th class="text-left py-2">User</th>
+                  <th class="text-left py-2">Status</th>
+                  <th class="text-left py-2">Login Count</th>
+                  <th class="text-left py-2">Method</th>
+                  <th class="text-left py-2">Last Login</th>
+                </tr>
+              </thead>
+              <tbody id="sessions-table">
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-gray-400">Loading sessions...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div id="payments-content" class="p-6 hidden">
+          <h3 class="text-xl font-semibold mb-4">Payment Tracking</h3>
+          
+          <!-- Payment Summary Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <h4 class="font-semibold text-green-400">Monthly Subscribers</h4>
+              <p class="text-2xl font-bold" id="monthly-subscribers">-</p>
+              <p class="text-sm text-gray-400">Recurring revenue</p>
+            </div>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <h4 class="font-semibold text-blue-400">One-time Payments</h4>
+              <p class="text-2xl font-bold" id="onetime-payers">-</p>
+              <p class="text-sm text-gray-400">Lifetime purchases</p>
+            </div>
+            <div class="bg-gray-700 p-4 rounded-lg">
+              <h4 class="font-semibold text-yellow-400">Total Revenue</h4>
+              <p class="text-2xl font-bold" id="total-revenue">-</p>
+              <p class="text-sm text-gray-400">All-time earnings</p>
+            </div>
+          </div>
+
+          <!-- Payment Details Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="border-b border-gray-700">
+                  <th class="text-left py-2">User</th>
+                  <th class="text-left py-2">Payment Type</th>
+                  <th class="text-left py-2">Total Paid</th>
+                  <th class="text-left py-2">Monthly Amount</th>
+                  <th class="text-left py-2">Last Payment</th>
+                  <th class="text-left py-2">Status</th>
+                </tr>
+              </thead>
+              <tbody id="payments-table">
+                <tr>
+                  <td colspan="6" class="text-center py-4 text-gray-400">Loading payment data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto Refresh Info -->
+      <div class="mt-4 text-center text-gray-400">
+        <p>Data refreshes every 30 seconds • Last updated: <span id="last-updated">-</span></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let refreshInterval;
+    
+    function authenticateAdmin() {
+      const key = document.getElementById('admin-key').value;
+      if (key === 'CAREN_ADMIN_2025_PRODUCTION') {
+        document.getElementById('admin-auth').classList.add('hidden');
+        document.getElementById('dashboard-content').classList.remove('hidden');
+        loadDashboardData();
+        startAutoRefresh();
+      } else {
+        alert('Invalid admin key');
+      }
+    }
+
+    function showTab(tab) {
+      // Update tab buttons
+      document.getElementById('analytics-tab').className = 'px-6 py-3 font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600';
+      document.getElementById('sessions-tab').className = 'px-6 py-3 font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600';
+      document.getElementById('payments-tab').className = 'px-6 py-3 font-semibold bg-gray-700 text-gray-300 hover:bg-gray-600';
+      document.getElementById(tab + '-tab').className = 'px-6 py-3 font-semibold bg-blue-600 text-white';
+      
+      // Update content
+      document.getElementById('analytics-content').classList.add('hidden');
+      document.getElementById('sessions-content').classList.add('hidden');
+      document.getElementById('payments-content').classList.add('hidden');
+      document.getElementById(tab + '-content').classList.remove('hidden');
+    }
+
+    async function loadDashboardData() {
+      try {
+        // Load user stats
+        const statsResponse = await fetch('/api/admin/user-stats', {
+          headers: {
+            'Authorization': 'Bearer CAREN_ADMIN_2025_PRODUCTION'
+          }
+        });
+        
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json();
+          document.getElementById('total-users').textContent = stats.totalUsers || 0;
+          document.getElementById('active-users').textContent = stats.activeUsers || 0;
+          document.getElementById('total-logins').textContent = stats.totalLogins || 0;
+          document.getElementById('avg-session').textContent = (stats.averageSessionDuration || 0) + 'm';
+          document.getElementById('demo-users').textContent = stats.demoUsers || 0;
+          document.getElementById('regular-users').textContent = stats.regularUsers || 0;
+          document.getElementById('users-today').textContent = stats.usersToday || 0;
+          document.getElementById('users-week').textContent = stats.usersThisWeek || 0;
+        }
+
+        // Load user sessions
+        const sessionsResponse = await fetch('/api/admin/sessions', {
+          headers: {
+            'Authorization': 'Bearer CAREN_ADMIN_2025_PRODUCTION'
+          }
+        });
+        
+        if (sessionsResponse.ok) {
+          const sessions = await sessionsResponse.json();
+          updateSessionsTable(sessions);
+        }
+
+        // Load payment tracking data
+        const paymentsResponse = await fetch('/api/admin/payment-tracking', {
+          headers: {
+            'Authorization': 'Bearer CAREN_ADMIN_2025_PRODUCTION'
+          }
+        });
+        
+        if (paymentsResponse.ok) {
+          const paymentData = await paymentsResponse.json();
+          updatePaymentData(paymentData);
+        }
+
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+      } catch (error) {
+        console.error('Error loading dashboard data:', error);
+      }
+    }
+
+    function updateSessionsTable(sessions) {
+      const tbody = document.getElementById('sessions-table');
+      if (sessions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-400">No active sessions</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = sessions.map(session => `
+        <tr class="border-b border-gray-700">
+          <td class="py-2">
+            <div>
+              <div class="font-semibold">${session.email || 'Demo User'}</div>
+              <div class="text-sm text-gray-400">${session.firstName || ''} ${session.lastName || ''}</div>
+            </div>
+          </td>
+          <td class="py-2">
+            <span class="px-2 py-1 rounded text-xs ${session.isCurrentlyActive ? 'bg-green-600' : 'bg-gray-600'}">
+              ${session.isCurrentlyActive ? 'Active' : 'Inactive'}
+            </span>
+          </td>
+          <td class="py-2">${session.loginCount || 0}</td>
+          <td class="py-2">
+            <span class="capitalize">${session.authMethod || 'unknown'}</span>
+          </td>
+          <td class="py-2">
+            <div class="text-sm">${new Date(session.lastLogin).toLocaleString()}</div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updatePaymentData(paymentData) {
+      // Update summary cards
+      document.getElementById('monthly-subscribers').textContent = paymentData.summary.monthlySubscribers || 0;
+      document.getElementById('onetime-payers').textContent = paymentData.summary.oneTimePayers || 0;
+      document.getElementById('total-revenue').textContent = '$' + (paymentData.summary.totalRevenue || 0).toFixed(2);
+
+      // Update payments table
+      const tbody = document.getElementById('payments-table');
+      if (paymentData.users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-400">No payment data available</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = paymentData.users.map(user => `
+        <tr class="border-b border-gray-700">
+          <td class="py-2">
+            <div>
+              <div class="font-semibold">${user.email || 'No email'}</div>
+              <div class="text-sm text-gray-400">${user.firstName || ''} ${user.lastName || ''}</div>
+            </div>
+          </td>
+          <td class="py-2">
+            <span class="px-2 py-1 rounded text-xs ${getPaymentTypeColor(user.paymentType)}">
+              ${user.paymentType}
+            </span>
+          </td>
+          <td class="py-2 font-semibold text-green-400">$${user.totalPaid.toFixed(2)}</td>
+          <td class="py-2">${user.monthlyAmount > 0 ? '$' + user.monthlyAmount.toFixed(2) + '/mo' : '-'}</td>
+          <td class="py-2">
+            <div class="text-sm">${user.lastPayment ? new Date(user.lastPayment).toLocaleDateString() : 'Never'}</div>
+          </td>
+          <td class="py-2">
+            <span class="px-2 py-1 rounded text-xs ${user.paymentStatus === 'active' ? 'bg-green-600' : 'bg-red-600'}">
+              ${user.paymentStatus}
+            </span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function getPaymentTypeColor(paymentType) {
+      switch(paymentType) {
+        case 'Monthly Subscription': return 'bg-green-600';
+        case 'One-time Payment': return 'bg-blue-600';
+        case 'Free': return 'bg-gray-600';
+        default: return 'bg-gray-600';
+      }
+    }
+
+    function startAutoRefresh() {
+      refreshInterval = setInterval(loadDashboardData, 30000); // 30 seconds
+    }
+
+    // Allow Enter key to submit admin key
+    document.getElementById('admin-key').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        authenticateAdmin();
+      }
+    });
+  </script>
+</body>
+</html>
