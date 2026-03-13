@@ -11,7 +11,7 @@ dist
 .DS_Store
 android/
 ios/
-public/videos/
+/public/videos/
 *.zip
 *.tar.gz
 *.aab
