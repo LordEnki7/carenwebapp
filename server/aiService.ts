@@ -2,14 +2,19 @@ import OpenAI from "openai";
 import type { LegalRights, Incident } from "../shared/schema";
 
 // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-// This uses Replit AI Integrations for OpenAI access - no API key required, charges billed to Replit credits
-const openai = new OpenAI({
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
-});
+// Lazy initialization — prevents crash on startup when env vars are missing (e.g. Docker/Dokploy)
+let _openai: OpenAI | null = null;
 
-export function getOpenAIClient() {
-  return openai;
+export function getOpenAIClient(): OpenAI {
+  if (!_openai) {
+    const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY || process.env.OPENAI_API_KEY;
+    const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+    if (!apiKey) {
+      throw new Error("OpenAI API key not configured. Set AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY.");
+    }
+    _openai = new OpenAI({ apiKey, ...(baseURL ? { baseURL } : {}) });
+  }
+  return _openai;
 }
 
 interface AIQuestionRequest {
@@ -88,7 +93,7 @@ FORMAT YOUR RESPONSE AS JSON:
         });
       }
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
           { role: "system", content: systemPrompt },
@@ -126,7 +131,7 @@ FORMAT YOUR RESPONSE AS JSON:
     try {
       const prompt = `Based on this incident: "${incident.title}" (Priority: ${incident.priority}), generate 3-5 relevant questions a person might ask about their legal rights and next steps. Return as JSON array of strings.`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
           { 
@@ -154,7 +159,7 @@ FORMAT YOUR RESPONSE AS JSON:
 
   static async analyzeSentiment(text: string): Promise<{ rating: number; confidence: number; analysis: string }> {
     try {
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
           {
@@ -219,7 +224,7 @@ RESPOND IN JSON:
   "confidence": 0.0-1.0
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5",
         messages: [
           { role: "system", content: systemPrompt },
@@ -289,7 +294,7 @@ RESPOND IN JSON:
   "recommendation": "Overall recommendation paragraph"
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5",
         messages: [
           { role: "system", content: systemPrompt },
@@ -369,7 +374,7 @@ RESPONSE FORMAT (JSON):
   "nextLikelyScenario": "What might happen next"
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5",
         messages: [
           { role: "system", content: systemPrompt },
@@ -446,7 +451,7 @@ RESPOND IN JSON:
   "legalStrength": "strong/moderate/weak case assessment"
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5",
         messages: [
           { role: "system", content: systemPrompt },
@@ -530,7 +535,7 @@ RESPOND IN JSON:
   "disclaimer": "Legal disclaimer about the document"
 }`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5",
         messages: [
           { role: "system", content: systemPrompt },
@@ -633,7 +638,7 @@ ${input.contextualData?.location ? `Location: ${input.contextualData.location}` 
 ${input.contextualData?.timeOfDay ? `Time: ${input.contextualData.timeOfDay}` : ''}
 ${input.contextualData?.recentActivity ? `Recent Activity: ${input.contextualData.recentActivity}` : ''}`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
           { role: "system", content: systemPrompt },
@@ -731,7 +736,7 @@ ${data.mediaCount ? `Evidence Files: ${data.mediaCount} recordings/photos` : ''}
 ${data.notes ? `Additional Notes: ${data.notes}` : ''}
 ${transcriptText}`;
 
-      const response = await openai.chat.completions.create({
+      const response = await getOpenAIClient().chat.completions.create({
         model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
         messages: [
           { role: "system", content: systemPrompt },
