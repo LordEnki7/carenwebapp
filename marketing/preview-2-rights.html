@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1242px; height: 2688px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: linear-gradient(160deg, #0a0e1a 0%, #1a0a2e 30%, #0d1526 60%, #0a1628 100%);
+    color: white; overflow: hidden; position: relative;
+  }
+  .grid-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none;
+  }
+  .glow-1 {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: #a855f7; filter: blur(150px); opacity: 0.12;
+    top: 100px; left: -150px;
+  }
+  .glow-2 {
+    position: absolute; width: 400px; height: 400px; border-radius: 50%;
+    background: #00e5ff; filter: blur(150px); opacity: 0.1;
+    bottom: 400px; right: -100px;
+  }
+  .content {
+    position: relative; z-index: 1; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .cyan { color: #00e5ff; }
+  .purple { color: #a855f7; }
+
+  .top-text {
+    text-align: center; margin-top: 140px;
+    opacity: 0; transform: translateY(40px); transition: all 1s ease;
+  }
+  .top-text.show { opacity: 1; transform: translateY(0); }
+  .top-text h1 { font-size: 72px; font-weight: 800; line-height: 1.15; padding: 0 60px; }
+  .top-text p { font-size: 36px; color: rgba(255,255,255,0.6); margin-top: 24px; padding: 0 100px; }
+
+  .phone {
+    width: 680px; height: 1380px; border-radius: 60px;
+    border: 4px solid rgba(255,255,255,0.12); background: #0d1117;
+    overflow: hidden; box-shadow: 0 0 80px rgba(0,229,255,0.1), 0 40px 100px rgba(0,0,0,0.5);
+    margin-top: 60px; position: relative;
+    opacity: 0; transform: translateY(60px); transition: all 1s ease;
+  }
+  .phone.show { opacity: 1; transform: translateY(0); }
+  .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 220px; height: 40px; background: #000; border-radius: 0 0 24px 24px; z-index: 10;
+  }
+  .status-bar {
+    display: flex; justify-content: space-between; padding: 16px 30px;
+    font-size: 18px; font-weight: 600; margin-top: 10px;
+  }
+  .screen { padding: 20px 28px; }
+
+  .app-title { text-align: center; font-size: 30px; font-weight: 700; margin: 16px 0 12px; }
+  .location-pill {
+    display: block; width: fit-content; margin: 0 auto 20px;
+    background: rgba(0,229,255,0.1); border: 1px solid rgba(0,229,255,0.2);
+    border-radius: 30px; padding: 10px 22px; font-size: 18px; color: #00e5ff;
+    text-align: center;
+  }
+
+  .gps-anim {
+    text-align: center; margin-bottom: 16px;
+    opacity: 0; transition: opacity 0.8s ease;
+  }
+  .gps-anim.show { opacity: 1; }
+  .gps-anim .scanning { font-size: 16px; color: #00e5ff; font-weight: 600; letter-spacing: 2px; }
+  .gps-anim .dots { display: inline; }
+  @keyframes dotpulse { 0%,20% { opacity: 0; } 40% { opacity: 1; } }
+
+  .state-badge {
+    text-align: center; margin-bottom: 16px;
+    opacity: 0; transform: scale(0.8); transition: all 0.6s ease;
+  }
+  .state-badge.show { opacity: 1; transform: scale(1); }
+  .state-badge .state-name {
+    font-size: 48px; font-weight: 900; color: #00e5ff;
+    text-shadow: 0 0 30px rgba(0,229,255,0.3);
+  }
+  .state-badge .state-sub { font-size: 18px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+
+  .rights-card {
+    background: rgba(0,229,255,0.06); border: 1px solid rgba(0,229,255,0.15);
+    border-radius: 16px; padding: 20px; margin: 8px 0;
+    opacity: 0; transform: translateY(20px); transition: all 0.5s ease;
+  }
+  .rights-card.show { opacity: 1; transform: translateY(0); }
+  .rights-card .title { font-size: 18px; font-weight: 700; color: #00e5ff; margin-bottom: 4px; }
+  .rights-card .text { font-size: 15px; color: rgba(255,255,255,0.65); line-height: 1.4; }
+
+  .stats-row {
+    display: flex; justify-content: center; gap: 50px;
+    margin-top: 40px; z-index: 2;
+    opacity: 0; transition: opacity 1s ease;
+  }
+  .stats-row.show { opacity: 1; }
+  .stat-num { font-size: 52px; font-weight: 800; }
+  .stat-label { font-size: 22px; color: rgba(255,255,255,0.5); }
+
+  .bottom-text {
+    position: absolute; bottom: 80px; left: 0; right: 0;
+    text-align: center; z-index: 2;
+    opacity: 0; transition: opacity 1s ease;
+  }
+  .bottom-text.show { opacity: 1; }
+  .bottom-text p { font-size: 28px; color: rgba(255,255,255,0.5); }
+  .bottom-text h2 { font-size: 40px; font-weight: 700; margin-bottom: 8px; }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="content">
+  <div class="top-text" id="topText">
+    <h1>Know Your <span class="cyan">Exact Rights</span><br>in <span class="purple">Any State</span></h1>
+    <p>GPS-powered. Real statutes. Real case law.</p>
+  </div>
+
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="status-bar"><span>9:41</span><span>📍 📶</span></div>
+    <div class="screen">
+      <div class="app-title">⚖️ Your Legal Rights</div>
+      <div class="gps-anim" id="gpsAnim">
+        <div class="scanning">📡 DETECTING LOCATION<span class="dots">...</span></div>
+      </div>
+      <div class="state-badge" id="stateBadge">
+        <div class="state-name">OHIO</div>
+        <div class="state-sub">Cuyahoga County • Cleveland</div>
+      </div>
+      <div class="location-pill" id="locPill" style="opacity:0;transition:opacity 0.5s;">📍 Cuyahoga County, OH</div>
+
+      <div class="rights-card" id="r1">
+        <div class="title">🚗 Traffic Stops</div>
+        <div class="text">You must provide license, registration & insurance. You do NOT have to answer questions about where you're going. Ohio Rev. Code § 4549.02</div>
+      </div>
+      <div class="rights-card" id="r2">
+        <div class="title">📹 Recording Rights</div>
+        <div class="text">Ohio is a one-party consent state. You may legally record police officers in public. State v. Bock (2017)</div>
+      </div>
+      <div class="rights-card" id="r3">
+        <div class="title">🔍 Search & Seizure</div>
+        <div class="text">Officers cannot search without probable cause, warrant, or consent. You may refuse. Ohio Rev. Code § 2933.51</div>
+      </div>
+      <div class="rights-card" id="r4">
+        <div class="title">🛡️ Police Accountability</div>
+        <div class="text">Officers must identify themselves when asked. You may file complaints with Internal Affairs.</div>
+      </div>
+      <div class="rights-card" id="r5">
+        <div class="title">📱 Phone Privacy</div>
+        <div class="text">Police need a warrant to search your phone. Riley v. California (2014). Do not unlock voluntarily.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-row" id="statsRow">
+    <div style="text-align:center;">
+      <div class="stat-num cyan">50+</div>
+      <div class="stat-label">States</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="stat-num purple">467+</div>
+      <div class="stat-label">Protections</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="stat-num cyan">5</div>
+      <div class="stat-label">Categories</div>
+    </div>
+  </div>
+
+  <div class="bottom-text" id="bottomText">
+    <h2>Real Laws. Real Protection.</h2>
+    <p>Updated for every state, every county.</p>
+  </div>
+</div>
+
+<script>
+const tl = [
+  { time: 300, fn: () => document.getElementById('topText').classList.add('show') },
+  { time: 1200, fn: () => document.getElementById('phone').classList.add('show') },
+  { time: 2000, fn: () => document.getElementById('gpsAnim').classList.add('show') },
+  { time: 3200, fn: () => {
+    document.getElementById('gpsAnim').style.display = 'none';
+    document.getElementById('stateBadge').classList.add('show');
+  }},
+  { time: 3800, fn: () => document.getElementById('locPill').style.opacity = '1' },
+  { time: 4200, fn: () => document.getElementById('r1').classList.add('show') },
+  { time: 4800, fn: () => document.getElementById('r2').classList.add('show') },
+  { time: 5400, fn: () => document.getElementById('r3').classList.add('show') },
+  { time: 6000, fn: () => document.getElementById('r4').classList.add('show') },
+  { time: 6600, fn: () => document.getElementById('r5').classList.add('show') },
+  { time: 7500, fn: () => document.getElementById('statsRow').classList.add('show') },
+  { time: 8500, fn: () => document.getElementById('bottomText').classList.add('show') },
+];
+tl.forEach(t => setTimeout(t.fn, t.time));
+</script>
+</body>
+</html>

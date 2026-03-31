@@ -1,0 +1,246 @@
+/* Accessibility Enhancement Styles */
+
+/* CSS Variables for dynamic accessibility adjustments */
+:root {
+  --accessibility-contrast: 100%;
+  --accessibility-font-size: 100%;
+  --accessibility-line-height: 150%;
+  --accessibility-letter-spacing: 0px;
+  --accessibility-bg: inherit;
+  --accessibility-text: inherit;
+  --accessibility-primary: inherit;
+  --accessibility-secondary: inherit;
+}
+
+/* Base accessibility adjustments */
+.accessibility-enhanced {
+  font-size: calc(1rem * var(--accessibility-font-size) / 100);
+  line-height: calc(var(--accessibility-line-height) / 100);
+  letter-spacing: var(--accessibility-letter-spacing);
+}
+
+/* High Contrast Mode */
+.high-contrast-mode {
+  filter: contrast(var(--accessibility-contrast));
+}
+
+.high-contrast-mode * {
+  transition: none !important;
+  animation: none !important;
+}
+
+.high-contrast-mode button,
+.high-contrast-mode .card,
+.high-contrast-mode input,
+.high-contrast-mode select,
+.high-contrast-mode textarea {
+  border: 2px solid #ffffff !important;
+  background: #000000 !important;
+  color: #ffffff !important;
+}
+
+.high-contrast-mode button:hover,
+.high-contrast-mode button:focus {
+  background: #ffffff !important;
+  color: #000000 !important;
+  outline: 3px solid #ffff00 !important;
+}
+
+/* Custom Theme Override */
+.accessibility-custom-theme {
+  background-color: var(--accessibility-bg) !important;
+  color: var(--accessibility-text) !important;
+}
+
+.accessibility-custom-theme .bg-gray-800,
+.accessibility-custom-theme .bg-gray-900,
+.accessibility-custom-theme [class*="bg-gray"] {
+  background-color: var(--accessibility-bg) !important;
+}
+
+.accessibility-custom-theme .text-white,
+.accessibility-custom-theme .text-gray-200,
+.accessibility-custom-theme [class*="text-gray"] {
+  color: var(--accessibility-text) !important;
+}
+
+.accessibility-custom-theme button {
+  background-color: var(--accessibility-primary) !important;
+  color: var(--accessibility-bg) !important;
+  border-color: var(--accessibility-primary) !important;
+}
+
+.accessibility-custom-theme button:hover {
+  background-color: var(--accessibility-secondary) !important;
+  color: var(--accessibility-bg) !important;
+}
+
+/* Enhanced Focus Indicators */
+.enhanced-focus *:focus {
+  outline: 3px solid #00d4ff !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgba(0, 212, 255, 0.3) !important;
+}
+
+.enhanced-focus button:focus,
+.enhanced-focus a:focus,
+.enhanced-focus input:focus,
+.enhanced-focus select:focus,
+.enhanced-focus textarea:focus {
+  outline: 3px solid #ffff00 !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px rgba(255, 255, 0, 0.3) !important;
+  background-color: rgba(255, 255, 0, 0.1) !important;
+}
+
+/* Reduced Motion */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Colorblind Support */
+.colorblind-protanopia {
+  filter: sepia(100%) hue-rotate(0deg) saturate(150%);
+}
+
+.colorblind-deuteranopia {
+  filter: sepia(100%) hue-rotate(90deg) saturate(120%);
+}
+
+.colorblind-tritanopia {
+  filter: sepia(100%) hue-rotate(180deg) saturate(130%);
+}
+
+/* High Contrast Button States */
+.high-contrast-mode .bg-gradient-to-r {
+  background: #ffffff !important;
+  color: #000000 !important;
+}
+
+.high-contrast-mode .bg-gradient-to-r:hover {
+  background: #ffff00 !important;
+  color: #000000 !important;
+}
+
+/* Error and Success States */
+.high-contrast-mode .text-red-400,
+.high-contrast-mode .text-red-500 {
+  color: #ff0000 !important;
+  font-weight: bold !important;
+}
+
+.high-contrast-mode .text-green-400,
+.high-contrast-mode .text-green-500 {
+  color: #00ff00 !important;
+  font-weight: bold !important;
+}
+
+.high-contrast-mode .text-yellow-400,
+.high-contrast-mode .text-yellow-500 {
+  color: #ffff00 !important;
+  font-weight: bold !important;
+}
+
+/* Typography Enhancements */
+.accessibility-enhanced h1,
+.accessibility-enhanced h2,
+.accessibility-enhanced h3,
+.accessibility-enhanced h4,
+.accessibility-enhanced h5,
+.accessibility-enhanced h6 {
+  line-height: calc(var(--accessibility-line-height) / 100);
+  letter-spacing: var(--accessibility-letter-spacing);
+}
+
+.accessibility-enhanced p,
+.accessibility-enhanced span,
+.accessibility-enhanced div {
+  line-height: calc(var(--accessibility-line-height) / 100);
+  letter-spacing: var(--accessibility-letter-spacing);
+}
+
+/* Skip Links for Screen Readers */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: #000;
+  color: #fff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 10000;
+  border-radius: 4px;
+}
+
+.skip-link:focus {
+  top: 6px;
+}
+
+/* Screen Reader Only Content */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Enhanced Dialog Close Button Visibility - Clear Blue Styling */
+[data-radix-dialog-content] [data-radix-dialog-close] {
+  opacity: 1 !important;
+  background-color: #3b82f6 !important;
+  border: 2px solid #2563eb !important;
+  border-radius: 8px !important;
+  padding: 10px !important;
+  color: white !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-radix-dialog-content] [data-radix-dialog-close]:hover {
+  opacity: 1 !important;
+  background-color: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: white !important;
+  transform: scale(1.05) !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-radix-dialog-content] [data-radix-dialog-close]:focus {
+  opacity: 1 !important;
+  background-color: #1d4ed8 !important;
+  border-color: #1e40af !important;
+  color: white !important;
+  outline: 3px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Override any conflicting styles */
+button[data-radix-dialog-close] {
+  background-color: #3b82f6 !important;
+  border: 2px solid #2563eb !important;
+  color: white !important;
+  opacity: 1 !important;
+}
+
+button[data-radix-dialog-close]:hover {
+  background-color: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: white !important;
+}

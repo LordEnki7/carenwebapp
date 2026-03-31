@@ -1,0 +1,53 @@
+modules = ["nodejs-20", "web", "java-17", "postgresql-16"]
+run = "npm run dev"
+hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
+
+[nix]
+channel = "stable-24_05"
+packages = ["zip", "unzip", "glib", "nss", "dbus", "atk", "cups", "gtk3", "mesa", "expat", "alsa-lib", "cairo", "fontconfig", "freetype", "pango", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXrandr", "libxkbcommon", "at-spi2-atk", "at-spi2-core", "libuuid", "imagemagick", "openjdk17", "ffmpeg", "rsync"]
+
+[deployment]
+deploymentTarget = "autoscale"
+build = ["npm", "run", "build"]
+run = ["npm", "run", "start"]
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+waitForPort = 5000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[agent]
+integrations = ["javascript_database:1.0.0", "javascript_log_in_with_replit:1.0.0", "javascript_stripe:1.0.0", "javascript_sendgrid:1.0.0", "javascript_openai_ai_integrations:1.0.0"]
+
+[userenv]
+
+[userenv.shared]
+VAPID_PUBLIC_KEY = "BEt2RSKKFexK4khXi4FUG4lV_Zk3zp2qFIg0jpJvxVMKNBcIv-CXo0OIlSVMitrnJy35SqYt8Lo6Ij9C-u1yl5o"
+VAPID_PRIVATE_KEY = "3N-qyGsI9CgjNe0J22zSqNboxqcirh8vJCgchLoyfw0"
+VAPID_EMAIL = "mailto:admin@carenalert.com"
+SMTP_HOST = "smtp.hostinger.com"
+SMTP_PORT = "465"
+SMTP_SECURE = "true"
+SMTP_USER = "info@carenalert.com"
+VITE_STRIPE_PUBLIC_KEY = "pk_live_51TDAIKAYdlw2MaHWGeQtbBZQaASl1zypxcdBlgFx553SVcDva5c9VzDomk5yKVjv7xYwQz8llyjqe5c4v0sTjBUM00lYfuF2xr"
+DIVISION_NAME = "C.A.R.E.N. Safety App"

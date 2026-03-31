@@ -1,0 +1,445 @@
+import nodemailer from 'nodemailer';
+import type { EmergencyContact } from '@shared/schema';
+
+interface NotificationResult {
+  contactId: number;
+  method: 'email' | 'sms';
+  status: 'sent' | 'failed';
+  error?: string;
+  messageId?: string;
+}
+
+interface EmergencyAlertData {
+  alertType: string;
+  location?: {
+    latitude: number;
+    longitude: number;
+    address?: string;
+    city?: string;
+    state?: string;
+  };
+  userMessage?: string;
+  userName?: string;
+  incidentTitle?: string;
+  attorneyName?: string;
+  timestamp?: string;
+}
+
+// Multiple email service configurations
+const getEmailTransporter = () => {
+  // Priority 1: Hostinger / Custom SMTP (carenalert.com business email)
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '465'),
+      secure: process.env.SMTP_SECURE !== 'false', // default true for port 465
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD
+      }
+    });
+  }
+
+  // Priority 2: Gmail SMTP (fallback)
+  if (process.env.GMAIL_APP_PASSWORD) {
+    return nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'carenwebapp@gmail.com',
+        pass: process.env.GMAIL_APP_PASSWORD
+      }
+    });
+  }
+
+  return null;
+};
+
+export async function sendEmergencyEmail(
+  contact: EmergencyContact,
+  alertData: EmergencyAlertData
+): Promise<NotificationResult> {
+  const transporter = getEmailTransporter();
+  
+  if (!transporter) {
+    return {
+      contactId: contact.id,
+      method: 'email',
+      status: 'failed',
+      error: 'No email service configured'
+    };
+  }
+
+  if (!contact.email) {
+    return {
+      contactId: contact.id,
+      method: 'email',
+      status: 'failed',
+      error: 'No email address provided for contact'
+    };
+  }
+
+  try {
+    const locationText = alertData.location 
+      ? `Location: ${alertData.location.address || `${alertData.location.latitude}, ${alertData.location.longitude}`}`
+      : 'Location: Not available';
+
+    const alertTypeMap: Record<string, string> = {
+      police_encounter: 'Police Encounter',
+      traffic_stop: 'Traffic Stop',
+      arrest: 'Arrest Situation', 
+      civil_rights: 'Civil Rights Violation',
+      workplace: 'Workplace Emergency',
+      property: 'Property Incident',
+      medical: 'Medical Emergency',
+      general: 'General Emergency'
+    };
+
+    const alertTypeName = alertTypeMap[alertData.alertType] || 'Emergency Situation';
+    const userName = alertData.userName || 'C.A.R.E.N.™ User';
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+          .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+          .header { background: #dc3545; color: white; padding: 20px; text-align: center; }
+          .content { padding: 30px; }
+          .alert-box { background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 15px; margin: 20px 0; }
+          .location-box { background: #d1ecf1; border: 1px solid #bee5eb; border-radius: 5px; padding: 15px; margin: 20px 0; }
+          .footer { background: #f8f9fa; padding: 20px; text-align: center; font-size: 12px; color: #6c757d; }
+          .urgent { color: #dc3545; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>🚨 EMERGENCY ALERT</h1>
+            <p>C.A.R.E.N.™ Emergency Notification System</p>
+          </div>
+          <div class="content">
+            <p><strong>Hello ${contact.name},</strong></p>
+            
+            <p class="urgent">This is an automated emergency alert from ${userName}.</p>
+            
+            <div class="alert-box">
+              <h3>Emergency Type: ${alertTypeName}</h3>
+              <p><strong>Time:</strong> ${new Date().toLocaleString()}</p>
+              ${alertData.userMessage ? `<p><strong>Message:</strong> ${alertData.userMessage}</p>` : ''}
+            </div>
+
+            <div class="location-box">
+              <h3>📍 Location Information</h3>
+              <p>${locationText}</p>
+              ${alertData.location?.city ? `<p><strong>City:</strong> ${alertData.location.city}, ${alertData.location.state}</p>` : ''}
+            </div>
+
+            <p><strong>What to do:</strong></p>
+            <ul>
+              <li>Contact ${userName} immediately if possible</li>
+              <li>Consider contacting local authorities if this is a serious emergency</li>
+              <li>Save this location information for reference</li>
+            </ul>
+
+            <p>This alert was automatically generated by the C.A.R.E.N.™ emergency system when ${userName} activated emergency voice commands.</p>
+          </div>
+          <div class="footer">
+            <p>C.A.R.E.N.™ - Citizen Assistance for Roadside Emergencies and Navigation</p>
+            <p>Emergency notification system for constitutional rights protection</p>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = `
+🚨 EMERGENCY ALERT - C.A.R.E.N.™ System
+
+Hello ${contact.name},
+
+This is an automated emergency alert from ${userName}.
+
+Emergency Type: ${alertTypeName}
+Time: ${new Date().toLocaleString()}
+${alertData.userMessage ? `Message: ${alertData.userMessage}` : ''}
+
+Location Information:
+${locationText}
+${alertData.location?.city ? `City: ${alertData.location.city}, ${alertData.location.state}` : ''}
+
+What to do:
+- Contact ${userName} immediately if possible
+- Consider contacting local authorities if this is a serious emergency
+- Save this location information for reference
+
+This alert was automatically generated by the C.A.R.E.N.™ emergency system.
+    `;
+
+    const mailOptions = {
+      from: 'alerts@carenalert.com',
+      to: contact.email,
+      subject: `🚨 EMERGENCY ALERT: ${alertTypeName} - ${userName}`,
+      text: textContent,
+      html: htmlContent,
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high'
+      }
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log(`Emergency email sent to ${contact.name} (${contact.email}): ${alertTypeName}`);
+    
+    return {
+      contactId: contact.id,
+      method: 'email',
+      status: 'sent',
+      messageId: info?.messageId || 'email-sent'
+    };
+
+  } catch (error) {
+    console.error(`Failed to send emergency email to ${contact.name}:`, error);
+    return {
+      contactId: contact.id,
+      method: 'email',
+      status: 'failed',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+// SMS notification using multiple providers (priority order)
+export async function sendEmergencySMS(
+  contact: EmergencyContact,
+  alertData: EmergencyAlertData
+): Promise<NotificationResult> {
+  const locationText = alertData.location 
+    ? `Location: ${alertData.location.address || `${alertData.location.latitude}, ${alertData.location.longitude}`}`
+    : 'Location: Not available';
+
+  const alertTypeMap: Record<string, string> = {
+    police_encounter: 'Police Encounter',
+    traffic_stop: 'Traffic Stop',
+    arrest: 'Arrest Situation',
+    civil_rights: 'Civil Rights Violation',
+    workplace: 'Workplace Emergency',
+    property: 'Property Incident',
+    medical: 'Medical Emergency',
+    general: 'General Emergency'
+  };
+
+  const alertTypeName = alertTypeMap[alertData.alertType] || 'Emergency';
+  const userName = alertData.userName || 'C.A.R.E.N.™ User';
+
+  const message = `🚨 EMERGENCY: ${userName} - ${alertTypeName}
+Time: ${new Date().toLocaleTimeString()}
+${locationText}
+${alertData.userMessage ? `Message: ${alertData.userMessage}` : ''}
+Contact them immediately!`;
+
+  // Priority 1: TextBelt (Configured with user's API key)
+  try {
+    const response = await fetch('https://textbelt.com/text', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        phone: contact.phone,
+        message: message,
+        key: '160040e53102b2285931df3013d933b0e46ebf7cqeCXDWl6beXnP8pfl4LFyke6F'
+      })
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      console.log(`Emergency SMS sent via TextBelt to ${contact.name} (${contact.phone}): ${alertTypeName}`);
+      return {
+        contactId: contact.id,
+        method: 'sms',
+        status: 'sent',
+        messageId: result.textId
+      };
+    } else {
+      console.error(`TextBelt SMS failed: ${result.error}`);
+    }
+  } catch (error) {
+    console.error('TextBelt SMS error:', error);
+  }
+
+  // All SMS methods failed
+  return {
+    contactId: contact.id,
+    method: 'sms',
+    status: 'failed',
+    error: 'TextBelt SMS service failed'
+  };
+}
+
+// Send recording to attorney via email
+export async function sendRecordingToAttorneyEmail(
+  attorney: any,
+  recordingData: any,
+  user: any
+): Promise<{ success: boolean; messageId?: string; error?: string }> {
+  try {
+    const transporter = getEmailTransporter();
+    
+    const attorneyEmail = attorney.contactInfo?.email || attorney.email;
+    if (!attorneyEmail) {
+      return {
+        success: false,
+        error: 'Attorney email address not configured'
+      };
+    }
+
+    const userName = user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : user.email;
+    const firmName = attorney.firmName || 'Legal Counsel';
+    
+    const locationText = recordingData.location 
+      ? `Location: ${recordingData.location.address || `${recordingData.location.latitude}, ${recordingData.location.longitude}`}`
+      : 'Location: Not specified';
+
+    const subject = `🚨 URGENT: Client Recording Evidence - ${recordingData.title}`;
+    
+    const textContent = `URGENT CLIENT EVIDENCE SUBMISSION
+
+Client: ${userName}
+Incident: ${recordingData.title}
+Priority: ${recordingData.priority.toUpperCase()}
+Timestamp: ${new Date(recordingData.timestamp).toLocaleString()}
+${locationText}
+
+Description:
+${recordingData.description}
+
+Recording Details:
+- Type: ${recordingData.recordingType}
+- Duration: ${Math.floor(recordingData.duration / 60)}:${(recordingData.duration % 60).toString().padStart(2, '0')}
+- Incident ID: ${recordingData.incidentId}
+
+This recording was sent via voice command from the C.A.R.E.N.™ legal protection platform.
+The client requires immediate legal attention.
+
+Please review and respond to the client's situation promptly.
+
+C.A.R.E.N.™ Legal Protection Platform
+Automated Evidence Delivery System`;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .header { background: #dc2626; color: white; padding: 20px; border-radius: 8px 8px 0 0; margin: -30px -30px 20px -30px; text-align: center; }
+        .urgent { background: #fef2f2; border: 2px solid #dc2626; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .details { background: #f8fafc; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .detail-row { margin: 8px 0; }
+        .label { font-weight: bold; color: #374151; }
+        .value { color: #111827; }
+        .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 14px; color: #6b7280; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚨 URGENT CLIENT EVIDENCE</h1>
+            <p>Recording sent via voice command</p>
+        </div>
+        
+        <div class="urgent">
+            <h2>⚠️ IMMEDIATE ATTENTION REQUIRED</h2>
+            <p>Your client <strong>${userName}</strong> has sent you evidence via the C.A.R.E.N.™ legal protection platform using voice command activation.</p>
+        </div>
+        
+        <div class="details">
+            <h3>Client Information</h3>
+            <div class="detail-row"><span class="label">Client:</span> <span class="value">${userName}</span></div>
+            <div class="detail-row"><span class="label">Email:</span> <span class="value">${user.email}</span></div>
+        </div>
+        
+        <div class="details">
+            <h3>Incident Details</h3>
+            <div class="detail-row"><span class="label">Title:</span> <span class="value">${recordingData.title}</span></div>
+            <div class="detail-row"><span class="label">Priority:</span> <span class="value">${recordingData.priority.toUpperCase()}</span></div>
+            <div class="detail-row"><span class="label">Timestamp:</span> <span class="value">${new Date(recordingData.timestamp).toLocaleString()}</span></div>
+            <div class="detail-row"><span class="label">Location:</span> <span class="value">${locationText}</span></div>
+        </div>
+        
+        <div class="details">
+            <h3>Recording Information</h3>
+            <div class="detail-row"><span class="label">Type:</span> <span class="value">${recordingData.recordingType}</span></div>
+            <div class="detail-row"><span class="label">Duration:</span> <span class="value">${Math.floor(recordingData.duration / 60)}:${(recordingData.duration % 60).toString().padStart(2, '0')}</span></div>
+            <div class="detail-row"><span class="label">Incident ID:</span> <span class="value">${recordingData.incidentId}</span></div>
+        </div>
+        
+        <div class="details">
+            <h3>Description</h3>
+            <p>${recordingData.description}</p>
+        </div>
+        
+        <div class="footer">
+            <p><strong>C.A.R.E.N.™ Legal Protection Platform</strong><br>
+            Automated Evidence Delivery System<br>
+            This recording was transmitted via voice-activated emergency system.</p>
+        </div>
+    </div>
+</body>
+</html>`;
+
+    const mailOptions = {
+      from: 'alerts@carenalert.com',
+      to: attorneyEmail,
+      subject: subject,
+      text: textContent,
+      html: htmlContent,
+      headers: {
+        'X-Priority': '1',
+        'X-MSMail-Priority': 'High',
+        'Importance': 'high'
+      }
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    
+    console.log(`Recording sent to attorney ${firmName} (${attorneyEmail}): ${recordingData.title}`);
+    
+    return {
+      success: true,
+      messageId: info?.messageId || 'email-sent'
+    };
+
+  } catch (error) {
+    console.error(`Failed to send recording to attorney:`, error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error'
+    };
+  }
+}
+
+export async function notifyEmergencyContacts(
+  contacts: EmergencyContact[],
+  alertData: EmergencyAlertData
+): Promise<NotificationResult[]> {
+  const results: NotificationResult[] = [];
+  
+  for (const contact of contacts) {
+    // Send both SMS and email if available
+    if (contact.phone) {
+      const smsResult = await sendEmergencySMS(contact, alertData);
+      results.push(smsResult);
+    }
+    
+    if (contact.email) {
+      const emailResult = await sendEmergencyEmail(contact, alertData);
+      results.push(emailResult);
+    }
+  }
+  
+  return results;
+}

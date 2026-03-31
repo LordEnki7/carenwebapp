@@ -1,0 +1,143 @@
+{
+  "identifier" : "8B2C8F4E-A391-4C5F-B8B4-9E5D3A1F7C2E",
+  "nonRenewableSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "0.99",
+      "familyShareable" : false,
+      "internalID" : "basic_guard_001",
+      "localizations" : [
+        {
+          "description" : "Essential legal rights lookup for your state.",
+          "displayName" : "Basic Guard",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "com.caren.safetyapp.basic_guard",
+      "referenceName" : "Basic Guard",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "com.caren.safetyapp",
+    "_developerTeamID" : "",
+    "_lastSynchronizedDate" : "2025-01-01T00:00:00Z"
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "CAREN_LEGAL_PROTECTION",
+      "localizations" : [
+
+      ],
+      "name" : "CAREN Legal Protection",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "safety_pro_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "GPS-enabled legal rights, voice commands, and incident recording.",
+              "displayName" : "Safety Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.caren.safetyapp.safety_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Safety Pro Monthly",
+          "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "9.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "constitutional_pro_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Full AI-powered protection suite with attorney connect.",
+              "displayName" : "Constitutional Pro",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.caren.safetyapp.constitutional_pro_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Constitutional Pro Monthly",
+          "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "24.99",
+          "familyShareable" : true,
+          "groupNumber" : 3,
+          "internalID" : "family_protection_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Protect your entire family with up to 6 linked accounts.",
+              "displayName" : "Family Protection",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.caren.safetyapp.family_protection_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Family Protection Monthly",
+          "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : false,
+          "groupNumber" : 4,
+          "internalID" : "enterprise_fleet_001",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Fleet-wide legal protection for businesses.",
+              "displayName" : "Enterprise Fleet",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.caren.safetyapp.enterprise_fleet_monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Enterprise Fleet Monthly",
+          "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

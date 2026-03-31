@@ -1,0 +1,92 @@
+#caren-floating-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 2147483647;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+}
+
+.caren-fab-container {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.caren-fab {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, #0891b2, #7c3aed);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(8, 145, 178, 0.4);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.caren-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 30px rgba(8, 145, 178, 0.6);
+}
+
+.caren-fab-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.caren-fab-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  border-radius: 12px;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  min-width: 120px;
+}
+
+.caren-fab-menu.hidden {
+  display: none;
+}
+
+.caren-fab-item {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.caren-fab-item:hover {
+  background: rgba(34, 211, 238, 0.15);
+}
+
+.caren-fab-item.caren-sos {
+  color: #f87171;
+}
+
+.caren-fab-item.caren-sos:hover {
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.caren-fab-item.caren-hide {
+  color: #94a3b8;
+  font-size: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  margin-top: 2px;
+  padding-top: 10px;
+}

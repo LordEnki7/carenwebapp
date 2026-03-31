@@ -1,0 +1,13 @@
+{
+  "name": "@caren/subscription",
+  "version": "1.0.0",
+  "description": "C.A.R.E.N. subscription feature module",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@caren/core": "^1.0.0"
+  }
+}

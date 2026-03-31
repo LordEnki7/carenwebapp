@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1242px; height: 2688px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: linear-gradient(160deg, #0a0e1a 0%, #0a1a0e 30%, #0d1526 60%, #0e0a1a 100%);
+    color: white; overflow: hidden; position: relative;
+  }
+  .grid-overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+      linear-gradient(rgba(0,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,255,0.02) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none;
+  }
+  .glow-1 {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: #22c55e; filter: blur(150px); opacity: 0.1;
+    top: 100px; right: -100px;
+  }
+  .glow-2 {
+    position: absolute; width: 500px; height: 500px; border-radius: 50%;
+    background: #a855f7; filter: blur(150px); opacity: 0.1;
+    bottom: 300px; left: -100px;
+  }
+  .content {
+    position: relative; z-index: 1; width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .cyan { color: #00e5ff; }
+  .purple { color: #a855f7; }
+  .green { color: #22c55e; }
+  .red { color: #ef4444; }
+  .yellow { color: #eab308; }
+
+  .top-text {
+    text-align: center; margin-top: 120px;
+    opacity: 0; transform: translateY(40px); transition: all 1s ease;
+  }
+  .top-text.show { opacity: 1; transform: translateY(0); }
+  .top-text h1 { font-size: 68px; font-weight: 800; line-height: 1.15; padding: 0 60px; }
+  .top-text p { font-size: 34px; color: rgba(255,255,255,0.6); margin-top: 20px; padding: 0 80px; }
+
+  .phone {
+    width: 680px; height: 1380px; border-radius: 60px;
+    border: 4px solid rgba(255,255,255,0.12); background: #0d1117;
+    overflow: hidden; box-shadow: 0 0 80px rgba(0,229,255,0.1), 0 40px 100px rgba(0,0,0,0.5);
+    margin-top: 50px; position: relative;
+    opacity: 0; transform: translateY(60px); transition: all 1s ease;
+  }
+  .phone.show { opacity: 1; transform: translateY(0); }
+  .notch {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 220px; height: 40px; background: #000; border-radius: 0 0 24px 24px; z-index: 10;
+  }
+  .status-bar {
+    display: flex; justify-content: space-between; padding: 16px 30px;
+    font-size: 18px; font-weight: 600; margin-top: 10px;
+  }
+
+  .screen-1, .screen-2, .screen-3 {
+    position: absolute; top: 60px; left: 0; right: 0; bottom: 0;
+    padding: 20px 28px;
+    opacity: 0; transition: all 0.8s ease;
+  }
+  .screen-1.show, .screen-2.show, .screen-3.show { opacity: 1; }
+
+  .app-title { text-align: center; font-size: 30px; font-weight: 700; margin: 16px 0 16px; }
+
+  .chat-msg {
+    margin: 12px 0; padding: 18px 22px; border-radius: 16px;
+    font-size: 17px; line-height: 1.5; max-width: 90%;
+    opacity: 0; transform: translateY(15px); transition: all 0.5s ease;
+  }
+  .chat-msg.show { opacity: 1; transform: translateY(0); }
+  .chat-user {
+    background: rgba(0,229,255,0.12); border: 1px solid rgba(0,229,255,0.2);
+    margin-left: auto; color: rgba(255,255,255,0.9);
+  }
+  .chat-ai {
+    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
+    color: rgba(255,255,255,0.85);
+  }
+  .chat-ai .label { font-size: 14px; font-weight: 700; color: #22c55e; margin-bottom: 6px; }
+  .chat-user .label { font-size: 14px; font-weight: 700; color: #00e5ff; margin-bottom: 6px; }
+
+  .typing {
+    display: inline-flex; gap: 6px; padding: 14px 22px;
+    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
+    border-radius: 16px; margin: 12px 0;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .typing.show { opacity: 1; }
+  .typing span {
+    width: 10px; height: 10px; border-radius: 50%; background: #22c55e;
+    animation: typingDot 1.2s infinite;
+  }
+  .typing span:nth-child(2) { animation-delay: 0.2s; }
+  .typing span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingDot { 0%,60%,100% { opacity: 0.3; } 30% { opacity: 1; } }
+
+  .coach-msg {
+    background: rgba(34,197,94,0.08); border-left: 3px solid #22c55e;
+    border-radius: 0 14px 14px 0; padding: 16px 20px; margin: 10px 0;
+    opacity: 0; transform: translateX(-20px); transition: all 0.5s ease;
+  }
+  .coach-msg.show { opacity: 1; transform: translateX(0); }
+  .coach-msg .label { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+  .coach-msg .text { font-size: 16px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+  .coach-msg.purple-msg { background: rgba(168,85,247,0.08); border-left-color: #a855f7; }
+  .coach-msg.cyan-msg { background: rgba(0,229,255,0.08); border-left-color: #00e5ff; }
+
+  .risk-box {
+    text-align: center; padding: 20px; margin: 12px 0;
+    background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3);
+    border-radius: 16px;
+    opacity: 0; transform: scale(0.9); transition: all 0.5s ease;
+  }
+  .risk-box.show { opacity: 1; transform: scale(1); }
+  .risk-box .risk-label { font-size: 14px; color: rgba(255,255,255,0.5); }
+  .risk-box .risk-val { font-size: 36px; font-weight: 800; color: #22c55e; }
+
+  .feature-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+    padding: 10px 0;
+  }
+  .feat-card {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px; padding: 20px; text-align: center;
+    opacity: 0; transform: scale(0.9); transition: all 0.4s ease;
+  }
+  .feat-card.show { opacity: 1; transform: scale(1); }
+  .feat-card .icon { font-size: 36px; margin-bottom: 8px; }
+  .feat-card h3 { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .feat-card p { font-size: 13px; color: rgba(255,255,255,0.5); }
+
+  .listen-btn {
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+    padding: 22px; border-radius: 20px; font-size: 22px; font-weight: 700;
+    margin: 16px 0; background: linear-gradient(135deg, #16a34a, #15803d); color: white;
+  }
+
+  .bottom-text {
+    position: absolute; bottom: 70px; left: 0; right: 0;
+    text-align: center; z-index: 2;
+    opacity: 0; transition: opacity 1s ease;
+  }
+  .bottom-text.show { opacity: 1; }
+  .bottom-text p { font-size: 28px; color: rgba(255,255,255,0.5); }
+  .bottom-text h2 { font-size: 40px; font-weight: 700; margin-bottom: 8px; }
+
+  .screen-indicator {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 20;
+  }
+  .dot {
+    width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.2);
+    transition: background 0.3s;
+  }
+  .dot.active { background: #00e5ff; }
+</style>
+</head>
+<body>
+<div class="grid-overlay"></div>
+<div class="glow-1"></div>
+<div class="glow-2"></div>
+
+<div class="content">
+  <div class="top-text" id="topText">
+    <h1><span class="cyan">8 AI Features</span><br>That Have Your Back</h1>
+    <p>Legal assistant. Voice coaching. Smart detection. All powered by AI.</p>
+  </div>
+
+  <div class="phone" id="phone">
+    <div class="notch"></div>
+    <div class="status-bar"><span>9:41</span><span>🤖 📶</span></div>
+
+    <!-- Screen 1: AI Legal Chat -->
+    <div class="screen-1" id="screen1">
+      <div class="app-title">🤖 <span class="cyan">AI Legal Assistant</span></div>
+      <div class="chat-msg chat-user" id="q1"><div class="label">YOU</div>Can police search my car without my permission?</div>
+      <div class="typing" id="typing1"><span></span><span></span><span></span></div>
+      <div class="chat-msg chat-ai" id="a1">
+        <div class="label">🤖 AI ASSISTANT</div>
+        <strong>No.</strong> In Ohio, officers cannot search your vehicle without probable cause, a warrant, or your voluntary consent. You have the right to say:<br><br>
+        <em>"I do not consent to searches."</em><br><br>
+        This is protected under the 4th Amendment and Ohio Rev. Code § 2933.51.
+      </div>
+      <div class="chat-msg chat-user" id="q2"><div class="label">YOU</div>Can I record the police?</div>
+      <div class="typing" id="typing2"><span></span><span></span><span></span></div>
+      <div class="chat-msg chat-ai" id="a2">
+        <div class="label">🤖 AI ASSISTANT</div>
+        <strong>Yes.</strong> Ohio is a one-party consent state. You can legally record police performing their duties in public spaces. This was affirmed in State v. Bock (2017).
+      </div>
+    </div>
+
+    <!-- Screen 2: Voice Coach -->
+    <div class="screen-2" id="screen2">
+      <div class="app-title">🎤 <span class="green">AI Voice Coach</span></div>
+      <div class="risk-box" id="riskBox">
+        <div class="risk-label">RISK LEVEL</div>
+        <div class="risk-val">LOW</div>
+      </div>
+      <div class="coach-msg" id="c1">
+        <div class="label green">🤖 AI COACH</div>
+        <div class="text">Keep your hands visible. Wait for the officer to speak first.</div>
+      </div>
+      <div class="coach-msg cyan-msg" id="c2">
+        <div class="label cyan">⚖️ YOUR RIGHTS</div>
+        <div class="text">You must provide license and registration. You do NOT have to answer other questions.</div>
+      </div>
+      <div class="coach-msg" id="c3">
+        <div class="label green">🤖 AI COACH</div>
+        <div class="text">If asked to search, calmly say: "I do not consent to searches."</div>
+      </div>
+      <div class="coach-msg purple-msg" id="c4">
+        <div class="label purple">💡 DE-ESCALATION</div>
+        <div class="text">Speak slowly, use "sir" or "ma'am." Stay calm — you are protected.</div>
+      </div>
+      <div class="listen-btn">🎤 Listening for voice commands...</div>
+    </div>
+
+    <!-- Screen 3: All Features -->
+    <div class="screen-3" id="screen3">
+      <div class="app-title"><span class="purple">All AI Features</span></div>
+      <div class="feature-grid">
+        <div class="feat-card" id="f1"><div class="icon">🤖</div><h3 class="cyan">Legal Assistant</h3><p>Quick rights Q&A</p></div>
+        <div class="feat-card" id="f2"><div class="icon">🎤</div><h3 class="green">Voice Coach</h3><p>Real-time guidance</p></div>
+        <div class="feat-card" id="f3"><div class="icon">🚨</div><h3 class="red">Smart Detection</h3><p>Distress analysis</p></div>
+        <div class="feat-card" id="f4"><div class="icon">📝</div><h3 class="purple">Incident Reports</h3><p>Auto summaries</p></div>
+        <div class="feat-card" id="f5"><div class="icon">🌍</div><h3 class="yellow">Translation</h3><p>15+ languages</p></div>
+        <div class="feat-card" id="f6"><div class="icon">⚖️</div><h3 class="purple">Attorney Match</h3><p>AI recommendations</p></div>
+        <div class="feat-card" id="f7"><div class="icon">🔍</div><h3 class="cyan">Recording Analysis</h3><p>Find violations</p></div>
+        <div class="feat-card" id="f8"><div class="icon">📄</div><h3 class="green">Legal Docs</h3><p>FOIA & complaints</p></div>
+      </div>
+    </div>
+
+    <div class="screen-indicator" id="dots">
+      <div class="dot active" id="d1"></div>
+      <div class="dot" id="d2"></div>
+      <div class="dot" id="d3"></div>
+    </div>
+  </div>
+
+  <div class="bottom-text" id="bottomText">
+    <h2 class="cyan">Smarter Protection. Always Ready.</h2>
+    <p>AI that understands the law — so you don't have to.</p>
+  </div>
+</div>
+
+<script>
+function setActive(num) {
+  document.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+  document.getElementById('d' + num).classList.add('active');
+}
+const tl = [
+  { time: 300, fn: () => document.getElementById('topText').classList.add('show') },
+  { time: 1000, fn: () => { document.getElementById('phone').classList.add('show'); document.getElementById('screen1').classList.add('show'); }},
+  { time: 1800, fn: () => document.getElementById('q1').classList.add('show') },
+  { time: 2400, fn: () => document.getElementById('typing1').classList.add('show') },
+  { time: 3200, fn: () => { document.getElementById('typing1').classList.remove('show'); document.getElementById('a1').classList.add('show'); }},
+  { time: 4500, fn: () => document.getElementById('q2').classList.add('show') },
+  { time: 5000, fn: () => document.getElementById('typing2').classList.add('show') },
+  { time: 5800, fn: () => { document.getElementById('typing2').classList.remove('show'); document.getElementById('a2').classList.add('show'); }},
+
+  { time: 7500, fn: () => { document.getElementById('screen1').classList.remove('show'); document.getElementById('screen2').classList.add('show'); setActive(2); }},
+  { time: 8000, fn: () => document.getElementById('riskBox').classList.add('show') },
+  { time: 8600, fn: () => document.getElementById('c1').classList.add('show') },
+  { time: 9200, fn: () => document.getElementById('c2').classList.add('show') },
+  { time: 9800, fn: () => document.getElementById('c3').classList.add('show') },
+  { time: 10400, fn: () => document.getElementById('c4').classList.add('show') },
+
+  { time: 12000, fn: () => { document.getElementById('screen2').classList.remove('show'); document.getElementById('screen3').classList.add('show'); setActive(3); }},
+  { time: 12400, fn: () => document.getElementById('f1').classList.add('show') },
+  { time: 12600, fn: () => document.getElementById('f2').classList.add('show') },
+  { time: 12800, fn: () => document.getElementById('f3').classList.add('show') },
+  { time: 13000, fn: () => document.getElementById('f4').classList.add('show') },
+  { time: 13200, fn: () => document.getElementById('f5').classList.add('show') },
+  { time: 13400, fn: () => document.getElementById('f6').classList.add('show') },
+  { time: 13600, fn: () => document.getElementById('f7').classList.add('show') },
+  { time: 13800, fn: () => document.getElementById('f8').classList.add('show') },
+  { time: 14800, fn: () => document.getElementById('bottomText').classList.add('show') },
+];
+tl.forEach(t => setTimeout(t.fn, t.time));
+</script>
+</body>
+</html>

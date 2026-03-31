@@ -1,0 +1,13 @@
+{
+  "id": "@caren/bluetooth",
+  "name": "Bluetooth Feature",
+  "version": "1.0.0",
+  "type": "feature",
+  "dependencies": [
+    "@caren/core"
+  ],
+  "exports": {
+    "components": [],
+    "hooks": []
+  }
+}

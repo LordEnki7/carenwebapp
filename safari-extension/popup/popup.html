@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C.A.R.E.N.™ ALERT</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo-row">
+        <img src="../icons/icon-48.png" alt="CAREN" class="logo">
+        <div>
+          <h1>C.A.R.E.N.™ ALERT</h1>
+          <p class="tagline">Legal Protection System</p>
+        </div>
+      </div>
+    </header>
+
+    <div id="status-bar" class="status-bar">
+      <span class="status-dot"></span>
+      <span id="status-text">Detecting location...</span>
+    </div>
+
+    <div id="location-info" class="location-info hidden">
+      <div class="state-badge" id="state-badge">
+        <span class="state-flag" id="state-flag"></span>
+        <span id="state-name">Loading...</span>
+      </div>
+    </div>
+
+    <div class="emergency-section">
+      <button id="btn-sos" class="btn btn-emergency">
+        <span class="btn-icon">🚨</span>
+        <span>SOS Emergency</span>
+      </button>
+    </div>
+
+    <div class="quick-actions">
+      <button id="btn-rights" class="btn btn-primary">
+        <span class="btn-icon">⚖️</span>
+        <span>My Rights</span>
+      </button>
+      <button id="btn-record" class="btn btn-secondary">
+        <span class="btn-icon">🎥</span>
+        <span>Record</span>
+      </button>
+    </div>
+
+    <div id="rights-panel" class="rights-panel hidden">
+      <div class="rights-header">
+        <h3 id="rights-title">Your Rights</h3>
+        <button id="btn-close-rights" class="btn-close">&times;</button>
+      </div>
+      <div id="rights-content" class="rights-content">
+        <div class="loading-spinner"></div>
+      </div>
+    </div>
+
+    <div class="category-tabs hidden" id="category-tabs">
+      <button class="tab active" data-category="traffic">Traffic Stops</button>
+      <button class="tab" data-category="recording">Recording</button>
+      <button class="tab" data-category="search">Search & Seizure</button>
+      <button class="tab" data-category="accountability">Accountability</button>
+    </div>
+
+    <div class="bottom-actions">
+      <a href="https://carenalert.com" target="_blank" class="link-btn">
+        Open Full App →
+      </a>
+      <button id="btn-settings" class="btn-icon-only" title="Settings">⚙️</button>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

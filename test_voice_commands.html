@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C.A.R.E.N. Emergency Voice Commands Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background-color: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .warning { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background-color: #c82333; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        .command-list {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .command-item {
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 3px;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 C.A.R.E.N. Emergency Voice Commands Test</h1>
+        
+        <div id="status" class="status info">
+            Voice recognition ready. Click "Start Listening" to test emergency commands.
+        </div>
+
+        <div class="command-list">
+            <h3>Available Emergency Commands:</h3>
+            <div class="command-item">"Emergency police stop" - Police encounter alert</div>
+            <div class="command-item">"I need legal help now" - General legal emergency</div>
+            <div class="command-item">"Constitutional rights violation" - Civil rights alert</div>
+            <div class="command-item">"Emergency record now" - Start emergency recording</div>
+            <div class="command-item">"Send location to contacts" - Location-based emergency alert</div>
+        </div>
+
+        <button id="startBtn" onclick="startListening()">Start Listening</button>
+        <button id="stopBtn" onclick="stopListening()" disabled>Stop Listening</button>
+        <button onclick="testEmergencyAlert()">Test Emergency Alert</button>
+
+        <div id="transcript" style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+            <strong>Voice Input:</strong> <span id="transcriptText">Waiting for voice input...</span>
+        </div>
+
+        <div id="logs" style="margin-top: 20px;">
+            <h3>Emergency System Logs:</h3>
+            <div id="logContainer" style="background: #343a40; color: #fff; padding: 15px; border-radius: 5px; font-family: monospace; height: 200px; overflow-y: scroll;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let recognition;
+        let isListening = false;
+
+        // Emergency command patterns (matching the React hook implementation)
+        const emergencyCommands = [
+            { patterns: ['emergency police stop', 'police encounter', 'traffic stop emergency'], action: 'police_encounter' },
+            { patterns: ['i need legal help now', 'legal emergency', 'need attorney'], action: 'legal_emergency' },
+            { patterns: ['constitutional rights violation', 'rights violated', 'civil rights emergency'], action: 'civil_rights' },
+            { patterns: ['emergency record now', 'start emergency recording'], action: 'emergency_record' },
+            { patterns: ['send location to contacts', 'emergency location alert'], action: 'location_alert' }
+        ];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logContainer = document.getElementById('logContainer');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateStatus(message, className) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${className}`;
+        }
+
+        function initializeVoiceRecognition() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.maxAlternatives = 3;
+
+                recognition.onstart = function() {
+                    log('Voice recognition started', 'success');
+                    updateStatus('Listening for emergency commands...', 'success');
+                };
+
+                recognition.onresult = function(event) {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    
+                    document.getElementById('transcriptText').textContent = transcript;
+                    
+                    if (event.results[event.resultIndex].isFinal) {
+                        processVoiceCommand(transcript.toLowerCase().trim());
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    log(`Voice recognition error: ${event.error}`, 'error');
+                    updateStatus(`Error: ${event.error}`, 'error');
+                };
+
+                recognition.onend = function() {
+                    log('Voice recognition ended', 'info');
+                    isListening = false;
+                    document.getElementById('startBtn').disabled = false;
+                    document.getElementById('stopBtn').disabled = true;
+                    updateStatus('Voice recognition stopped', 'info');
+                };
+
+                return true;
+            } else {
+                log('Speech recognition not supported in this browser', 'error');
+                updateStatus('Speech recognition not supported in this browser', 'error');
+                return false;
+            }
+        }
+
+        function processVoiceCommand(transcript) {
+            log(`Processing command: "${transcript}"`, 'info');
+            
+            for (const command of emergencyCommands) {
+                for (const pattern of command.patterns) {
+                    if (transcript.includes(pattern)) {
+                        log(`Emergency command detected: ${command.action}`, 'warning');
+                        triggerEmergencyAction(command.action, transcript);
+                        return;
+                    }
+                }
+            }
+            
+            log(`No emergency command matched for: "${transcript}"`, 'info');
+        }
+
+        function triggerEmergencyAction(actionType, originalCommand) {
+            log(`EMERGENCY ALERT TRIGGERED: ${actionType}`, 'error');
+            
+            // Simulate emergency alert creation
+            const emergencyAlert = {
+                alertType: actionType,
+                userMessage: originalCommand,
+                location: {
+                    latitude: 40.7128,
+                    longitude: -74.0060,
+                    address: 'Test Location',
+                    city: 'New York',
+                    state: 'NY'
+                },
+                timestamp: new Date().toISOString()
+            };
+
+            // Log the emergency alert details
+            log(`Alert Details: ${JSON.stringify(emergencyAlert, null, 2)}`, 'warning');
+            
+            // In real implementation, this would send to server
+            updateStatus(`🚨 EMERGENCY ALERT SENT: ${actionType.toUpperCase()}`, 'error');
+            
+            // Simulate notification to emergency contacts
+            setTimeout(() => {
+                log('Emergency contacts notified via SMS/Email', 'success');
+            }, 1000);
+        }
+
+        function startListening() {
+            if (recognition && !isListening) {
+                recognition.start();
+                isListening = true;
+                document.getElementById('startBtn').disabled = true;
+                document.getElementById('stopBtn').disabled = false;
+            }
+        }
+
+        function stopListening() {
+            if (recognition && isListening) {
+                recognition.stop();
+            }
+        }
+
+        function testEmergencyAlert() {
+            log('Testing emergency alert manually...', 'warning');
+            triggerEmergencyAction('test_alert', 'Manual test of emergency system');
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            log('C.A.R.E.N. Emergency System initialized', 'success');
+            
+            if (initializeVoiceRecognition()) {
+                log('Voice recognition system ready', 'success');
+                updateStatus('Voice recognition ready. Click "Start Listening" to test emergency commands.', 'info');
+            } else {
+                updateStatus('Voice recognition not available in this browser', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "@caren/emergency",
+  "version": "1.0.0",
+  "description": "C.A.R.E.N. emergency module",
+  "main": "index.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@caren/core": "^1.0.0"
+  }
+}

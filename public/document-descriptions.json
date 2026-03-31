@@ -1,0 +1,233 @@
+{
+  "caren-pdf-library": {
+    "title": "C.A.R.E.N.™ Platform PDF Documentation Library",
+    "description": "Complete collection of technical documentation snapshots for the C.A.R.E.N.™ platform",
+    "created": "2025-07-29",
+    "total_files": 11,
+    "total_size_kb": 30,
+    "documents": {
+      "dashboard-screenshot.pdf": {
+        "title": "C.A.R.E.N.™ Dashboard Overview",
+        "description": "Complete dashboard interface showing Priority #1 Emergency Response and Priority #2 Journey Progress automation systems. Features user journey tracker, quick actions grid, platform features overview, and operational status indicators.",
+        "category": "Platform Overview",
+        "size_kb": 1.4,
+        "key_features": [
+          "Priority automation systems status",
+          "User journey progress tracking",
+          "Quick action buttons layout",
+          "Platform features grid",
+          "Operational status indicators"
+        ],
+        "target_audience": "Stakeholders, investors, platform overview presentations"
+      },
+      "caren-snapshot-1-emergency-response-system.pdf": {
+        "title": "Priority #1: Emergency Response System",
+        "description": "Comprehensive documentation of the 10-15 second automated emergency response system with GPS integration, N8N webhook automation, and attorney notification protocols.",
+        "category": "Emergency Systems",
+        "size_kb": 2,
+        "key_features": [
+          "10-15 second response time achievement",
+          "GPS coordinate capture and transmission",
+          "N8N webhook integration details",
+          "Attorney notification system",
+          "Emergency contact alert protocols"
+        ],
+        "target_audience": "Emergency response teams, legal professionals, system administrators"
+      },
+      "caren-snapshot-2-journey-progress-automation.pdf": {
+        "title": "Priority #2: Journey Progress Automation",
+        "description": "Real-time user journey tracking system with 6ms response time, sparkle effects visualization, milestone detection, and achievement system integration.",
+        "category": "User Experience",
+        "size_kb": 2,
+        "key_features": [
+          "6ms average response time",
+          "100% milestone detection accuracy",
+          "Sparkle effects system",
+          "Achievement tracking",
+          "User engagement analytics"
+        ],
+        "target_audience": "UX designers, product managers, user engagement analysts"
+      },
+      "caren-snapshot-3-legal-rights-database.pdf": {
+        "title": "Comprehensive Legal Rights Database",
+        "description": "Complete 50-state plus DC legal protection database with 467+ rights, GPS-triggered information display, and state-specific constitutional protections.",
+        "category": "Legal Systems",
+        "size_kb": 2,
+        "key_features": [
+          "50 states + DC coverage",
+          "467+ legal protections documented",
+          "GPS-triggered legal information",
+          "State jurisdiction identification",
+          "Constitutional rights database"
+        ],
+        "target_audience": "Legal professionals, civil rights advocates, law enforcement training"
+      },
+      "caren-snapshot-4-voice-command-system.pdf": {
+        "title": "Advanced Voice Command System",
+        "description": "Hands-free emergency activation system with 200+ voice patterns, constitutional rights commands, and multi-language support for emergency situations.",
+        "category": "Voice Technology",
+        "size_kb": 2,
+        "key_features": [
+          "200+ voice command patterns",
+          "Constitutional rights invocation",
+          "Emergency activation phrases",
+          "Multi-language support",
+          "95% recognition accuracy"
+        ],
+        "target_audience": "Voice technology developers, accessibility teams, emergency responders"
+      },
+      "caren-snapshot-5-attorney-communication-network.pdf": {
+        "title": "Secure Attorney Communication Network",
+        "description": "End-to-end encrypted attorney-client communication system with 231 verified attorneys, 24/7 emergency availability, and secure messaging protocols.",
+        "category": "Legal Communication",
+        "size_kb": 2,
+        "key_features": [
+          "End-to-end encryption",
+          "231 verified attorneys",
+          "24/7 emergency availability",
+          "3-minute average response time",
+          "Specialty-based attorney matching"
+        ],
+        "target_audience": "Legal professionals, attorney networks, security compliance teams"
+      },
+      "caren-snapshot-6-recording-evidence-system.pdf": {
+        "title": "Multi-Device Recording & Evidence System",
+        "description": "Cross-platform evidence recording system with GPS embedding, multi-device synchronization, blockchain integrity, and legal admissibility compliance.",
+        "category": "Evidence Management",
+        "size_kb": 2,
+        "key_features": [
+          "Multi-device coordination",
+          "GPS coordinate embedding",
+          "Blockchain evidence integrity",
+          "99.7% recording success rate",
+          "Legal chain of custody"
+        ],
+        "target_audience": "Legal evidence teams, law enforcement, forensic specialists"
+      },
+      "caren-snapshot-7-mobile-pwa-platform.pdf": {
+        "title": "Cross-Platform Mobile PWA",
+        "description": "Universal mobile Progressive Web App with offline emergency functionality, cross-platform compatibility, and native app performance across all devices.",
+        "category": "Mobile Technology",
+        "size_kb": 3,
+        "key_features": [
+          "Universal platform compatibility",
+          "Offline emergency functionality",
+          "Native app performance",
+          "Progressive enhancement",
+          "95% install success rate"
+        ],
+        "target_audience": "Mobile developers, platform architects, deployment teams"
+      },
+      "caren-snapshot-8-subscription-payment-system.pdf": {
+        "title": "Five-Tier Subscription System",
+        "description": "Comprehensive value-based subscription model from free Community Guardian to Enterprise Fleet, with live Stripe payment processing and feature access control.",
+        "category": "Business Model",
+        "size_kb": 3,
+        "key_features": [
+          "Five-tier subscription structure",
+          "Live Stripe payment integration",
+          "Feature access control",
+          "Family and enterprise plans",
+          "99.8% payment success rate"
+        ],
+        "target_audience": "Business stakeholders, financial teams, subscription managers"
+      },
+      "caren-snapshot-9-community-forum-system.pdf": {
+        "title": "Community Forum & Support System",
+        "description": "Legal-focused community discussion platform with 6 categories, expert content verification, moderated discussions, and legal accuracy enforcement.",
+        "category": "Community Features",
+        "size_kb": 3,
+        "key_features": [
+          "6 legal-focused categories",
+          "Expert content verification",
+          "24/7 moderation",
+          "150+ active discussions",
+          "Legal accuracy verification"
+        ],
+        "target_audience": "Community managers, legal moderators, user engagement teams"
+      },
+      "caren-snapshot-10-system-integration-overview.pdf": {
+        "title": "Complete System Integration Overview",
+        "description": "Comprehensive platform architecture documentation showing React/Node.js stack, PostgreSQL database, real-time WebSocket connections, and full system integration status.",
+        "category": "Technical Architecture",
+        "size_kb": 3,
+        "key_features": [
+          "Complete system architecture",
+          "Technology stack overview",
+          "Integration status monitoring",
+          "Performance metrics",
+          "Production deployment ready"
+        ],
+        "target_audience": "System architects, DevOps teams, technical stakeholders"
+      }
+    },
+    "categories": {
+      "Platform Overview": {
+        "description": "High-level platform demonstrations and dashboard interfaces",
+        "files": 1
+      },
+      "Emergency Systems": {
+        "description": "Critical emergency response and automation systems",
+        "files": 1
+      },
+      "User Experience": {
+        "description": "User journey tracking and engagement systems",
+        "files": 1
+      },
+      "Legal Systems": {
+        "description": "Legal rights database and constitutional protections",
+        "files": 1
+      },
+      "Voice Technology": {
+        "description": "Voice command systems and hands-free operation",
+        "files": 1
+      },
+      "Legal Communication": {
+        "description": "Attorney networks and secure communications",
+        "files": 1
+      },
+      "Evidence Management": {
+        "description": "Recording systems and evidence integrity",
+        "files": 1
+      },
+      "Mobile Technology": {
+        "description": "Progressive Web Apps and mobile platform support",
+        "files": 1
+      },
+      "Business Model": {
+        "description": "Subscription systems and payment processing",
+        "files": 1
+      },
+      "Community Features": {
+        "description": "Forum systems and community engagement",
+        "files": 1
+      },
+      "Technical Architecture": {
+        "description": "System integration and platform architecture",
+        "files": 1
+      }
+    },
+    "usage_guidelines": {
+      "stakeholder_presentations": [
+        "dashboard-screenshot.pdf",
+        "caren-snapshot-1-emergency-response-system.pdf",
+        "caren-snapshot-8-subscription-payment-system.pdf"
+      ],
+      "technical_documentation": [
+        "caren-snapshot-6-recording-evidence-system.pdf",
+        "caren-snapshot-7-mobile-pwa-platform.pdf",
+        "caren-snapshot-10-system-integration-overview.pdf"
+      ],
+      "legal_compliance": [
+        "caren-snapshot-3-legal-rights-database.pdf",
+        "caren-snapshot-5-attorney-communication-network.pdf",
+        "caren-snapshot-6-recording-evidence-system.pdf"
+      ],
+      "user_experience_design": [
+        "caren-snapshot-2-journey-progress-automation.pdf",
+        "caren-snapshot-4-voice-command-system.pdf",
+        "caren-snapshot-9-community-forum-system.pdf"
+      ]
+    }
+  }
+}
