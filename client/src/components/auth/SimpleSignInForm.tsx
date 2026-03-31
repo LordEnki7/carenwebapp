@@ -8,9 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import WelcomeAnimation from "./WelcomeAnimation";
+import AppleSignInButton from "./AppleSignInButton";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { signInWithApple } from "@/lib/appleSignIn";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -77,6 +79,34 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
 
   const onSubmit = (data: SignInFormData) => {
     signInMutation.mutate(data);
+  };
+
+  const handleAppleSignInSuccess = async () => {
+    try {
+      const appleResult = await signInWithApple();
+      const response = await apiRequest("POST", "/api/auth/apple", {
+        identityToken: appleResult.identityToken,
+        authorizationCode: appleResult.authorizationCode,
+        email: appleResult.email,
+        givenName: appleResult.givenName,
+        familyName: appleResult.familyName,
+        appleUserId: appleResult.user,
+      });
+      const data = await response.json();
+      if (data.sessionToken) {
+        localStorage.setItem('sessionToken', data.sessionToken);
+      }
+      const userName = data.user?.firstName || data.user?.email?.split('@')[0] || 'User';
+      setWelcomeUserName(userName);
+      setShowWelcomeAnimation(true);
+    } catch (err: any) {
+      if (err?.message?.includes('cancel') || err?.message?.includes('dismiss')) return;
+      toast({
+        title: "Apple Sign In Failed",
+        description: err.message || "Could not sign in with Apple. Please try another method.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleWelcomeComplete = () => {
@@ -174,6 +204,9 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
           </div>
         </div>
 
+        {/* Sign in with Apple — required for iOS App Store (Guideline 4.8) */}
+        <AppleSignInButton onSuccess={handleAppleSignInSuccess} />
+
         {/* Google Sign-In Button */}
         <Button
           type="button"
@@ -186,7 +219,7 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
           </svg>
-          <span className="text-base font-semibold">Google Sign In</span>
+          <span className="text-base font-semibold">Continue with Google</span>
         </Button>
 
         <Button

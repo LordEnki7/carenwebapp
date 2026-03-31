@@ -120,9 +120,11 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   getUserByGoogleId(googleId: string): Promise<User | undefined>;
+  getUserByAppleId(appleId: string): Promise<User | undefined>;
   createUser(userData: Omit<User, 'createdAt' | 'updatedAt'>): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
   linkGoogleAccount(userId: string, googleId: string): Promise<User>;
+  linkAppleAccount(userId: string, appleId: string): Promise<User>;
   updateUserProfile(id: string, updates: Partial<User>): Promise<User>;
   updateUserLanguage(id: string, language: string): Promise<User>;
 
@@ -424,10 +426,24 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getUserByAppleId(appleId: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.appleId, appleId));
+    return user;
+  }
+
   async linkGoogleAccount(userId: string, googleId: string): Promise<User> {
     const [user] = await db
       .update(users)
       .set({ googleId, updatedAt: new Date() })
+      .where(eq(users.id, userId))
+      .returning();
+    return user;
+  }
+
+  async linkAppleAccount(userId: string, appleId: string): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({ appleId, updatedAt: new Date() })
       .where(eq(users.id, userId))
       .returning();
     return user;

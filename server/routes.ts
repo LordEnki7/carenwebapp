@@ -50,6 +50,7 @@ import { registerAgentJobRoutes } from "./routes/agent-jobs.routes";
 import { registerPushRoutes } from "./routes/push.routes";
 import { registerReferralRoutes } from "./routes/referral.routes";
 import { registerEarlyAccessRoutes } from "./routes/early-access.routes";
+import { registerAppleAuthRoutes } from "./routes/apple-auth.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 
@@ -245,6 +246,7 @@ GUIDELINES:
   registerPushRoutes(app);
   registerReferralRoutes(app);
   registerEarlyAccessRoutes(app);
+  registerAppleAuthRoutes(app);
 
   // NIG Command Center — division health & metrics endpoint
   app.use("/api/nig-status", nigStatusRouter);

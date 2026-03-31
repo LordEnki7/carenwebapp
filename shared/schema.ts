@@ -32,6 +32,7 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   password: varchar("password"), // Added for email/password authentication
   googleId: varchar("google_id"), // Added for Google OAuth
+  appleId: varchar("apple_id"), // Added for Sign in with Apple
   profileImageUrl: varchar("profile_image_url"),
   role: varchar("role").default("user").notNull(), // user, attorney, admin
   subscriptionTier: varchar("subscription_tier").default("basic_guard").notNull(), // basic_guard, safety_pro, constitutional_pro, family_protection, enterprise_fleet

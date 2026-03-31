@@ -71,6 +71,13 @@ PostgreSQL is the primary database, managed with Drizzle ORM for schema changes.
 
 ## Deployment Notes
 
+### App Store Rejection Fixes (Build 13+)
+- **Sign in with Apple** added: `@capacitor-community/apple-sign-in` plugin (already installed), `appleId varchar` column on users table, `server/routes/apple-auth.routes.ts` endpoint, `client/src/lib/appleSignIn.ts` helper, `client/src/components/auth/AppleSignInButton.tsx` button (renders only on iOS), handler in `SimpleSignInForm.tsx`
+- **Terms/Privacy links** fixed in `client/src/pages/Payment.tsx`: plain text replaced with clickable `<a href="/terms-of-service">` and `<a href="/privacy-policy">` links
+- **IAP crash fixed**: `client/src/lib/iapService.ts` rewritten to remove broken `registerPlugin('StoreKit')` that was crashing on tap; now throws a user-friendly error on native instead of crashing silently
+- **DB**: `apple_id VARCHAR` column added to Neon DB via direct SQL (`ALTER TABLE users ADD COLUMN IF NOT EXISTS apple_id VARCHAR`)
+- **Remaining user action needed**: (1) Accept Apple Paid Apps Agreement in ASC, (2) Create IAP products in ASC with these IDs: `com.caren.safetyapp.community_guardian`, `com.caren.safetyapp.standard_plan_monthly`, `com.caren.safetyapp.legal_shield_monthly`, `com.caren.safetyapp.family_plan_monthly`, `com.caren.safetyapp.fleet_enterprise_monthly`, (3) Enable "Sign in with Apple" capability in Xcode → Signing & Capabilities, (4) Run `npx cap sync ios` before archiving
+
 ### iOS Blank Screen Fix (Build 9+)
 - **Root cause**: `scheme: 'CAREN Alert'` had a space, making WKWebView URL (`caren alert://localhost/`) invalid → blank screen on every launch
 - **Fix**: Changed to `scheme: 'carenalert'` in `capacitor.config.ts`
