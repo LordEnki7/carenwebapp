@@ -12,6 +12,7 @@ import {
   SECURITY_CONFIG 
 } from "./security";
 import { getHelmetConfig } from "./productionSecurity";
+import { sessionLimiterMiddleware } from "./sessionLimiter";
 
 const app = express();
 
@@ -251,6 +252,9 @@ app.use((req, res, next) => {
     next(); // Continue processing rather than stopping the request
   }
 });
+
+// Concurrent session limiter — enforces per-plan session limits
+app.use(sessionLimiterMiddleware());
 
 // Body parsing with size limits
 app.use(express.json({ limit: '10mb' }));
