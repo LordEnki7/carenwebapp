@@ -127,7 +127,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.enterprise_fleet_monthly",
+          "productID" : "com.caren.safetyapp.fleet_enterprise_monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Enterprise Fleet Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
