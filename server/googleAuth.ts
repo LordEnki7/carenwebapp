@@ -7,16 +7,24 @@ import { sendGoogleWelcomeEmail } from "./emailService";
 import { sendDirectGoogleWelcomeEmail } from "./emailServiceDirect";
 
 export async function setupGoogleAuth(app: Express) {
-  // Only setup Google auth if credentials are provided
   if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
     console.log('[GOOGLE_AUTH] Google OAuth credentials not provided, skipping Google authentication setup');
     return;
   }
 
+  // Use absolute callback URL so it works correctly behind Dokploy/nginx reverse proxy.
+  // A relative URL causes Passport to construct http:// instead of https:// in production.
+  const callbackURL = process.env.GOOGLE_CALLBACK_URL ||
+    (process.env.NODE_ENV === 'production'
+      ? 'https://carenalert.com/api/auth/google/callback'
+      : '/api/auth/google/callback');
+
+  console.log('[GOOGLE_AUTH] Using callback URL:', callbackURL);
+
   passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/api/auth/google/callback"
+    callbackURL
   },
   async (accessToken: string, refreshToken: string, profile: any, done: any) => {
     try {
@@ -26,16 +34,13 @@ export async function setupGoogleAuth(app: Express) {
         name: profile.displayName
       });
 
-      // Check if user already exists by Google ID
       let user = await storage.getUserByGoogleId(profile.id);
-      
+
       if (!user) {
-        // Check if user exists by email
         const email = profile.emails?.[0]?.value;
         if (email) {
           user = await storage.getUserByEmail(email);
           if (user) {
-            // Link Google account to existing user
             await storage.linkGoogleAccount(user.id, profile.id);
             console.log('[GOOGLE_AUTH] Linked Google account to existing user:', user.id);
           }
@@ -43,7 +48,6 @@ export async function setupGoogleAuth(app: Express) {
       }
 
       if (!user) {
-        // Create new user with Google data
         const newUserId = uuidv4();
         const userData = {
           id: newUserId,
@@ -52,7 +56,7 @@ export async function setupGoogleAuth(app: Express) {
           lastName: profile.name?.familyName || null,
           googleId: profile.id,
           profileImageUrl: profile.photos?.[0]?.value || null,
-          agreedToTerms: false, // Will need to agree to terms after OAuth
+          agreedToTerms: false,
           role: "user" as const,
           subscriptionTier: "free" as const,
           preferredLanguage: "en"
@@ -60,8 +64,7 @@ export async function setupGoogleAuth(app: Express) {
 
         user = await storage.createUser(userData);
         console.log('[GOOGLE_AUTH] Created new user from Google account:', user.id);
-        
-        // Send Google welcome email asynchronously (don't block response) - using direct API
+
         sendDirectGoogleWelcomeEmail({
           email: userData.email || '',
           firstName: userData.firstName || '',
@@ -76,7 +79,6 @@ export async function setupGoogleAuth(app: Express) {
     }
   }));
 
-  // Google authentication routes
   app.get('/api/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
   );
@@ -86,18 +88,15 @@ export async function setupGoogleAuth(app: Express) {
     async (req, res) => {
       try {
         const user = req.user as any;
-        
-        // Generate session token for Google authenticated user
+
         const sessionToken = `gauth_${user.id}_${Date.now()}_${Math.random().toString(36).substring(2)}`;
-        
-        // Store session in database/memory for validation
+
         req.session.userId = user.id;
-        req.session.authMethod = 'google';
-        req.session.sessionToken = sessionToken;
+        (req.session as any).authMethod = 'google';
+        (req.session as any).sessionToken = sessionToken;
 
         console.log('[GOOGLE_AUTH] Google authentication successful for user:', user.id);
 
-        // Send Google welcome email for existing users returning (optional, non-blocking)
         if (user.email && user.firstName) {
           sendGoogleWelcomeEmail({
             email: user.email,
@@ -106,14 +105,18 @@ export async function setupGoogleAuth(app: Express) {
           }).catch(err => console.error('[EMAIL] Google welcome email failed for returning user:', err));
         }
 
-        // Check if user needs to agree to terms
-        if (!user.agreedToTerms) {
-          // Redirect to terms agreement page with session token
-          res.redirect(`/signin?google_auth=true&session_token=${sessionToken}&needs_terms=true`);
-        } else {
-          // Direct to dashboard with session token
-          res.redirect(`/?google_auth=success&session_token=${sessionToken}`);
-        }
+        const redirectTarget = !user.agreedToTerms
+          ? `/signin?google_auth=true&session_token=${sessionToken}&needs_terms=true`
+          : `/?google_auth=success&session_token=${sessionToken}`;
+
+        // Save session to DB before redirecting — critical for OAuth flows
+        req.session.save((err) => {
+          if (err) {
+            console.error('[GOOGLE_AUTH] Session save error:', err);
+            return res.redirect('/signin?error=session_error');
+          }
+          res.redirect(redirectTarget);
+        });
       } catch (error) {
         console.error('[GOOGLE_AUTH] Error in Google callback:', error);
         res.redirect('/signin?error=callback_error');
