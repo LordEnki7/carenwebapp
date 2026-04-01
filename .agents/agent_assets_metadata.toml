@@ -1,0 +1,61 @@
+uploads = []
+
+[[generated]]
+id = "UTXxE1WKMsY6jgZ-PptTi"
+uri = "file://attached_assets/generated_images/plan_community_guardian.png"
+type = "image"
+title = "community guardian plan"
+
+[[generated]]
+id = "7etmoAWEGPFB4jJE8u7yx"
+uri = "file://attached_assets/generated_images/plan_standard.png"
+type = "image"
+title = "standard plan"
+
+[[generated]]
+id = "FI1Z4BV7sPVSLyra06pOr"
+uri = "file://attached_assets/generated_images/plan_legal_shield.png"
+type = "image"
+title = "legal shield plan"
+
+[[generated]]
+id = "xe4HGJvJJptsJF7OqyopH"
+uri = "file://attached_assets/generated_images/plan_family.png"
+type = "image"
+title = "family plan"
+
+[[generated]]
+id = "rzSNYyhpoeshAwnszhkZY"
+uri = "file://attached_assets/generated_images/plan_enterprise.png"
+type = "image"
+title = "fleet enterprise plan"
+
+[[outputs]]
+id = "cSZcNcS8S8rCGXpao6DK9"
+uri = "file://attached_assets/generated_images/plan_community_guardian.png"
+type = "image"
+title = "Community Guardian — $0.99 one-time"
+
+[[outputs]]
+id = "Wxq0QmgQjNJKFubkwZmr1"
+uri = "file://attached_assets/generated_images/plan_standard.png"
+type = "image"
+title = "Standard Plan — $4.99/month"
+
+[[outputs]]
+id = "6I5qtx86RxorNqUrqnbsY"
+uri = "file://attached_assets/generated_images/plan_legal_shield.png"
+type = "image"
+title = "Legal Shield — $9.99/month"
+
+[[outputs]]
+id = "1rw0pxY-6Ar-rExDvcz2Z"
+uri = "file://attached_assets/generated_images/plan_family.png"
+type = "image"
+title = "Family Plan — $29.99/month"
+
+[[outputs]]
+id = "45yuQmBEXYcrfsMQLCwoO"
+uri = "file://attached_assets/generated_images/plan_enterprise.png"
+type = "image"
+title = "Fleet & Enterprise — $49.99/month"
