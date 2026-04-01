@@ -33,19 +33,17 @@ export function DemoStatusBanner() {
   // Don't fetch demo status until authentication is confirmed
   const { data: demoStatus } = useQuery<DemoStatus>({
     queryKey: ['/api/demo/status'],
-    enabled: !isLoading && isAuthenticated, // Only fetch when not loading AND authenticated
-    refetchInterval: 5000, // Update every 5 seconds instead of 30
-    staleTime: 0, // Always consider data stale
-    gcTime: 0, // Don't cache responses (updated property name)
-    refetchOnWindowFocus: true, // Refetch when window gains focus
-    refetchOnMount: true, // Always refetch on component mount
+    enabled: !isLoading && isAuthenticated,
+    retry: false,
+    refetchInterval: (query) => query.state.status === 'error' ? false : 5000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: true,
+    staleTime: 10000,
     queryFn: async () => {
-      // Include session tokens in Authorization header (demo or regular)
       const demoSessionKey = localStorage.getItem('demoSessionKey');
       const regularSessionToken = localStorage.getItem('regularSessionToken');
       const headers: Record<string, string> = {};
-      
-      // Use demo session key if available, otherwise use regular session token
+
       if (demoSessionKey) {
         headers.Authorization = `Bearer ${demoSessionKey}`;
       } else if (regularSessionToken) {
@@ -54,15 +52,11 @@ export function DemoStatusBanner() {
 
       const response = await fetch('/api/demo/status', {
         credentials: 'include',
-        headers: {
-          ...headers,
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
-        }
+        headers: { ...headers, 'Cache-Control': 'no-cache' }
       });
 
       if (!response.ok) {
-        throw new Error(`${response.status}: ${response.statusText}`);
+        throw new Error(`${response.status}`);
       }
 
       return response.json();
