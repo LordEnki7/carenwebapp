@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { StoreKit } from './storeKitPlugin';
 
 export const PRODUCT_IDS = {
   community_guardian: 'com.caren.safetyapp.community_guardian',
@@ -99,7 +100,24 @@ class InAppPurchaseService {
   }
 
   async getProducts(planIds?: PlanId[]): Promise<IAPProduct[]> {
-    return this.getWebProducts(planIds);
+    if (!this.isNative) return this.getWebProducts(planIds);
+    try {
+      const ids = planIds
+        ? planIds.map(id => PRODUCT_IDS[id])
+        : Object.values(PRODUCT_IDS);
+      const { products } = await StoreKit.getProducts({ productIds: ids });
+      if (products.length === 0) return this.getWebProducts(planIds);
+      return products.map(p => ({
+        productId: p.productId,
+        title: p.title,
+        description: p.description,
+        price: p.price,
+        priceAmount: p.priceAmount,
+        currency: p.currency,
+      }));
+    } catch {
+      return this.getWebProducts(planIds);
+    }
   }
 
   async purchase(planId: PlanId): Promise<IAPTransaction | null> {
@@ -108,11 +126,25 @@ class InAppPurchaseService {
       return null;
     }
 
-    // Native iOS path — requires StoreKit products to be configured in App Store Connect.
-    // Products must be submitted and approved in App Store Connect before this will work in sandbox.
-    throw new Error(
-      'In-App Purchase is not yet available. Please contact support@carenalert.com to complete your upgrade.'
-    );
+    const productId = PRODUCT_IDS[planId];
+    const { transaction } = await StoreKit.purchaseProduct({ productId });
+
+    const iap: IAPTransaction = {
+      transactionId: transaction.transactionId,
+      productId: transaction.productId,
+      originalTransactionId: transaction.originalTransactionId,
+      purchaseDate: transaction.purchaseDate,
+      expiresDate: transaction.expiresDate,
+      jwsRepresentation: transaction.jwsRepresentation,
+    };
+
+    // Finish the transaction so it leaves the payment queue
+    try { await StoreKit.finishTransaction({ transactionId: transaction.transactionId }); } catch (_) {}
+
+    // Best-effort server-side receipt validation
+    try { await this.validateReceipt(iap); } catch (_) {}
+
+    return iap;
   }
 
   async validateReceipt(transaction: IAPTransaction): Promise<boolean> {
@@ -140,11 +172,35 @@ class InAppPurchaseService {
   }
 
   async restorePurchases(): Promise<IAPTransaction[]> {
-    return [];
+    if (!this.isNative) return [];
+    try {
+      const { transactions } = await StoreKit.restorePurchases();
+      return transactions.map(t => ({
+        transactionId: t.transactionId,
+        productId: t.productId,
+        originalTransactionId: t.originalTransactionId,
+        purchaseDate: t.purchaseDate,
+        expiresDate: t.expiresDate,
+        jwsRepresentation: t.jwsRepresentation,
+      }));
+    } catch { return []; }
   }
 
   async getCurrentSubscription(): Promise<IAPTransaction | null> {
-    return null;
+    if (!this.isNative) return null;
+    try {
+      const { transactions } = await StoreKit.getCurrentTransactions();
+      if (!transactions.length) return null;
+      const t = transactions[0];
+      return {
+        transactionId: t.transactionId,
+        productId: t.productId,
+        originalTransactionId: t.originalTransactionId,
+        purchaseDate: t.purchaseDate,
+        expiresDate: t.expiresDate,
+        jwsRepresentation: t.jwsRepresentation,
+      };
+    } catch { return null; }
   }
 }
 

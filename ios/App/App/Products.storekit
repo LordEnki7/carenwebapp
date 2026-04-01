@@ -7,16 +7,16 @@
     {
       "displayPrice" : "0.99",
       "familyShareable" : false,
-      "internalID" : "basic_guard_001",
+      "internalID" : "community_guardian_001",
       "localizations" : [
         {
-          "description" : "Essential legal rights lookup for your state.",
-          "displayName" : "Basic Guard",
+          "description" : "One-time Early Access pass — essential legal rights lookup.",
+          "displayName" : "Community Guardian",
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.caren.safetyapp.basic_guard",
-      "referenceName" : "Basic Guard",
+      "productID" : "com.caren.safetyapp.community_guardian",
+      "referenceName" : "Community Guardian",
       "type" : "NonConsumable"
     }
   ],
@@ -43,18 +43,18 @@
           "displayPrice" : "4.99",
           "familyShareable" : false,
           "groupNumber" : 1,
-          "internalID" : "safety_pro_001",
+          "internalID" : "standard_plan_001",
           "introductoryOffer" : null,
           "localizations" : [
             {
               "description" : "GPS-enabled legal rights, voice commands, and incident recording.",
-              "displayName" : "Safety Pro",
+              "displayName" : "Standard Plan",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.safety_pro_monthly",
+          "productID" : "com.caren.safetyapp.standard_plan_monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Safety Pro Monthly",
+          "referenceName" : "Standard Plan Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
           "type" : "RecurringSubscription"
         },
@@ -68,18 +68,18 @@
           "displayPrice" : "9.99",
           "familyShareable" : false,
           "groupNumber" : 2,
-          "internalID" : "constitutional_pro_001",
+          "internalID" : "legal_shield_001",
           "introductoryOffer" : null,
           "localizations" : [
             {
               "description" : "Full AI-powered protection suite with attorney connect.",
-              "displayName" : "Constitutional Pro",
+              "displayName" : "Legal Shield",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.constitutional_pro_monthly",
+          "productID" : "com.caren.safetyapp.legal_shield_monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Constitutional Pro Monthly",
+          "referenceName" : "Legal Shield Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
           "type" : "RecurringSubscription"
         },
@@ -90,21 +90,21 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "24.99",
+          "displayPrice" : "29.99",
           "familyShareable" : true,
           "groupNumber" : 3,
-          "internalID" : "family_protection_001",
+          "internalID" : "family_plan_001",
           "introductoryOffer" : null,
           "localizations" : [
             {
               "description" : "Protect your entire family with up to 6 linked accounts.",
-              "displayName" : "Family Protection",
+              "displayName" : "Family Plan",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.family_protection_monthly",
+          "productID" : "com.caren.safetyapp.family_plan_monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "Family Protection Monthly",
+          "referenceName" : "Family Plan Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
           "type" : "RecurringSubscription"
         },

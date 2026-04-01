@@ -153,7 +153,12 @@ export default function Payment() {
         setLocation('/dashboard');
       }
     } catch (error: any) {
-      toast({ title: "Purchase Failed", description: error.message || "Please try again.", variant: "destructive" });
+      const msg: string = error?.message || '';
+      // USER_CANCELLED means they closed the Apple payment sheet — not an error
+      if (msg === 'USER_CANCELLED' || msg.includes('cancel') || msg.includes('dismiss')) {
+        return;
+      }
+      toast({ title: "Purchase Failed", description: msg || "Please try again.", variant: "destructive" });
     } finally {
       setIsProcessing(false);
     }
