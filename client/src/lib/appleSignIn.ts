@@ -14,7 +14,10 @@ export async function signInWithApple(): Promise<AppleSignInResult> {
     throw new Error('Sign in with Apple is only available on the iOS app.');
   }
 
-  const { SignInWithApple } = await import('@capacitor-community/apple-sign-in');
+  // @vite-ignore tells the bundler not to resolve this at build time —
+  // it is only ever called on iOS native where the plugin is available.
+  const pkg = '@capacitor-community/apple-sign-in';
+  const { SignInWithApple } = await import(/* @vite-ignore */ pkg);
 
   const result = await SignInWithApple.authorize({
     clientId: 'com.caren.safetyapp',
