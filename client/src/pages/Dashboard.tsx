@@ -27,9 +27,8 @@ export default function Dashboard() {
   const { enablePushNotifications, isPushEnabled } = useEmergencyAlerts();
   const [, setLocation] = useLocation();
   const [showFacialRecognition, setShowFacialRecognition] = useState(false);
-  const [showFullDashboard, setShowFullDashboard] = useState(() => {
-    return localStorage.getItem('caren_show_full_dashboard') === 'true';
-  });
+  // Always start on PanicHome — never persist "More Options" across sessions
+  const [showFullDashboard, setShowFullDashboard] = useState(false);
   
   const { data: referralData, refetch: refetchReferral } = useQuery<{ referralCode: string | null; total: number; converted: number; rewardEarned: boolean }>({
     queryKey: ["/api/referrals/my"],
