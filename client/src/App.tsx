@@ -102,10 +102,21 @@ const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 
 function Router() {
+  // ── Google OAuth redirect handler ──────────────────────────────────────
+  // Must run synchronously before useAuth so the token is in localStorage
+  // when the auth query fires for the first time.
+  const _urlParams = new URLSearchParams(window.location.search);
+  const _googleAuth = _urlParams.get('google_auth');
+  const _sessionTokenFromUrl = _urlParams.get('session_token');
+  if (_googleAuth && _sessionTokenFromUrl) {
+    localStorage.setItem('sessionToken', _sessionTokenFromUrl);
+    // Remove the params from the URL bar without reloading
+    window.history.replaceState({}, document.title, window.location.pathname);
+    console.log('[GOOGLE_AUTH] Session token captured from URL and saved to localStorage');
+  }
+  // ── End Google OAuth handler ───────────────────────────────────────────
+
   const { isAuthenticated, isLoading } = useAuth();
-  
-  // Initialize real-time synchronization for authenticated users - DISABLED to prevent loading issues
-  // const { isConnected, getConnectionStatus } = useRealTimeSync();
 
   // Check if user is new and needs onboarding
   const hasSeenOnboarding = localStorage.getItem('caren_onboarding_state') ? 

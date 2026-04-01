@@ -124,5 +124,37 @@ export async function setupGoogleAuth(app: Express) {
     }
   );
 
+  // Agree-to-terms endpoint — called by new Google users after they accept terms
+  app.post('/api/auth/agree-terms', async (req, res) => {
+    try {
+      const sessionUserId = (req.session as any)?.userId || (req.session as any)?.user?.id;
+      let userId = sessionUserId;
+
+      // Also accept a session token in the Authorization header (for Google gauth_ tokens)
+      const authHeader = req.headers.authorization;
+      if (!userId && authHeader?.startsWith('Bearer gauth_')) {
+        const token = authHeader.slice(7);
+        // gauth_<userId>_<timestamp>_<random> — extract userId
+        const parts = token.split('_');
+        if (parts.length >= 3) {
+          const candidateId = parts.slice(1, parts.length - 2).join('_');
+          const user = await storage.getUser(candidateId);
+          if (user) userId = user.id;
+        }
+      }
+
+      if (!userId) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      await storage.updateUserTermsAcceptance(userId);
+      console.log('[GOOGLE_AUTH] User agreed to terms:', userId);
+      return res.json({ success: true });
+    } catch (err) {
+      console.error('[GOOGLE_AUTH] agree-terms error:', err);
+      return res.status(500).json({ error: 'Failed to update terms agreement' });
+    }
+  });
+
   console.log('[GOOGLE_AUTH] Google OAuth authentication setup complete');
 }

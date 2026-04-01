@@ -40,6 +40,48 @@ export default function BrowserCompatibleSignIn() {
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState<string>('');
 
+  // Google OAuth — needs terms agreement for new users
+  const [googleNeedsTerms, setGoogleNeedsTerms] = useState(false);
+  const [googleSessionToken, setGoogleSessionToken] = useState<string | null>(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isAgreeingToTerms, setIsAgreeingToTerms] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('google_auth') === 'true' && params.get('needs_terms') === 'true') {
+      const token = params.get('session_token');
+      if (token) {
+        localStorage.setItem('sessionToken', token);
+        setGoogleSessionToken(token);
+      }
+      setGoogleNeedsTerms(true);
+      window.history.replaceState({}, document.title, '/signin');
+    }
+  }, []);
+
+  const handleAgreeToTerms = async () => {
+    if (!termsAccepted) {
+      toast({ title: 'Please accept the terms to continue', variant: 'destructive' });
+      return;
+    }
+    setIsAgreeingToTerms(true);
+    try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (googleSessionToken) headers.Authorization = `Bearer ${googleSessionToken}`;
+      const res = await fetch('/api/auth/agree-terms', {
+        method: 'POST',
+        credentials: 'include',
+        headers,
+      });
+      if (!res.ok) throw new Error('Failed to save terms agreement');
+      toast({ title: 'Welcome to C.A.R.E.N.™!', description: 'Redirecting to your dashboard…' });
+      setTimeout(() => { window.location.href = '/'; }, 800);
+    } catch (err: any) {
+      toast({ title: 'Something went wrong', description: err.message, variant: 'destructive' });
+      setIsAgreeingToTerms(false);
+    }
+  };
+
   // Voice recognition setup (isolated to prevent browser conflicts)
   useEffect(() => {
     if (typeof window !== 'undefined' && (window.SpeechRecognition || window.webkitSpeechRecognition)) {
@@ -204,6 +246,42 @@ export default function BrowserCompatibleSignIn() {
   const startDemoLogin = () => {
     demoLoginMutation.mutate();
   };
+
+  // ── Google new-user terms agreement screen ────────────────────────────
+  if (googleNeedsTerms) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
+        <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 space-y-6">
+          <div className="text-center">
+            <img src={carenLogo} alt="C.A.R.E.N.™" className="w-16 h-16 rounded-full border-4 border-cyan-400/30 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white">One Last Step</h2>
+            <p className="text-gray-300 text-sm mt-1">Your Google account is ready. Please agree to our terms to complete sign-up.</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-gray-300 space-y-2 max-h-40 overflow-y-auto">
+            <p>By using C.A.R.E.N.™ you agree to our <a href="/terms-of-service" className="text-cyan-400 underline" target="_blank">Terms of Service</a> and <a href="/privacy-policy" className="text-cyan-400 underline" target="_blank">Privacy Policy</a>.</p>
+            <p>C.A.R.E.N.™ is a legal assistance and emergency response tool. It does not constitute legal advice. Always consult a qualified attorney for legal matters specific to your situation.</p>
+          </div>
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              className="w-5 h-5 rounded accent-cyan-400"
+              checked={termsAccepted}
+              onChange={e => setTermsAccepted(e.target.checked)}
+            />
+            <span className="text-gray-200 text-sm">I have read and agree to the Terms of Service and Privacy Policy</span>
+          </label>
+          <Button
+            className="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-3 rounded-xl"
+            onClick={handleAgreeToTerms}
+            disabled={!termsAccepted || isAgreeingToTerms}
+          >
+            {isAgreeingToTerms ? 'Saving…' : 'Continue to C.A.R.E.N.™'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+  // ── End terms agreement screen ─────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
