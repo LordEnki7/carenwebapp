@@ -2,6 +2,7 @@
 // Handles authentication challenges specific to custom domain deployments
 
 import { Request, Response, NextFunction } from 'express';
+import { randomBytes as cryptoRandomBytes } from 'crypto';
 
 // In-memory token store for custom domain authentication
 const customDomainTokens = new Map<string, {
@@ -13,9 +14,8 @@ const customDomainTokens = new Map<string, {
 
 // Generate cryptographically secure custom domain token
 export function generateCustomDomainToken(userId: string, user: any): string {
-  const crypto = require('crypto');
   // Use cryptographically secure random token generation
-  const randomBytes = crypto.randomBytes(32).toString('hex');
+  const randomBytes = cryptoRandomBytes(32).toString('hex');
   const timestamp = Date.now();
   const token = `cdt_${userId}_${timestamp}_${randomBytes}`;
   const expiresAt = new Date(Date.now() + 12 * 60 * 60 * 1000); // Reduced to 12 hours for better security

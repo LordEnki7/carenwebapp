@@ -20,6 +20,7 @@ import {
   AlertTriangle,
   Eye,
   Trash2,
+  UserX,
 } from "lucide-react";
 
 export default function AccountSecurity() {
@@ -53,8 +54,8 @@ export default function AccountSecurity() {
         apiRequest("GET", "/api/auth/login-history")
       ]);
       
-      setActiveSessions(sessionsResponse || []);
-      setLoginHistory(historyResponse || []);
+      setActiveSessions(Array.isArray(sessionsResponse) ? sessionsResponse : (sessionsResponse?.sessions ?? sessionsResponse?.data ?? []));
+      setLoginHistory(Array.isArray(historyResponse) ? historyResponse : (historyResponse?.history ?? historyResponse?.data ?? []));
     } catch (error) {
       console.log("Failed to load security data:", error);
       setActiveSessions([

@@ -32,11 +32,11 @@ export function registerAuthRoutes(app: Express): void {
   // Demo login endpoint
   app.post('/api/auth/demo-login', async (req, res) => {
     try {
-      const { email, password, firstName, lastName } = req.body;
-
-      if (!email || !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
-      }
+      // Use fixed demo credentials when none are supplied (Try Demo Mode button)
+      const email = req.body?.email || 'demo@caren.app';
+      const password = req.body?.password || 'CARENdemo2025!';
+      const firstName = req.body?.firstName || 'Demo';
+      const lastName = req.body?.lastName || 'User';
 
       console.log('[DEMO_LOGIN] Login attempt for:', email);
 
@@ -44,17 +44,24 @@ export function registerAuthRoutes(app: Express): void {
       let user = findUserByEmail(email);
       
       if (!user) {
-        // For demo purposes, create user if doesn't exist
-        user = addUser(email, password, { firstName, lastName });
+        // For demo purposes, create user object if doesn't exist
+        const newUser = {
+          id: `demo-${Date.now()}`,
+          email,
+          password,
+          firstName,
+          lastName,
+          subscriptionTier: 'free',
+          role: 'user',
+          agreedToTerms: true,
+          termsAgreedAt: new Date().toISOString(),
+          preferredLanguage: 'en',
+          emergencyContacts: [],
+          currentState: null,
+        };
+        addUser(newUser);
+        user = newUser;
         console.log('[DEMO_LOGIN] Created new demo user:', email);
-        
-        // Send welcome email
-        try {
-          await sendDirectWelcomeEmail(email, firstName || 'User');
-          console.log('[DEMO_LOGIN] Welcome email sent to:', email);
-        } catch (emailError) {
-          console.warn('[DEMO_LOGIN] Failed to send welcome email:', emailError);
-        }
       } else if (user.password !== password) {
         console.log('[DEMO_LOGIN] Invalid password for:', email);
         return res.status(401).json({ error: 'Invalid credentials' });
@@ -62,6 +69,15 @@ export function registerAuthRoutes(app: Express): void {
 
       // Set authentication state
       setUserAuthenticated(true, user, new Date());
+      
+      // Generate a proper auth token so the frontend can authenticate on subsequent requests
+      const sessionToken = generateCustomDomainToken(user.id, user);
+      
+      // Also set the server-side session
+      (req as any).session.userId = user.id;
+      (req as any).session.user = user;
+      (req as any).session.isAuthenticated = true;
+      (req as any).session.authMethod = 'demo';
       
       console.log('[DEMO_LOGIN] User authenticated successfully:', email);
       
@@ -71,8 +87,13 @@ export function registerAuthRoutes(app: Express): void {
           id: user.id,
           email: user.email,
           firstName: user.firstName,
-          lastName: user.lastName
+          lastName: user.lastName,
+          subscriptionTier: user.subscriptionTier,
+          role: user.role,
         },
+        sessionToken,
+        customDomainToken: sessionToken,
+        demoSessionKey: `demo_${user.id}`,
         message: 'Login successful'
       });
     } catch (error) {
@@ -135,7 +156,8 @@ export function registerAuthRoutes(app: Express): void {
           
           if (tokenData) {
             console.log('[AUTH_USER] Custom domain token authentication successful');
-            return res.json(tokenData.user);
+            const { password: _pw, ...safeUser } = tokenData.user || {};
+            return res.json(safeUser);
           }
         } catch (customDomainError: any) {
           console.log('[AUTH_USER] Custom domain token validation failed:', customDomainError?.message);
@@ -151,10 +173,10 @@ export function registerAuthRoutes(app: Express): void {
           if (tokenParts.length >= 2) {
             const userId = tokenParts[1];
             
-            // For demo tokens
-            if (userId === 'demo') {
+            // For demo tokens — userId is either 'demo' or 'demo-<timestamp>'
+            if (userId === 'demo' || userId.startsWith('demo-')) {
               const demoUser = {
-                id: 'demo-user-123',
+                id: userId,
                 email: 'demo@caren.app',
                 firstName: 'Demo',
                 lastName: 'User',
@@ -166,7 +188,7 @@ export function registerAuthRoutes(app: Express): void {
                 currentState: null,
                 preferredLanguage: 'en'
               };
-              console.log('[AUTH_USER] Returning demo user for demo sessionToken');
+              console.log('[AUTH_USER] Returning demo user for demo sessionToken, userId:', userId);
               return res.json(demoUser);
             }
             
