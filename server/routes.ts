@@ -3494,17 +3494,24 @@ GUIDELINES:
 
   app.delete("/api/privacy/delete-account", async (req: any, res) => {
     try {
-      const userId = "demo-user";
-      
+      const userId = (req.session as any)?.userId || (req.session as any)?.user?.id;
+      if (!userId) return res.status(401).json({ message: "Not authenticated" });
+
       SecurityAuditLogger.logDataAccess('USER_DATA_DELETION', 'DELETE_REQUEST', req);
-      
+
       await DataPrivacyManager.deleteUserData(userId);
-      
-      res.json({ 
-        message: "Account deletion initiated. Your data will be securely removed within 30 days.",
-        deletionId: EncryptionService.generateSecureToken()
+
+      // Delete the user row itself
+      await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
+
+      // Destroy the session
+      req.session.destroy(() => {});
+
+      res.json({
+        message: "Your account and all associated data have been permanently deleted.",
+        deleted: true
       });
-      
+
     } catch (error: any) {
       console.error("Account deletion error:", error);
       res.status(500).json({ message: "Failed to process account deletion" });

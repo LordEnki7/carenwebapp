@@ -7,7 +7,12 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Check, CreditCard, ArrowLeft, Shield, Zap, Users, Building, Home, RotateCcw, Smartphone } from "lucide-react";
 import { Link } from "wouter";
-import iapService, { type PlanId } from "@/lib/iapService";
+const isNativeiOS = (): boolean => {
+  try {
+    const cap = (window as any).Capacitor;
+    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
+  } catch { return false; }
+};
 
 interface Plan {
   id: string;
@@ -109,7 +114,7 @@ const plans: Record<string, Plan> = {
   }
 };
 
-const IAP_PLAN_MAP: Record<string, PlanId> = {
+const IAP_PLAN_MAP: Record<string, string> = {
   legal_shield: 'safety_pro',
   constitutional_pro: 'constitutional_pro',
   family_protection: 'family_protection',
@@ -130,55 +135,18 @@ export default function Payment() {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedPlan = urlParams.get('plan') || 'basic';
     setPlanId(selectedPlan);
-    setIsNativeApp(iapService.isAvailable());
+    setIsNativeApp(isNativeiOS());
     setLoading(false);
   }, []);
 
   const selectedPlan = plans[planId];
 
   const handleIAPPurchase = async () => {
-    if (!selectedPlan) return;
-
-    const iapPlanId = IAP_PLAN_MAP[planId];
-    if (!iapPlanId) {
-      toast({ title: "Error", description: "This plan is not available for in-app purchase.", variant: "destructive" });
-      return;
-    }
-
-    setIsProcessing(true);
-    try {
-      const transaction = await iapService.purchase(iapPlanId);
-      if (transaction) {
-        toast({ title: "Purchase Complete!", description: `You now have ${selectedPlan.name} protection.` });
-        setLocation('/dashboard');
-      }
-    } catch (error: any) {
-      const msg: string = error?.message || '';
-      // USER_CANCELLED means they closed the Apple payment sheet — not an error
-      if (msg === 'USER_CANCELLED' || msg.includes('cancel') || msg.includes('dismiss')) {
-        return;
-      }
-      toast({ title: "Purchase Failed", description: msg || "Please try again.", variant: "destructive" });
-    } finally {
-      setIsProcessing(false);
-    }
+    window.open("https://carenalert.com/payment", "_blank");
   };
 
   const handleRestorePurchases = async () => {
-    setIsRestoring(true);
-    try {
-      const transactions = await iapService.restorePurchases();
-      if (transactions.length > 0) {
-        toast({ title: "Purchases Restored", description: "Your previous purchases have been restored." });
-        setLocation('/dashboard');
-      } else {
-        toast({ title: "No Purchases Found", description: "No previous purchases were found for your account." });
-      }
-    } catch (error: any) {
-      toast({ title: "Restore Failed", description: error.message || "Please try again.", variant: "destructive" });
-    } finally {
-      setIsRestoring(false);
-    }
+    window.open("https://carenalert.com/payment", "_blank");
   };
 
   const STRIPE_PAYMENT_LINKS: Record<string, string> = {

@@ -26,9 +26,17 @@ declare global {
 
 type AuthMode = 'signin' | 'create' | 'forgot';
 
+const isNativeiOS = (): boolean => {
+  try {
+    const cap = (window as any).Capacitor;
+    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
+  } catch { return false; }
+};
+
 export default function BrowserCompatibleSignIn() {
   const { toast } = useToast();
   const [currentMode, setCurrentMode] = useState<AuthMode>('signin');
+  const [oniOS] = useState(() => isNativeiOS());
   
   // Advanced features state (separated for better browser compatibility)
   const [showFacialRecognition, setShowFacialRecognition] = useState(false);
@@ -310,17 +318,20 @@ export default function BrowserCompatibleSignIn() {
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </Button>
           
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setShowFacialRecognition(true);
-              setFacialRecognitionMode('authenticate');
-            }}
-            className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
-          >
-            <ScanFace className="w-4 h-4" />
-          </Button>
+          {/* Facial recognition hidden on iOS — Apple flags camera face data collection */}
+          {!oniOS && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setShowFacialRecognition(true);
+                setFacialRecognitionMode('authenticate');
+              }}
+              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
+            >
+              <ScanFace className="w-4 h-4" />
+            </Button>
+          )}
         </div>
 
         {/* Main Form Container */}
