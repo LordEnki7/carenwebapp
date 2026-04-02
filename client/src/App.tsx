@@ -28,14 +28,20 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   }
 }
 
-import Landing from "@/pages/Landing";
-import Login from "@/pages/Login";
-import BrowserCompatibleSignIn from "@/components/auth/BrowserCompatibleSignIn";
-import Dashboard from "@/pages/Dashboard";
-import OnboardingPage from "@/pages/OnboardingPage";
-import Record from "@/pages/Record";
-import Rights from "@/pages/Rights";
 import NotFound from "@/pages/not-found";
+
+// ── RULE: All pages must be lazy-loaded to prevent 37% iOS loading hang ──
+// Eagerly-loading large pages (Dashboard 42KB, Record 52KB, etc.) bloats the
+// initial JS bundle and causes WKWebView to freeze at 37% on iOS.
+// BrowserCompatibleSignIn must remain eager — it IS the initial loading screen.
+import BrowserCompatibleSignIn from "@/components/auth/BrowserCompatibleSignIn";
+
+const Landing = lazy(() => import("@/pages/Landing"));
+const Login = lazy(() => import("@/pages/Login"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
+const OnboardingPage = lazy(() => import("@/pages/OnboardingPage"));
+const Record = lazy(() => import("@/pages/Record"));
+const Rights = lazy(() => import("@/pages/Rights"));
 
 const LazyLoader = () => (
   <div className="min-h-screen flex items-center justify-center bg-slate-900">

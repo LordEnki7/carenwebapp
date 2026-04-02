@@ -105,6 +105,14 @@ PostgreSQL is the primary database, managed with Drizzle ORM for schema changes.
 - Build command: `npx vite build && npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist`
 - Start command: `node dist/index.js`
 
+### ⚠️ RECURRING ISSUE: 37% iOS Loading Hang — NEVER BREAK THIS RULE
+- **Root cause**: Eagerly importing large page components (Dashboard 42KB, Record 52KB, etc.) bloats the initial JS bundle. WKWebView on iOS then freezes at ~37% while parsing it.
+- **The rule**: Every page component in `client/src/App.tsx` MUST use `const X = lazy(() => import("@/pages/X"))`. NEVER use `import X from "@/pages/X"` for page-level components.
+- **Only exception**: `BrowserCompatibleSignIn` stays eager — it IS the loading screen and is shown immediately.
+- **Second cause**: `SESSION_DEBUG` middleware in `server/index.ts` was logging EVERY request including Vite `/src/` file requests (50+ per page load), flooding the server. Rule: SESSION_DEBUG must ONLY log `/api/auth/` requests — never all requests.
+- **How to detect**: If you see dozens of `[SESSION_DEBUG] GET /src/components/...` lines in the server log, the middleware is misconfigured.
+- **Current fix applied**: `Dashboard`, `Record`, `Rights`, `Landing`, `Login`, `OnboardingPage` are all `lazy()` in App.tsx. SESSION_DEBUG only logs `/api/auth/` routes.
+
 ### GitHub Repository
 - Repo: `https://github.com/LordEnki7/carenwebapp`
 - Push token stored as `GITHUB_PERSONAL_ACCESS_TOKEN2` environment secret

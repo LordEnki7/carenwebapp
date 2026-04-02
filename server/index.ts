@@ -277,22 +277,23 @@ console.log(`[SESSION_CONFIG] SECURITY HARDENED: httpOnly always enabled, secure
 
 app.use(session(sessionConfig));
 
-// Debug session middleware with error handling
+// Session debug middleware — ONLY log /api/ requests to avoid flooding logs with Vite source file requests
 app.use((req, res, next) => {
   try {
-    console.log(`[SESSION_DEBUG] ${req.method} ${req.path}`);
-    console.log(`[SESSION_DEBUG] Session ID: ${req.sessionID}`);
-    console.log(`[SESSION_DEBUG] Cookies received:`, req.headers.cookie);
-    console.log(`[SESSION_DEBUG] User-Agent:`, req.headers['user-agent']?.slice(0, 50));
-    
-    // Only log detailed session data for auth endpoints to reduce noise
-    if (req.path.startsWith('/api/auth/')) {
-      console.log(`[SESSION_DEBUG] Session data:`, (req.session as any));
+    if (req.path.startsWith('/api/')) {
+      // Only log detailed session data for auth endpoints
+      if (req.path.startsWith('/api/auth/')) {
+        console.log(`[SESSION_DEBUG] ${req.method} ${req.path}`);
+        console.log(`[SESSION_DEBUG] Session ID: ${req.sessionID}`);
+        console.log(`[SESSION_DEBUG] Cookies received:`, req.headers.cookie);
+        console.log(`[SESSION_DEBUG] User-Agent:`, req.headers['user-agent']?.slice(0, 50));
+        console.log(`[SESSION_DEBUG] Session data:`, (req.session as any));
+      }
     }
     next();
   } catch (error) {
     console.error('[SESSION_DEBUG] Middleware error:', error);
-    next(); // Continue processing rather than stopping the request
+    next();
   }
 });
 
