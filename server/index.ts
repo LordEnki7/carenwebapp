@@ -44,11 +44,11 @@ if (isProduction) {
     'Too many API requests from this IP, please try again later'
   ));
 
-  // Production rate limiting for auth endpoints - stricter for security
+  // Production rate limiting for auth endpoints - generous limit to prevent lockouts
   app.use('/api/auth/login', createRateLimit(
     15 * 60 * 1000, // 15 minutes
-    10, // 10 login attempts per 15 minutes per IP
-    'Too many login attempts, please try again later'
+    30, // 30 login attempts per 15 minutes per IP
+    'Too many login attempts, please try again in 15 minutes'
   ));
   
   app.use('/api/auth/register', createRateLimit(

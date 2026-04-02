@@ -53,6 +53,8 @@ import { registerEarlyAccessRoutes } from "./routes/early-access.routes";
 import { registerAppleAuthRoutes } from "./routes/apple-auth.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
+import { db } from "./db";
+import { sql } from "drizzle-orm";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -3502,7 +3504,7 @@ GUIDELINES:
       await DataPrivacyManager.deleteUserData(userId);
 
       // Delete the user row itself
-      await pool.query(`DELETE FROM users WHERE id = $1`, [userId]);
+      await db.execute(sql`DELETE FROM users WHERE id = ${userId}`);
 
       // Destroy the session
       req.session.destroy(() => {});

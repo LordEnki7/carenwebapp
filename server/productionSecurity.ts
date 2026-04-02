@@ -63,6 +63,7 @@ export function getHelmetConfig(nonce?: string) {
           "'unsafe-inline'",
           'https://js.stripe.com',
           'https://accounts.google.com',
+          'https://replit.com',
         ],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
         fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],

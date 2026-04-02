@@ -5,7 +5,7 @@ import { isAuthenticated } from "../auth";
 import { sendWelcomeEmail, sendGoogleWelcomeEmail } from "../emailService";
 import { sendDirectWelcomeEmail } from "../emailServiceDirect";
 import { demoSecurityMiddleware } from "../demoSecurity";
-import { generateCustomDomainToken } from "../customDomainAuth";
+import { generateCustomDomainToken, validateCustomDomainToken } from "../customDomainAuth";
 import { setupGoogleAuth } from "../googleAuth";
 import { getUserAuthenticated, setUserAuthenticated, getCurrentUser, resetUserState, getUserTermsAcceptedAt, addUser, findUserByEmail, getAllUsers } from "../demoState";
 import { DemoSecurityManager } from "../demoSecurity";
@@ -131,15 +131,14 @@ export function registerAuthRoutes(app: Express): void {
         
         // Try custom domain token validation first
         try {
-          const { validateCustomDomainToken } = require('../customDomainAuth');
           const tokenData = validateCustomDomainToken(token);
           
           if (tokenData) {
             console.log('[AUTH_USER] Custom domain token authentication successful');
             return res.json(tokenData.user);
           }
-        } catch (customDomainError) {
-          console.log('[AUTH_USER] Custom domain token validation failed:', customDomainError.message);
+        } catch (customDomainError: any) {
+          console.log('[AUTH_USER] Custom domain token validation failed:', customDomainError?.message);
           // Continue to other authentication methods
         }
         
