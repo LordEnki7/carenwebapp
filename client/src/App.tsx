@@ -129,6 +129,21 @@ function Router() {
   const hasSeenOnboarding = localStorage.getItem('caren_onboarding_state') ? 
     JSON.parse(localStorage.getItem('caren_onboarding_state') || '{}').hasSeenOnboarding : false;
 
+  // Prefetch the most critical pages as soon as auth resolves so they feel instant
+  useEffect(() => {
+    if (isLoading) return;
+    if (isAuthenticated) {
+      // User is logged in — preload the pages they'll visit first
+      import("@/pages/Dashboard");
+      import("@/pages/Record");
+      import("@/pages/Rights");
+    } else {
+      // User is on sign-in screen — preload the create-account and forgot-password forms
+      import("@/components/auth/SimpleCreateAccountForm");
+      import("@/components/auth/SimpleForgotPasswordForm");
+    }
+  }, [isLoading, isAuthenticated]);
+
   // Clean up old session tokens on app startup to prevent authentication issues
   useEffect(() => {
     // Add global error handler to prevent unhandled promise rejections from causing alerts
