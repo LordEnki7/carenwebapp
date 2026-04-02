@@ -2,6 +2,8 @@ import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import path from "path";
+import pgPkg from "pg";
+const { Pool: PgPool } = pgPkg;
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { 
@@ -15,6 +17,27 @@ import { getHelmetConfig } from "./productionSecurity";
 import { sessionLimiterMiddleware } from "./sessionLimiter";
 
 const app = express();
+
+// Global crash protection — prevent unhandled DB/network errors from killing the server
+process.on('unhandledRejection', (reason: any) => {
+  const msg = reason?.message || String(reason);
+  // Neon terminates idle connections — this is expected and safe to ignore
+  if (msg.includes('terminating connection') || msg.includes('Connection terminated') || msg.includes('ECONNRESET')) {
+    console.warn('[PROCESS] Neon idle-connection drop (non-fatal, ignoring):', msg);
+    return;
+  }
+  console.error('[PROCESS] Unhandled rejection:', reason);
+});
+
+process.on('uncaughtException', (err: any) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error('[PROCESS] Port 5000 already in use — another instance may still be shutting down. Retrying in 2s...');
+    setTimeout(() => process.exit(1), 2000); // Let workflow restart cleanly
+    return;
+  }
+  console.error('[PROCESS] Uncaught exception:', err);
+  process.exit(1);
+});
 
 // Environment detection for security configuration
 const isProduction = process.env.NODE_ENV === 'production';
@@ -187,15 +210,35 @@ const isHTTPS = process.env.FORCE_HTTPS === 'true' ||
                 (process.env.DEPLOYMENT_URL && process.env.DEPLOYMENT_URL.startsWith('https://'));
 
 // PostgreSQL session store — persists sessions across server restarts
+// Uses a dedicated pool with short idle timeout to handle Neon's connection pruning
 const PgSession = connectPgSimple(session);
-const pgSessionStore = process.env.DATABASE_URL ? new PgSession({
-  conString: process.env.DATABASE_URL,
-  tableName: 'sessions',
-  createTableIfMissing: true,
-  ttl: 24 * 60 * 60, // 24 hours in seconds
-}) : undefined;
 
-if (pgSessionStore) {
+let pgSessionStore: InstanceType<ReturnType<typeof connectPgSimple>> | undefined;
+
+if (process.env.DATABASE_URL) {
+  // Dedicated pool for session store — short idle timeout prevents Neon from
+  // terminating connections and crashing the server
+  const sessionPool = new PgPool({
+    connectionString: process.env.DATABASE_URL,
+    max: 3,
+    idleTimeoutMillis: 10000,    // Release idle connections after 10s (Neon prunes after 5 min)
+    connectionTimeoutMillis: 5000,
+    ssl: process.env.DATABASE_URL.includes('neon') ? { rejectUnauthorized: false } : undefined,
+  });
+
+  // Prevent unhandled 'error' events from crashing the server
+  sessionPool.on('error', (err) => {
+    console.error('[SESSION_POOL] Pool error (Neon may have terminated an idle connection):', err.message);
+  });
+
+  pgSessionStore = new PgSession({
+    pool: sessionPool,
+    tableName: 'sessions',
+    createTableIfMissing: true,
+    ttl: 24 * 60 * 60, // 24 hours in seconds
+    errorLog: (...args: any[]) => console.error('[SESSION_STORE]', ...args),
+  });
+
   console.log('[SESSION_CONFIG] Using PostgreSQL session store — sessions will survive restarts');
 } else {
   console.warn('[SESSION_CONFIG] DATABASE_URL not set — falling back to MemoryStore (sessions lost on restart)');
