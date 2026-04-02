@@ -183,7 +183,8 @@ function Router() {
       {/* {isAuthenticated && <GlobalVoiceCommands />} */}
       
       {isLoading ? (
-        <Route path="/" component={() => <div className="min-h-screen flex items-center justify-center bg-slate-950"><div className="animate-spin w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full" /></div>} />
+        /* Show spinner on ALL paths during auth check — not just "/" */
+        <Route path="/:rest*" component={() => <div className="min-h-screen flex items-center justify-center bg-slate-950"><div className="animate-spin w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full" /></div>} />
       ) : !isAuthenticated ? (
         <Suspense fallback={<LazyLoader />}>
           <Switch>

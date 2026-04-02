@@ -154,10 +154,19 @@ export function useAuth() {
           console.log('[AUTH] Using regular session token:', regularSessionToken);
         }
 
-        const response = await fetch(`${ENV.API_BASE_URL}/api/auth/user`, {
-          credentials: 'include',
-          headers
-        });
+        // Abort after 10 seconds so the spinner never hangs indefinitely
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        let response: Response;
+        try {
+          response = await fetch(`${ENV.API_BASE_URL}/api/auth/user`, {
+            credentials: 'include',
+            headers,
+            signal: controller.signal
+          });
+        } finally {
+          clearTimeout(timeoutId);
+        }
         
         if (response.status === 401) {
           // Clear invalid session tokens on 401

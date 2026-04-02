@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -6,15 +6,26 @@ import { Button } from "@/components/ui/button";
 import { ScanFace, Mic, MicOff } from "lucide-react";
 import carenLogo from "@assets/caren-logo.png";
 
-// Import simplified form components
+// SimpleSignInForm stays eager — it is shown immediately on first render
 import SimpleSignInForm from "./SimpleSignInForm";
-import SimpleCreateAccountForm from "./SimpleCreateAccountForm";
-import SimpleForgotPasswordForm from "./SimpleForgotPasswordForm";
-import NewUserOnboardingModal from "./NewUserOnboardingModal";
 
-// Advanced features as separate components
-import { FacialRecognition } from "@/components/FacialRecognition";
+// ── Heavy sub-components: lazy-loaded so they don't bloat the initial bundle ──
+// SimpleCreateAccountForm (32KB), FacialRecognition (20KB), NewUserOnboardingModal (12KB)
+// are only shown after user interaction, so safe to defer.
+const SimpleCreateAccountForm = lazy(() => import("./SimpleCreateAccountForm"));
+const SimpleForgotPasswordForm = lazy(() => import("./SimpleForgotPasswordForm"));
+const NewUserOnboardingModal = lazy(() => import("./NewUserOnboardingModal"));
+const LazyFacialRecognition = lazy(() =>
+  import("@/components/FacialRecognition").then(m => ({ default: m.FacialRecognition }))
+);
+
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+const SubFormLoader = () => (
+  <div className="flex items-center justify-center py-8">
+    <div className="animate-spin w-6 h-6 border-2 border-cyan-400 border-t-transparent rounded-full" />
+  </div>
+);
 
 // Type declarations for Speech Recognition API
 declare global {
@@ -345,16 +356,20 @@ export default function BrowserCompatibleSignIn() {
           )}
           
           {currentMode === 'create' && (
-            <SimpleCreateAccountForm
-              onSwitchToSignIn={() => setCurrentMode('signin')}
-              onNewUserCreated={handleNewUserCreated}
-            />
+            <Suspense fallback={<SubFormLoader />}>
+              <SimpleCreateAccountForm
+                onSwitchToSignIn={() => setCurrentMode('signin')}
+                onNewUserCreated={handleNewUserCreated}
+              />
+            </Suspense>
           )}
           
           {currentMode === 'forgot' && (
-            <SimpleForgotPasswordForm
-              onSwitchToSignIn={() => setCurrentMode('signin')}
-            />
+            <Suspense fallback={<SubFormLoader />}>
+              <SimpleForgotPasswordForm
+                onSwitchToSignIn={() => setCurrentMode('signin')}
+              />
+            </Suspense>
           )}
         </div>
 
@@ -392,21 +407,27 @@ export default function BrowserCompatibleSignIn() {
               }
             </DialogDescription>
           </DialogHeader>
-          <FacialRecognition
-            mode={facialRecognitionMode}
-            onSuccess={handleFacialRecognitionSuccess}
-            onFailure={handleFacialRecognitionFailure}
-          />
+          <Suspense fallback={<SubFormLoader />}>
+            <LazyFacialRecognition
+              mode={facialRecognitionMode}
+              onSuccess={handleFacialRecognitionSuccess}
+              onFailure={handleFacialRecognitionFailure}
+            />
+          </Suspense>
         </DialogContent>
       </Dialog>
 
       {/* New User Onboarding Modal */}
-      <NewUserOnboardingModal
-        isOpen={showOnboardingModal}
-        onClose={() => setShowOnboardingModal(false)}
-        onComplete={handleOnboardingComplete}
-        userEmail={newUserEmail}
-      />
+      {showOnboardingModal && (
+        <Suspense fallback={null}>
+          <NewUserOnboardingModal
+            isOpen={showOnboardingModal}
+            onClose={() => setShowOnboardingModal(false)}
+            onComplete={handleOnboardingComplete}
+            userEmail={newUserEmail}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }
