@@ -133,13 +133,14 @@ export default function Plans() {
   const [, setLocation] = useLocation();
   const isNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
 
+  // iOS — no payment/subscriptions in this build. Redirect silently.
+  if (isNative) {
+    setLocation("/dashboard");
+    return null;
+  }
+
   const handleSelect = async (planId: string) => {
-    if (isNative) {
-      // iOS build v2.0.0(3) — subscriptions managed via website
-      window.open("https://carenalert.com/payment", "_blank");
-    } else {
-      setLocation(`/payment?plan=${planId}`);
-    }
+    setLocation(`/payment?plan=${planId}`);
   };
 
   return (

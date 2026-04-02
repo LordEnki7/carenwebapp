@@ -16,15 +16,12 @@ export default function UpgradeSheet({ open, onClose, featureName, requiredPlan 
   const [, setLocation] = useLocation();
   const isIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
 
-  if (!requiredPlan) return null;
+  // iOS — no subscription UI in this build
+  if (!requiredPlan || isIOS) return null;
 
   const handleSeePlans = () => {
     onClose();
-    if (isIOS) {
-      window.open("https://carenalert.com/payment", "_blank");
-    } else {
-      setLocation("/pricing");
-    }
+    setLocation("/pricing");
   };
 
   return (

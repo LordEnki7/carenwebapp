@@ -185,57 +185,10 @@ export default function Payment() {
     </div>
   );
 
-  // iOS native — no in-app purchases in this version. Direct users to the website.
+  // iOS native — payment/subscriptions not available in this build. Redirect silently.
   if (isNativeApp) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white flex flex-col">
-        <div className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
-          <button onClick={() => setLocation("/dashboard")} className="text-gray-400 hover:text-white p-2">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <span className="font-bold text-white">Subscribe to C.A.R.E.N.™</span>
-        </div>
-
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center space-y-8">
-          <div className="w-20 h-20 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center">
-            <Shield className="w-10 h-10 text-cyan-400" />
-          </div>
-
-          <div className="space-y-3 max-w-xs">
-            <h1 className="text-2xl font-bold text-white">Start Your Protection Plan</h1>
-            <p className="text-gray-400 text-sm leading-relaxed">
-              Subscribe and manage your plan securely at our website. Your account works across all devices.
-            </p>
-          </div>
-
-          <div className="w-full max-w-xs space-y-3">
-            <a
-              href="https://carenalert.com/payment"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 w-full bg-cyan-500 hover:bg-cyan-400 text-black font-bold py-4 px-6 rounded-xl transition-colors"
-            >
-              <Shield className="w-5 h-5" />
-              Subscribe at carenalert.com
-            </a>
-            <button
-              onClick={() => setLocation("/dashboard")}
-              className="w-full text-gray-400 hover:text-white text-sm py-2 transition-colors"
-            >
-              Back to Dashboard
-            </button>
-          </div>
-
-          <div className="max-w-xs space-y-2 pt-4 border-t border-white/10">
-            <p className="text-xs text-gray-500">Plans starting at $0.99 one-time</p>
-            <div className="flex justify-center gap-4 text-xs">
-              <a href="https://carenalert.com/terms-of-service" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline">Terms of Service</a>
-              <a href="https://carenalert.com/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-cyan-400 underline">Privacy Policy</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    setLocation("/dashboard");
+    return null;
   }
 
   if (!selectedPlan) {
