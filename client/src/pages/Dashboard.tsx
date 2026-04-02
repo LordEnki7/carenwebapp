@@ -21,12 +21,20 @@ import { JourneyActions, initializeJourneyTracking } from "@/utils/journeyTracki
 import PanicHome from "@/components/PanicHome";
 import ChatAgent from "@/components/ChatAgent";
 
+const isNativeiOS = (): boolean => {
+  try {
+    const cap = (window as any).Capacitor;
+    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
+  } catch { return false; }
+};
+
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { handsFreeStatus, connectedDevice, isBluetoothAvailable } = useBluetoothHandsFree();
   const { enablePushNotifications, isPushEnabled } = useEmergencyAlerts();
   const [, setLocation] = useLocation();
   const [showFacialRecognition, setShowFacialRecognition] = useState(false);
+  const [oniOS] = useState(() => isNativeiOS());
   // Always start on PanicHome — never persist "More Options" across sessions
   const [showFullDashboard, setShowFullDashboard] = useState(false);
   
@@ -678,24 +686,26 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Facial Recognition Setup */}
-              <div
-                onClick={() => setShowFacialRecognition(true)}
-                className="group cursor-pointer animate-scale-in"
-                style={{ animationDelay: '0.4s' }}
-              >
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 card-depth-2 hover-lift hover-glow">
-                  <div className="flex items-center space-x-4">
-                    <div className="p-4 bg-purple-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all">
-                      <ScanFace className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-bold text-purple-900 truncate">Setup Face Login</h3>
-                      <p className="text-sm text-purple-700 truncate">Enable facial recognition authentication</p>
+              {/* Facial Recognition Setup — hidden on iOS (face data review concerns with Apple) */}
+              {!oniOS && (
+                <div
+                  onClick={() => setShowFacialRecognition(true)}
+                  className="group cursor-pointer animate-scale-in"
+                  style={{ animationDelay: '0.4s' }}
+                >
+                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 card-depth-2 hover-lift hover-glow">
+                    <div className="flex items-center space-x-4">
+                      <div className="p-4 bg-purple-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all">
+                        <ScanFace className="w-7 h-7 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-lg font-bold text-purple-900 truncate">Setup Face Login</h3>
+                        <p className="text-sm text-purple-700 truncate">Enable facial recognition authentication</p>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              )}
 
               {/* Roadside Assistance */}
               <div
@@ -805,22 +815,24 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Facial Recognition Setup Dialog */}
-            <Dialog open={showFacialRecognition} onOpenChange={setShowFacialRecognition}>
-              <DialogContent className="max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Setup Facial Recognition</DialogTitle>
-                  <DialogDescription>
-                    Register your face for secure, quick login to your account.
-                  </DialogDescription>
-                </DialogHeader>
-                <FacialRecognition
-                  mode="register"
-                  onSuccess={handleFacialRecognitionSuccess}
-                  onFailure={handleFacialRecognitionFailure}
-                />
-              </DialogContent>
-            </Dialog>
+            {/* Facial Recognition Setup Dialog — hidden on iOS */}
+            {!oniOS && (
+              <Dialog open={showFacialRecognition} onOpenChange={setShowFacialRecognition}>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Setup Facial Recognition</DialogTitle>
+                    <DialogDescription>
+                      Register your face for secure, quick login to your account.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <FacialRecognition
+                    mode="register"
+                    onSuccess={handleFacialRecognitionSuccess}
+                    onFailure={handleFacialRecognitionFailure}
+                  />
+                </DialogContent>
+              </Dialog>
+            )}
 
             {/* Onboarding Video - removed automatic display for authenticated users */}
           </div>
