@@ -259,17 +259,17 @@ export default function Dashboard() {
               'border-red-500 bg-red-900/50 shadow-red-500/30 shadow-lg' : 
               'border-red-400 bg-red-900/20'
             }`}>
-              <div className="text-center mb-4">
-                <h2 className={`text-2xl font-bold ${
-                  systemStatus.emergency ? 'text-red-300 animate-pulse' : 'text-red-400'
-                }`}>
-                  🚨 EMERGENCY PROTECTION READY 🚨
-                </h2>
-                <p className="text-red-300 text-sm mt-1">
-                  {systemStatus.emergency ? 'EMERGENCY MODE ACTIVE - All systems prioritized' : 'Tap emergency mode for immediate protection'}
-                </p>
-              </div>
-              
+
+              {/* BIG HERO BUTTON — PRIMARY CTA */}
+              <button
+                onClick={() => window.location.href = '/emergency-pullover'}
+                className="w-full mb-5 py-6 px-4 rounded-2xl font-black text-2xl md:text-3xl tracking-widest uppercase text-white bg-red-600 hover:bg-red-500 active:bg-red-700 border-4 border-white shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:shadow-[0_0_50px_rgba(239,68,68,0.9)] transition-all duration-200 animate-emergency-pulse flex items-center justify-center gap-4"
+              >
+                <span className="text-3xl">🚔</span>
+                I'M BEING PULLED OVER
+                <span className="text-3xl">🚔</span>
+              </button>
+
               {/* Emergency Quick Actions */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
                 <button 
@@ -283,16 +283,6 @@ export default function Dashboard() {
                   📹 START RECORDING
                 </button>
                 <button 
-                  onClick={() => window.location.href = '/emergency-pullover'}
-                  className={`p-4 rounded-lg font-bold transition-all duration-200 ${
-                    systemStatus.emergency ?
-                    'bg-red-600 text-white border-2 border-white hover:bg-red-500 text-lg shadow-lg' :
-                    'bg-red-600 text-white hover:bg-red-700'
-                  } hover:scale-105`}
-                >
-                  🚔 EMERGENCY PULLOVER
-                </button>
-                <button 
                   onClick={() => window.location.href = '/attorneys'}
                   className={`p-4 rounded-lg font-bold transition-all duration-200 ${
                     systemStatus.emergency ?
@@ -301,6 +291,16 @@ export default function Dashboard() {
                   } hover:scale-105`}
                 >
                   👨‍💼 CONTACT ATTORNEY
+                </button>
+                <button 
+                  onClick={() => window.location.href = '/legal-rights'}
+                  className={`p-4 rounded-lg font-bold transition-all duration-200 ${
+                    systemStatus.emergency ?
+                    'bg-red-600 text-white border-2 border-white hover:bg-red-500 text-lg shadow-lg' :
+                    'bg-red-600 text-white hover:bg-red-700'
+                  } hover:scale-105`}
+                >
+                  ⚖️ MY LEGAL RIGHTS
                 </button>
                 <button
                   onClick={handleTestEmergencyMode}
