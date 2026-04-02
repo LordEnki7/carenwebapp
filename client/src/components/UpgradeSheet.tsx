@@ -1,8 +1,9 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Lock, Check, ArrowRight } from "lucide-react";
+import { Lock, Check, ArrowRight, ExternalLink } from "lucide-react";
 import { useLocation } from "wouter";
 import { type PLAN_INFO } from "@/lib/featureAccess";
+import { Capacitor } from "@capacitor/core";
 
 interface UpgradeSheetProps {
   open: boolean;
@@ -13,12 +14,17 @@ interface UpgradeSheetProps {
 
 export default function UpgradeSheet({ open, onClose, featureName, requiredPlan }: UpgradeSheetProps) {
   const [, setLocation] = useLocation();
+  const isIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
 
   if (!requiredPlan) return null;
 
   const handleSeePlans = () => {
     onClose();
-    setLocation("/pricing");
+    if (isIOS) {
+      window.open("https://carenalert.com/payment", "_blank");
+    } else {
+      setLocation("/pricing");
+    }
   };
 
   return (
@@ -55,8 +61,8 @@ export default function UpgradeSheet({ open, onClose, featureName, requiredPlan 
               onClick={handleSeePlans}
               className="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold flex items-center justify-center gap-2"
             >
-              See All Plans
-              <ArrowRight className="w-4 h-4" />
+              {isIOS ? "Subscribe at carenalert.com" : "See All Plans"}
+              {isIOS ? <ExternalLink className="w-4 h-4" /> : <ArrowRight className="w-4 h-4" />}
             </Button>
             <Button
               variant="ghost"

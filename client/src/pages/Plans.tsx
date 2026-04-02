@@ -1,11 +1,7 @@
-import { useState } from "react";
 import { useLocation } from "wouter";
 import { Shield, Zap, Users, Building, Star, Check, ArrowLeft, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Capacitor } from "@capacitor/core";
-import iapService from "@/lib/iapService";
-import { useToast } from "@/hooks/use-toast";
 
 const PLANS = [
   {
@@ -135,30 +131,12 @@ const PLANS = [
 
 export default function Plans() {
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
-  const [purchasing, setPurchasing] = useState<string | null>(null);
   const isNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
 
   const handleSelect = async (planId: string) => {
     if (isNative) {
-      setPurchasing(planId);
-      try {
-        const planKey = planId as any;
-        const transaction = await iapService.purchase(planKey);
-        if (transaction) {
-          toast({ title: "Purchase Complete!", description: "Your plan is now active." });
-          setLocation("/dashboard");
-        }
-      } catch (err: any) {
-        const msg: string = err?.message || "";
-        if (msg === "USER_CANCELLED" || msg.includes("cancel") || msg.includes("dismiss")) {
-          // user closed the sheet — no error shown
-        } else {
-          toast({ title: "Purchase Failed", description: msg || "Please try again.", variant: "destructive" });
-        }
-      } finally {
-        setPurchasing(null);
-      }
+      // iOS build v2.0.0(3) — subscriptions managed via website
+      window.open("https://carenalert.com/payment", "_blank");
     } else {
       setLocation(`/payment?plan=${planId}`);
     }
@@ -196,7 +174,6 @@ export default function Plans() {
         {/* Plan Cards */}
         {PLANS.map((plan) => {
           const Icon = plan.icon;
-          const isLoading = purchasing === plan.id;
 
           return (
             <div
@@ -244,9 +221,8 @@ export default function Plans() {
                 <Button
                   className={`w-full font-bold py-3 rounded-xl ${plan.ctaClass}`}
                   onClick={() => handleSelect(plan.id)}
-                  disabled={!!purchasing}
                 >
-                  {isLoading ? "Processing…" : plan.cta}
+                  {isNative ? "Subscribe at carenalert.com" : plan.cta}
                 </Button>
               </div>
             </div>
