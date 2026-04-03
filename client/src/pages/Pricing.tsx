@@ -5,11 +5,19 @@ import TopBar from "@/components/TopBar";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { Capacitor } from "@capacitor/core";
 
 export default function Pricing() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
+
+  // iOS App Store policy: no web subscription UI — IAP must be used instead.
+  // Since IAP products are not yet configured in App Store Connect, hide entirely.
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+    setLocation("/dashboard");
+    return null;
+  }
 
   const handleUpgrade = (planId: string) => {
     if (planId === "business") {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useBluetoothAudioManager } from "@/hooks/useBluetoothAudioManager";
@@ -375,7 +376,8 @@ export default function Settings() {
             {/* Emergency Contacts */}
             <EmergencyContactsManager />
 
-            {/* Subscription Management */}
+            {/* Subscription Management — hidden on iOS (IAP not yet configured) */}
+            {!(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') && (
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 transition-all duration-300 p-6">
               <div className="border-b border-gray-700/50 pb-4 mb-6">
                 <div className="flex items-center gap-3">
@@ -400,6 +402,7 @@ export default function Settings() {
                 />
               </div>
             </div>
+            )}
 
             {/* Notification Settings */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 transition-all duration-300 p-6">

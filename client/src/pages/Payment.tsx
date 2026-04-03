@@ -7,12 +7,11 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Check, CreditCard, ArrowLeft, Shield, Zap, Users, Building, Home, RotateCcw, Smartphone } from "lucide-react";
 import { Link } from "wouter";
-const isNativeiOS = (): boolean => {
-  try {
-    const cap = (window as any).Capacitor;
-    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
-  } catch { return false; }
-};
+import { Capacitor } from "@capacitor/core";
+
+// Use proper Capacitor import — reliable even during early React render
+const isNativeiOS = (): boolean =>
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 interface Plan {
   id: string;

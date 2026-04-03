@@ -27,6 +27,8 @@ const SubFormLoader = () => (
   </div>
 );
 
+import { Capacitor } from "@capacitor/core";
+
 // Type declarations for Speech Recognition API
 declare global {
   interface Window {
@@ -37,12 +39,9 @@ declare global {
 
 type AuthMode = 'signin' | 'create' | 'forgot';
 
-const isNativeiOS = (): boolean => {
-  try {
-    const cap = (window as any).Capacitor;
-    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
-  } catch { return false; }
-};
+// Use proper Capacitor import — reliable even during early React render
+const isNativeiOS = (): boolean =>
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 export default function BrowserCompatibleSignIn() {
   const { toast } = useToast();

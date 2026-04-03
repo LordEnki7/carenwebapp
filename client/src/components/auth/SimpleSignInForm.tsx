@@ -28,12 +28,11 @@ interface SimpleSignInFormProps {
   onDemoLogin: () => void;
 }
 
-const isNativeiOS = (): boolean => {
-  try {
-    const cap = (window as any).Capacitor;
-    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
-  } catch { return false; }
-};
+import { Capacitor } from "@capacitor/core";
+
+// Use proper Capacitor import — reliable even during early React render
+const isNativeiOS = (): boolean =>
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, onDemoLogin }: SimpleSignInFormProps) {
   const { toast } = useToast();

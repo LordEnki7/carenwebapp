@@ -20,13 +20,11 @@ import { useLocation } from "wouter";
 import { JourneyActions, initializeJourneyTracking } from "@/utils/journeyTracking";
 import PanicHome from "@/components/PanicHome";
 import ChatAgent from "@/components/ChatAgent";
+import { Capacitor } from "@capacitor/core";
 
-const isNativeiOS = (): boolean => {
-  try {
-    const cap = (window as any).Capacitor;
-    return !!(cap?.isNativePlatform?.() && cap?.getPlatform?.() === 'ios');
-  } catch { return false; }
-};
+// Use proper Capacitor import — reliable even during early React render
+const isNativeiOS = (): boolean =>
+  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
