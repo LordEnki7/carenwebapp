@@ -3,7 +3,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import { ScanFace, Mic, MicOff } from "lucide-react";
+import { Mic, MicOff } from "lucide-react";
 import carenLogo from "@assets/caren-logo.png";
 
 // SimpleSignInForm stays eager — it is shown immediately on first render
@@ -15,11 +15,6 @@ import SimpleSignInForm from "./SimpleSignInForm";
 const SimpleCreateAccountForm = lazy(() => import("./SimpleCreateAccountForm"));
 const SimpleForgotPasswordForm = lazy(() => import("./SimpleForgotPasswordForm"));
 const NewUserOnboardingModal = lazy(() => import("./NewUserOnboardingModal"));
-const LazyFacialRecognition = lazy(() =>
-  import("@/components/FacialRecognition").then(m => ({ default: m.FacialRecognition }))
-);
-
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const SubFormLoader = () => (
   <div className="flex items-center justify-center py-8">
@@ -46,11 +41,7 @@ const isNativeiOS = (): boolean =>
 export default function BrowserCompatibleSignIn() {
   const { toast } = useToast();
   const [currentMode, setCurrentMode] = useState<AuthMode>('signin');
-  const [oniOS] = useState(() => isNativeiOS());
-  
   // Advanced features state (separated for better browser compatibility)
-  const [showFacialRecognition, setShowFacialRecognition] = useState(false);
-  const [facialRecognitionMode, setFacialRecognitionMode] = useState<'authenticate' | 'register'>('authenticate');
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   
@@ -125,13 +116,6 @@ export default function BrowserCompatibleSignIn() {
             toast({
               title: "Voice Command Recognized", 
               description: "Switched to Create Account form",
-            });
-          } else if (transcript.includes('facial recognition') || transcript.includes('face scan')) {
-            setShowFacialRecognition(true);
-            setFacialRecognitionMode('authenticate');
-            toast({
-              title: "Voice Command Recognized",
-              description: "Opening facial recognition",
             });
           }
         };
@@ -217,33 +201,10 @@ export default function BrowserCompatibleSignIn() {
       setIsListening(true);
       toast({
         title: "Voice Recognition Active",
-        description: "Say 'sign in', 'create account', or 'facial recognition'",
+        description: "Say 'sign in' or 'create account'",
       });
     }
   };
-
-  const handleFacialRecognitionSuccess = (data: any) => {
-    console.log('Facial recognition successful:', data);
-    if (data.sessionToken) {
-      localStorage.setItem('sessionToken', data.sessionToken);
-      window.location.href = '/dashboard';
-    }
-    setShowFacialRecognition(false);
-    toast({
-      title: "Facial Recognition Successful",
-      description: "Welcome back to C.A.R.E.N.™!",
-    });
-  };
-
-  const handleFacialRecognitionFailure = (error: string) => {
-    console.error('Facial recognition failed:', error);
-    setShowFacialRecognition(false);
-    toast({
-      title: "Facial Recognition Failed",
-      description: error || "Please try again or use password authentication.",
-      variant: "destructive",
-    });
-  }
 
   const handleNewUserCreated = (email: string) => {
     setNewUserEmail(email);
@@ -328,20 +289,6 @@ export default function BrowserCompatibleSignIn() {
             {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
           </Button>
           
-          {/* Facial recognition hidden on iOS — Apple flags camera face data collection */}
-          {!oniOS && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setShowFacialRecognition(true);
-                setFacialRecognitionMode('authenticate');
-              }}
-              className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
-            >
-              <ScanFace className="w-4 h-4" />
-            </Button>
-          )}
         </div>
 
         {/* Main Form Container */}
@@ -391,30 +338,6 @@ export default function BrowserCompatibleSignIn() {
           <p>Your safety and legal protection platform</p>
         </div>
       </div>
-
-      {/* Facial Recognition Dialog */}
-      <Dialog open={showFacialRecognition} onOpenChange={setShowFacialRecognition}>
-        <DialogContent className="max-w-md bg-gray-800/95 backdrop-blur-lg border-gray-600">
-          <DialogHeader>
-            <DialogTitle className="text-white">
-              {facialRecognitionMode === 'register' ? 'Register Face' : 'Facial Recognition Sign-In'}
-            </DialogTitle>
-            <DialogDescription className="text-gray-300">
-              {facialRecognitionMode === 'register'
-                ? 'Register your face for secure biometric authentication'
-                : 'Use your face to sign in securely'
-              }
-            </DialogDescription>
-          </DialogHeader>
-          <Suspense fallback={<SubFormLoader />}>
-            <LazyFacialRecognition
-              mode={facialRecognitionMode}
-              onSuccess={handleFacialRecognitionSuccess}
-              onFailure={handleFacialRecognitionFailure}
-            />
-          </Suspense>
-        </DialogContent>
-      </Dialog>
 
       {/* New User Onboarding Modal */}
       {showOnboardingModal && (

@@ -810,79 +810,27 @@ export function useVoiceNavigation(): VoiceNavigationHook {
       category: 'emergency'
     },
 
-    // Facial Recognition Sign In Commands
+    // Sign In Navigation Command
     {
       patterns: [
         'sign in',
         'sign me in',
         'log in',
         'login',
-        'face login',
-        'facial login',
         'authenticate',
-        'face sign in',
-        'facial sign in',
-        'use my face'
+        'go to sign in'
       ],
       action: async () => {
-        try {
-          // Check if user has facial recognition set up
-          const response = await fetch('/api/auth/check-facial-recognition', {
-            method: 'GET',
-            credentials: 'include'
-          });
-          
-          if (response.ok) {
-            const data = await response.json();
-            
-            if (data.hasFacialRecognition) {
-              // User has facial recognition, proceed with authentication
-              window.dispatchEvent(new CustomEvent('triggerFacialSignIn', { 
-                detail: { source: 'voice_command' }
-              }));
-              
-              toast({
-                title: "Facial Sign In",
-                description: "Voice command: Starting facial recognition login",
-              });
-              speakFeedback("Starting facial recognition sign in. Please look at the camera.");
-            } else {
-              // User needs to set up facial recognition first
-              toast({
-                title: "Facial Recognition Not Set Up",
-                description: "Please create an account and set up facial recognition first",
-                variant: "destructive"
-              });
-              speakFeedback("Facial recognition not set up. Please create an account first, then set up facial recognition in your dashboard.");
-              
-              // Navigate to sign-in page
-              setLocation('/auth/signin');
-            }
-          } else {
-            // User not found or error, navigate to sign-in
-            toast({
-              title: "Account Required",
-              description: "Please create an account first",
-              variant: "destructive"
-            });
-            speakFeedback("Account required. Please create an account first, then set up facial recognition.");
-            setLocation('/auth/signin');
-          }
-        } catch (error) {
-          console.error('Error checking facial recognition:', error);
-          toast({
-            title: "Sign In Required",
-            description: "Please sign in or create an account",
-            variant: "destructive"
-          });
-          speakFeedback("Please sign in or create an account first.");
-          setLocation('/auth/signin');
-        }
-        
-        setLastCommand('facial sign in');
+        toast({
+          title: "Navigating to Sign In",
+          description: "Opening the sign-in page",
+        });
+        speakFeedback("Opening sign in page.");
+        setLocation('/');
+        setLastCommand('sign in');
       },
       confidence: 0.9,
-      description: "Facial recognition sign in",
+      description: "Navigate to sign in",
       category: 'navigation'
     }
   ];

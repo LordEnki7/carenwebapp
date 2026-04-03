@@ -2,13 +2,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useEmergencyAlerts } from "@/hooks/useEmergencyAlerts";
-import { Car, MessageSquare, Video, ScanFace, Satellite, Signal, Mic, Users, MapPin, Wrench, Bluetooth, BluetoothConnected, VolumeX, Shield, Play, Copy, Gift, Bell, BellOff, AlertTriangle, X } from "lucide-react";
+import { Car, MessageSquare, Video, Satellite, Signal, Mic, Users, MapPin, Wrench, Bluetooth, BluetoothConnected, VolumeX, Shield, Play, Copy, Gift, Bell, BellOff, AlertTriangle, X } from "lucide-react";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import SmartContextualUI from "@/components/SmartContextualUI";
 import { useBluetoothHandsFree } from "@/hooks/useBluetoothHandsFree";
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { FacialRecognition } from "@/components/FacialRecognition";
 import { useToast } from "@/hooks/use-toast";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { LanguageSelector } from "@/components/LanguageSelector";
@@ -20,19 +18,12 @@ import { useLocation } from "wouter";
 import { JourneyActions, initializeJourneyTracking } from "@/utils/journeyTracking";
 import PanicHome from "@/components/PanicHome";
 import ChatAgent from "@/components/ChatAgent";
-import { Capacitor } from "@capacitor/core";
-
-// Use proper Capacitor import — reliable even during early React render
-const isNativeiOS = (): boolean =>
-  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
 export default function Dashboard() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const { handsFreeStatus, connectedDevice, isBluetoothAvailable } = useBluetoothHandsFree();
   const { enablePushNotifications, isPushEnabled } = useEmergencyAlerts();
   const [, setLocation] = useLocation();
-  const [showFacialRecognition, setShowFacialRecognition] = useState(false);
-  const [oniOS] = useState(() => isNativeiOS());
   // Always start on PanicHome — never persist "More Options" across sessions
   const [showFullDashboard, setShowFullDashboard] = useState(false);
   
@@ -155,22 +146,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleFacialRecognitionSuccess = (userId: string) => {
-    toast({
-      title: "Facial Recognition Setup Complete",
-      description: "You can now sign in using facial recognition!",
-    });
-    setShowFacialRecognition(false);
-  };
-
-  const handleFacialRecognitionFailure = () => {
-    setShowFacialRecognition(false);
-    toast({
-      title: "Setup Failed",
-      description: "Please try again or contact support if the issue persists.",
-      variant: "destructive",
-    });
-  };
 
   if (authLoading) {
     return (
@@ -684,27 +659,6 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Facial Recognition Setup — hidden on iOS (face data review concerns with Apple) */}
-              {!oniOS && (
-                <div
-                  onClick={() => setShowFacialRecognition(true)}
-                  className="group cursor-pointer animate-scale-in"
-                  style={{ animationDelay: '0.4s' }}
-                >
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-xl p-6 card-depth-2 hover-lift hover-glow">
-                    <div className="flex items-center space-x-4">
-                      <div className="p-4 bg-purple-500 rounded-xl shadow-lg group-hover:shadow-xl transition-all">
-                        <ScanFace className="w-7 h-7 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-lg font-bold text-purple-900 truncate">Setup Face Login</h3>
-                        <p className="text-sm text-purple-700 truncate">Enable facial recognition authentication</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Roadside Assistance */}
               <div
                 onClick={() => window.location.href = '/roadside-assistance'}
@@ -812,25 +766,6 @@ export default function Dashboard() {
                 </span>
               </div>
             </div>
-
-            {/* Facial Recognition Setup Dialog — hidden on iOS */}
-            {!oniOS && (
-              <Dialog open={showFacialRecognition} onOpenChange={setShowFacialRecognition}>
-                <DialogContent className="max-w-md">
-                  <DialogHeader>
-                    <DialogTitle>Setup Facial Recognition</DialogTitle>
-                    <DialogDescription>
-                      Register your face for secure, quick login to your account.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <FacialRecognition
-                    mode="register"
-                    onSuccess={handleFacialRecognitionSuccess}
-                    onFailure={handleFacialRecognitionFailure}
-                  />
-                </DialogContent>
-              </Dialog>
-            )}
 
             {/* Onboarding Video - removed automatic display for authenticated users */}
           </div>

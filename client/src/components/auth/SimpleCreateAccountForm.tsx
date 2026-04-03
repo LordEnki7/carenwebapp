@@ -8,12 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { EyeIcon, EyeOffIcon, Check, X, ScanFace } from "lucide-react";
+import { EyeIcon, EyeOffIcon, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import PasswordStrengthMeter from "@/components/PasswordStrengthMeter";
-import { FacialRecognition } from "@/components/FacialRecognition";
 import WelcomeAnimation from "./WelcomeAnimation";
 
 const createAccountSchema = z.object({
@@ -54,7 +53,6 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showFacialRecognition, setShowFacialRecognition] = useState(false);
   const [oniOS] = useState(() => isNativeiOS());
   const [passwordValidationStatus, setPasswordValidationStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(false);
@@ -180,25 +178,6 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
       return () => clearTimeout(timer);
     }
   }, [form.watch("password")]);
-
-  const handleFacialRecognitionSuccess = (data: any) => {
-    console.log('Facial recognition registered:', data);
-    setShowFacialRecognition(false);
-    toast({
-      title: "Facial Recognition Registered",
-      description: "Your face has been registered for future biometric authentication.",
-    });
-  };
-
-  const handleFacialRecognitionFailure = (error: string) => {
-    console.error('Facial recognition registration failed:', error);
-    setShowFacialRecognition(false);
-    toast({
-      title: "Facial Recognition Failed",
-      description: error || "Registration failed. You can set this up later in settings.",
-      variant: "destructive",
-    });
-  };
 
   return (
     <div className="space-y-6">
@@ -410,27 +389,6 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
             <p className="text-xs text-red-400">{form.formState.errors.agreeToEULA.message}</p>
           )}
         </div>
-
-        {/* Optional Facial Recognition Setup — hidden on iOS (not supported in WKWebView + face data review concerns) */}
-        {!oniOS && (
-          <div className="border border-cyan-500/30 rounded-lg p-4 bg-cyan-500/5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h4 className="text-sm font-medium text-cyan-300">Facial Recognition (Optional)</h4>
-                <p className="text-xs text-gray-400">Set up biometric authentication for faster sign-in</p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowFacialRecognition(true)}
-                className="border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10"
-              >
-                <ScanFace className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        )}
 
         <Button
           type="submit"
@@ -645,23 +603,6 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
               Close
             </Button>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Facial Recognition Dialog */}
-      <Dialog open={showFacialRecognition} onOpenChange={setShowFacialRecognition}>
-        <DialogContent className="max-w-md bg-gray-800/95 backdrop-blur-lg border-gray-600">
-          <DialogHeader>
-            <DialogTitle className="text-white">Register Face for Account</DialogTitle>
-            <DialogDescription className="text-gray-300">
-              Register your face for secure biometric authentication on future sign-ins
-            </DialogDescription>
-          </DialogHeader>
-          <FacialRecognition
-            mode="register"
-            onSuccess={handleFacialRecognitionSuccess}
-            onFailure={handleFacialRecognitionFailure}
-          />
         </DialogContent>
       </Dialog>
 
