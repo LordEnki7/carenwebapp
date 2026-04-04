@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { Check, CreditCard, ArrowLeft, Shield, Zap, Users, Building, Home, RotateCcw, Smartphone } from "lucide-react";
+import { Check, CreditCard, ArrowLeft, Shield, Zap, Users, Building, Home } from "lucide-react";
 import { Link } from "wouter";
 import { Capacitor } from "@capacitor/core";
 
@@ -125,28 +125,18 @@ export default function Payment() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
-  const [isRestoring, setIsRestoring] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [planId, setPlanId] = useState<string>('');
-  const [isNativeApp, setIsNativeApp] = useState(false);
+  // Synchronous — computed before first render so no content ever flashes on iOS
+  const oniOS = isNativeiOS();
+  const planId = new URLSearchParams(window.location.search).get('plan') || 'basic';
 
+  // Navigate away as a side effect; return null immediately so nothing renders
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const selectedPlan = urlParams.get('plan') || 'basic';
-    setPlanId(selectedPlan);
-    setIsNativeApp(isNativeiOS());
-    setLoading(false);
+    if (oniOS) setLocation('/dashboard');
   }, []);
 
+  if (oniOS) return null;
+
   const selectedPlan = plans[planId];
-
-  const handleIAPPurchase = async () => {
-    window.open("https://carenalert.com/payment", "_blank");
-  };
-
-  const handleRestorePurchases = async () => {
-    window.open("https://carenalert.com/payment", "_blank");
-  };
 
   const STRIPE_PAYMENT_LINKS: Record<string, string> = {
     legal_shield: "https://buy.stripe.com/8x200i2Lj2XSaHq39o2VG01",
@@ -158,10 +148,6 @@ export default function Payment() {
 
   const handlePayment = async () => {
     if (!selectedPlan) return;
-
-    if (isNativeApp) {
-      return handleIAPPurchase();
-    }
 
     const link = STRIPE_PAYMENT_LINKS[selectedPlan.id];
     if (!link) {
@@ -177,18 +163,6 @@ export default function Payment() {
   };
 
 
-
-  if (loading) return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 flex items-center justify-center">
-      <div className="animate-spin w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full" />
-    </div>
-  );
-
-  // iOS native — payment/subscriptions not available in this build. Redirect silently.
-  if (isNativeApp) {
-    setLocation("/dashboard");
-    return null;
-  }
 
   if (!selectedPlan) {
     return (
@@ -334,15 +308,6 @@ export default function Payment() {
               </div>
 
               <div className="space-y-4">
-                {isNativeApp && (
-                  <div className="p-3 bg-green-900/30 rounded-lg border border-green-500/30 mb-2">
-                    <div className="flex items-center gap-2">
-                      <Smartphone className="w-4 h-4 text-green-400" />
-                      <span className="text-sm text-green-400 font-medium">In-App Purchase via Apple</span>
-                    </div>
-                  </div>
-                )}
-
                 <Button
                   onClick={handlePayment}
                   className="w-full h-12 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-600 hover:to-purple-600 text-white font-semibold"
@@ -352,23 +317,11 @@ export default function Payment() {
                     "Processing..."
                   ) : (
                     <>
-                      {isNativeApp ? <Smartphone className="w-4 h-4 mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                      {isNativeApp ? `Subscribe - $${selectedPlan.price}/month` : `Pay $${selectedPlan.price}/month`}
+                      <CreditCard className="w-4 h-4 mr-2" />
+                      {`Pay $${selectedPlan.price}/month`}
                     </>
                   )}
                 </Button>
-
-                {isNativeApp && (
-                  <Button
-                    onClick={handleRestorePurchases}
-                    variant="outline"
-                    className="w-full border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
-                    disabled={isRestoring}
-                  >
-                    <RotateCcw className={`w-4 h-4 mr-2 ${isRestoring ? 'animate-spin' : ''}`} />
-                    {isRestoring ? 'Restoring...' : 'Restore Purchases'}
-                  </Button>
-                )}
 
                 <p className="text-xs text-gray-500 text-center">
                   By continuing, you agree to our{' '}
@@ -380,7 +333,6 @@ export default function Payment() {
                     Privacy Policy
                   </a>
                   . Your subscription will automatically renew monthly.
-                  {isNativeApp && ' Payment will be charged to your Apple ID account.'}
                 </p>
               </div>
             </CardContent>

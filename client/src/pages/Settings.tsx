@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Capacitor } from "@capacitor/core";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +49,7 @@ import { t, setLanguage, getCurrentLanguage } from "@/lib/i18n";
 
 export default function Settings() {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   
@@ -263,12 +265,8 @@ export default function Settings() {
 
 
 
-  const handleDeleteAccount = async () => {
-    // TODO: Implement account deletion
-    toast({
-      title: "Account Deletion",
-      description: "Account deletion feature will be available soon. Please contact support for assistance.",
-    });
+  const handleDeleteAccount = () => {
+    setLocation('/account-security');
   };
 
 
@@ -865,6 +863,26 @@ export default function Settings() {
                 <div className="flex gap-4 mt-4">
                   <a href="/privacy" className="text-cyan-400 hover:text-cyan-300 text-sm underline">Privacy Policy</a>
                   <a href="/terms" className="text-cyan-400 hover:text-cyan-300 text-sm underline">Terms of Service</a>
+                </div>
+
+                {/* Account Deletion — required by App Store Guideline 5.1.1(v) */}
+                <div className="mt-6 bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                  <div className="flex items-start gap-3">
+                    <div>
+                      <h4 className="font-semibold text-white mb-1">Delete Account</h4>
+                      <p className="text-sm text-gray-400 mb-3">
+                        Permanently delete your C.A.R.E.N.™ account and all associated data. This action cannot be undone.
+                      </p>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={handleDeleteAccount}
+                        className="bg-red-600 hover:bg-red-700 text-white"
+                      >
+                        Delete My Account
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
