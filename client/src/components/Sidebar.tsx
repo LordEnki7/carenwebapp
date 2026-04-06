@@ -45,8 +45,6 @@ import {
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
 import carenLogo from "@assets/caren-logo.png";
-import { isFeatureLocked, getRequiredPlan } from "@/lib/featureAccess";
-import UpgradeSheet from "@/components/UpgradeSheet";
 
 interface NavItem {
   name: string;
@@ -144,10 +142,6 @@ const navGroups: NavGroup[] = [
   },
 ];
 
-interface LockedFeature {
-  name: string;
-  href: string;
-}
 
 export default function Sidebar() {
   const [location] = useLocation();
@@ -164,6 +158,8 @@ export default function Sidebar() {
   };
 
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  // All features are included — no subscription locking
+  const locked = false;
 
   // Layer 1: Emergency + Main open by default; only the active group also opens on navigate
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -189,7 +185,6 @@ export default function Sidebar() {
   };
 
   // Layer 2 & 3: Locked feature upgrade sheet
-  const [lockedFeature, setLockedFeature] = useState<LockedFeature | null>(null);
 
   const getInitials = (firstName?: string, lastName?: string) => {
     return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase() || 'U';
@@ -214,7 +209,6 @@ export default function Sidebar() {
     const Icon = item.icon;
     const isActive = location === item.href;
     const isEmergency = group.isEmergency;
-    const locked = isFeatureLocked(userTier, item.href);
 
     const baseClasses = cn(
       "group flex items-center px-3 py-2 text-sm font-medium rounded-lg cursor-pointer transition-all duration-200",
@@ -256,25 +250,12 @@ export default function Sidebar() {
       </div>
     );
 
-    if (locked) {
-      return (
-        <div
-          key={item.name}
-          onClick={() => setLockedFeature({ name: item.name, href: item.href })}
-        >
-          {inner}
-        </div>
-      );
-    }
-
     return (
       <Link key={item.name} href={item.href}>
         {inner}
       </Link>
     );
   };
-
-  const lockedPlan = lockedFeature ? getRequiredPlan(lockedFeature.href) : null;
 
   return (
     <div className="fixed inset-y-0 left-0 z-50 w-72 cyber-sidebar flex flex-col">
@@ -404,12 +385,6 @@ export default function Sidebar() {
         </AlertDialogContent>
       </AlertDialog>
 
-      <UpgradeSheet
-        open={!!lockedFeature}
-        onClose={() => setLockedFeature(null)}
-        featureName={lockedFeature?.name ?? ""}
-        requiredPlan={lockedPlan}
-      />
     </div>
   );
 }

@@ -10,7 +10,6 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import EmergencyContactsManager from "@/components/EmergencyContactsManager";
-import SubscriptionPlans from "@/components/SubscriptionPlans";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +26,6 @@ import {
   Bell, 
   Shield, 
   Globe, 
-  Crown, 
   Trash2, 
   Save, 
   Settings as SettingsIcon,
@@ -374,33 +372,6 @@ export default function Settings() {
             {/* Emergency Contacts */}
             <EmergencyContactsManager />
 
-            {/* Subscription Management — hidden on iOS (IAP not yet configured) */}
-            {!(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') && (
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 transition-all duration-300 p-6">
-              <div className="border-b border-gray-700/50 pb-4 mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-500/30">
-                    <Crown className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-white">Subscription Plans</h2>
-                    <p className="text-sm text-gray-300">Choose the protection level that fits your needs</p>
-                  </div>
-                </div>
-              </div>
-              <div>
-                <SubscriptionPlans 
-                  currentTier={(user && typeof user === 'object' ? (user as any).subscriptionTier : null) || "free"}
-                  onUpgrade={(planId) => {
-                    toast({
-                      title: "Upgrade Selected",
-                      description: `Upgrading to ${planId} plan...`,
-                    });
-                  }}
-                />
-              </div>
-            </div>
-            )}
 
             {/* Notification Settings */}
             <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-gray-700/50 transition-all duration-300 p-6">

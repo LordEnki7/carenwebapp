@@ -260,16 +260,13 @@ export default function FeaturePicker() {
                               />
                             </div>
                           ) : (
-                            <Link href="/pricing">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className={`w-full ${colors.border} ${colors.text} hover:${colors.bg} border text-xs`}
-                              >
-                                <Lock className="w-3 h-3 mr-2" />
-                                Upgrade to {TIER_LABELS[feature.tier]}
-                              </Button>
-                            </Link>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs text-green-400">Included</span>
+                              <Switch
+                                checked={isEnabled}
+                                onCheckedChange={() => toggleFeature(feature.id)}
+                              />
+                            </div>
                           )}
                         </CardContent>
                       </Card>

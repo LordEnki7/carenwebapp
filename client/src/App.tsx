@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -49,6 +49,13 @@ const LazyLoader = () => (
     <div className="animate-spin w-8 h-8 border-4 border-cyan-400 border-t-transparent rounded-full" />
   </div>
 );
+
+// Redirect subscription/payment routes to dashboard — IAP removed for App Store compliance
+const RedirectToDashboard = () => {
+  const [, navigate] = useLocation();
+  useEffect(() => { navigate("/"); }, []);
+  return null;
+};
 
 const Attorneys = lazy(() => import("@/pages/Attorneys"));
 const Messages = lazy(() => import("@/pages/Messages"));
@@ -214,7 +221,9 @@ function Router() {
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/about" component={Landing} />
-            <Route path="/pricing" component={Pricing} />
+            <Route path="/pricing" component={RedirectToDashboard} />
+            <Route path="/payment" component={RedirectToDashboard} />
+            <Route path="/plans" component={RedirectToDashboard} />
             <Route path="/help" component={Help} />
             <Route path="/rights" component={() => <Rights />} />
             <Route path="/admin" component={SimpleAdminDashboard} />
@@ -281,8 +290,8 @@ function Router() {
             <Route path="/attorney-matching" component={AttorneyMatching} />
             <Route path="/evidence-catalog" component={EvidenceCatalog} />
             <Route path="/accessibility" component={AccessibilityEnhancer} />
-            <Route path="/payment" component={Payment} />
-            <Route path="/plans" component={Plans} />
+            <Route path="/payment" component={RedirectToDashboard} />
+            <Route path="/plans" component={RedirectToDashboard} />
             <Route path="/admin" component={SimpleAdminDashboard} />
             <Route path="/load-test" component={LoadTestDashboard} />
             <Route path="/n8n-test" component={N8NTestDashboard} />
@@ -298,7 +307,7 @@ function Router() {
             <Route path="/support-admin" component={SupportAdmin} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
-            <Route path="/pricing" component={Pricing} />
+            <Route path="/pricing" component={RedirectToDashboard} />
             <Route path="/help" component={Help} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
