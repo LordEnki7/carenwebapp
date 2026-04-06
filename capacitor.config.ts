@@ -5,9 +5,7 @@ const config: CapacitorConfig = {
   appName: 'CAREN Alert',
   webDir: 'dist/public',
   server: {
-    url: 'https://carenalert.com',
-    androidScheme: 'https',
-    cleartext: false
+    androidScheme: 'https'
   },
   android: {
     buildOptions: {
