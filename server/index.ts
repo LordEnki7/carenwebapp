@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import passport from "passport";
 import connectPgSimple from "connect-pg-simple";
 import path from "path";
 import pgPkg from "pg";
@@ -277,6 +278,12 @@ console.log(`[SESSION_CONFIG] SECURITY HARDENED: httpOnly always enabled, secure
 
 app.use(session(sessionConfig));
 
+// Initialize Passport — MUST come after session middleware so Passport can
+// store the OAuth state in the session during the Google sign-in flow.
+// Without this, passport.authenticate('google') redirects to Google but never
+// saves the state, so the callback always fails immediately.
+app.use(passport.initialize());
+
 // Session debug middleware — ONLY log /api/ requests to avoid flooding logs with Vite source file requests
 app.use((req, res, next) => {
   try {
@@ -317,8 +324,8 @@ app.use((req: any, res, next) => {
         // session_${userId}_${timestamp}
         const parts = token.split('_');
         if (parts.length >= 2) userId = parts[1];
-      } else if (token.startsWith('cdt_')) {
-        // cdt_${userId}_${timestamp}_${nonce}
+      } else if (token.startsWith('cdt_') || token.startsWith('gauth_')) {
+        // cdt_${userId}_${timestamp}_${nonce}  OR  gauth_${userId}_${timestamp}_${random}
         const parts = token.split('_');
         if (parts.length >= 2) userId = parts[1];
       } else if (global.demoSessions && (global as any).demoSessions.has(token)) {
