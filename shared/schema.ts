@@ -129,6 +129,15 @@ export const attorneys = pgTable("attorneys", {
   availability: jsonb("availability"), // schedule/availability data
   activeStatus: boolean("active_status").default(true),
   lastActive: timestamp("last_active").defaultNow(),
+  // Network-specific fields
+  countiesServed: jsonb("counties_served").default('[]'),
+  availabilityStatus: varchar("availability_status").default("offline"), // available | busy | offline | emergency_only
+  profileScore: integer("profile_score").default(0), // 0-100
+  avgResponseMinutes: integer("avg_response_minutes").default(60),
+  consultationType: varchar("consultation_type").default("paid"), // free | paid
+  profileStatus: varchar("profile_status").default("pending"), // pending | approved | rejected
+  malpracticeInsurance: boolean("malpractice_insurance").default(false),
+  agreementSigned: boolean("agreement_signed").default(false),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -348,6 +357,81 @@ export const insertAttorneyConnectionSchema = createInsertSchema(attorneyConnect
 });
 export type InsertAttorneyConnection = z.infer<typeof insertAttorneyConnectionSchema>;
 export type AttorneyConnection = typeof attorneyConnections.$inferSelect;
+
+// Attorney Applications - for attorneys applying to join the network
+export const attorneyApplications = pgTable("attorney_applications", {
+  id: serial("id").primaryKey(),
+  firstName: varchar("first_name").notNull(),
+  lastName: varchar("last_name").notNull(),
+  email: varchar("email").notNull().unique(),
+  phone: varchar("phone"),
+  firmName: varchar("firm_name").notNull(),
+  firmWebsite: varchar("firm_website"),
+  statesLicensed: jsonb("states_licensed").notNull().default('[]'),
+  barNumber: varchar("bar_number").notNull(),
+  practiceAreas: jsonb("practice_areas").notNull().default('[]'),
+  countiesServed: jsonb("counties_served").default('[]'),
+  languages: jsonb("languages").default('["English"]'),
+  emergencyAvailable: boolean("emergency_available").default(false),
+  availability24_7: boolean("availability_24_7").default(false),
+  consultationType: varchar("consultation_type").default("paid"), // free | paid
+  malpracticeInsurance: boolean("malpractice_insurance").default(false),
+  yearsExperience: integer("years_experience"),
+  preferredContact: varchar("preferred_contact").default("email"), // email | phone | app
+  bio: text("bio"),
+  agreementSigned: boolean("agreement_signed").default(false),
+  verificationStatus: varchar("verification_status").default("pending"), // pending | approved | rejected | hold
+  score: integer("score").default(0), // 0-100 attorney quality score
+  adminNotes: text("admin_notes"),
+  approvedBy: varchar("approved_by"),
+  approvedAt: timestamp("approved_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAttorneyApplicationSchema = createInsertSchema(attorneyApplications).omit({
+  id: true,
+  verificationStatus: true,
+  score: true,
+  adminNotes: true,
+  approvedBy: true,
+  approvedAt: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertAttorneyApplication = z.infer<typeof insertAttorneyApplicationSchema>;
+export type AttorneyApplication = typeof attorneyApplications.$inferSelect;
+
+// Attorney Outreach CRM - track outreach to potential attorneys
+export const attorneyOutreach = pgTable("attorney_outreach", {
+  id: serial("id").primaryKey(),
+  firmName: varchar("firm_name").notNull(),
+  contactName: varchar("contact_name"),
+  contactTitle: varchar("contact_title"),
+  email: varchar("email"),
+  phone: varchar("phone"),
+  website: varchar("website"),
+  state: varchar("state").notNull(),
+  city: varchar("city"),
+  practiceAreas: jsonb("practice_areas").default('[]'),
+  contactMethod: varchar("contact_method").default("email"), // email | call | linkedin
+  status: varchar("status").default("not_contacted"), // not_contacted | contacted | responded | interested | onboarded | passed
+  lastContactDate: timestamp("last_contact_date"),
+  nextFollowUpDate: timestamp("next_follow_up_date"),
+  notes: text("notes"),
+  score: integer("score").default(0), // fit score 0-100
+  source: varchar("source").default("manual"), // bar_directory | linkedin | referral | cold | manual
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAttorneyOutreachSchema = createInsertSchema(attorneyOutreach).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertAttorneyOutreach = z.infer<typeof insertAttorneyOutreachSchema>;
+export type AttorneyOutreach = typeof attorneyOutreach.$inferSelect;
 
 // Emergency contacts table
 export const emergencyContacts = pgTable("emergency_contacts", {

@@ -97,6 +97,7 @@ const navGroups: NavGroup[] = [
       { name: "Legal Rights", href: "/legal-rights-map", icon: Map, description: "Interactive Rights Map" },
       { name: "Complaints", href: "/file-complaint", icon: FileText, description: "File & Track Complaints" },
       { name: "Attorneys", href: "/attorneys", icon: UserCheck },
+      { name: "Attorney Portal", href: "/attorney-portal", icon: Scale, description: "For licensed attorneys" },
       { name: "Messages", href: "/messages", icon: MessageCircle },
       { name: "Roadside Assistance", href: "/roadside-assistance", icon: Wrench },
     ],

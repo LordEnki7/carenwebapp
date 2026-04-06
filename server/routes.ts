@@ -37,6 +37,7 @@ import { n8nWebhookService } from "./n8nWebhookService";
 import { registerAuthRoutes } from "./routes/auth.routes";
 import { registerEmergencyRoutes } from "./routes/emergency.routes";
 import { registerAttorneyRoutes } from "./routes/attorney.routes";
+import { registerAttorneyNetworkRoutes } from "./routes/attorney-network.routes";
 import { registerLegalRoutes } from "./routes/legal.routes";
 import { registerJourneyRoutes } from "./routes/journey.routes";
 import { registerForumRoutes } from "./routes/forum.routes";
@@ -117,6 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Register attorney routes (extracted for better organization)
   registerAttorneyRoutes(app);
+  registerAttorneyNetworkRoutes(app);
   
   // Register legal routes (extracted for better organization)
   registerLegalRoutes(app);

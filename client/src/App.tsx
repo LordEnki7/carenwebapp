@@ -69,6 +69,8 @@ const VoicePrintAuth = lazy(() => import("@/pages/VoicePrintAuth"));
 const BluetoothEarpiece = lazy(() => import("@/pages/BluetoothEarpiece"));
 const MediaTest = lazy(() => import("@/pages/MediaTest"));
 const LivestreamToAttorneys = lazy(() => import("@/pages/LivestreamToAttorneys"));
+const AttorneyApply = lazy(() => import("@/pages/AttorneyApply"));
+const AttorneyPortal = lazy(() => import("@/pages/AttorneyPortal"));
 const RoadsideAssistance = lazy(() => import("@/pages/RoadsideAssistance"));
 const Complaints = lazy(() => import("@/pages/Complaints"));
 const EmergencySharing = lazy(() => import("@/pages/EmergencySharing"));
@@ -269,6 +271,8 @@ function Router() {
             <Route path="/bluetooth-earpiece" component={BluetoothEarpiece} />
             <Route path="/media-test" component={MediaTest} />
             <Route path="/livestream-attorneys" component={LivestreamToAttorneys} />
+            <Route path="/attorney-apply" component={AttorneyApply} />
+            <Route path="/attorney-portal" component={AttorneyPortal} />
             <Route path="/ai-learning" component={AILearningDashboard} />
             <Route path="/voice-coaching" component={VoiceCoaching} />
             <Route path="/recording-analysis" component={RecordingAnalysis} />

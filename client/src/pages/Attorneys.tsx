@@ -157,11 +157,11 @@ export default function Attorneys() {
                 </div>
                 <Button 
                   variant="secondary"
-                  onClick={() => window.open('mailto:attorneys@caren.legal?subject=Attorney Network Application', '_blank')}
-                  className="bg-cyan-600 text-white hover:bg-cyan-700 border-cyan-500 font-semibold"
+                  onClick={() => window.location.href = '/attorney-apply'}
+                  className="bg-white text-blue-700 hover:bg-blue-50 font-semibold"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Join Our Network
+                  <Scale className="w-4 h-4 mr-2" />
+                  Apply to Join
                 </Button>
               </div>
             </div>
