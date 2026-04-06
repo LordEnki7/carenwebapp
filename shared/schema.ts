@@ -2543,3 +2543,28 @@ export const testerBugReports = pgTable("tester_bug_reports", {
 export const insertTesterBugReportSchema = createInsertSchema(testerBugReports).omit({ id: true, createdAt: true });
 export type InsertTesterBugReport = z.infer<typeof insertTesterBugReportSchema>;
 export type TesterBugReport = typeof testerBugReports.$inferSelect;
+
+// ─── Support Tickets ──────────────────────────────────────────────────────────
+export const supportTickets = pgTable("support_tickets", {
+  id: serial("id").primaryKey(),
+  ticketId: varchar("ticket_id").unique().notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  userEmail: varchar("user_email"),
+  userName: varchar("user_name"),
+  issueCategory: varchar("issue_category"), // general_question | feature_guidance | troubleshooting | account_issue | billing_issue | complaint | urgent_safety | legal_sensitive | technical_failure | escalation_request
+  severityLevel: integer("severity_level").default(1), // 1=minor 2=repeated 3=serious 4=urgent
+  conversationSummary: text("conversation_summary"),
+  resolution: text("resolution"),
+  status: varchar("status").default("open"), // open | in_progress | escalated | resolved | closed
+  escalated: boolean("escalated").default(false),
+  escalationReason: text("escalation_reason"),
+  emailSent: boolean("email_sent").default(false),
+  qualityScore: integer("quality_score"),
+  recurringIssue: boolean("recurring_issue").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
+export type SupportTicket = typeof supportTickets.$inferSelect;

@@ -40,6 +40,7 @@ import {
   ClipboardList,
   ChevronDown,
   Lock,
+  LifeBuoy,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
@@ -136,6 +137,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Settings", href: "/settings", icon: Settings, description: "Account & Pricing" },
       { name: "Account Security", href: "/account-security", icon: Shield, description: "Session & Security Management" },
+      { name: "Support Admin", href: "/support-admin", icon: LifeBuoy, description: "Customer Support Tickets" },
       { name: "Help", href: "/help", icon: HelpCircle },
     ],
   },

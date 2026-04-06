@@ -51,6 +51,7 @@ import { registerPushRoutes } from "./routes/push.routes";
 import { registerReferralRoutes } from "./routes/referral.routes";
 import { registerEarlyAccessRoutes } from "./routes/early-access.routes";
 import { registerAppleAuthRoutes } from "./routes/apple-auth.routes";
+import { registerSupportRoutes } from "./routes/support.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 import { db } from "./db";
@@ -249,6 +250,7 @@ GUIDELINES:
   registerReferralRoutes(app);
   registerEarlyAccessRoutes(app);
   registerAppleAuthRoutes(app);
+  registerSupportRoutes(app);
 
   // NIG Command Center — division health & metrics endpoint
   app.use("/api/nig-status", nigStatusRouter);
@@ -4488,61 +4490,6 @@ GUIDELINES:
     }
   });
 
-  // Support ticket routes
-  app.post('/api/support/tickets', async (req, res) => {
-    try {
-      const { subject, category, priority, description, email } = req.body;
-      
-      // Generate a unique ticket ID
-      const ticketId = `CAREN-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-      
-      // Store ticket in database (simplified for demo)
-      const ticket = {
-        id: ticketId,
-        subject,
-        category,
-        priority: priority || 'medium',
-        description,
-        email,
-        status: 'open',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      console.log('[SUPPORT_TICKET] Created:', {
-        ticketId,
-        category,
-        priority,
-        email: email?.replace(/@.*/, '@***'),
-        subject: subject?.substring(0, 50) + '...'
-      });
-      
-      // Security audit log
-      console.log(`[SECURITY AUDIT] ${JSON.stringify({
-        timestamp: new Date().toISOString(),
-        event: 'SUPPORT_TICKET_CREATED',
-        userId: 'anonymous',
-        ip: req.ip,
-        userAgent: req.get('User-Agent'),
-        details: JSON.stringify({ ticketId, category, priority, timestamp: new Date().toISOString() })
-      })}`);
-      
-      // TODO: Send email confirmation to user
-      // TODO: Notify support team
-      
-      res.json({ 
-        success: true, 
-        ticketId,
-        message: 'Support ticket created successfully'
-      });
-    } catch (error) {
-      console.error('[SUPPORT_TICKET] Error:', error);
-      res.status(500).json({ 
-        success: false, 
-        message: 'Failed to create support ticket' 
-      });
-    }
-  });
 
   // Get user manual download (placeholder)
   app.get('/api/downloads/user-manual.pdf', (req, res) => {

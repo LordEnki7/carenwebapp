@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
 import { useEffect, Suspense, lazy, Component, ReactNode, useState } from "react";
+import SupportAgent from "@/components/SupportAgent";
 
 class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   constructor(props: { children: ReactNode }) {
@@ -107,6 +108,7 @@ const AgentDashboard = lazy(() => import("@/pages/AgentDashboard"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const Plans = lazy(() => import("@/pages/Plans"));
+const SupportAdmin = lazy(() => import("@/pages/SupportAdmin"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -289,6 +291,7 @@ function Router() {
             <Route path="/feedback" component={FeedbackBoard} />
             <Route path="/early-access" component={EarlyAccessLab} />
             <Route path="/agent-dashboard" component={AgentDashboard} />
+            <Route path="/support-admin" component={SupportAdmin} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={Pricing} />
@@ -321,6 +324,7 @@ function App() {
           <TooltipProvider>
             <Toaster />
             <Router />
+            <SupportAgent />
           </TooltipProvider>
         </ThemeProvider>
       </QueryClientProvider>

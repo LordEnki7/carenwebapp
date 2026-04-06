@@ -50,6 +50,7 @@ PostgreSQL is the primary database, managed with Drizzle ORM for schema changes.
     - **Rich Execution Audit Reports** (Phase 12): After approving and executing any action proposal, a second AI call generates a full quality report: action log (3-5 steps), quality score (1-10), quality review (strengths/weaknesses/risks), results review (expected vs actual outcome, business impact, lessons learned), and recommended next steps. Stored in agent_runs table and displayed in a structured panel in the UI.
 - **Referral System**: Unique 8-character codes for users with a dedicated dashboard for tracking.
 - **Browser Push Notifications**: VAPID keys for SOS alerts.
+- **C.A.R.E.N. Support Agent**: AI-powered customer support chat widget (`client/src/components/SupportAgent.tsx`) — purple/violet floating button in the bottom-left corner (distinct from the AI chat on the bottom-right). Handles complaints, feature questions, troubleshooting, escalations. Backend at `server/routes/support.routes.ts` using `POST /api/support/chat`. Escalated conversations are stored in the `support_tickets` DB table and email is sent to `info@carenalert.com`. Admin view at `/support-admin` (Sidebar → Settings → Support Admin) shows all tickets with filtering and status management.
 
 ## External Dependencies
 
