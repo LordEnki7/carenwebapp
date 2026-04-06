@@ -2568,3 +2568,72 @@ export const supportTickets = pgTable("support_tickets", {
 export const insertSupportTicketSchema = createInsertSchema(supportTickets).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertSupportTicket = z.infer<typeof insertSupportTicketSchema>;
 export type SupportTicket = typeof supportTickets.$inferSelect;
+
+// ── Refund Requests ───────────────────────────────────────────────────────────
+export const refundRequests = pgTable("refund_requests", {
+  id: serial("id").primaryKey(),
+  refundId: varchar("refund_id").unique().notNull(),
+  ticketId: varchar("ticket_id"),
+  userId: varchar("user_id").references(() => users.id),
+  userEmail: varchar("user_email"),
+  userName: varchar("user_name"),
+  transactionId: varchar("transaction_id"),
+  productPurchased: varchar("product_purchased"),
+  transactionDate: timestamp("transaction_date"),
+  amountPaid: decimal("amount_paid", { precision: 10, scale: 2 }),
+  usageStatus: varchar("usage_status"), // used | unused | partially_used
+  refundReason: varchar("refund_reason"), // accidental_charge | duplicate_charge | subscription_confusion | service_dissatisfaction | technical_failure | billing_error | fraud_concern
+  previousRefundsCount: integer("previous_refunds_count").default(0),
+  accountFlags: text("account_flags"),
+  // Policy Engine Decision
+  decision: varchar("decision").default("pending"), // approved | denied | partial | escalated | pending
+  decisionReason: text("decision_reason"),
+  confidenceLevel: varchar("confidence_level"), // high | medium | low
+  policyRulesApplied: text("policy_rules_applied"),
+  refundAmount: decimal("refund_amount", { precision: 10, scale: 2 }),
+  escalationRequired: boolean("escalation_required").default(false),
+  // Execution Logging
+  actionLog: text("action_log"),
+  qualityScore: integer("quality_score"),
+  executionStartTime: timestamp("execution_start_time"),
+  executionEndTime: timestamp("execution_end_time"),
+  // Admin
+  adminNotes: text("admin_notes"),
+  status: varchar("status").default("pending"), // pending | reviewed | processed | closed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertRefundRequestSchema = createInsertSchema(refundRequests).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRefundRequest = z.infer<typeof insertRefundRequestSchema>;
+export type RefundRequest = typeof refundRequests.$inferSelect;
+
+// ── Payment Intelligence Reports ─────────────────────────────────────────────
+export const paymentIntelligenceReports = pgTable("payment_intelligence_reports", {
+  id: serial("id").primaryKey(),
+  reportId: varchar("report_id").unique().notNull(),
+  userId: varchar("user_id").references(() => users.id),
+  userEmail: varchar("user_email"),
+  userName: varchar("user_name"),
+  planType: varchar("plan_type"),
+  riskLevel: varchar("risk_level"), // low | medium | high
+  churnProbability: varchar("churn_probability"), // low | medium | high | critical
+  keyIssueDetected: text("key_issue_detected"),
+  recommendedAction: text("recommended_action"),
+  expectedImpact: text("expected_impact"),
+  urgencyLevel: varchar("urgency_level"), // low | medium | high | critical
+  churnSignals: jsonb("churn_signals"),
+  upsellSignals: jsonb("upsell_signals"),
+  retentionActions: jsonb("retention_actions"),
+  paymentHealthSummary: text("payment_health_summary"),
+  refundRiskFlag: boolean("refund_risk_flag").default(false),
+  fraudFlag: boolean("fraud_flag").default(false),
+  qualityScore: integer("quality_score"),
+  status: varchar("status").default("active"), // active | reviewed | actioned | dismissed
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertPaymentIntelligenceReportSchema = createInsertSchema(paymentIntelligenceReports).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPaymentIntelligenceReport = z.infer<typeof insertPaymentIntelligenceReportSchema>;
+export type PaymentIntelligenceReport = typeof paymentIntelligenceReports.$inferSelect;
