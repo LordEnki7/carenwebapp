@@ -165,7 +165,8 @@ export function registerAuthRoutes(app: Express): void {
         }
         
         // Check for sessionToken patterns (from login endpoints)
-        if (token.startsWith('cdt_')) {
+        // gauth_ prefix is used by Google OAuth; cdt_ by regular/custom-domain login
+        if (token.startsWith('cdt_') || token.startsWith('gauth_')) {
           console.log('[AUTH_USER] Found sessionToken from login endpoint');
           
           // Extract user ID from token
