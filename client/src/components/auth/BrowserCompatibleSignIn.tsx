@@ -34,9 +34,16 @@ declare global {
 
 type AuthMode = 'signin' | 'create' | 'forgot';
 
-// Use proper Capacitor import — reliable even during early React render
-const isNativeiOS = (): boolean =>
-  Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+// Detect iOS native app (Capacitor) OR any WKWebView on iOS.
+// Google OAuth must be hidden in both — it fails with "disallowed_useragent" in WKWebView.
+// Safari on iPhone includes "Safari/" in the UA; WKWebView does not — that's the distinction.
+const isNativeiOS = (): boolean => {
+  try {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') return true;
+  } catch {}
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
+  return /iPhone|iPad|iPod/.test(ua) && /AppleWebKit/.test(ua) && !/Safari\//.test(ua);
+};
 
 export default function BrowserCompatibleSignIn() {
   const { toast } = useToast();
