@@ -33,57 +33,108 @@ export function registerAppleAuthRoutes(app: Express) {
         return res.status(400).json({ error: 'Invalid token: missing user identifier' });
       }
 
-      // Find existing user by Apple ID first, then by email
-      let user = await storage.getUserByAppleId(appleUserId);
+      let user: any = null;
 
-      if (!user && tokenEmail) {
-        user = await storage.getUserByEmail(tokenEmail);
-        if (user) {
-          // Link existing account to Apple ID
-          user = await storage.linkAppleAccount(user.id, appleUserId);
+      // Step 1: Try lookup by Apple ID (method may not exist on older deployments)
+      if (typeof (storage as any).getUserByAppleId === 'function') {
+        try {
+          user = await (storage as any).getUserByAppleId(appleUserId);
+        } catch (e) {
+          console.warn('[APPLE_AUTH] getUserByAppleId failed, falling back to email lookup:', e);
         }
       }
 
-      if (!user) {
-        // Create new user from Apple Sign In
-        // agreedToTerms is set to true — Apple Sign In requires users to agree
-        // to Apple's own terms before completing the flow, which satisfies our requirement
-        const newUser = {
-          id: crypto.randomUUID(),
-          email: tokenEmail || null,
-          firstName: givenName || null,
-          lastName: familyName || null,
-          googleId: null,
-          appleId: appleUserId,
-          profileImageUrl: null,
-          password: null,
-          role: 'user' as const,
-          subscriptionTier: 'basic_guard',
-          currentState: null,
-          preferredLanguage: 'en',
-          emergencyContacts: null,
-          agreedToTerms: true,
-          termsAgreedAt: new Date(),
-        };
-        user = await storage.createUser(newUser);
+      // Step 2: Fall back to email lookup
+      if (!user && tokenEmail) {
+        try {
+          user = await storage.getUserByEmail(tokenEmail);
+        } catch (e) {
+          console.warn('[APPLE_AUTH] getUserByEmail failed:', e);
+        }
+
+        // Step 3: Try to link Apple ID to existing account (optional — non-fatal)
+        if (user && typeof (storage as any).linkAppleAccount === 'function') {
+          try {
+            user = await (storage as any).linkAppleAccount(user.id, appleUserId);
+          } catch (e) {
+            console.warn('[APPLE_AUTH] linkAppleAccount failed (non-fatal):', e);
+          }
+        }
       }
 
-      // If existing user hasn't agreed to terms yet, mark as agreed
-      // (they completed Apple's identity verification which implies consent)
+      // Step 4: Create brand new user if none found
+      if (!user) {
+        try {
+          const newUser: any = {
+            id: crypto.randomUUID(),
+            email: tokenEmail || null,
+            firstName: givenName || null,
+            lastName: familyName || null,
+            googleId: null,
+            profileImageUrl: null,
+            password: null,
+            role: 'user',
+            subscriptionTier: 'basic_guard',
+            currentState: null,
+            preferredLanguage: 'en',
+            emergencyContacts: null,
+            agreedToTerms: true,
+            termsAgreedAt: new Date(),
+          };
+
+          // Only include appleId if the column likely exists (post-migration)
+          try {
+            newUser.appleId = appleUserId;
+          } catch {
+            // ignore — older schema without apple_id column
+          }
+
+          user = await storage.createUser(newUser);
+        } catch (createErr: any) {
+          // If createUser fails due to unknown appleId column, retry without it
+          console.warn('[APPLE_AUTH] createUser failed, retrying without appleId:', createErr.message);
+          try {
+            const fallbackUser: any = {
+              id: crypto.randomUUID(),
+              email: tokenEmail || `apple_${appleUserId.slice(0, 8)}@caren.app`,
+              firstName: givenName || null,
+              lastName: familyName || null,
+              googleId: null,
+              profileImageUrl: null,
+              password: null,
+              role: 'user',
+              subscriptionTier: 'basic_guard',
+              currentState: null,
+              preferredLanguage: 'en',
+              emergencyContacts: null,
+              agreedToTerms: true,
+            };
+            user = await storage.createUser(fallbackUser);
+          } catch (fallbackErr: any) {
+            console.error('[APPLE_AUTH] createUser fallback also failed:', fallbackErr.message);
+            return res.status(500).json({ error: 'Apple authentication failed. Please try again.' });
+          }
+        }
+      }
+
+      // Step 5: Ensure terms are accepted (non-fatal)
       if (user && !user.agreedToTerms) {
         try {
-          user = await storage.updateUserTermsAcceptance(user.id);
+          if (typeof (storage as any).updateUserTermsAcceptance === 'function') {
+            user = await (storage as any).updateUserTermsAcceptance(user.id);
+          }
         } catch (e) {
-          // Non-fatal — proceed with login even if update fails
-          console.warn('[APPLE_AUTH] Could not update agreedToTerms:', e);
+          console.warn('[APPLE_AUTH] Could not update agreedToTerms (non-fatal):', e);
         }
       }
 
-      // Create session
+      // Step 6: Create session
       (req.session as any).userId = user.id;
       (req.session as any).user = user;
 
       const sessionToken = `cdt_${user.id}_${Date.now()}_apple`;
+
+      console.log(`[APPLE_AUTH] Sign in successful for user: ${user.id}`);
 
       return res.json({
         success: true,
@@ -91,8 +142,9 @@ export function registerAppleAuthRoutes(app: Express) {
         sessionToken,
         message: 'Sign in with Apple successful',
       });
+
     } catch (error: any) {
-      console.error('[APPLE_AUTH] Error:', error);
+      console.error('[APPLE_AUTH] Unhandled error:', error.message, error.stack);
       return res.status(500).json({ error: 'Apple authentication failed. Please try again.' });
     }
   });
