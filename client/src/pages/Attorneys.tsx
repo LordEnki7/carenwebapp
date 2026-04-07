@@ -148,17 +148,16 @@ export default function Attorneys() {
           <div className="max-w-6xl mx-auto">
             {/* Attorney Recruitment Banner */}
             <div className="cyber-card p-6 mb-6 animate-fade-in-up bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h2 className="text-xl font-bold mb-2">Are You a Civil Rights Attorney?</h2>
-                  <p className="text-blue-100 mb-4">
+                  <p className="text-blue-100">
                     Join our network and help protect citizens' constitutional rights during police encounters.
                   </p>
                 </div>
                 <Button 
-                  variant="secondary"
                   onClick={() => window.location.href = '/attorney-apply'}
-                  className="bg-white text-blue-700 hover:bg-blue-50 font-semibold"
+                  className="bg-gray-900 text-white border border-white/30 hover:bg-gray-800 font-semibold shrink-0"
                 >
                   <Scale className="w-4 h-4 mr-2" />
                   Apply to Join

@@ -34,12 +34,8 @@ export function useRealTimeSync() {
       });
 
       wsClient.current.on('error', (event, data) => {
-        console.error('Real-time sync error:', data);
-        toast({
-          title: "Sync Error",
-          description: "Real-time synchronization encountered an issue",
-          variant: "destructive",
-        });
+        // Log silently — sync errors are non-critical and not actionable by the user
+        console.warn('Real-time sync error (non-fatal):', data);
       });
 
       // Handle data sync events
@@ -145,11 +141,8 @@ export function useRealTimeSync() {
       });
 
       wsClient.current.on('max_reconnect_attempts', () => {
-        toast({
-          title: "Sync Unavailable",
-          description: "Real-time synchronization is temporarily unavailable. Please refresh the page.",
-          variant: "destructive",
-        });
+        // Log silently — real-time sync is a background feature; loss of it is non-critical
+        console.warn('Real-time sync max reconnect attempts reached — running in offline mode');
       });
     }
 
