@@ -108,7 +108,7 @@ export default function SupportAgent() {
         <button
           onClick={() => setOpen(true)}
           aria-label="Open support chat"
-          className={`fixed bottom-6 left-6 z-50 w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-full shadow-lg shadow-violet-500/40 flex items-center justify-center hover:scale-110 transition-transform duration-200 group ${pulse ? "animate-pulse" : ""}`}
+          className={`fixed bottom-24 left-6 z-50 w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-full shadow-lg shadow-violet-500/40 flex items-center justify-center hover:scale-110 transition-transform duration-200 group ${pulse ? "animate-pulse" : ""}`}
         >
           <MessageCircleHeart className="w-6 h-6 text-white" />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-900" />
@@ -117,7 +117,7 @@ export default function SupportAgent() {
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-6 left-6 z-50 w-[340px] sm:w-[380px] h-[520px] flex flex-col bg-gray-900/97 backdrop-blur-xl border border-violet-500/20 rounded-2xl shadow-2xl shadow-violet-500/10 overflow-hidden">
+        <div className="fixed bottom-24 left-6 z-50 w-[340px] sm:w-[380px] h-[520px] flex flex-col bg-gray-900/97 backdrop-blur-xl border border-violet-500/20 rounded-2xl shadow-2xl shadow-violet-500/10 overflow-hidden">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-violet-900/80 to-purple-900/80 border-b border-violet-500/20 flex-shrink-0">
             <div className="relative">

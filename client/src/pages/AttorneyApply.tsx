@@ -13,7 +13,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Scale, Shield, CheckCircle, ChevronRight, ChevronLeft, Globe, Clock, Phone, Mail, FileText } from "lucide-react";
+import { Scale, Shield, CheckCircle, ChevronRight, ChevronLeft, Globe, Clock, Phone, Mail, FileText, ArrowLeft } from "lucide-react";
+import { useLocation } from "wouter";
 
 const US_STATES = [
   "Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware",
@@ -73,6 +74,7 @@ const STEPS = [
 
 export default function AttorneyApply() {
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [step, setStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
   const [stateInput, setStateInput] = useState("");
@@ -160,14 +162,25 @@ export default function AttorneyApply() {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="border-b border-gray-800 bg-black/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
-            <Scale className="w-4 h-4 text-white" />
+        <div className="max-w-3xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-purple-600 flex items-center justify-center">
+              <Scale className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h1 className="text-sm font-bold text-white">C.A.R.E.N. Legal Access Network</h1>
+              <p className="text-xs text-gray-400">Attorney Network Application</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-sm font-bold text-white">C.A.R.E.N. Legal Access Network</h1>
-            <p className="text-xs text-gray-400">Attorney Network Application</p>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate("/dashboard")}
+            className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white gap-1.5"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Dashboard
+          </Button>
         </div>
       </div>
 

@@ -65,9 +65,46 @@ export default function LocationAwareLegalRights() {
 
   const stateInfo = location?.stateCode ? getStateSpecificInfo(location.stateCode) : null;
 
+  // Detect if user is outside the United States
+  const isOverseas = location &&
+    location.country &&
+    !location.country.toLowerCase().includes('united states') &&
+    !location.country.toLowerCase().includes('usa') &&
+    !location.country.toLowerCase().includes('us');
+
   return (
     <div className="space-y-6">
-      {/* Location Status */}
+      {/* Overseas notice — shown instead of normal location card when abroad */}
+      {isOverseas ? (
+        <Card className="border-amber-200 bg-amber-50/50">
+          <CardContent className="pt-5 pb-4">
+            <div className="flex items-start gap-3">
+              <div className="w-8 h-8 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
+                <MapPin className="w-4 h-4 text-amber-600" />
+              </div>
+              <div className="flex-1">
+                <p className="font-semibold text-amber-900">Currently Outside the US</p>
+                <p className="text-sm text-amber-700 mt-0.5">
+                  Detected: {location.city ? `${location.city}, ` : ''}{location.country}
+                </p>
+                <p className="text-sm text-amber-700 mt-2">
+                  C.A.R.E.N.™ legal rights are specific to US jurisdictions. Your full US legal reference library is still available to browse below.
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => getCurrentLocation()}
+                disabled={isLoading}
+                className="border-amber-300 text-amber-700 hover:bg-amber-100 flex-shrink-0"
+              >
+                {isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+      /* Location Status */
       <Card className="border-blue-200 bg-blue-50/50">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
@@ -129,6 +166,7 @@ export default function LocationAwareLegalRights() {
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* State-Specific Legal Highlights */}
       {stateInfo && (
