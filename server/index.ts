@@ -7,6 +7,7 @@ import pgPkg from "pg";
 const { Pool: PgPool } = pgPkg;
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { runAutoMigrations } from "./db";
 import { 
   securityHeaders, 
   createRateLimit, 
@@ -400,6 +401,11 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Run safe, additive schema migrations on every startup.
+  // This ensures the production database stays in sync with the schema
+  // without requiring manual intervention (e.g. apple_id column for Apple Sign In).
+  await runAutoMigrations();
+
   // Add subscription plans endpoint BEFORE Vite setup to prevent conflicts
   app.get('/api/subscription-plans', async (req, res) => {
     try {
