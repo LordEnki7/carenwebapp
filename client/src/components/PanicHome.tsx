@@ -164,14 +164,14 @@ export default function PanicHome({ onShowFullDashboard }: PanicHomeProps) {
         )}
       </button>
 
-      {/* Slim bottom strip — just enough to access the full dashboard */}
+      {/* Bottom strip — access full dashboard */}
       <button
         onClick={onShowFullDashboard}
         data-testid="btn-show-dashboard"
-        className="w-full py-4 flex items-center justify-center gap-2 bg-[#0d1420] border-t border-white/5 hover:bg-[#111a2c] transition-colors"
+        className="w-full py-5 flex items-center justify-center gap-2 bg-[#0d1420] border-t border-white/10 hover:bg-[#111a2c] active:bg-[#1a2540] transition-colors"
       >
-        <span className="text-white/30 text-xs font-medium tracking-widest uppercase">More Options</span>
-        <ChevronDown className="w-3.5 h-3.5 text-white/20" />
+        <span className="text-white/70 text-sm font-semibold tracking-widest uppercase">Dashboard &amp; Settings</span>
+        <ChevronDown className="w-4 h-4 text-white/50" />
       </button>
     </div>
   );
