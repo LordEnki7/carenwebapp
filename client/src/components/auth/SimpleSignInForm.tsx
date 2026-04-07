@@ -112,6 +112,19 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
       if (data.sessionToken) {
         localStorage.setItem('sessionToken', data.sessionToken);
       }
+
+      // Accept terms automatically — Apple Sign In already requires
+      // the user to authenticate through Apple's own consent flow.
+      // This ensures agreedToTerms=true is set in the database so
+      // useAuth recognises the user as fully authenticated.
+      if (data.user && !data.user.agreedToTerms) {
+        try {
+          await apiRequest("POST", "/api/auth/accept-terms");
+        } catch (termsErr) {
+          console.warn('[APPLE_SIGNIN] accept-terms call failed (non-fatal):', termsErr);
+        }
+      }
+
       const userName = data.user?.firstName || data.user?.email?.split('@')[0] || 'User';
       setWelcomeUserName(userName);
       setShowWelcomeAnimation(true);

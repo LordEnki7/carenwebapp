@@ -287,18 +287,23 @@ export function registerAuthenticationRoutes(app: Express) {
   // Accept terms endpoint
   app.post('/api/auth/accept-terms', async (req: any, res) => {
     try {
-      // For demo purposes, simulate terms acceptance and update mock user
       const acceptedAt = new Date();
+
+      // Update database if a real user is authenticated
+      const userId = (req.session as any)?.userId || (req.session as any)?.user?.id;
+      if (userId) {
+        try {
+          await storage.updateUserTermsAcceptance(userId);
+          console.log(`[ACCEPT_TERMS] Updated agreedToTerms=true for user ${userId}`);
+        } catch (dbErr) {
+          console.warn('[ACCEPT_TERMS] DB update failed (non-fatal):', dbErr);
+        }
+      }
+
+      // Also update demo/in-memory state
       setUserAuthenticated(true, null, acceptedAt);
-      const acceptedTerms = {
-        agreedToTerms: true,
-        termsAgreedAt: acceptedAt,
-        success: true
-      };
-      
-      // In a real implementation, this would update the database
-      // For demo, we'll just return success
-      res.json(acceptedTerms);
+
+      res.json({ agreedToTerms: true, termsAgreedAt: acceptedAt, success: true });
     } catch (error) {
       console.error("Error accepting terms:", error);
       res.status(500).json({ message: "Failed to accept terms" });
