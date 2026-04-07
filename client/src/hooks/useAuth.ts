@@ -223,7 +223,11 @@ export function useAuth() {
   useEffect(() => {
     // Only update after loading is complete and we have a definitive state
     if (!isLoading) {
-      const isAuthenticated = !!(user && (user as any).agreedToTerms);
+      // Authenticated = server returned a valid user object (has an id).
+      // agreedToTerms is handled separately in the onboarding flow and
+      // should not gate basic authentication — especially for Apple Sign In
+      // users where terms are auto-accepted during the native Apple flow.
+      const isAuthenticated = !!(user && (user as any).id);
       setStableAuth({
         isAuthenticated,
         isLoading: false,
