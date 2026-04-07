@@ -61,8 +61,6 @@ const Attorneys = lazy(() => import("@/pages/Attorneys"));
 const Messages = lazy(() => import("@/pages/Messages"));
 const Settings = lazy(() => import("@/pages/Settings"));
 const AccountSecurity = lazy(() => import("@/pages/AccountSecurity"));
-const Pricing = lazy(() => import("@/pages/Pricing"));
-const Payment = lazy(() => import("@/pages/Payment"));
 const Help = lazy(() => import("@/pages/Help"));
 const InteractiveTutorial = lazy(() => import("@/pages/InteractiveTutorial"));
 const PoliceMonitor = lazy(() => import("@/pages/PoliceMonitor"));
@@ -116,7 +114,6 @@ const EarlyAccessLab = lazy(() => import("@/pages/EarlyAccessLab"));
 const AgentDashboard = lazy(() => import("@/pages/AgentDashboard"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
-const Plans = lazy(() => import("@/pages/Plans"));
 const SupportAdmin = lazy(() => import("@/pages/SupportAdmin"));
 
 function Router() {

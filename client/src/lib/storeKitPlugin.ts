@@ -1,5 +1,3 @@
-import { registerPlugin } from '@capacitor/core';
-
 export interface StoreKitProduct {
   productId: string;
   title: string;
@@ -12,18 +10,16 @@ export interface StoreKitProduct {
 export interface StoreKitTransaction {
   transactionId: string;
   productId: string;
-  originalTransactionId: string;
+  originalTransactionId?: string;
   purchaseDate: string;
-  expiresDate: string;
+  expiresDate?: string;
   jwsRepresentation?: string;
 }
 
-export interface StoreKitPlugin {
-  getProducts(options: { productIds: string[] }): Promise<{ products: StoreKitProduct[] }>;
-  purchaseProduct(options: { productId: string }): Promise<{ transaction: StoreKitTransaction }>;
-  restorePurchases(): Promise<{ transactions: StoreKitTransaction[] }>;
-  getCurrentTransactions(): Promise<{ transactions: StoreKitTransaction[] }>;
-  finishTransaction(options: { transactionId: string }): Promise<void>;
-}
-
-export const StoreKit = registerPlugin<StoreKitPlugin>('StoreKit');
+export const StoreKit = {
+  getProducts: async (_: any) => ({ products: [] as StoreKitProduct[] }),
+  purchaseProduct: async (_: any) => ({ transaction: {} as StoreKitTransaction }),
+  finishTransaction: async (_: any) => {},
+  restorePurchases: async () => ({ transactions: [] as StoreKitTransaction[] }),
+  getCurrentTransactions: async () => ({ transactions: [] as StoreKitTransaction[] }),
+};
