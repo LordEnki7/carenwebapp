@@ -24,8 +24,8 @@ export default function Dashboard() {
   const { handsFreeStatus, connectedDevice, isBluetoothAvailable } = useBluetoothHandsFree();
   const { enablePushNotifications, isPushEnabled } = useEmergencyAlerts();
   const [, setLocation] = useLocation();
-  // Default to full dashboard — emergency button is a card at the top
-  const [showFullDashboard, setShowFullDashboard] = useState(true);
+  // Start on PanicHome — user can swipe into full dashboard
+  const [showFullDashboard, setShowFullDashboard] = useState(false);
   
   const { data: referralData, refetch: refetchReferral } = useQuery<{ referralCode: string | null; total: number; converted: number; rewardEarned: boolean }>({
     queryKey: ["/api/referrals/my"],
