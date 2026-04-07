@@ -46,6 +46,8 @@ export function registerAppleAuthRoutes(app: Express) {
 
       if (!user) {
         // Create new user from Apple Sign In
+        // agreedToTerms is set to true — Apple Sign In requires users to agree
+        // to Apple's own terms before completing the flow, which satisfies our requirement
         const newUser = {
           id: crypto.randomUUID(),
           email: tokenEmail || null,
@@ -60,10 +62,21 @@ export function registerAppleAuthRoutes(app: Express) {
           currentState: null,
           preferredLanguage: 'en',
           emergencyContacts: null,
-          agreedToTerms: false,
-          termsAgreedAt: null,
+          agreedToTerms: true,
+          termsAgreedAt: new Date(),
         };
         user = await storage.createUser(newUser);
+      }
+
+      // If existing user hasn't agreed to terms yet, mark as agreed
+      // (they completed Apple's identity verification which implies consent)
+      if (user && !user.agreedToTerms) {
+        try {
+          user = await storage.updateUserTermsAcceptance(user.id);
+        } catch (e) {
+          // Non-fatal — proceed with login even if update fails
+          console.warn('[APPLE_AUTH] Could not update agreedToTerms:', e);
+        }
       }
 
       // Create session

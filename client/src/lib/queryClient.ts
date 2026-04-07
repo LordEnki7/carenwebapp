@@ -13,14 +13,17 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Check for session tokens (custom domain, demo, or regular)
+  // Check for session tokens (custom domain, demo, regular, or direct session token)
+  const sessionToken = localStorage.getItem('sessionToken');
   const customDomainToken = localStorage.getItem('customDomainToken');
   const demoSessionKey = localStorage.getItem('demoSessionKey');
   const regularSessionToken = localStorage.getItem('regularSessionToken');
   const headers: Record<string, string> = data ? { "Content-Type": "application/json" } : {};
   
-  // Priority order: Custom domain token > Demo session key > Regular session token
-  if (customDomainToken) {
+  // Priority order: sessionToken > Custom domain token > Demo session key > Regular session token
+  if (sessionToken) {
+    headers.Authorization = `Bearer ${sessionToken}`;
+  } else if (customDomainToken) {
     headers.Authorization = `Bearer ${customDomainToken}`;
   } else if (demoSessionKey) {
     headers.Authorization = `Bearer ${demoSessionKey}`;
@@ -46,14 +49,17 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    // Include session tokens in Authorization header (custom domain, demo, or regular)
+    // Include session tokens in Authorization header (custom domain, demo, regular, or direct)
+    const sessionToken = localStorage.getItem('sessionToken');
     const customDomainToken = localStorage.getItem('customDomainToken');
     const demoSessionKey = localStorage.getItem('demoSessionKey');
     const regularSessionToken = localStorage.getItem('regularSessionToken');
     const headers: Record<string, string> = {};
     
-    // Priority order: Custom domain token > Demo session key > Regular session token
-    if (customDomainToken) {
+    // Priority order: sessionToken > Custom domain token > Demo session key > Regular session token
+    if (sessionToken) {
+      headers.Authorization = `Bearer ${sessionToken}`;
+    } else if (customDomainToken) {
       headers.Authorization = `Bearer ${customDomainToken}`;
     } else if (demoSessionKey) {
       headers.Authorization = `Bearer ${demoSessionKey}`;
