@@ -173,10 +173,9 @@ export default function AttorneyApply() {
             </div>
           </div>
           <Button
-            variant="outline"
             size="sm"
             onClick={() => navigate("/dashboard")}
-            className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white gap-1.5"
+            className="bg-gray-800 border border-gray-600 text-gray-100 hover:bg-gray-700 hover:text-white gap-1.5"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             Dashboard

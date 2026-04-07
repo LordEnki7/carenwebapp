@@ -138,7 +138,9 @@ export default function LocationAwareLegalRights() {
             <Alert className="border-amber-200 bg-amber-50">
               <AlertTriangle className="w-4 h-4" />
               <AlertDescription className="text-amber-800">
-                {error.message}. Using general legal information.
+                {error.code === 1
+                  ? 'Location access denied. Enable permissions in Settings to get state-specific rights.'
+                  : 'Could not determine your location — you may be outside the US or location is unavailable. Your US legal reference library is still accessible.'}
               </AlertDescription>
             </Alert>
           ) : location ? (
