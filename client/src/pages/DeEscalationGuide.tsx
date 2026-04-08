@@ -16,7 +16,10 @@ import {
   Brain,
   ArrowLeft,
   Scale,
-  FileText
+  FileText,
+  Camera,
+  Gavel,
+  ChevronRight
 } from "lucide-react";
 import { Link } from "wouter";
 import Sidebar from "@/components/Sidebar";
@@ -642,6 +645,195 @@ export default function DeEscalationGuide() {
     </div>
   );
 
+  const renderRecordingRights = () => (
+    <div className="space-y-6">
+
+      {/* Top Banner */}
+      <Alert className="border-cyan-400 bg-cyan-950/60">
+        <Camera className="h-5 w-5 text-cyan-400" />
+        <AlertTitle className="text-cyan-300 text-base font-bold">
+          Your Right to Record Police is Protected by the First Amendment
+        </AlertTitle>
+        <AlertDescription className="text-cyan-200 mt-1">
+          Seven federal appeals courts — including the 10th Circuit — have upheld this right.
+          Use this script calmly and clearly. Do not raise your voice. Do not argue.
+        </AlertDescription>
+      </Alert>
+
+      {/* Step 1 */}
+      <Card className="bg-slate-800/80 border-cyan-500/40">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-black font-bold text-sm flex-shrink-0">1</div>
+            Officer Says: "It's Illegal to Record Me"
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-cyan-900/40 border border-cyan-500/30 rounded-lg">
+            <p className="text-xs text-cyan-400 font-semibold uppercase tracking-wide mb-2">Say This — Calmly and Clearly</p>
+            <p className="text-white text-base leading-relaxed">
+              "Officer, with respect — recording police officers performing their duties in a public place is protected by the First Amendment of the United States Constitution. I am not interfering with your duties and I will continue to comply with your lawful instructions."
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="flex items-start gap-3 p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-green-300 font-medium text-sm">Stay calm and still</p>
+                <p className="text-green-400/70 text-xs">Lower your voice, not raise it</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-green-900/30 border border-green-500/30 rounded-lg">
+              <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-green-300 font-medium text-sm">State it once — then stop</p>
+                <p className="text-green-400/70 text-xs">You've made the record. Don't argue</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-red-900/30 border border-red-500/30 rounded-lg">
+              <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-300 font-medium text-sm">Don't debate them on the spot</p>
+                <p className="text-red-400/70 text-xs">The goal is the recording, not the argument</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3 p-3 bg-red-900/30 border border-red-500/30 rounded-lg">
+              <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-red-300 font-medium text-sm">Don't raise your voice</p>
+                <p className="text-red-400/70 text-xs">Volume escalates — calm de-escalates</p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Step 2 */}
+      <Card className="bg-slate-800/80 border-orange-500/40">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-black font-bold text-sm flex-shrink-0">2</div>
+            Officer Threatens Arrest for Recording (Retaliation)
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-orange-900/40 border border-orange-500/30 rounded-lg">
+            <p className="text-xs text-orange-400 font-semibold uppercase tracking-wide mb-2">Say This — Still Calm, No Arguing</p>
+            <p className="text-white text-base leading-relaxed">
+              "Officer, I understand your position. I want you to know that seven federal appeals courts — including the Tenth Circuit Court of Appeals in <em>Irizarry v. Yehia</em> (2022) — have ruled that retaliating against a citizen for recording police in public is a civil rights violation under the First Amendment. I am not resisting. I am documenting this encounter for both our protection."
+            </p>
+          </div>
+
+          <div className="p-4 bg-slate-900/60 border border-white/10 rounded-lg">
+            <p className="text-white font-semibold mb-3 flex items-center gap-2">
+              <Gavel className="w-4 h-4 text-yellow-400" />
+              Federal Courts That Have Upheld This Right
+            </p>
+            <div className="space-y-2">
+              {[
+                { circuit: "1st Circuit", case: "Glik v. Cunniffe (2011)", note: "First to clearly establish the right" },
+                { circuit: "3rd Circuit", case: "Fields v. City of Philadelphia (2017)", note: "Covers PA, NJ, DE" },
+                { circuit: "5th Circuit", case: "Turner v. Driver (2017)", note: "Covers TX, LA, MS" },
+                { circuit: "7th Circuit", case: "ACLU v. Alvarez (2012)", note: "Covers IL, IN, WI" },
+                { circuit: "9th Circuit", case: "Fordyce v. City of Seattle (1995)", note: "Covers CA, WA, OR and more" },
+                { circuit: "10th Circuit", case: "Irizarry v. Yehia (2022)", note: "Retaliation = civil rights violation" },
+                { circuit: "11th Circuit", case: "Smith v. City of Cumming (2000)", note: "Covers FL, GA, AL" },
+              ].map((court, i) => (
+                <div key={i} className="flex items-start gap-3 p-2 bg-yellow-900/20 border border-yellow-500/20 rounded">
+                  <ChevronRight className="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <span className="text-yellow-300 font-semibold text-sm">{court.circuit}:</span>
+                    <span className="text-white text-sm ml-1 italic">{court.case}</span>
+                    <p className="text-yellow-400/70 text-xs mt-0.5">{court.note}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Step 3 */}
+      <Card className="bg-slate-800/80 border-red-500/40">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">3</div>
+            If the Officer Places You Under Arrest
+          </CardTitle>
+          <CardDescription className="text-red-300">
+            Say this clearly and loudly — for the camera and for the record
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-red-900/40 border border-red-400/40 rounded-lg">
+            <p className="text-xs text-red-400 font-semibold uppercase tracking-wide mb-2">Say Exactly This — Out Loud, For the Camera</p>
+            <p className="text-white text-base leading-relaxed">
+              "For the record and for the camera — I am complying with the officer's orders. I do not consent to any search or seizure of my person, my vehicle, or my belongings. I am invoking my right to remain silent and I am requesting an attorney immediately. I am not resisting."
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="p-3 bg-slate-900/60 border border-white/10 rounded-lg text-center">
+              <p className="text-cyan-400 font-bold text-sm mb-1">Comply Physically</p>
+              <p className="text-gray-300 text-xs">Don't resist. Your body cooperates. Your words preserve your rights.</p>
+            </div>
+            <div className="p-3 bg-slate-900/60 border border-white/10 rounded-lg text-center">
+              <p className="text-cyan-400 font-bold text-sm mb-1">No Consent to Search</p>
+              <p className="text-gray-300 text-xs">Say it clearly. Even if they search anyway, non-consent is on record.</p>
+            </div>
+            <div className="p-3 bg-slate-900/60 border border-white/10 rounded-lg text-center">
+              <p className="text-cyan-400 font-bold text-sm mb-1">Request Attorney</p>
+              <p className="text-gray-300 text-xs">Once you say it, they must stop questioning you. Say it explicitly.</p>
+            </div>
+          </div>
+          <Alert className="border-red-400 bg-red-950/40">
+            <AlertTriangle className="h-4 w-4 text-red-400" />
+            <AlertDescription className="text-red-200">
+              After invoking your right to an attorney — <strong>say nothing else</strong>. No explanations, no justifications. 
+              The recording is your evidence. Your attorney will handle the rest.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
+      {/* Step 4 */}
+      <Card className="bg-slate-800/80 border-purple-500/40">
+        <CardHeader>
+          <CardTitle className="text-white flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">4</div>
+            Officer Claims "It's Department Policy"
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="p-4 bg-purple-900/40 border border-purple-500/30 rounded-lg">
+            <p className="text-xs text-purple-400 font-semibold uppercase tracking-wide mb-2">Say This — Respectful, Firm, Final</p>
+            <p className="text-white text-base leading-relaxed">
+              "Officer, I respect your authority and I understand that is your department's policy. With respect — department policy cannot override a constitutional right. The First Amendment right to record police in a public place, performing their official duties, has been upheld by federal courts across the country. I am not interfering with your duties."
+            </p>
+          </div>
+          <div className="p-4 bg-slate-900/60 border border-white/10 rounded-lg">
+            <p className="text-purple-300 font-semibold text-sm mb-2">Why This Works Legally</p>
+            <ul className="space-y-2 text-sm text-gray-300">
+              <li className="flex items-start gap-2"><ChevronRight className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />Department policy is internal rules — it cannot override the U.S. Constitution</li>
+              <li className="flex items-start gap-2"><ChevronRight className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />The Supremacy Clause means federal constitutional rights supersede local policies</li>
+              <li className="flex items-start gap-2"><ChevronRight className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />Officers can be personally liable under 42 U.S.C. § 1983 for civil rights violations</li>
+              <li className="flex items-start gap-2"><ChevronRight className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />Getting their badge number and recording this statement protects you in any lawsuit</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Bottom reminder */}
+      <Alert className="border-2 border-cyan-400/50 bg-cyan-950/40">
+        <Shield className="h-5 w-5 text-cyan-400" />
+        <AlertTitle className="text-cyan-300 font-bold">Remember: The Recording IS the Win</AlertTitle>
+        <AlertDescription className="text-cyan-200 mt-1">
+          You don't need to win the argument at the scene. You need to get home safely and get it on record. 
+          C.A.R.E.N.™ is documenting everything. Your attorney will use that footage. Stay calm. Stay safe. Challenge it in court.
+        </AlertDescription>
+      </Alert>
+    </div>
+  );
+
   return (
     <MobileResponsiveLayout>
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
@@ -670,34 +862,46 @@ export default function DeEscalationGuide() {
         {/* Main Content */}
         <div className="max-w-6xl">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-black/20 border border-cyan-500/30">
+            <TabsList className="grid w-full grid-cols-5 bg-black/20 border border-cyan-500/30">
               <TabsTrigger 
                 value="immediate" 
                 className="data-[state=active]:bg-red-500/20 data-[state=active]:text-red-300 text-gray-400"
               >
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                Immediate Safety
+                <AlertTriangle className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Immediate Safety</span>
+                <span className="sm:hidden">Safety</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="verbal" 
                 className="data-[state=active]:bg-green-500/20 data-[state=active]:text-green-300 text-gray-400"
               >
-                <MessageSquare className="w-4 h-4 mr-2" />
-                What to Say
+                <MessageSquare className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">What to Say</span>
+                <span className="sm:hidden">Script</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="escalation" 
                 className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-300 text-gray-400"
               >
-                <Phone className="w-4 h-4 mr-2" />
-                If It Escalates
+                <Phone className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">If It Escalates</span>
+                <span className="sm:hidden">Escalate</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="rights" 
                 className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-300 text-gray-400"
               >
-                <Scale className="w-4 h-4 mr-2" />
-                Your Rights
+                <Scale className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Your Rights</span>
+                <span className="sm:hidden">Rights</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="recording" 
+                className="data-[state=active]:bg-cyan-500/20 data-[state=active]:text-cyan-300 text-gray-400"
+              >
+                <Camera className="w-4 h-4 mr-1" />
+                <span className="hidden sm:inline">Recording Rights</span>
+                <span className="sm:hidden">Record</span>
               </TabsTrigger>
             </TabsList>
 
@@ -715,6 +919,10 @@ export default function DeEscalationGuide() {
 
             <TabsContent value="rights" className="space-y-6">
               {renderConstitutionalRights()}
+            </TabsContent>
+
+            <TabsContent value="recording" className="space-y-6">
+              {renderRecordingRights()}
             </TabsContent>
           </Tabs>
         </div>
