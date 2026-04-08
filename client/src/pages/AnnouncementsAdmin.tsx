@@ -13,8 +13,8 @@ import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDistanceToNow, format } from "date-fns";
 import {
-  Megaphone, Gift, Plus, Trash2, Pin, PinOff, Eye, EyeOff,
-  Clock, Users, ArrowLeft, AlertTriangle, ChevronDown, ChevronUp
+  Megaphone, Gift, Plus, Trash2, Eye, EyeOff,
+  Clock, Users, ArrowLeft, Star
 } from "lucide-react";
 
 const ADMIN_KEY = "CAREN_ADMIN_2025_PRODUCTION";
@@ -39,7 +39,7 @@ function CreateForm({ onCreated }: { onCreated: () => void }) {
   const [form, setForm] = useState({
     title: "",
     content: "",
-    type: "announcement" as "announcement" | "giveaway",
+    type: "announcement" as "announcement" | "giveaway" | "spotlight",
     imageUrl: "",
     isPinned: false,
     expiresAt: "",
@@ -81,21 +81,21 @@ function CreateForm({ onCreated }: { onCreated: () => void }) {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Type Toggle */}
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setForm(f => ({ ...f, type: "announcement" }))}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold border transition-all ${form.type === "announcement" ? "bg-cyan-700 border-cyan-500 text-white" : "bg-gray-700 border-gray-600 text-gray-300 hover:text-white"}`}
-          >
-            <Megaphone className="w-4 h-4" /> Announcement
-          </button>
-          <button
-            type="button"
-            onClick={() => setForm(f => ({ ...f, type: "giveaway" }))}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold border transition-all ${form.type === "giveaway" ? "bg-purple-700 border-purple-500 text-white" : "bg-gray-700 border-gray-600 text-gray-300 hover:text-white"}`}
-          >
-            <Gift className="w-4 h-4" /> Giveaway
-          </button>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { value: "announcement", label: "Announcement", color: "bg-cyan-700 border-cyan-500", icon: Megaphone },
+            { value: "giveaway", label: "Giveaway", color: "bg-purple-700 border-purple-500", icon: Gift },
+            { value: "spotlight", label: "Spotlight", color: "bg-yellow-700 border-yellow-500", icon: Star },
+          ] as const).map(({ value, label, color, icon: Icon }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setForm(f => ({ ...f, type: value }))}
+              className={`flex flex-col items-center justify-center gap-1 py-2.5 rounded-lg text-xs font-semibold border transition-all ${form.type === value ? `${color} text-white` : "bg-gray-700 border-gray-600 text-gray-300 hover:text-white"}`}
+            >
+              <Icon className="w-4 h-4" /> {label}
+            </button>
+          ))}
         </div>
 
         <div className="space-y-2">
@@ -158,7 +158,7 @@ function CreateForm({ onCreated }: { onCreated: () => void }) {
             disabled={!form.title.trim() || !form.content.trim() || createMutation.isPending}
             className={`flex-1 text-white ${form.type === "giveaway" ? "bg-purple-600 hover:bg-purple-700" : "bg-cyan-600 hover:bg-cyan-700"}`}
           >
-            {createMutation.isPending ? "Posting..." : `Post ${form.type === "giveaway" ? "Giveaway" : "Announcement"}`}
+            {createMutation.isPending ? "Posting..." : `Post ${form.type === "giveaway" ? "Giveaway" : form.type === "spotlight" ? "Spotlight" : "Announcement"}`}
           </Button>
           <Button variant="outline" onClick={() => setOpen(false)} className="border-gray-600 text-gray-300 hover:bg-gray-700">
             Cancel
@@ -209,8 +209,8 @@ function AnnouncementRow({ item, adminKey }: { item: Announcement; adminKey: str
             <div className="flex items-start justify-between gap-3 mb-1">
               <div className="flex items-center gap-2 flex-wrap">
                 {item.isPinned && <span className="text-yellow-400 text-xs">📌 Pinned</span>}
-                <Badge className={`text-xs ${isGiveaway ? "bg-purple-800 text-purple-200" : "bg-cyan-800 text-cyan-200"}`}>
-                  {isGiveaway ? "Giveaway" : "Announcement"}
+                <Badge className={`text-xs ${item.type === "giveaway" ? "bg-purple-800 text-purple-200" : item.type === "spotlight" ? "bg-yellow-800 text-yellow-200" : "bg-cyan-800 text-cyan-200"}`}>
+                  {item.type === "giveaway" ? "🎁 Giveaway" : item.type === "spotlight" ? "🌟 Spotlight" : "📣 Announcement"}
                 </Badge>
                 {item.isActive && !isExpired
                   ? <Badge className="bg-green-800 text-green-200 text-xs">Live</Badge>
