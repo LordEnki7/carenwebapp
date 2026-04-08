@@ -17,6 +17,10 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
+import firstLineImg from "@assets/first_line_of_defense_1775617735223.png";
+import firstRespondersImg from "@assets/first_responders_circle_1775617735224.png";
+import guardianWeekImg from "@assets/guardian_of_the_week_1775617735224.png";
+import referProtectImg from "@assets/refer_and_protect_1775617735225.png";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -473,31 +477,71 @@ function ReferAndProtect() {
   ];
 
   return (
-    <Card className="bg-gradient-to-br from-gray-800/70 to-purple-900/20 border border-purple-500/30">
-      <CardContent className="p-5">
-        <div className="flex items-start gap-4 mb-4">
-          <div className="p-3 bg-purple-700 rounded-xl shrink-0">
-            <UserCheck className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h3 className="text-white font-bold text-base">Refer & Protect</h3>
-            <p className="text-gray-400 text-sm">Every person you refer becomes part of the protection network. You level up. They get protected.</p>
-          </div>
+    <div className="overflow-hidden rounded-2xl border border-purple-500/30">
+      {/* Image header */}
+      <div className="relative">
+        <img
+          src={referProtectImg}
+          alt="Refer & Protect"
+          className="w-full object-cover max-h-56"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <Badge className="bg-purple-800 text-purple-200 text-xs mb-1">📱 Invite & Earn</Badge>
+          <h3 className="text-xl font-black text-white">Refer & Protect</h3>
+          <p className="text-gray-300 text-sm">Every referral protects someone new — and levels you up</p>
         </div>
-        <div className="space-y-2 mb-4">
-          {milestones.map(({ refs, reward }) => (
-            <div key={refs} className="flex items-center gap-3 py-2 px-3 bg-gray-800/50 rounded-lg">
-              <div className="text-cyan-400 font-bold text-sm shrink-0">{refs} refs</div>
-              <ChevronRight className="w-3 h-3 text-gray-600 shrink-0" />
-              <div className="text-gray-300 text-sm">{reward}</div>
+      </div>
+      {/* Milestones */}
+      <div className="bg-gray-800/80 p-4 space-y-2">
+        {milestones.map(({ refs, reward }) => (
+          <div key={refs} className="flex items-center gap-3 py-2.5 px-3 bg-gray-900/60 rounded-lg border border-gray-700">
+            <div className="text-cyan-400 font-bold text-sm shrink-0 w-14">{refs} refs</div>
+            <ChevronRight className="w-3 h-3 text-gray-600 shrink-0" />
+            <div className="text-gray-300 text-sm">{reward}</div>
+          </div>
+        ))}
+        <Button className="w-full mt-2 bg-purple-600 hover:bg-purple-700 text-white gap-2" onClick={() => setLocation('/referrals')}>
+          <Share2 className="w-4 h-4" /> Get My Referral Link
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+function FirstRespondersCircle() {
+  const [, setLocation] = useLocation();
+  return (
+    <div className="overflow-hidden rounded-2xl border border-yellow-500/40">
+      <div className="relative">
+        <img
+          src={firstRespondersImg}
+          alt="First Responders Circle"
+          className="w-full object-cover max-h-56"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/10 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <Badge className="bg-yellow-700 text-yellow-100 text-xs mb-1">⭐ Exclusive Access</Badge>
+          <h3 className="text-xl font-black text-white">First Responders Circle</h3>
+          <p className="text-gray-300 text-sm">Elite status. Early privileges. Direct access.</p>
+        </div>
+      </div>
+      <div className="bg-gray-800/80 p-4">
+        <div className="grid grid-cols-3 gap-2 mb-4">
+          {["Exclusive Updates", "Direct Access", "Lifetime Benefits"].map(perk => (
+            <div key={perk} className="text-center py-2 px-2 bg-yellow-900/30 border border-yellow-600/30 rounded-lg">
+              <p className="text-yellow-300 text-xs font-semibold">{perk}</p>
             </div>
           ))}
         </div>
-        <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white gap-2" onClick={() => setLocation('/referrals')}>
-          <Share2 className="w-4 h-4" /> Start Referring Now
+        <p className="text-gray-400 text-sm mb-3 leading-relaxed">
+          A limited group of founding members with a direct line to the C.A.R.E.N. team. Early access, private updates, and a lifetime discount.
+        </p>
+        <Button className="w-full bg-yellow-700 hover:bg-yellow-600 text-white gap-2" onClick={() => setLocation('/waitlist')}>
+          <Crown className="w-4 h-4" /> Apply for Early Access
         </Button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 
@@ -519,23 +563,18 @@ function GuardianHubTab({ user }: { user: any }) {
 
   return (
     <div className="space-y-8">
-      {/* Seasonal Banner */}
-      <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${season.accent} border border-white/10 p-6`}>
-        <div className="relative z-10">
-          <Badge className={`${season.badge} text-xs mb-3`}>{season.label}</Badge>
-          <h2 className="text-2xl md:text-3xl font-black text-white mb-2 leading-tight">
-            "This Isn't an App.<br />It's Backup."
-          </h2>
-          <p className="text-gray-300 text-sm mb-4">{season.tagline}</p>
-          <div className="flex gap-3 flex-wrap">
-            <div className="flex items-center gap-2 bg-black/30 rounded-lg px-3 py-2">
-              <Shield className="w-4 h-4 text-cyan-400" />
-              <span className="text-white text-sm font-medium">Protection Starts With You</span>
-            </div>
-          </div>
+      {/* Hero Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 group cursor-pointer">
+        <img
+          src={firstLineImg}
+          alt="Join the First Line of Defense"
+          className="w-full object-cover max-h-72 md:max-h-80 group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-5">
+          <Badge className={`${season.badge} text-xs mb-2`}>{season.label}</Badge>
+          <p className="text-gray-300 text-sm">{season.tagline}</p>
         </div>
-        <div className="absolute right-0 top-0 w-48 h-48 bg-white/5 rounded-full -translate-y-16 translate-x-16" />
-        <div className="absolute right-12 bottom-0 w-24 h-24 bg-white/5 rounded-full translate-y-8" />
       </div>
 
       {/* My Rank */}
@@ -566,23 +605,45 @@ function GuardianHubTab({ user }: { user: any }) {
         </div>
       )}
 
-      {/* Spotlights */}
-      {spotlights.length > 0 && (
-        <div>
-          <h2 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
-            <Star className="w-5 h-5 text-cyan-400" /> This Week's Heroes
-          </h2>
+      {/* Guardian of the Week / Spotlights */}
+      <div>
+        <div className="relative overflow-hidden rounded-2xl mb-4 border border-cyan-500/30">
+          <img
+            src={guardianWeekImg}
+            alt="Guardian of the Week"
+            className="w-full object-cover max-h-52"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-gray-900/70 via-transparent to-gray-900/20" />
+          <div className="absolute inset-0 flex items-end p-5">
+            <div>
+              <Badge className="bg-cyan-800 text-cyan-200 text-xs mb-2">🌟 Featured Guardians</Badge>
+              <h2 className="text-xl font-black text-white">This Week's Heroes</h2>
+              <p className="text-gray-300 text-sm">Community members making a real difference</p>
+            </div>
+          </div>
+        </div>
+        {spotlights.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {spotlights.slice(0, 4).map(item => <SpotlightCard key={item.id} item={item} />)}
           </div>
-        </div>
-      )}
+        ) : (
+          <Card className="bg-gray-800/30 border-gray-700 border-dashed">
+            <CardContent className="p-6 text-center">
+              <Star className="w-8 h-8 text-gray-600 mx-auto mb-2" />
+              <p className="text-gray-400 text-sm">Spotlights drop each week — could be you next!</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
       {/* How to Earn */}
       <HowToEarn />
 
       {/* Refer & Protect */}
       <ReferAndProtect />
+
+      {/* First Responders Circle */}
+      <FirstRespondersCircle />
 
       {/* Wall of Guardians */}
       <WallOfGuardians />
