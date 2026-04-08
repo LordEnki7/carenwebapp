@@ -5,6 +5,21 @@ import { eq, desc, and, or, isNull, gte } from "drizzle-orm";
 
 export function registerAnnouncementRoutes(app: Express) {
 
+  // Admin: Get ALL announcements (active + inactive)
+  app.get("/api/announcements/all", async (req, res) => {
+    try {
+      const adminKey = req.headers["x-admin-key"];
+      if (adminKey !== "CAREN_ADMIN_2025_PRODUCTION") {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+      const rows = await db.select().from(announcements)
+        .orderBy(desc(announcements.isPinned), desc(announcements.createdAt));
+      res.json(rows);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // Public: Get all active announcements
   app.get("/api/announcements", async (req, res) => {
     try {

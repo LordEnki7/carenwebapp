@@ -116,6 +116,7 @@ const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const SupportAdmin = lazy(() => import("@/pages/SupportAdmin"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
+const AnnouncementsAdmin = lazy(() => import("@/pages/AnnouncementsAdmin"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -303,6 +304,7 @@ function Router() {
             <Route path="/early-access" component={EarlyAccessLab} />
             <Route path="/agent-dashboard" component={AgentDashboard} />
             <Route path="/support-admin" component={SupportAdmin} />
+            <Route path="/announcements-admin" component={AnnouncementsAdmin} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={Pricing} />
