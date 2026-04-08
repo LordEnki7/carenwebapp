@@ -644,6 +644,25 @@ export async function runAutoMigrations(): Promise<void> {
       expires_at TIMESTAMP NOT NULL,
       created_at TIMESTAMP DEFAULT NOW()
     )`,
+    `CREATE TABLE IF NOT EXISTS announcements (
+      id SERIAL PRIMARY KEY,
+      title VARCHAR(255) NOT NULL,
+      content TEXT NOT NULL,
+      type VARCHAR(50) NOT NULL DEFAULT 'announcement',
+      image_url VARCHAR(500),
+      is_active BOOLEAN DEFAULT TRUE,
+      is_pinned BOOLEAN DEFAULT FALSE,
+      expires_at TIMESTAMP,
+      created_by VARCHAR REFERENCES users(id),
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )`,
+    `CREATE TABLE IF NOT EXISTS giveaway_entries (
+      id SERIAL PRIMARY KEY,
+      announcement_id INTEGER REFERENCES announcements(id),
+      user_id VARCHAR REFERENCES users(id),
+      created_at TIMESTAMP DEFAULT NOW()
+    )`,
   ];
 
   // Additional ALTER TABLE statements for columns that may be missing on existing deployments

@@ -115,6 +115,7 @@ const AgentDashboard = lazy(() => import("@/pages/AgentDashboard"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const SupportAdmin = lazy(() => import("@/pages/SupportAdmin"));
+const Pricing = lazy(() => import("@/pages/Pricing"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -218,9 +219,9 @@ function Router() {
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/about" component={Landing} />
-            <Route path="/pricing" component={RedirectToDashboard} />
-            <Route path="/payment" component={RedirectToDashboard} />
-            <Route path="/plans" component={RedirectToDashboard} />
+            <Route path="/pricing" component={Pricing} />
+            <Route path="/payment" component={Pricing} />
+            <Route path="/plans" component={Pricing} />
             <Route path="/help" component={Help} />
             <Route path="/rights" component={() => <Rights />} />
             <Route path="/admin" component={SimpleAdminDashboard} />
@@ -287,8 +288,8 @@ function Router() {
             <Route path="/attorney-matching" component={AttorneyMatching} />
             <Route path="/evidence-catalog" component={EvidenceCatalog} />
             <Route path="/accessibility" component={AccessibilityEnhancer} />
-            <Route path="/payment" component={RedirectToDashboard} />
-            <Route path="/plans" component={RedirectToDashboard} />
+            <Route path="/payment" component={Pricing} />
+            <Route path="/plans" component={Pricing} />
             <Route path="/admin" component={SimpleAdminDashboard} />
             <Route path="/load-test" component={LoadTestDashboard} />
             <Route path="/n8n-test" component={N8NTestDashboard} />
@@ -304,7 +305,7 @@ function Router() {
             <Route path="/support-admin" component={SupportAdmin} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
-            <Route path="/pricing" component={RedirectToDashboard} />
+            <Route path="/pricing" component={Pricing} />
             <Route path="/help" component={Help} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />

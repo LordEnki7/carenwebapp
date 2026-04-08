@@ -2721,3 +2721,33 @@ export const paymentIntelligenceReports = pgTable("payment_intelligence_reports"
 export const insertPaymentIntelligenceReportSchema = createInsertSchema(paymentIntelligenceReports).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertPaymentIntelligenceReport = z.infer<typeof insertPaymentIntelligenceReportSchema>;
 export type PaymentIntelligenceReport = typeof paymentIntelligenceReports.$inferSelect;
+
+// ── Announcements & Giveaways ─────────────────────────────────────────────────
+export const announcements = pgTable("announcements", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  type: varchar("type", { length: 50 }).notNull().default("announcement"), // announcement | giveaway
+  imageUrl: varchar("image_url", { length: 500 }),
+  isActive: boolean("is_active").default(true),
+  isPinned: boolean("is_pinned").default(false),
+  expiresAt: timestamp("expires_at"),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertAnnouncementSchema = createInsertSchema(announcements).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAnnouncement = z.infer<typeof insertAnnouncementSchema>;
+export type Announcement = typeof announcements.$inferSelect;
+
+export const giveawayEntries = pgTable("giveaway_entries", {
+  id: serial("id").primaryKey(),
+  announcementId: integer("announcement_id").references(() => announcements.id),
+  userId: varchar("user_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertGiveawayEntrySchema = createInsertSchema(giveawayEntries).omit({ id: true, createdAt: true });
+export type InsertGiveawayEntry = z.infer<typeof insertGiveawayEntrySchema>;
+export type GiveawayEntry = typeof giveawayEntries.$inferSelect;

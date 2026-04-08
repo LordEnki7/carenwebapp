@@ -55,6 +55,7 @@ import { registerAppleAuthRoutes } from "./routes/apple-auth.routes";
 import { registerSupportRoutes } from "./routes/support.routes";
 import { registerRefundRoutes } from "./routes/refund.routes";
 import { registerPaymentIntelligenceRoutes } from "./routes/payment-intelligence.routes";
+import { registerAnnouncementRoutes } from "./routes/announcements.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 import { db } from "./db";
@@ -257,6 +258,8 @@ GUIDELINES:
   registerSupportRoutes(app);
   registerRefundRoutes(app);
   registerPaymentIntelligenceRoutes(app);
+  registerAnnouncementRoutes(app);
+  console.log("[ROUTES] Announcement & Giveaway routes registered");
 
   // NIG Command Center — division health & metrics endpoint
   app.use("/api/nig-status", nigStatusRouter);

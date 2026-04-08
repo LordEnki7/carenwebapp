@@ -41,6 +41,7 @@ import {
   ChevronDown,
   Lock,
   LifeBuoy,
+  Users,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
@@ -121,6 +122,7 @@ const navGroups: NavGroup[] = [
     activeColor: "text-amber-300",
     headerColor: "text-amber-300",
     items: [
+      { name: "Community", href: "/community", icon: Users, description: "News, Giveaways & Forum" },
       { name: "Feature Picker", href: "/feature-picker", icon: Sliders, description: "Customize Your Features" },
       { name: "Feedback", href: "/feedback", icon: MessageSquarePlus, description: "Request Features & Vote" },
       { name: "Waitlist", href: "/waitlist", icon: ClipboardList, description: "Join the Launch List" },
