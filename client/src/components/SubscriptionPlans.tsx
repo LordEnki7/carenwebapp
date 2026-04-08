@@ -97,27 +97,49 @@ export default function SubscriptionPlans({ currentTier, onUpgrade }: Subscripti
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-      {plans.map((plan) => (
-        <div
-          key={plan.id}
-          className="flex flex-col rounded-2xl overflow-hidden border border-white/10 bg-black/30 shadow-lg"
-        >
-          <img
-            src={plan.image}
-            alt={plan.name}
-            className="w-full object-cover"
-          />
-          <div className="p-4">
-            <button
-              onClick={() => handleSelect(plan)}
-              disabled={loadingPlan === plan.id}
-              className={`w-full py-3 rounded-xl font-semibold text-white transition-colors ${plan.color} disabled:opacity-60`}
-            >
-              {loadingPlan === plan.id ? "Redirecting…" : plan.label}
-            </button>
+      {plans.map((plan) => {
+        const isCurrentPlan = currentTier === plan.id;
+        return (
+          <div
+            key={plan.id}
+            className={`flex flex-col rounded-2xl overflow-hidden shadow-lg transition-all ${
+              isCurrentPlan
+                ? "border-2 border-cyan-400 ring-2 ring-cyan-400/30"
+                : "border border-white/10"
+            } bg-black/30`}
+          >
+            <div className="relative">
+              <img
+                src={plan.image}
+                alt={plan.name}
+                className="w-full object-cover"
+              />
+              {isCurrentPlan && (
+                <div className="absolute top-3 left-3 bg-cyan-400 text-black text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                  ✓ Your Plan
+                </div>
+              )}
+            </div>
+            <div className="p-4">
+              <button
+                onClick={() => handleSelect(plan)}
+                disabled={loadingPlan === plan.id || isCurrentPlan}
+                className={`w-full py-3 rounded-xl font-semibold text-white transition-colors ${
+                  isCurrentPlan
+                    ? "bg-cyan-400/20 text-cyan-300 border border-cyan-400/40 cursor-default"
+                    : plan.color
+                } disabled:opacity-60`}
+              >
+                {loadingPlan === plan.id
+                  ? "Redirecting…"
+                  : isCurrentPlan
+                  ? "Active Plan"
+                  : plan.label}
+              </button>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
