@@ -2458,31 +2458,29 @@ GUIDELINES:
         payment_method_types: ['card']
       });
       
+      // Community Guardian is a one-time payment; all others are subscriptions
+      const isOneTime = planId === 'community_guardian';
+
+      const priceData: any = {
+        currency: 'usd',
+        product_data: {
+          name: planName,
+          description: `C.A.R.E.N.™ ${planName} - Legal protection`,
+        },
+        unit_amount: amount,
+      };
+      if (!isOneTime) {
+        priceData.recurring = { interval: 'month' };
+      }
+
       // Create Stripe checkout session
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: [
-          {
-            price_data: {
-              currency: 'usd',
-              product_data: {
-                name: planName,
-                description: `C.A.R.E.N.™ ${planName} - Legal protection subscription`,
-              },
-              unit_amount: amount, // amount is already in cents
-              recurring: {
-                interval: 'month',
-              },
-            },
-            quantity: 1,
-          },
-        ],
-        mode: 'subscription',
+        line_items: [{ price_data: priceData, quantity: 1 }],
+        mode: isOneTime ? 'payment' : 'subscription',
         success_url: successUrl,
         cancel_url: cancelUrl,
-        metadata: {
-          planId: planId,
-        },
+        metadata: { planId },
       });
 
       const userEmail = (req.session as any)?.userId ? undefined : undefined;
