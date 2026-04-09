@@ -3,11 +3,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Link } from "wouter";
-import { Shield, MapPin, User, Phone, Mail, Instagram, ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
+import { Shield, MapPin, User, Instagram, ChevronRight, ChevronLeft, CheckCircle } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 
 const US_STATES = [
@@ -184,12 +185,18 @@ export default function DirectorApply() {
                   <FormField control={form.control} name="state" render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-gray-300">State</FormLabel>
-                      <FormControl>
-                        <select {...field} className="w-full bg-slate-800 border border-white/20 text-white rounded-md px-3 py-2 text-sm">
-                          <option value="">Select your state…</option>
-                          {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
-                        </select>
-                      </FormControl>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-slate-800 border-white/20 text-white">
+                            <SelectValue placeholder="Select your state…" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent className="bg-slate-800 border-white/20 max-h-60">
+                          {US_STATES.map(s => (
+                            <SelectItem key={s} value={s} className="text-white focus:bg-cyan-500/20">{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )} />
