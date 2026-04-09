@@ -43,6 +43,8 @@ import {
   LifeBuoy,
   Users,
   Megaphone,
+  Building2,
+  Star,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
@@ -124,6 +126,8 @@ const navGroups: NavGroup[] = [
     headerColor: "text-amber-300",
     items: [
       { name: "Community", href: "/community", icon: Users, description: "News, Giveaways & Forum" },
+      { name: "Director Portal", href: "/director-portal", icon: Star, description: "Your Director Dashboard" },
+      { name: "Become a Director", href: "/become-director", icon: Building2, description: "Apply to Lead Your City" },
       { name: "Feature Picker", href: "/feature-picker", icon: Sliders, description: "Customize Your Features" },
       { name: "Feedback", href: "/feedback", icon: MessageSquarePlus, description: "Request Features & Vote" },
       { name: "Waitlist", href: "/waitlist", icon: ClipboardList, description: "Join the Launch List" },
@@ -141,6 +145,7 @@ const navGroups: NavGroup[] = [
       { name: "Account Security", href: "/account-security", icon: Shield, description: "Session & Security Management" },
       { name: "Support Admin", href: "/support-admin", icon: LifeBuoy, description: "Customer Support Tickets" },
       { name: "Announcements Admin", href: "/announcements-admin", icon: Megaphone, description: "Manage Posts & Giveaways" },
+      { name: "Director Admin", href: "/director-admin", icon: Building2, description: "Manage Regional Directors" },
       { name: "Help", href: "/help", icon: HelpCircle },
     ],
   },

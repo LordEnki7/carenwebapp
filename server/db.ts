@@ -663,6 +663,32 @@ export async function runAutoMigrations(): Promise<void> {
       user_id VARCHAR REFERENCES users(id),
       created_at TIMESTAMP DEFAULT NOW()
     )`,
+    `CREATE TABLE IF NOT EXISTS regional_directors (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR REFERENCES users(id),
+      name VARCHAR(255) NOT NULL,
+      email VARCHAR(255) NOT NULL,
+      phone VARCHAR(50),
+      city VARCHAR(100) NOT NULL,
+      state VARCHAR(100) NOT NULL,
+      background TEXT,
+      social_links TEXT,
+      status VARCHAR(50) DEFAULT 'pending',
+      level VARCHAR(50) DEFAULT 'regional_director',
+      territory VARCHAR(255),
+      admin_notes TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )`,
+    `CREATE TABLE IF NOT EXISTS director_activities (
+      id SERIAL PRIMARY KEY,
+      director_id INTEGER NOT NULL REFERENCES regional_directors(id),
+      type VARCHAR(50) NOT NULL,
+      count INTEGER DEFAULT 1,
+      notes TEXT,
+      week_of VARCHAR(20),
+      created_at TIMESTAMP DEFAULT NOW()
+    )`,
   ];
 
   // Additional ALTER TABLE statements for columns that may be missing on existing deployments

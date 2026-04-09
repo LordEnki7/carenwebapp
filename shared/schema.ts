@@ -2751,3 +2751,40 @@ export const giveawayEntries = pgTable("giveaway_entries", {
 export const insertGiveawayEntrySchema = createInsertSchema(giveawayEntries).omit({ id: true, createdAt: true });
 export type InsertGiveawayEntry = z.infer<typeof insertGiveawayEntrySchema>;
 export type GiveawayEntry = typeof giveawayEntries.$inferSelect;
+
+// ── Regional Director Program ──────────────────────────────────────────────────
+export const regionalDirectors = pgTable("regional_directors", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 100 }).notNull(),
+  background: text("background"),
+  socialLinks: text("social_links"),
+  status: varchar("status", { length: 50 }).default("pending"), // pending | approved | rejected | paused
+  level: varchar("level", { length: 50 }).default("regional_director"), // regional_director | senior_director | state_director | national_director
+  territory: varchar("territory", { length: 255 }),
+  adminNotes: text("admin_notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertRegionalDirectorSchema = createInsertSchema(regionalDirectors).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertRegionalDirector = z.infer<typeof insertRegionalDirectorSchema>;
+export type RegionalDirector = typeof regionalDirectors.$inferSelect;
+
+export const directorActivities = pgTable("director_activities", {
+  id: serial("id").primaryKey(),
+  directorId: integer("director_id").notNull().references(() => regionalDirectors.id),
+  type: varchar("type", { length: 50 }).notNull(), // attorney_contacted | attorney_onboarded | user_added | partnership_created | content_posted
+  count: integer("count").default(1),
+  notes: text("notes"),
+  weekOf: varchar("week_of", { length: 20 }), // ISO date string "YYYY-MM-DD" of the week start (Monday)
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertDirectorActivitySchema = createInsertSchema(directorActivities).omit({ id: true, createdAt: true });
+export type InsertDirectorActivity = z.infer<typeof insertDirectorActivitySchema>;
+export type DirectorActivity = typeof directorActivities.$inferSelect;
