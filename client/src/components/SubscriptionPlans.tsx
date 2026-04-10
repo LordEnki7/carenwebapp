@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import communityImg from "@assets/plan_community_guardian_(1)_1775619240686.png";
-import standardImg from "@assets/plan_standard_(1)_1775619240685.png";
-import legalShieldImg from "@assets/plan_legal_shield_(1)_1775619240684.png";
-import familyImg from "@assets/plan_family_(1)_1775619240675.png";
-import enterpriseImg from "@assets/plan_enterprise_(1)_1775619240683.png";
+import communityImg from "@assets/caren-logo.png";
+import standardImg from "@assets/caren_webapp_logo_1750345968202.png";
+import legalShieldImg from "@assets/Gemini_Generated_Image_ghbsjghbsjghbsjg_1751079553418.png";
+import familyImg from "@assets/Caren_backsplash_1750345968199.png";
+import enterpriseImg from "@assets/Gemini_Generated_Image_daljtddaljtddalj_1751075708889.png";
 
 const plans = [
   {

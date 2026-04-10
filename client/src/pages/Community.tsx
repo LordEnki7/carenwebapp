@@ -17,10 +17,10 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { apiRequest } from "@/lib/queryClient";
-import firstLineImg from "@assets/first_line_of_defense_1775617735223.png";
-import firstRespondersImg from "@assets/first_responders_circle_1775617735224.png";
-import guardianWeekImg from "@assets/guardian_of_the_week_1775617735224.png";
-import referProtectImg from "@assets/refer_and_protect_1775617735225.png";
+import firstLineImg from "@assets/Gemini_Generated_Image_daljtddaljtddalj_1751075708889.png";
+import firstRespondersImg from "@assets/Gemini_Generated_Image_ghbsjghbsjghbsjg_1751079553418.png";
+import guardianWeekImg from "@assets/Caren_backsplash_1750345968199.png";
+import referProtectImg from "@assets/caren_webapp_logo_1750345968202.png";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
