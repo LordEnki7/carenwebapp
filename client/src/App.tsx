@@ -233,6 +233,8 @@ function Router() {
             <Route path="/waitlist" component={WaitlistPage} />
             <Route path="/investors" component={InvestorPage} />
             <Route path="/press" component={PressKit} />
+            <Route path="/become-director" component={DirectorApply} />
+            <Route path="/director-admin" component={DirectorAdmin} />
 
             {/* Catch-all route - redirect all other routes to sign in for unauthenticated users */}
             <Route path="*" component={() => {

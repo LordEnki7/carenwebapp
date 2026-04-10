@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { db } from "../db";
-import { regionalDirectors, directorActivities, insertRegionalDirectorSchema, insertDirectorActivitySchema } from "@shared/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { regionalDirectors, directorActivities, directorCommissions, insertRegionalDirectorSchema, insertDirectorActivitySchema, insertDirectorCommissionSchema } from "@shared/schema";
+import { eq, desc, and, sql, asc } from "drizzle-orm";
 
 const ADMIN_KEY = "CAREN_ADMIN_2025_PRODUCTION";
 
@@ -102,20 +102,6 @@ export function registerDirectorRoutes(app: Express) {
 
       const [created] = await db.insert(directorActivities).values(parsed.data).returning();
       res.status(201).json({ success: true, activity: created });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-  // ── DIRECTOR: Get my activity history ─────────────────────────────────────
-  app.get("/api/director/:id/activities", async (req, res) => {
-    try {
-      const directorId = parseInt(req.params.id);
-      const activities = await db.select().from(directorActivities)
-        .where(eq(directorActivities.directorId, directorId))
-        .orderBy(desc(directorActivities.createdAt))
-        .limit(50);
-      res.json(activities);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
@@ -237,6 +223,152 @@ export function registerDirectorRoutes(app: Express) {
         .where(eq(regionalDirectors.id, id))
         .returning();
       res.json({ success: true, director: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── PUBLIC: Leaderboard (approved directors, ranked by score) ─────────────
+  app.get("/api/director/leaderboard", async (_req, res) => {
+    try {
+      const directors = await db.select({
+        id: regionalDirectors.id,
+        name: regionalDirectors.name,
+        city: regionalDirectors.city,
+        state: regionalDirectors.state,
+        level: regionalDirectors.level,
+        territory: regionalDirectors.territory,
+      }).from(regionalDirectors)
+        .where(eq(regionalDirectors.status, "approved"))
+        .orderBy(asc(regionalDirectors.id));
+
+      const enriched = await Promise.all(directors.map(async (d) => {
+        const activities = await db.select().from(directorActivities)
+          .where(eq(directorActivities.directorId, d.id));
+        const lifetime = activities.reduce((acc: any, a) => {
+          acc[a.type] = (acc[a.type] || 0) + (a.count || 1);
+          return acc;
+        }, {});
+        const score = calcScore(
+          lifetime.attorney_onboarded || 0,
+          lifetime.user_added || 0,
+          lifetime.partnership_created || 0,
+          0
+        );
+        const commissions = await db.select().from(directorCommissions)
+          .where(eq(directorCommissions.directorId, d.id));
+        const totalEarned = commissions
+          .filter(c => c.status !== "cancelled")
+          .reduce((s, c) => s + parseFloat(c.commissionAmount || "0"), 0);
+        return { ...d, score, lifetime, totalEarned: parseFloat(totalEarned.toFixed(2)) };
+      }));
+
+      // Sort by score desc
+      enriched.sort((a, b) => b.score - a.score);
+
+      res.json(enriched.map((d, i) => ({ ...d, rank: i + 1 })));
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Manually add a commission entry ────────────────────────────────
+  app.post("/api/director/admin/commission", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const { directorId, referredEmail, planName, planAmount, commissionRate, notes, periodStart } = req.body;
+      if (!directorId || !planName || !planAmount) {
+        return res.status(400).json({ error: "directorId, planName, and planAmount are required" });
+      }
+      const rate = parseFloat(commissionRate || "0.20");
+      const amount = parseFloat(planAmount);
+      const commissionAmount = (amount * rate).toFixed(2);
+      const period = periodStart || new Date().toISOString().slice(0, 7);
+
+      const parsed = insertDirectorCommissionSchema.safeParse({
+        directorId: parseInt(directorId),
+        referredEmail: referredEmail || null,
+        planName,
+        planAmount: amount.toFixed(2),
+        commissionRate: rate.toFixed(4),
+        commissionAmount,
+        status: "pending",
+        periodStart: period,
+        notes: notes || null,
+      });
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+
+      const [created] = await db.insert(directorCommissions).values(parsed.data).returning();
+      res.status(201).json({ success: true, commission: created });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Update commission status (pending → paid / cancelled) ──────────
+  app.put("/api/director/admin/commission/:id/status", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      if (!["pending", "paid", "cancelled"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const [updated] = await db.update(directorCommissions)
+        .set({ status, updatedAt: new Date() })
+        .where(eq(directorCommissions.id, id))
+        .returning();
+      res.json({ success: true, commission: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Get all commissions ─────────────────────────────────────────────
+  app.get("/api/director/admin/commissions", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const commissions = await db.select({
+        commission: directorCommissions,
+        directorName: regionalDirectors.name,
+        directorCity: regionalDirectors.city,
+        directorState: regionalDirectors.state,
+      })
+        .from(directorCommissions)
+        .leftJoin(regionalDirectors, eq(directorCommissions.directorId, regionalDirectors.id))
+        .orderBy(desc(directorCommissions.createdAt))
+        .limit(200);
+      res.json(commissions);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── DIRECTOR: Get activity history by id (must be after /admin/* routes) ───
+  app.get("/api/director/:id/activities", async (req, res) => {
+    try {
+      const directorId = parseInt(req.params.id);
+      if (isNaN(directorId)) return res.status(400).json({ error: "Invalid director id" });
+      const activities = await db.select().from(directorActivities)
+        .where(eq(directorActivities.directorId, directorId))
+        .orderBy(desc(directorActivities.createdAt))
+        .limit(50);
+      res.json(activities);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── DIRECTOR: Get commissions by id (must be after /admin/* routes) ────────
+  app.get("/api/director/:id/commissions", async (req, res) => {
+    try {
+      const directorId = parseInt(req.params.id);
+      if (isNaN(directorId)) return res.status(400).json({ error: "Invalid director id" });
+      const commissions = await db.select().from(directorCommissions)
+        .where(eq(directorCommissions.directorId, directorId))
+        .orderBy(desc(directorCommissions.createdAt))
+        .limit(100);
+      res.json(commissions);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

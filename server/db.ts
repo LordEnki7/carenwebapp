@@ -689,6 +689,22 @@ export async function runAutoMigrations(): Promise<void> {
       week_of VARCHAR(20),
       created_at TIMESTAMP DEFAULT NOW()
     )`,
+    `CREATE TABLE IF NOT EXISTS director_commissions (
+      id SERIAL PRIMARY KEY,
+      director_id INTEGER NOT NULL REFERENCES regional_directors(id),
+      referral_code VARCHAR(20),
+      referred_user_id VARCHAR REFERENCES users(id),
+      referred_email VARCHAR(255),
+      plan_name VARCHAR(100),
+      plan_amount DECIMAL(10,2),
+      commission_rate DECIMAL(5,4) DEFAULT 0.20,
+      commission_amount DECIMAL(10,2),
+      status VARCHAR(50) DEFAULT 'pending',
+      period_start VARCHAR(20),
+      notes TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )`,
   ];
 
   // Additional ALTER TABLE statements for columns that may be missing on existing deployments

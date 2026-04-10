@@ -37,6 +37,7 @@ PostgreSQL is the primary database, managed with Drizzle ORM. Session management
 -   **Browser Push Notifications**: VAPID keys for SOS alerts.
 -   **C.A.R.E.N. Support Agent**: AI-powered customer support chat widget that handles complaints, feature questions, troubleshooting, and escalations, storing conversations in `support_tickets` and emailing admin for escalated cases.
 -   **C.A.R.E.N. Legal Access Network (CLAN)**: A comprehensive attorney network system, including an Attorney Application Form (public, multi-step with AI scoring), an Admin Approval Panel, an Attorney Portal for profile management, an Upgraded Matching Algorithm for client-attorney pairing, and an Outreach CRM for recruitment.
+-   **Regional Director Program (Phase 1 & 2)**: Full director recruitment system including: a public application form (`/become-director`, 3-step with shadcn Select), Director Portal (`/director-portal`, tabbed: Dashboard/Commissions/Leaderboard), and Director Admin Panel (`/director-admin`, tabbed: Directors/Commissions/Leaderboard). Commission system with tier-based rates (20%–35% by level), performance scoring formula, and a live leaderboard. DB tables: `regional_directors`, `director_activities`, `director_commissions`. Admin key: `CAREN_ADMIN_2025_PRODUCTION`. Route ordering: all `/admin/*` routes registered before parameterized `/:id` routes to prevent Express match conflicts.
 
 ## External Dependencies
 

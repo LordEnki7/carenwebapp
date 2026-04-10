@@ -2788,3 +2788,24 @@ export const directorActivities = pgTable("director_activities", {
 export const insertDirectorActivitySchema = createInsertSchema(directorActivities).omit({ id: true, createdAt: true });
 export type InsertDirectorActivity = z.infer<typeof insertDirectorActivitySchema>;
 export type DirectorActivity = typeof directorActivities.$inferSelect;
+
+export const directorCommissions = pgTable("director_commissions", {
+  id: serial("id").primaryKey(),
+  directorId: integer("director_id").notNull().references(() => regionalDirectors.id),
+  referralCode: varchar("referral_code", { length: 20 }),
+  referredUserId: varchar("referred_user_id").references(() => users.id),
+  referredEmail: varchar("referred_email", { length: 255 }),
+  planName: varchar("plan_name", { length: 100 }), // e.g. "Standard", "Legal Shield"
+  planAmount: decimal("plan_amount", { precision: 10, scale: 2 }), // subscription price
+  commissionRate: decimal("commission_rate", { precision: 5, scale: 4 }).default("0.20"), // 20%
+  commissionAmount: decimal("commission_amount", { precision: 10, scale: 2 }), // earned
+  status: varchar("status", { length: 50 }).default("pending"), // pending | paid | cancelled
+  periodStart: varchar("period_start", { length: 20 }), // YYYY-MM
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertDirectorCommissionSchema = createInsertSchema(directorCommissions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertDirectorCommission = z.infer<typeof insertDirectorCommissionSchema>;
+export type DirectorCommission = typeof directorCommissions.$inferSelect;

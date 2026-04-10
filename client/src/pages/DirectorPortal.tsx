@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Shield, Target, Users, Briefcase, FileText, TrendingUp, Plus, CheckCircle, Clock, Star } from "lucide-react";
+import {
+  Shield, Target, Users, TrendingUp, Plus, CheckCircle, Clock, Star,
+  DollarSign, Trophy, BarChart3, ChevronRight as ChevronRightIcon, AlertCircle
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +12,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
-import { apiRequest } from "@/lib/queryClient";
 
 const ACTIVITY_TYPES = [
   { value: "attorney_contacted", label: "Attorney Contacted", icon: "📞", color: "text-blue-400" },
@@ -26,12 +28,43 @@ const LEVEL_LABELS: Record<string, string> = {
   national_director: "National Director",
 };
 
+const LEVEL_RATES: Record<string, number> = {
+  regional_director: 0.20,
+  senior_director: 0.25,
+  state_director: 0.30,
+  national_director: 0.35,
+};
+
 const STATUS_COLORS: Record<string, string> = {
   approved: "bg-green-500/20 text-green-400 border-green-500/30",
   pending: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
   rejected: "bg-red-500/20 text-red-400 border-red-500/30",
   paused: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
+
+const PLAN_AMOUNTS: Record<string, number> = {
+  "Standard": 4.99,
+  "Legal Shield": 9.99,
+  "Family": 29.99,
+  "Enterprise": 49.99,
+  "Community Guardian": 0.99,
+};
+
+function getScoreColor(score: number) {
+  if (score >= 91) return "text-orange-400";
+  if (score >= 71) return "text-green-400";
+  if (score >= 41) return "text-yellow-400";
+  return "text-red-400";
+}
+
+function getScoreLabel(score: number) {
+  if (score >= 91) return "🔥 Elite";
+  if (score >= 71) return "🟢 Strong";
+  if (score >= 41) return "🟡 Active";
+  return "🔴 Beginner";
+}
+
+type Tab = "dashboard" | "commissions" | "leaderboard";
 
 export default function DirectorPortal() {
   const { user } = useAuth();
@@ -41,6 +74,7 @@ export default function DirectorPortal() {
   const [logCount, setLogCount] = useState("1");
   const [logNotes, setLogNotes] = useState("");
   const [showLogForm, setShowLogForm] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
 
   const email = user?.email || "";
 
@@ -53,6 +87,26 @@ export default function DirectorPortal() {
     },
     enabled: !!email,
     retry: false,
+  });
+
+  const { data: commissions = [] } = useQuery<any[]>({
+    queryKey: ["/api/director/commissions", profile?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/director/${profile.id}/commissions`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load commissions");
+      return res.json();
+    },
+    enabled: !!profile?.id && profile?.status === "approved",
+  });
+
+  const { data: leaderboard = [] } = useQuery<any[]>({
+    queryKey: ["/api/director/leaderboard"],
+    queryFn: async () => {
+      const res = await fetch("/api/director/leaderboard");
+      if (!res.ok) throw new Error("Failed to load leaderboard");
+      return res.json();
+    },
+    enabled: activeTab === "leaderboard",
   });
 
   const logActivity = useMutation({
@@ -114,6 +168,20 @@ export default function DirectorPortal() {
 
   const lt = profile.lifetime || {};
   const weekActivities: any[] = profile.weekActivities || [];
+  const score = profile.score || 0;
+  const scoreColor = getScoreColor(score);
+  const scoreLabel = getScoreLabel(score);
+  const level = profile.level || "regional_director";
+  const commissionRate = LEVEL_RATES[level] || 0.20;
+
+  // Commission summaries
+  const pendingCommissions = commissions.filter((c: any) => c.status === "pending");
+  const paidCommissions = commissions.filter((c: any) => c.status === "paid");
+  const totalPending = pendingCommissions.reduce((s: number, c: any) => s + parseFloat(c.commissionAmount || "0"), 0);
+  const totalPaid = paidCommissions.reduce((s: number, c: any) => s + parseFloat(c.commissionAmount || "0"), 0);
+  const totalEarned = commissions
+    .filter((c: any) => c.status !== "cancelled")
+    .reduce((s: number, c: any) => s + parseFloat(c.commissionAmount || "0"), 0);
 
   const todayGoals = [
     { label: "Contact 5 attorneys", done: (lt.attorney_contacted || 0) > 0, icon: "📞" },
@@ -121,9 +189,7 @@ export default function DirectorPortal() {
     { label: "Reach out to 3 partners", done: (lt.partnership_created || 0) > 0, icon: "🤝" },
   ];
 
-  const score = profile.score || 0;
-  const scoreColor = score >= 91 ? "text-orange-400" : score >= 71 ? "text-green-400" : score >= 41 ? "text-yellow-400" : "text-red-400";
-  const scoreLabel = score >= 91 ? "🔥 Elite" : score >= 71 ? "🟢 Strong" : score >= 41 ? "🟡 Active" : "🔴 Beginner";
+  const myRank = leaderboard.find((d: any) => d.id === profile.id)?.rank;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 p-4 md:p-6 pb-20">
@@ -135,8 +201,10 @@ export default function DirectorPortal() {
             <div className="flex items-center gap-2 mb-1">
               <Shield className="w-6 h-6 text-cyan-400" />
               <span className="text-cyan-400 font-semibold text-sm uppercase tracking-wide">
-                {LEVEL_LABELS[profile.level] || "Regional Director"}
+                {LEVEL_LABELS[level] || "Regional Director"}
               </span>
+              <span className="text-gray-600 text-xs">·</span>
+              <span className="text-gray-400 text-xs">{Math.round(commissionRate * 100)}% commission rate</span>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-white">
               Welcome back, {profile.name.split(" ")[0]} 👋
@@ -147,7 +215,34 @@ export default function DirectorPortal() {
             <Badge className={`border ${STATUS_COLORS[profile.status] || ""}`}>
               {profile.status?.charAt(0).toUpperCase() + profile.status?.slice(1)}
             </Badge>
+            {myRank && activeTab !== "leaderboard" && (
+              <Badge className="bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border text-xs">
+                🏆 Rank #{myRank}
+              </Badge>
+            )}
           </div>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex gap-1 bg-white/5 rounded-xl p-1 border border-white/10">
+          {([
+            { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+            { id: "commissions", label: "Commissions", icon: DollarSign },
+            { id: "leaderboard", label: "Leaderboard", icon: Trophy },
+          ] as { id: Tab; label: string; icon: any }[]).map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-cyan-500 text-black"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              <tab.icon className="w-4 h-4" />
+              <span className="hidden sm:block">{tab.label}</span>
+            </button>
+          ))}
         </div>
 
         {/* Pending notice */}
@@ -163,7 +258,8 @@ export default function DirectorPortal() {
           </Card>
         )}
 
-        {profile.status === "approved" && (
+        {/* ── DASHBOARD TAB ─────────────────────────────────────────── */}
+        {activeTab === "dashboard" && profile.status === "approved" && (
           <>
             {/* Score + Stats Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -193,6 +289,35 @@ export default function DirectorPortal() {
                 </CardContent>
               </Card>
             </div>
+
+            {/* Commission Quick View */}
+            <Card className="bg-gradient-to-r from-green-900/30 to-cyan-900/20 border-green-500/30">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-5 h-5 text-green-400" />
+                    <span className="text-white font-semibold">Your Earnings</span>
+                  </div>
+                  <button onClick={() => setActiveTab("commissions")} className="text-cyan-400 text-xs hover:underline flex items-center gap-1">
+                    View all <ChevronRightIcon className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-green-400">${totalPaid.toFixed(2)}</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Paid Out</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-yellow-400">${totalPending.toFixed(2)}</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Pending</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-white">${totalEarned.toFixed(2)}</p>
+                    <p className="text-gray-400 text-xs mt-0.5">Total Earned</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Today's Goals */}
             <Card className="bg-white/5 border-white/10">
@@ -312,6 +437,191 @@ export default function DirectorPortal() {
           </>
         )}
 
+        {/* ── COMMISSIONS TAB ───────────────────────────────────────── */}
+        {activeTab === "commissions" && profile.status === "approved" && (
+          <div className="space-y-5">
+            {/* Summary Cards */}
+            <div className="grid grid-cols-3 gap-4">
+              <Card className="bg-green-900/30 border-green-500/30">
+                <CardContent className="p-4 text-center">
+                  <DollarSign className="w-6 h-6 text-green-400 mx-auto mb-1" />
+                  <p className="text-2xl font-bold text-green-400">${totalPaid.toFixed(2)}</p>
+                  <p className="text-green-400/70 text-xs mt-0.5">Total Paid</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-yellow-900/20 border-yellow-500/30">
+                <CardContent className="p-4 text-center">
+                  <Clock className="w-6 h-6 text-yellow-400 mx-auto mb-1" />
+                  <p className="text-2xl font-bold text-yellow-400">${totalPending.toFixed(2)}</p>
+                  <p className="text-yellow-400/70 text-xs mt-0.5">Pending Payout</p>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/5 border-white/10">
+                <CardContent className="p-4 text-center">
+                  <TrendingUp className="w-6 h-6 text-cyan-400 mx-auto mb-1" />
+                  <p className="text-2xl font-bold text-white">${totalEarned.toFixed(2)}</p>
+                  <p className="text-gray-400 text-xs mt-0.5">All-Time Earned</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Commission Rate Info */}
+            <Card className="bg-cyan-900/20 border-cyan-500/30">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                    <span className="text-cyan-400 font-bold text-sm">{Math.round(commissionRate * 100)}%</span>
+                  </div>
+                  <div>
+                    <p className="text-white font-semibold">Your Commission Rate — {LEVEL_LABELS[level]}</p>
+                    <p className="text-cyan-400/70 text-sm">Earn more by leveling up. Senior Directors earn 25%, State Directors 30%, National Directors 35%.</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+                  {Object.entries(PLAN_AMOUNTS).map(([plan, price]) => {
+                    const earned = (price * commissionRate).toFixed(2);
+                    return (
+                      <div key={plan} className="bg-white/5 rounded-lg p-3 text-center">
+                        <p className="text-white text-xs font-medium">{plan}</p>
+                        <p className="text-cyan-400 font-bold">${earned}/mo</p>
+                        <p className="text-gray-500 text-xs">(${price}/mo plan)</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Commission History */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white text-base">Commission History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {commissions.length === 0 ? (
+                  <div className="text-center py-8 space-y-3">
+                    <AlertCircle className="w-10 h-10 text-gray-600 mx-auto" />
+                    <p className="text-gray-400 text-sm">No commissions recorded yet.</p>
+                    <p className="text-gray-500 text-xs">Commissions are added by the admin team when a referred user subscribes. Keep recruiting!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {commissions.map((c: any) => (
+                      <div key={c.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-white text-sm font-medium">{c.planName} Plan</span>
+                            <Badge className={`text-xs border ${
+                              c.status === "paid" ? "bg-green-500/20 text-green-400 border-green-500/30" :
+                              c.status === "cancelled" ? "bg-red-500/20 text-red-400 border-red-500/30" :
+                              "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"
+                            }`}>
+                              {c.status}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500 flex-wrap">
+                            {c.referredEmail && <span>Referred: {c.referredEmail}</span>}
+                            {c.periodStart && <><span>·</span><span>{c.periodStart}</span></>}
+                            {c.notes && <><span>·</span><span className="italic">{c.notes}</span></>}
+                          </div>
+                        </div>
+                        <div className="text-right ml-3">
+                          <p className="text-green-400 font-bold">${parseFloat(c.commissionAmount || "0").toFixed(2)}</p>
+                          <p className="text-gray-500 text-xs">{Math.round(parseFloat(c.commissionRate || "0.2") * 100)}% of ${parseFloat(c.planAmount || "0").toFixed(2)}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* ── LEADERBOARD TAB ───────────────────────────────────────── */}
+        {activeTab === "leaderboard" && (
+          <div className="space-y-5">
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white flex items-center gap-2 text-base">
+                  <Trophy className="w-5 h-5 text-yellow-400" /> Director Leaderboard
+                </CardTitle>
+                <p className="text-gray-400 text-sm">Approved directors ranked by performance score</p>
+              </CardHeader>
+              <CardContent>
+                {leaderboard.length === 0 ? (
+                  <div className="text-center py-12 space-y-3">
+                    <Trophy className="w-12 h-12 text-gray-600 mx-auto" />
+                    <p className="text-gray-400">No approved directors yet. Be the first on the board!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {leaderboard.map((d: any) => {
+                      const isMe = d.id === profile.id;
+                      const medalEmoji = d.rank === 1 ? "🥇" : d.rank === 2 ? "🥈" : d.rank === 3 ? "🥉" : `#${d.rank}`;
+                      const rankColor = d.rank === 1 ? "text-yellow-400" : d.rank === 2 ? "text-gray-300" : d.rank === 3 ? "text-orange-400" : "text-gray-500";
+                      const scoreClr = getScoreColor(d.score);
+                      return (
+                        <div key={d.id} className={`flex items-center gap-4 p-3 rounded-xl border transition-all ${
+                          isMe
+                            ? "bg-cyan-500/10 border-cyan-400/40"
+                            : "bg-white/5 border-white/10"
+                        }`}>
+                          <div className={`text-xl font-bold w-10 text-center flex-shrink-0 ${rankColor}`}>{medalEmoji}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <p className={`font-semibold text-sm ${isMe ? "text-cyan-300" : "text-white"}`}>
+                                {d.name} {isMe && <span className="text-cyan-400 text-xs">(you)</span>}
+                              </p>
+                              <span className="text-gray-600 text-xs">{LEVEL_LABELS[d.level] || d.level}</span>
+                            </div>
+                            <p className="text-gray-400 text-xs">{d.city}, {d.state} {d.territory ? `· ${d.territory}` : ""}</p>
+                          </div>
+                          <div className="flex items-center gap-4 text-center flex-shrink-0">
+                            <div>
+                              <p className={`font-bold ${scoreClr}`}>{d.score}</p>
+                              <p className="text-gray-500 text-xs">Score</p>
+                            </div>
+                            <div className="hidden sm:block">
+                              <p className="font-bold text-blue-400">{d.lifetime?.attorney_onboarded || 0}</p>
+                              <p className="text-gray-500 text-xs">Attys</p>
+                            </div>
+                            <div className="hidden sm:block">
+                              <p className="font-bold text-cyan-400">{d.lifetime?.user_added || 0}</p>
+                              <p className="text-gray-500 text-xs">Users</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="bg-slate-800/50 border-white/10">
+              <CardContent className="p-4">
+                <p className="text-gray-400 text-sm font-medium mb-2">How scores are calculated:</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  {[
+                    { label: "Attorney Onboarded", pts: "×10 pts", icon: "⚖️" },
+                    { label: "User Added", pts: "×2 pts", icon: "👤" },
+                    { label: "Partnership", pts: "×5 pts", icon: "🤝" },
+                    { label: "Activity Streak", pts: "×2 pts", icon: "🔥" },
+                  ].map((item, i) => (
+                    <div key={i} className="bg-white/5 rounded-lg p-2">
+                      <p className="text-xl">{item.icon}</p>
+                      <p className="text-white text-xs font-semibold mt-1">{item.label}</p>
+                      <p className="text-cyan-400 text-xs">{item.pts}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-gray-500 text-xs mt-3 text-center">Max score: 100. Level up to increase your commission rate.</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {/* Resources */}
         <Card className="bg-cyan-900/20 border-cyan-500/30">
           <CardHeader className="pb-3">
@@ -329,7 +639,7 @@ export default function DirectorPortal() {
                     <p className="text-white font-medium text-sm">{r.label}</p>
                     <p className="text-gray-400 text-xs">{r.desc}</p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-500" />
+                  <ChevronRightIcon className="w-4 h-4 text-gray-500" />
                 </div>
               </Link>
             ))}
@@ -341,13 +651,5 @@ export default function DirectorPortal() {
         </Link>
       </div>
     </div>
-  );
-}
-
-function ChevronRight({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-    </svg>
   );
 }
