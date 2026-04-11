@@ -21,14 +21,8 @@ CrashlyticsService.initialize().then(() => {
   CrashlyticsService.logBreadcrumb('App starting up');
 });
 
-// Hide the diagnostic overlay once React successfully mounts
-const rootEl = document.getElementById("root")!;
-createRoot(rootEl).render(
+createRoot(document.getElementById("root")!).render(
   <ErrorBoundary>
     <App />
   </ErrorBoundary>
 );
-// Signal to the diagnostic overlay that React started
-if (typeof (window as any).carenDiagHide === 'function') {
-  (window as any).carenDiagHide();
-}
