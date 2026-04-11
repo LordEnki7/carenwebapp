@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Shield, Target, Users, TrendingUp, Plus, CheckCircle, Clock, Star,
   DollarSign, Trophy, BarChart3, ChevronRight as ChevronRightIcon, AlertCircle,
-  Briefcase, Copy, Check, ChevronDown, ChevronUp
+  Briefcase, Copy, Check, ChevronDown, ChevronUp, Link2, Banknote, Send
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -212,6 +213,11 @@ export default function DirectorPortal() {
   const [logNotes, setLogNotes] = useState("");
   const [showLogForm, setShowLogForm] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+  const [payoutAmount, setPayoutAmount] = useState("");
+  const [payoutMethod, setPayoutMethod] = useState("");
+  const [payoutHandle, setPayoutHandle] = useState("");
+  const [showPayoutForm, setShowPayoutForm] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const email = user?.email || "";
 
@@ -244,6 +250,41 @@ export default function DirectorPortal() {
       return res.json();
     },
     enabled: activeTab === "leaderboard",
+  });
+
+  const { data: payoutRequests = [] } = useQuery<any[]>({
+    queryKey: ["/api/director/payout-requests", profile?.id],
+    queryFn: async () => {
+      const res = await fetch(`/api/director/${profile.id}/payout-requests`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load payout requests");
+      return res.json();
+    },
+    enabled: !!profile?.id && activeTab === "commissions",
+  });
+
+  const requestPayout = useMutation({
+    mutationFn: async () => {
+      if (!profile) throw new Error("No profile");
+      const res = await fetch("/api/director/payout-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          directorId: profile.id,
+          amountRequested: payoutAmount,
+          paymentMethod: payoutMethod,
+          paymentHandle: payoutHandle,
+        }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || "Failed"); }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Payout requested!", description: "We'll process it within 3–5 business days." });
+      setPayoutAmount(""); setPayoutMethod(""); setPayoutHandle(""); setShowPayoutForm(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/director/payout-requests", profile?.id] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const logActivity = useMutation({
@@ -578,6 +619,40 @@ export default function DirectorPortal() {
         {/* ── COMMISSIONS TAB ───────────────────────────────────────── */}
         {activeTab === "commissions" && profile.status === "approved" && (
           <div className="space-y-5">
+
+            {/* Referral Link */}
+            {(() => {
+              const dirCode = profile.directorCode;
+              const refLink = dirCode ? `https://carenalert.com/?dref=${dirCode}` : null;
+              const copyLink = () => {
+                if (refLink) { navigator.clipboard.writeText(refLink); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); }
+              };
+              return (
+                <Card className="bg-gradient-to-r from-blue-900/40 to-cyan-900/30 border-blue-500/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Link2 className="w-5 h-5 text-blue-400" />
+                      <span className="text-white font-semibold">Your Personal Referral Link</span>
+                    </div>
+                    {refLink ? (
+                      <>
+                        <div className="bg-black/30 border border-white/10 rounded-lg px-3 py-2 flex items-center justify-between gap-2 mb-2">
+                          <span className="text-cyan-300 text-xs font-mono truncate">{refLink}</span>
+                          <button onClick={copyLink} className={`flex-shrink-0 flex items-center gap-1 text-xs font-bold px-3 py-1 rounded-lg transition-all ${linkCopied ? "bg-green-500 text-white" : "bg-cyan-500 text-black hover:bg-cyan-400"}`}>
+                            {linkCopied ? <><Check className="w-3 h-3" /> Copied!</> : <><Copy className="w-3 h-3" /> Copy</>}
+                          </button>
+                        </div>
+                        <p className="text-gray-400 text-xs">Share this link when recruiting users. Commissions are tracked automatically when someone signs up through it.</p>
+                        <p className="text-blue-300 text-xs mt-1 font-mono">Your code: <strong>{dirCode}</strong></p>
+                      </>
+                    ) : (
+                      <p className="text-gray-400 text-sm">Your referral link will appear here shortly. Refresh the page if it's not showing.</p>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
             {/* Summary Cards */}
             <div className="grid grid-cols-3 gap-4">
               <Card className="bg-green-900/30 border-green-500/30">
@@ -673,6 +748,67 @@ export default function DirectorPortal() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Payout Request */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white flex items-center justify-between text-base">
+                  <span className="flex items-center gap-2"><Banknote className="w-5 h-5 text-green-400" /> Request Payout</span>
+                  <Button size="sm" onClick={() => setShowPayoutForm(!showPayoutForm)} className="bg-green-500 hover:bg-green-600 text-black font-bold h-8">
+                    {showPayoutForm ? "Cancel" : "+ New Request"}
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              {showPayoutForm && (
+                <CardContent className="space-y-3 pt-0">
+                  <p className="text-gray-400 text-xs">Minimum payout is $25. We process within 3–5 business days.</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-gray-300 text-xs font-medium mb-1 block">Amount ($)</label>
+                      <Input type="number" min="25" step="0.01" value={payoutAmount} onChange={e => setPayoutAmount(e.target.value)} placeholder="25.00" className="bg-white/5 border-white/20 text-white" />
+                    </div>
+                    <div>
+                      <label className="text-gray-300 text-xs font-medium mb-1 block">Payment Method</label>
+                      <Select value={payoutMethod} onValueChange={setPayoutMethod}>
+                        <SelectTrigger className="bg-white/5 border-white/20 text-white"><SelectValue placeholder="Select…" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Venmo">Venmo</SelectItem>
+                          <SelectItem value="Zelle">Zelle</SelectItem>
+                          <SelectItem value="CashApp">CashApp</SelectItem>
+                          <SelectItem value="PayPal">PayPal</SelectItem>
+                          <SelectItem value="Check">Check (mailed)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-gray-300 text-xs font-medium mb-1 block">Your handle / email for {payoutMethod || "payment"}</label>
+                    <Input value={payoutHandle} onChange={e => setPayoutHandle(e.target.value)} placeholder={payoutMethod === "Check" ? "Mailing address" : "@username or email"} className="bg-white/5 border-white/20 text-white placeholder:text-gray-600" />
+                  </div>
+                  <Button onClick={() => requestPayout.mutate()} disabled={requestPayout.isPending || !payoutAmount || !payoutMethod} className="w-full bg-green-500 hover:bg-green-600 text-black font-bold gap-2">
+                    <Send className="w-4 h-4" /> {requestPayout.isPending ? "Submitting…" : "Submit Payout Request"}
+                  </Button>
+                </CardContent>
+              )}
+              {payoutRequests.length > 0 && (
+                <CardContent className="pt-0 space-y-2">
+                  <p className="text-gray-400 text-xs font-semibold uppercase tracking-wide mb-2">Your Requests</p>
+                  {payoutRequests.map((r: any) => (
+                    <div key={r.id} className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/5">
+                      <div>
+                        <p className="text-white text-sm font-bold">${parseFloat(r.amountRequested).toFixed(2)}</p>
+                        <p className="text-gray-400 text-xs">{r.paymentMethod} · {r.paymentHandle}</p>
+                        <p className="text-gray-500 text-xs">{new Date(r.requestedAt).toLocaleDateString()}</p>
+                      </div>
+                      <Badge className={`border text-xs ${r.status === "paid" ? "bg-green-500/20 text-green-400 border-green-500/30" : r.status === "rejected" ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"}`}>
+                        {r.status === "paid" ? "✓ Paid" : r.status === "rejected" ? "✗ Rejected" : "⏳ Pending"}
+                      </Badge>
+                    </div>
+                  ))}
+                </CardContent>
+              )}
+            </Card>
+
           </div>
         )}
 

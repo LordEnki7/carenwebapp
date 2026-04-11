@@ -1,8 +1,50 @@
 import type { Express } from "express";
 import { db } from "../db";
-import { regionalDirectors, directorActivities, directorCommissions, directorOutreach, insertRegionalDirectorSchema, insertDirectorActivitySchema, insertDirectorCommissionSchema } from "@shared/schema";
-import { eq, desc, and, sql, asc } from "drizzle-orm";
+import { regionalDirectors, directorActivities, directorCommissions, directorOutreach, directorPayoutRequests, attorneys, users, insertRegionalDirectorSchema, insertDirectorActivitySchema, insertDirectorCommissionSchema } from "@shared/schema";
+import { eq, desc, and, sql, asc, ilike, or } from "drizzle-orm";
 import { sendEmail } from "../mailer";
+
+function generateDirectorCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "DIR-";
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+async function sendApprovalEmail(director: any) {
+  const directorCode = director.directorCode || "";
+  const referralLink = `https://carenalert.com/?dref=${directorCode}`;
+  const playbookLink = `https://carenalert.com/director-playbook`;
+  const portalLink = `https://carenalert.com/director-portal`;
+  await sendEmail({
+    to: director.email,
+    subject: "You're Approved — Welcome to the C.A.R.E.N. Director Team",
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
+        <div style="margin-bottom: 28px;">
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.</h2>
+          <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
+        </div>
+        <p style="font-size: 15px; margin-bottom: 20px;">Hello ${director.name},</p>
+        <p style="line-height: 1.7;">Your application has been reviewed and <strong style="color: #0e7490;">you are officially approved</strong> as a Regional Director for C.A.R.E.N. in <strong>${director.city}, ${director.state}</strong>.</p>
+        <p style="line-height: 1.7;">Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N.</p>
+        <div style="background: #f0f9ff; border-left: 4px solid #0e7490; padding: 20px 24px; margin: 28px 0; border-radius: 4px;">
+          <p style="font-weight: bold; margin: 0 0 12px; color: #0e7490;">Your Director Resources</p>
+          <p style="margin: 6px 0;"><strong>Your Personal Referral Link:</strong><br/>
+          <a href="${referralLink}" style="color: #0e7490;">${referralLink}</a><br/>
+          <span style="color: #6b7280; font-size: 12px;">Share this link when recruiting users — commissions are tracked automatically.</span></p>
+          <p style="margin: 14px 0 6px 0;"><strong>Your Director Code:</strong> <span style="font-family: monospace; background: #e0f2fe; padding: 2px 8px; border-radius: 4px;">${directorCode}</span></p>
+          <p style="margin: 14px 0 6px 0;"><a href="${portalLink}" style="color: #0e7490; font-weight: bold;">Access Your Director Portal →</a></p>
+          <p style="margin: 6px 0;"><a href="${playbookLink}" style="color: #0e7490; font-weight: bold;">Download Your Director Playbook →</a></p>
+        </div>
+        <p style="line-height: 1.7;">Log into your portal to track your activity, view commissions, and access outreach scripts. Your playbook has everything you need to start opening doors.</p>
+        <p style="line-height: 1.7; margin-top: 28px;">Welcome to the team.<br/><br/>Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
+      </div>
+    `,
+  });
+}
 
 const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, city: string) => string }> = {
   initial_outreach: {
@@ -135,7 +177,16 @@ export function registerDirectorRoutes(app: Express) {
       if (existing.length > 0) {
         return res.status(409).json({ error: "An application with this email already exists." });
       }
-      const [created] = await db.insert(regionalDirectors).values(parsed.data).returning();
+      // Auto-generate unique director code
+      let directorCode = generateDirectorCode();
+      let attempts = 0;
+      while (attempts < 10) {
+        const existing2 = await db.select().from(regionalDirectors).where(eq(regionalDirectors.directorCode, directorCode));
+        if (!existing2.length) break;
+        directorCode = generateDirectorCode();
+        attempts++;
+      }
+      const [created] = await db.insert(regionalDirectors).values({ ...parsed.data, directorCode }).returning();
       res.status(201).json({ success: true, id: created.id });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -271,6 +322,10 @@ export function registerDirectorRoutes(app: Express) {
         .set({ status, adminNotes: adminNotes || null, updatedAt: new Date() })
         .where(eq(regionalDirectors.id, id))
         .returning();
+      // Fire approval email automatically
+      if (status === "approved" && updated) {
+        sendApprovalEmail(updated).catch(err => console.error("[DIRECTOR] Approval email failed:", err));
+      }
       res.json({ success: true, director: updated });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
@@ -538,6 +593,185 @@ export function registerDirectorRoutes(app: Express) {
       }
       const [updated] = await db.update(directorOutreach).set({ status }).where(eq(directorOutreach.id, id)).returning();
       res.json({ success: true, record: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── DIRECTOR: Submit payout request ───────────────────────────────────────
+  app.post("/api/director/payout-request", async (req: any, res) => {
+    try {
+      const { directorId, amountRequested, paymentMethod, paymentHandle } = req.body;
+      if (!directorId || !amountRequested) return res.status(400).json({ error: "directorId and amountRequested required" });
+      const amount = parseFloat(amountRequested);
+      if (isNaN(amount) || amount < 25) return res.status(400).json({ error: "Minimum payout request is $25.00" });
+      const [request] = await db.insert(directorPayoutRequests).values({
+        directorId: parseInt(directorId),
+        amountRequested: amountRequested.toString(),
+        paymentMethod: paymentMethod || null,
+        paymentHandle: paymentHandle || null,
+        status: "pending",
+      }).returning();
+      res.json({ success: true, request });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Get all payout requests (must be BEFORE /:id route) ────────────
+  app.get("/api/director/admin/payout-requests", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const requests = await db.select({
+        id: directorPayoutRequests.id,
+        directorId: directorPayoutRequests.directorId,
+        directorName: regionalDirectors.name,
+        directorEmail: regionalDirectors.email,
+        directorCity: regionalDirectors.city,
+        directorState: regionalDirectors.state,
+        amountRequested: directorPayoutRequests.amountRequested,
+        paymentMethod: directorPayoutRequests.paymentMethod,
+        paymentHandle: directorPayoutRequests.paymentHandle,
+        status: directorPayoutRequests.status,
+        adminNotes: directorPayoutRequests.adminNotes,
+        requestedAt: directorPayoutRequests.requestedAt,
+        processedAt: directorPayoutRequests.processedAt,
+      })
+      .from(directorPayoutRequests)
+      .leftJoin(regionalDirectors, eq(directorPayoutRequests.directorId, regionalDirectors.id))
+      .orderBy(desc(directorPayoutRequests.requestedAt));
+      res.json(requests);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Update payout request status ───────────────────────────────────
+  app.put("/api/director/admin/payout-request/:id/status", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const id = parseInt(req.params.id);
+      const { status, adminNotes } = req.body;
+      if (!["pending", "paid", "rejected"].includes(status)) return res.status(400).json({ error: "Invalid status" });
+      const [updated] = await db.update(directorPayoutRequests)
+        .set({ status, adminNotes: adminNotes || null, processedAt: status !== "pending" ? new Date() : null })
+        .where(eq(directorPayoutRequests.id, id))
+        .returning();
+      res.json({ success: true, request: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── DIRECTOR: Get my own payout requests (must be AFTER admin route) ────────
+  app.get("/api/director/:id/payout-requests", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid director id" });
+      const requests = await db.select().from(directorPayoutRequests)
+        .where(eq(directorPayoutRequests.directorId, id))
+        .orderBy(desc(directorPayoutRequests.requestedAt));
+      res.json(requests);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── PUBLIC: Track director referral on signup ─────────────────────────────
+  // Called from auth flow when ?dref= param detected
+  app.post("/api/director/track-ref", async (req: any, res) => {
+    try {
+      const { userId, directorCode } = req.body;
+      if (!userId || !directorCode) return res.status(400).json({ error: "userId and directorCode required" });
+      const dirRow = await db.select().from(regionalDirectors)
+        .where(and(eq(regionalDirectors.directorCode, directorCode), eq(regionalDirectors.status, "approved")));
+      if (!dirRow.length) return res.status(404).json({ error: "Director code not found" });
+      await db.update(users).set({ directorRef: directorCode }).where(eq(users.id, userId));
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Create commission for a director referral ──────────────────────
+  // Also called automatically from subscription webhook
+  app.post("/api/director/admin/create-commission-for-ref", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(400).json({ error: "Forbidden" });
+      const { referredUserId, planName, planAmount } = req.body;
+      if (!referredUserId || !planName || !planAmount) return res.status(400).json({ error: "referredUserId, planName, planAmount required" });
+      const userRows = await db.select().from(users).where(eq(users.id, referredUserId));
+      if (!userRows.length || !userRows[0].directorRef) return res.status(404).json({ error: "User not found or no director ref" });
+      const dirCode = userRows[0].directorRef;
+      const dirRows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.directorCode, dirCode));
+      if (!dirRows.length) return res.status(404).json({ error: "Director not found" });
+      const director = dirRows[0];
+      const RATES: Record<string, number> = { regional_director: 0.20, senior_director: 0.25, state_director: 0.30, national_director: 0.35 };
+      const rate = RATES[director.level || "regional_director"] || 0.20;
+      const amount = (parseFloat(planAmount) * rate).toFixed(2);
+      const periodStart = new Date().toISOString().slice(0, 7);
+      const [commission] = await db.insert(directorCommissions).values({
+        directorId: director.id,
+        referralCode: dirCode,
+        referredUserId,
+        planName,
+        planAmount: planAmount.toString(),
+        commissionRate: rate.toString(),
+        commissionAmount: amount,
+        status: "pending",
+        periodStart,
+      }).returning();
+      res.json({ success: true, commission });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── PUBLIC: Attorney Directory ─────────────────────────────────────────────
+  app.get("/api/attorneys/directory", async (req, res) => {
+    try {
+      const { state, search } = req.query as { state?: string; search?: string };
+
+      // Fetch all approved attorneys using only columns that exist in the actual DB
+      const rows = await db.execute(sql`
+        SELECT
+          a.id,
+          a.firm_name AS "firmName",
+          a.specialties,
+          a.states AS "statesLicensed",
+          a.rating,
+          a.verified,
+          a.contact_info AS "contactInfo",
+          a.bio,
+          a.availability_status AS "availabilityStatus",
+          a.profile_score AS "profileScore",
+          a.consultation_type AS "consultationType",
+          a.counties_served AS "countiesServed",
+          COALESCE(u.first_name, '') AS "firstName",
+          COALESCE(u.last_name, '') AS "lastName",
+          COALESCE(u.email, '') AS "email"
+        FROM attorneys a
+        LEFT JOIN users u ON a.user_id = u.id
+        WHERE a.profile_status = 'approved'
+        ORDER BY a.profile_score DESC NULLS LAST, a.rating DESC NULLS LAST
+      `);
+
+      let results: any[] = Array.isArray(rows) ? rows : (rows as any).rows || [];
+
+      if (state) {
+        results = results.filter((a: any) => {
+          const licensed = Array.isArray(a.statesLicensed) ? a.statesLicensed : [];
+          return licensed.includes(state) || JSON.stringify(a.statesLicensed || "").includes(state);
+        });
+      }
+      if (search) {
+        const s = search.toLowerCase();
+        results = results.filter((a: any) =>
+          `${a.firstName} ${a.lastName} ${a.firmName} ${a.bio || ""}`.toLowerCase().includes(s)
+        );
+      }
+
+      res.json(results);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

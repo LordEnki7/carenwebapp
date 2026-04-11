@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Shield, MapPin, TrendingUp, CheckCircle, XCircle, PauseCircle,
   ChevronDown, ChevronUp, Search, Loader2, DollarSign, Plus, Trophy, Users,
-  Mail, Send, Clock, MessageSquare
+  Mail, Send, Clock, MessageSquare, Banknote
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +50,7 @@ function scoreColor(score: number) {
   return "text-red-400";
 }
 
-type AdminTab = "directors" | "commissions" | "leaderboard" | "outreach";
+type AdminTab = "directors" | "commissions" | "leaderboard" | "outreach" | "payouts";
 
 const TEMPLATE_OPTIONS = [
   { key: "initial_outreach", label: "Appointment Letter — Welcome + Agreement (First Contact)" },
@@ -131,6 +131,32 @@ export default function DirectorAdmin() {
       return res.json();
     },
     enabled: authenticated && activeTab === "outreach",
+  });
+
+  const { data: payoutRequests = [], refetch: refetchPayouts } = useQuery<any[]>({
+    queryKey: ["/api/director/admin/payout-requests"],
+    queryFn: async () => {
+      const res = await fetch("/api/director/admin/payout-requests", { headers: { "x-admin-key": ADMIN_KEY } });
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: authenticated && activeTab === "payouts",
+  });
+
+  const updatePayoutStatus = useMutation({
+    mutationFn: async ({ id, status, adminNotes }: { id: number; status: string; adminNotes?: string }) => {
+      const res = await fetch(`/api/director/admin/payout-request/${id}/status`, {
+        method: "PUT", headers,
+        body: JSON.stringify({ status, adminNotes }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Payout request updated!" });
+      queryClient.invalidateQueries({ queryKey: ["/api/director/admin/payout-requests"] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const sendOutreach = useMutation({
@@ -368,6 +394,7 @@ export default function DirectorAdmin() {
             { id: "commissions", label: "Commissions", icon: DollarSign },
             { id: "leaderboard", label: "Leaderboard", icon: Trophy },
             { id: "outreach", label: "Outreach", icon: Mail },
+            { id: "payouts", label: "Payouts", icon: Banknote },
           ] as { id: AdminTab; label: string; icon: any }[]).map(tab => (
             <button
               key={tab.id}
@@ -955,6 +982,74 @@ export default function DirectorAdmin() {
             </Card>
           </div>
         )}
+
+        {/* ── PAYOUTS TAB ───────────────────────────────────────────── */}
+        {activeTab === "payouts" && (
+          <div className="space-y-5">
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white flex items-center justify-between text-base">
+                  <span className="flex items-center gap-2"><Banknote className="w-5 h-5 text-green-400" /> Payout Requests</span>
+                  <div className="flex gap-2 text-xs text-gray-400">
+                    <span className="text-yellow-400 font-bold">{payoutRequests.filter((r:any) => r.status === "pending").length} pending</span>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {payoutRequests.length === 0 ? (
+                  <div className="text-center py-10 text-gray-500">
+                    <Banknote className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                    <p>No payout requests yet.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {payoutRequests.map((r: any) => (
+                      <div key={r.id} className={`border rounded-xl p-4 space-y-2 ${r.status === "pending" ? "border-yellow-500/30 bg-yellow-900/10" : r.status === "paid" ? "border-green-500/20 bg-green-900/10" : "border-red-500/20 bg-red-900/10"}`}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="text-white font-bold text-base">${parseFloat(r.amountRequested).toFixed(2)}</p>
+                            <p className="text-cyan-400 text-sm font-medium">{r.directorName}</p>
+                            <p className="text-gray-400 text-xs">{r.directorEmail} · {r.directorCity}, {r.directorState}</p>
+                            <p className="text-gray-400 text-xs mt-1">
+                              <span className="text-white font-semibold">{r.paymentMethod}</span>
+                              {r.paymentHandle && <span> → <span className="text-cyan-300 font-mono">{r.paymentHandle}</span></span>}
+                            </p>
+                            <p className="text-gray-500 text-xs">{new Date(r.requestedAt).toLocaleString()}</p>
+                          </div>
+                          <Badge className={`border text-xs flex-shrink-0 ${r.status === "paid" ? "bg-green-500/20 text-green-400 border-green-500/30" : r.status === "rejected" ? "bg-red-500/20 text-red-400 border-red-500/30" : "bg-yellow-500/20 text-yellow-400 border-yellow-500/30"}`}>
+                            {r.status === "paid" ? "✓ Paid" : r.status === "rejected" ? "✗ Rejected" : "⏳ Pending"}
+                          </Badge>
+                        </div>
+                        {r.status === "pending" && (
+                          <div className="flex gap-2 pt-1">
+                            <Button
+                              size="sm"
+                              onClick={() => updatePayoutStatus.mutate({ id: r.id, status: "paid" })}
+                              disabled={updatePayoutStatus.isPending}
+                              className="bg-green-500 hover:bg-green-600 text-black font-bold h-8 text-xs flex-1"
+                            >
+                              ✓ Mark as Paid
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => updatePayoutStatus.mutate({ id: r.id, status: "rejected" })}
+                              disabled={updatePayoutStatus.isPending}
+                              className="border-red-500/40 text-red-400 hover:bg-red-900/20 h-8 text-xs flex-1"
+                            >
+                              ✗ Reject
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
       </div>
     </div>
   );

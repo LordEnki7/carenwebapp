@@ -41,6 +41,7 @@ export const users = pgTable("users", {
   emergencyContacts: jsonb("emergency_contacts"),
   agreedToTerms: boolean("agreed_to_terms").default(false),
   termsAgreedAt: timestamp("terms_agreed_at"),
+  directorRef: varchar("director_ref", { length: 20 }), // director referral code used at signup
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -2767,6 +2768,7 @@ export const regionalDirectors = pgTable("regional_directors", {
   level: varchar("level", { length: 50 }).default("regional_director"), // regional_director | senior_director | state_director | national_director
   territory: varchar("territory", { length: 255 }),
   adminNotes: text("admin_notes"),
+  directorCode: varchar("director_code", { length: 20 }).unique(), // unique code for referral link e.g. "DIR-AB12CD"
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -2825,3 +2827,19 @@ export const directorOutreach = pgTable("director_outreach", {
 export const insertDirectorOutreachSchema = createInsertSchema(directorOutreach).omit({ id: true, sentAt: true });
 export type InsertDirectorOutreach = z.infer<typeof insertDirectorOutreachSchema>;
 export type DirectorOutreach = typeof directorOutreach.$inferSelect;
+
+export const directorPayoutRequests = pgTable("director_payout_requests", {
+  id: serial("id").primaryKey(),
+  directorId: integer("director_id").notNull().references(() => regionalDirectors.id),
+  amountRequested: decimal("amount_requested", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: varchar("payment_method", { length: 100 }), // e.g. "Venmo", "Zelle", "CashApp", "Check"
+  paymentHandle: varchar("payment_handle", { length: 255 }), // e.g. "@username" or email
+  status: varchar("status", { length: 50 }).default("pending"), // pending | paid | rejected
+  adminNotes: text("admin_notes"),
+  requestedAt: timestamp("requested_at").defaultNow(),
+  processedAt: timestamp("processed_at"),
+});
+
+export const insertDirectorPayoutRequestSchema = createInsertSchema(directorPayoutRequests).omit({ id: true, requestedAt: true, processedAt: true });
+export type InsertDirectorPayoutRequest = z.infer<typeof insertDirectorPayoutRequestSchema>;
+export type DirectorPayoutRequest = typeof directorPayoutRequests.$inferSelect;
