@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Shield, Target, Users, TrendingUp, Plus, CheckCircle, Clock, Star,
-  DollarSign, Trophy, BarChart3, ChevronRight as ChevronRightIcon, AlertCircle
+  DollarSign, Trophy, BarChart3, ChevronRight as ChevronRightIcon, AlertCircle,
+  Briefcase, Copy, Check, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +65,143 @@ function getScoreLabel(score: number) {
   return "🔴 Beginner";
 }
 
-type Tab = "dashboard" | "commissions" | "leaderboard";
+type Tab = "dashboard" | "commissions" | "leaderboard" | "toolkit";
+
+const TOOLKIT_SECTIONS = [
+  {
+    id: "attorney",
+    label: "⚖️ Attorney Outreach",
+    color: "blue",
+    scripts: [
+      {
+        title: "Cold Call Opening — Attorney",
+        content: `"Hi, my name is [Your Name] and I'm a Regional Director with C.A.R.E.N. — Citizen Assistance for Roadside Emergencies and Navigation. We're building a network of attorneys across [City] who want to be connected directly with people who've had a roadside encounter and need legal help. It's free to join the network and you only get contacted when someone in your area needs assistance. Would you be open to a 5-minute conversation about how it works?"`,
+      },
+      {
+        title: "Attorney Email Outreach",
+        content: `Subject: Join the C.A.R.E.N. Legal Network in [City]
+
+Hello [Attorney Name],
+
+My name is [Your Name] and I'm a Regional Director for C.A.R.E.N. (Citizen Assistance for Roadside Emergencies and Navigation) — a platform that gives drivers real-time legal support during roadside encounters.
+
+We're building a verified attorney network in [City/State] and I'd love to connect you with people in your area who need exactly the type of help you provide.
+
+There's no cost to join. You receive referrals when a C.A.R.E.N. member in your area needs legal assistance.
+
+Would you be open to a 10-minute call this week?
+
+Respectfully,
+[Your Name]
+C.A.R.E.N. Regional Director — [City], [State]`,
+      },
+      {
+        title: "In-Person Law Firm Pitch",
+        content: `"Good [morning/afternoon]. I'm [Your Name], a Regional Director with C.A.R.E.N. — a platform that helps drivers document roadside encounters and connect with attorneys instantly. We're building a verified attorney referral network right here in [City] and we want [Firm Name] to be part of it. There's no fee to join — you simply get matched with clients in your area who are already looking for legal help. Do you have a card I can leave some information with? I'd love to have someone from the firm connect with us."`,
+      },
+    ],
+  },
+  {
+    id: "business",
+    label: "🤝 Business & Partnership",
+    color: "purple",
+    scripts: [
+      {
+        title: "Business Partnership Pitch",
+        content: `"Hi, I'm [Your Name], a Regional Director with C.A.R.E.N. — an app that protects drivers during roadside emergencies and legal encounters. We're partnering with local businesses in [City] to offer C.A.R.E.N. subscriptions to their employees or customers as a value-add. It's a low-cost way to show your community you care about their safety. Would you be open to hearing more about our business partnership program?"`,
+      },
+      {
+        title: "Auto Shop / Dealership Outreach",
+        content: `Subject: Protect Your Customers on the Road — C.A.R.E.N. Partnership
+
+Hi [Owner/Manager Name],
+
+I'm reaching out because I think your customers would love what we've built. C.A.R.E.N. is a roadside protection app that records encounters, provides real-time legal guidance, and connects drivers to attorneys when needed.
+
+As an auto-related business, you already serve drivers. Offering C.A.R.E.N. as a recommended tool — or bundling it with your services — gives your customers one more reason to trust and choose you.
+
+I'd love to explore a simple referral partnership. Can we connect this week?
+
+[Your Name]
+C.A.R.E.N. Regional Director — [City], [State]`,
+      },
+      {
+        title: "Community Organization Outreach",
+        content: `"Hello, I'm [Your Name] with C.A.R.E.N. We're a citizen safety platform focused on giving everyday drivers the tools and legal knowledge they need during roadside situations. We're working with community organizations in [City] to spread awareness and potentially offer group pricing to your members. A lot of the people your organization serves could benefit from this type of protection. Would you be open to hosting a 15-minute info session or letting us share a flyer with your network?"`,
+      },
+    ],
+  },
+  {
+    id: "user",
+    label: "👥 User & Community",
+    color: "cyan",
+    scripts: [
+      {
+        title: "Direct Message / Text Script",
+        content: `"Hey [Name]! I wanted to share something I think you'd find valuable. It's called C.A.R.E.N. — an app that protects you during traffic stops and roadside situations. It records the encounter, tells you your legal rights in real time, and connects you to an attorney if needed. Plans start at under $5/month. I'm actually a Regional Director for them now. Check it out: carenalert.com — let me know if you have questions!"`,
+      },
+      {
+        title: "Social Media Caption",
+        content: `Do you know your rights when you're pulled over? 🚗
+
+Most people don't — and that's exactly why I joined C.A.R.E.N.
+
+C.A.R.E.N. is a real-time protection app for drivers that:
+✅ Records your encounter automatically
+✅ Tells you your legal rights state-by-state
+✅ Connects you to a local attorney instantly
+✅ Notifies your family in an emergency
+
+Plans start at $0.99/month. This is the protection everyone needs but nobody talks about.
+
+👉 carenalert.com
+
+#CAREN #KnowYourRights #RoadsideSafety #DriverProtection #LegalRights`,
+      },
+      {
+        title: "Community Event / Tabling Script",
+        content: `"Hi there! Have you heard of C.A.R.E.N.? It's a citizen safety app I'm here to tell you about today. It stands for Citizen Assistance for Roadside Emergencies and Navigation. Basically, it protects drivers during traffic stops — it records the encounter, gives you your legal rights on screen in real time, and can alert your family and connect you to an attorney. It works across all 50 states. Plans start at under $5 a month. Here's a card — and I'd love to answer any questions you have about how it works."`,
+      },
+    ],
+  },
+];
+
+function ScriptCard({ script }: { script: { title: string; content: string } }) {
+  const [copied, setCopied] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(script.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div className="bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center justify-between p-3 text-left hover:bg-white/5 transition-colors"
+      >
+        <span className="text-white font-medium text-sm">{script.title}</span>
+        {expanded ? <ChevronUp className="w-4 h-4 text-gray-400 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-gray-400 flex-shrink-0" />}
+      </button>
+      {expanded && (
+        <div className="px-3 pb-3 space-y-2">
+          <pre className="text-gray-300 text-xs whitespace-pre-wrap leading-relaxed font-sans bg-black/30 rounded p-3 border border-white/10">
+            {script.content}
+          </pre>
+          <Button
+            size="sm"
+            onClick={handleCopy}
+            className={`w-full h-8 text-xs font-semibold transition-all ${copied ? "bg-green-500 text-white" : "bg-cyan-500 hover:bg-cyan-600 text-black"}`}
+          >
+            {copied ? <><Check className="w-3 h-3 mr-1" /> Copied!</> : <><Copy className="w-3 h-3 mr-1" /> Copy Script</>}
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function DirectorPortal() {
   const { user } = useAuth();
@@ -229,6 +366,7 @@ export default function DirectorPortal() {
             { id: "dashboard", label: "Dashboard", icon: BarChart3 },
             { id: "commissions", label: "Commissions", icon: DollarSign },
             { id: "leaderboard", label: "Leaderboard", icon: Trophy },
+            { id: "toolkit", label: "Toolkit", icon: Briefcase },
           ] as { id: Tab; label: string; icon: any }[]).map(tab => (
             <button
               key={tab.id}
@@ -622,7 +760,64 @@ export default function DirectorPortal() {
           </div>
         )}
 
-        {/* Resources */}
+        {/* ── TOOLKIT TAB ───────────────────────────────────────────── */}
+        {activeTab === "toolkit" && (
+          <div className="space-y-5">
+            <div className="p-4 bg-gradient-to-r from-cyan-900/40 to-blue-900/30 border border-cyan-500/30 rounded-xl">
+              <div className="flex items-center gap-2 mb-1">
+                <Briefcase className="w-5 h-5 text-cyan-400" />
+                <h2 className="text-white font-bold text-base">Director Toolkit</h2>
+              </div>
+              <p className="text-gray-400 text-sm">Copy-ready scripts for recruiting attorneys, partnering with businesses, and growing your user base. Tap any script to expand it, then copy with one click.</p>
+            </div>
+
+            {TOOLKIT_SECTIONS.map(section => (
+              <Card key={section.id} className="bg-white/5 border-white/10">
+                <CardHeader className="pb-3">
+                  <CardTitle className={`text-base font-bold ${
+                    section.color === "blue" ? "text-blue-300" :
+                    section.color === "purple" ? "text-purple-300" : "text-cyan-300"
+                  }`}>
+                    {section.label}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {section.scripts.map((script, i) => (
+                    <ScriptCard key={i} script={script} />
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
+
+            {/* Quick Links */}
+            <Card className="bg-cyan-900/20 border-cyan-500/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-cyan-300 text-base">Quick Links to Share</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {[
+                  { label: "Attorney Application Form", href: "/attorney-application", desc: "Direct link — send to any attorney you recruit" },
+                  { label: "C.A.R.E.N. Homepage", href: "/", desc: "Share this with users and businesses" },
+                  { label: "Legal Rights Database", href: "/rights", desc: "Show prospects what the platform covers" },
+                  { label: "Record an Encounter", href: "/record", desc: "Demo the core product feature" },
+                ].map((r, i) => (
+                  <Link key={i} href={r.href}>
+                    <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
+                      <div>
+                        <p className="text-white font-medium text-sm">{r.label}</p>
+                        <p className="text-gray-400 text-xs">{r.desc}</p>
+                      </div>
+                      <ChevronRightIcon className="w-4 h-4 text-gray-500" />
+                    </div>
+                  </Link>
+                ))}
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {/* Resources — shown on all non-toolkit tabs */}
+        {activeTab !== "toolkit" && (
         <Card className="bg-cyan-900/20 border-cyan-500/30">
           <CardHeader className="pb-3">
             <CardTitle className="text-cyan-300 text-base">Your Director Resources</CardTitle>
@@ -645,6 +840,7 @@ export default function DirectorPortal() {
             ))}
           </CardContent>
         </Card>
+        )}
 
         <Link href="/">
           <Button variant="ghost" className="text-gray-400 hover:text-white w-full">← Back to Dashboard</Button>
