@@ -6,13 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist/public',
   server: {
     androidScheme: 'https',
-    url: 'https://carenalert.com',
-    cleartext: false,
-    allowNavigation: [
-      'carenalert.com',
-      '*.carenalert.com',
-      'citizen-care-projectdna7.replit.app'
-    ]
+    cleartext: false
   },
   android: {
     buildOptions: {
