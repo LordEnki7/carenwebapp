@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Shield, MapPin, TrendingUp, CheckCircle, XCircle, PauseCircle,
-  ChevronDown, ChevronUp, Search, Loader2, DollarSign, Plus, Trophy, Users
+  ChevronDown, ChevronUp, Search, Loader2, DollarSign, Plus, Trophy, Users,
+  Mail, Send, Clock, MessageSquare
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -49,7 +50,20 @@ function scoreColor(score: number) {
   return "text-red-400";
 }
 
-type AdminTab = "directors" | "commissions" | "leaderboard";
+type AdminTab = "directors" | "commissions" | "leaderboard" | "outreach";
+
+const TEMPLATE_OPTIONS = [
+  { key: "initial_outreach", label: "Initial Outreach — First Contact" },
+  { key: "follow_up", label: "Follow-Up — Second Touch" },
+  { key: "final_invite", label: "Final Invite — Last Chance" },
+];
+
+const OUTREACH_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  sent: { label: "Sent", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
+  failed: { label: "Failed", color: "bg-red-500/20 text-red-400 border-red-500/30" },
+  replied: { label: "Replied", color: "bg-green-500/20 text-green-400 border-green-500/30" },
+  not_interested: { label: "Not Interested", color: "bg-gray-500/20 text-gray-400 border-gray-500/30" },
+};
 
 export default function DirectorAdmin() {
   const [key, setKey] = useState("");
@@ -62,6 +76,8 @@ export default function DirectorAdmin() {
   const [notesInput, setNotesInput] = useState<Record<number, string>>({});
   // Commission form state
   const [commForm, setCommForm] = useState({ directorId: "", referredEmail: "", planName: "Standard", notes: "", periodStart: "" });
+  // Outreach form state
+  const [outreachForm, setOutreachForm] = useState({ prospectName: "", prospectEmail: "", prospectCity: "", prospectState: "", templateKey: "initial_outreach", notes: "" });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -105,6 +121,52 @@ export default function DirectorAdmin() {
       return res.json();
     },
     enabled: authenticated && activeTab === "leaderboard",
+  });
+
+  const { data: outreachLog = [], isLoading: outreachLoading, refetch: refetchOutreach } = useQuery<any[]>({
+    queryKey: ["/api/director/admin/outreach"],
+    queryFn: async () => {
+      const res = await fetch("/api/director/admin/outreach", { headers: { "x-admin-key": ADMIN_KEY } });
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    enabled: authenticated && activeTab === "outreach",
+  });
+
+  const sendOutreach = useMutation({
+    mutationFn: async (data: typeof outreachForm) => {
+      const res = await fetch("/api/director/admin/outreach/send", {
+        method: "POST", headers,
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error("Failed to send");
+      return res.json();
+    },
+    onSuccess: (result) => {
+      if (result.success) {
+        toast({ title: "Email Sent!", description: `Outreach sent to ${outreachForm.prospectEmail}` });
+      } else {
+        toast({ title: "Email Failed", description: "Check your SMTP settings.", variant: "destructive" });
+      }
+      setOutreachForm({ prospectName: "", prospectEmail: "", prospectCity: "", prospectState: "", templateKey: "initial_outreach", notes: "" });
+      queryClient.invalidateQueries({ queryKey: ["/api/director/admin/outreach"] });
+    },
+    onError: () => toast({ title: "Error sending email", variant: "destructive" }),
+  });
+
+  const updateOutreachStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const res = await fetch(`/api/director/admin/outreach/${id}/status`, {
+        method: "PUT", headers,
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error("Failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Status updated" });
+      queryClient.invalidateQueries({ queryKey: ["/api/director/admin/outreach"] });
+    },
   });
 
   const updateStatus = useMutation({
@@ -305,6 +367,7 @@ export default function DirectorAdmin() {
             { id: "directors", label: "Directors", icon: Users },
             { id: "commissions", label: "Commissions", icon: DollarSign },
             { id: "leaderboard", label: "Leaderboard", icon: Trophy },
+            { id: "outreach", label: "Outreach", icon: Mail },
           ] as { id: AdminTab; label: string; icon: any }[]).map(tab => (
             <button
               key={tab.id}
@@ -740,6 +803,157 @@ export default function DirectorAdmin() {
               )}
             </CardContent>
           </Card>
+        )}
+
+        {/* ── OUTREACH TAB ───────────────────────────── */}
+        {activeTab === "outreach" && (
+          <div className="space-y-6">
+            {/* Send Email Form */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-white flex items-center gap-2 text-base">
+                  <Send className="w-5 h-5 text-cyan-400" /> Send Director Prospect Email
+                </CardTitle>
+                <p className="text-gray-400 text-sm">Send a recruitment email to a prospective Regional Director</p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1 block">Prospect Name *</label>
+                    <Input
+                      placeholder="Full name"
+                      value={outreachForm.prospectName}
+                      onChange={e => setOutreachForm(f => ({ ...f, prospectName: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1 block">Email Address *</label>
+                    <Input
+                      placeholder="email@example.com"
+                      type="email"
+                      value={outreachForm.prospectEmail}
+                      onChange={e => setOutreachForm(f => ({ ...f, prospectEmail: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1 block">City</label>
+                    <Input
+                      placeholder="Los Angeles"
+                      value={outreachForm.prospectCity}
+                      onChange={e => setOutreachForm(f => ({ ...f, prospectCity: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-gray-400 text-xs mb-1 block">State</label>
+                    <Input
+                      placeholder="CA"
+                      value={outreachForm.prospectState}
+                      onChange={e => setOutreachForm(f => ({ ...f, prospectState: e.target.value }))}
+                      className="bg-white/5 border-white/20 text-white"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">Email Template *</label>
+                  <select
+                    value={outreachForm.templateKey}
+                    onChange={e => setOutreachForm(f => ({ ...f, templateKey: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/20 text-white rounded-md px-3 py-2 text-sm"
+                  >
+                    {TEMPLATE_OPTIONS.map(t => (
+                      <option key={t.key} value={t.key} className="bg-gray-900">{t.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-gray-400 text-xs mb-1 block">Internal Notes (optional)</label>
+                  <Textarea
+                    placeholder="How did you find this prospect? Any context..."
+                    value={outreachForm.notes}
+                    onChange={e => setOutreachForm(f => ({ ...f, notes: e.target.value }))}
+                    className="bg-white/5 border-white/20 text-white text-sm resize-none"
+                    rows={2}
+                  />
+                </div>
+                <Button
+                  onClick={() => sendOutreach.mutate(outreachForm)}
+                  disabled={!outreachForm.prospectName || !outreachForm.prospectEmail || sendOutreach.isPending}
+                  className="bg-cyan-500 hover:bg-cyan-400 text-black font-semibold w-full sm:w-auto"
+                >
+                  {sendOutreach.isPending ? (
+                    <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending…</>
+                  ) : (
+                    <><Send className="w-4 h-4 mr-2" /> Send Email</>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Outreach Log */}
+            <Card className="bg-white/5 border-white/10">
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-white flex items-center gap-2 text-base">
+                    <Clock className="w-5 h-5 text-purple-400" /> Outreach History
+                  </CardTitle>
+                  <span className="text-gray-500 text-xs">{outreachLog.length} total</span>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {outreachLoading ? (
+                  <div className="flex items-center justify-center py-10">
+                    <Loader2 className="w-6 h-6 text-cyan-400 animate-spin" />
+                  </div>
+                ) : outreachLog.length === 0 ? (
+                  <div className="text-center py-12 text-gray-500">
+                    <Mail className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                    <p>No outreach emails sent yet.</p>
+                    <p className="text-xs mt-1">Use the form above to contact your first prospect.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {outreachLog.map((r: any) => {
+                      const sc = OUTREACH_STATUS_CONFIG[r.status] || OUTREACH_STATUS_CONFIG.sent;
+                      return (
+                        <div key={r.id} className="flex items-center gap-3 p-3 bg-white/5 rounded-lg border border-white/5">
+                          <Mail className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-white text-sm font-medium">{r.prospectName}</p>
+                              <p className="text-gray-400 text-xs">{r.prospectEmail}</p>
+                            </div>
+                            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+                              {r.prospectCity && <span className="text-gray-500 text-xs">{r.prospectCity}{r.prospectState ? `, ${r.prospectState}` : ""}</span>}
+                              <span className="text-gray-600 text-xs">·</span>
+                              <span className="text-gray-500 text-xs capitalize">{(r.templateUsed || "").replace(/_/g, " ")}</span>
+                              <span className="text-gray-600 text-xs">·</span>
+                              <span className="text-gray-500 text-xs">{new Date(r.sentAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Badge className={`text-xs border ${sc.color}`}>{sc.label}</Badge>
+                            <select
+                              value={r.status}
+                              onChange={e => updateOutreachStatus.mutate({ id: r.id, status: e.target.value })}
+                              className="bg-white/5 border border-white/10 text-gray-400 rounded text-xs px-1.5 py-1"
+                            >
+                              <option value="sent" className="bg-gray-900">Sent</option>
+                              <option value="replied" className="bg-gray-900">Replied</option>
+                              <option value="not_interested" className="bg-gray-900">Not Interested</option>
+                              <option value="failed" className="bg-gray-900">Failed</option>
+                            </select>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         )}
       </div>
     </div>

@@ -2809,3 +2809,19 @@ export const directorCommissions = pgTable("director_commissions", {
 export const insertDirectorCommissionSchema = createInsertSchema(directorCommissions).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertDirectorCommission = z.infer<typeof insertDirectorCommissionSchema>;
 export type DirectorCommission = typeof directorCommissions.$inferSelect;
+
+export const directorOutreach = pgTable("director_outreach", {
+  id: serial("id").primaryKey(),
+  prospectName: varchar("prospect_name", { length: 255 }).notNull(),
+  prospectEmail: varchar("prospect_email", { length: 255 }).notNull(),
+  prospectCity: varchar("prospect_city", { length: 100 }),
+  prospectState: varchar("prospect_state", { length: 100 }),
+  templateUsed: varchar("template_used", { length: 100 }),
+  status: varchar("status", { length: 50 }).default("sent"), // sent | failed | replied
+  sentAt: timestamp("sent_at").defaultNow(),
+  notes: text("notes"),
+});
+
+export const insertDirectorOutreachSchema = createInsertSchema(directorOutreach).omit({ id: true, sentAt: true });
+export type InsertDirectorOutreach = z.infer<typeof insertDirectorOutreachSchema>;
+export type DirectorOutreach = typeof directorOutreach.$inferSelect;

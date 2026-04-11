@@ -1,7 +1,90 @@
 import type { Express } from "express";
 import { db } from "../db";
-import { regionalDirectors, directorActivities, directorCommissions, insertRegionalDirectorSchema, insertDirectorActivitySchema, insertDirectorCommissionSchema } from "@shared/schema";
+import { regionalDirectors, directorActivities, directorCommissions, directorOutreach, insertRegionalDirectorSchema, insertDirectorActivitySchema, insertDirectorCommissionSchema } from "@shared/schema";
 import { eq, desc, and, sql, asc } from "drizzle-orm";
+import { sendEmail } from "../mailer";
+
+const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, city: string) => string }> = {
+  initial_outreach: {
+    subject: "Exclusive Opportunity: Become a C.A.R.E.N.™ Regional Director",
+    html: (name, city) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 28px;">
+          <h1 style="color: #22d3ee; font-size: 24px; margin: 0;">C.A.R.E.N.™ ALERT</h1>
+          <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0;">Citizen Assistance for Roadside Emergencies &amp; Navigation</p>
+        </div>
+        <p style="font-size: 16px;">Dear ${name},</p>
+        <p>We are reaching out to you because we believe you have the leadership, community presence, and drive to make a real difference in <strong style="color: #22d3ee;">${city}</strong>.</p>
+        <p>C.A.R.E.N.™ ALERT is a revolutionary safety platform that protects families during police encounters and roadside emergencies — providing real-time legal rights coaching, GPS-enabled incident recording, and emergency response coordination.</p>
+        <p><strong style="color: #a78bfa;">We are currently selecting Regional Directors</strong> to lead our expansion in key cities across the country. As a Regional Director, you would:</p>
+        <ul style="line-height: 1.9; color: #cbd5e1;">
+          <li>Represent C.A.R.E.N.™ in your local community</li>
+          <li>Build your own network of subscribers and attorneys</li>
+          <li>Earn <strong style="color: #22d3ee;">20%–35% commission</strong> on every subscription you bring in</li>
+          <li>Grow into Senior, State, and National Director roles</li>
+        </ul>
+        <p>This is a ground-floor opportunity with a platform that is already in the Google Play Store and growing fast.</p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="https://carenalert.com/become-director" style="background: #22d3ee; color: #0f172a; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">Apply to Become a Director</a>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px;">If you have questions or would like to schedule a call, simply reply to this email. We would love to speak with you.</p>
+        <p>With respect,<br/><strong style="color: #22d3ee;">The C.A.R.E.N.™ ALERT Leadership Team</strong></p>
+        <hr style="border-color: #1e293b; margin: 24px 0;"/>
+        <p style="color: #475569; font-size: 11px; text-align: center;">C.A.R.E.N.™ ALERT · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+      </div>
+    `,
+  },
+  follow_up: {
+    subject: "Following Up — Regional Director Opportunity with C.A.R.E.N.™",
+    html: (name, city) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 28px;">
+          <h1 style="color: #22d3ee; font-size: 24px; margin: 0;">C.A.R.E.N.™ ALERT</h1>
+        </div>
+        <p style="font-size: 16px;">Dear ${name},</p>
+        <p>We wanted to follow up on our previous message about the <strong style="color: #a78bfa;">Regional Director opportunity</strong> in <strong style="color: #22d3ee;">${city}</strong>.</p>
+        <p>We understand you are busy, but we did not want you to miss this chance. Director spots in your area are limited, and we are moving forward with selections soon.</p>
+        <p>As a reminder — this role lets you earn commissions, build community impact, and grow with a platform that is already live and gaining traction nationwide.</p>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="https://carenalert.com/become-director" style="background: #22d3ee; color: #0f172a; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">Apply Now</a>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px;">Reply to this email with any questions — we are happy to talk.</p>
+        <p>With respect,<br/><strong style="color: #22d3ee;">The C.A.R.E.N.™ ALERT Leadership Team</strong></p>
+        <hr style="border-color: #1e293b; margin: 24px 0;"/>
+        <p style="color: #475569; font-size: 11px; text-align: center;">C.A.R.E.N.™ ALERT · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+      </div>
+    `,
+  },
+  final_invite: {
+    subject: "Last Chance — Regional Director Spot in Your City",
+    html: (name, city) => `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
+        <div style="text-align: center; margin-bottom: 28px;">
+          <h1 style="color: #22d3ee; font-size: 24px; margin: 0;">C.A.R.E.N.™ ALERT</h1>
+        </div>
+        <p style="font-size: 16px;">Dear ${name},</p>
+        <p>We have one remaining <strong style="color: #f59e0b;">Regional Director position</strong> available in the <strong style="color: #22d3ee;">${city}</strong> area, and we want to give you the final opportunity to claim it before we move on.</p>
+        <p>This is the last message we will send. If this opportunity interests you, now is the time to act.</p>
+        <div style="background: #1e293b; border: 1px solid #22d3ee33; border-radius: 8px; padding: 20px; margin: 24px 0;">
+          <p style="margin: 0; color: #22d3ee; font-weight: bold; text-align: center;">Director Benefits at a Glance</p>
+          <ul style="margin: 12px 0 0; line-height: 1.9; color: #cbd5e1;">
+            <li>20%–35% recurring commission on every subscription</li>
+            <li>Exclusive territory in your city</li>
+            <li>Access to the full C.A.R.E.N.™ platform and tools</li>
+            <li>Path to State and National Director promotions</li>
+          </ul>
+        </div>
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="https://carenalert.com/become-director" style="background: #f59e0b; color: #0f172a; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">Claim My Spot Now</a>
+        </div>
+        <p style="color: #94a3b8; font-size: 13px;">We wish you the best regardless of your decision.</p>
+        <p>With respect,<br/><strong style="color: #22d3ee;">The C.A.R.E.N.™ ALERT Leadership Team</strong></p>
+        <hr style="border-color: #1e293b; margin: 24px 0;"/>
+        <p style="color: #475569; font-size: 11px; text-align: center;">C.A.R.E.N.™ ALERT · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+      </div>
+    `,
+  },
+};
 
 const ADMIN_KEY = "CAREN_ADMIN_2025_PRODUCTION";
 
@@ -369,6 +452,73 @@ export function registerDirectorRoutes(app: Express) {
         .orderBy(desc(directorCommissions.createdAt))
         .limit(100);
       res.json(commissions);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Send outreach email to a prospect ──────────────────────────────
+  app.post("/api/director/admin/outreach/send", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const { prospectName, prospectEmail, prospectCity, prospectState, templateKey, customSubject, customHtml, notes } = req.body;
+      if (!prospectName || !prospectEmail) return res.status(400).json({ error: "Name and email are required" });
+
+      const city = prospectCity || "your city";
+      let subject: string;
+      let html: string;
+
+      if (templateKey && EMAIL_TEMPLATES[templateKey]) {
+        subject = EMAIL_TEMPLATES[templateKey].subject;
+        html = EMAIL_TEMPLATES[templateKey].html(prospectName, city);
+      } else if (customSubject && customHtml) {
+        subject = customSubject;
+        html = customHtml.replace(/\{name\}/g, prospectName).replace(/\{city\}/g, city);
+      } else {
+        return res.status(400).json({ error: "Either templateKey or customSubject+customHtml is required" });
+      }
+
+      const sent = await sendEmail({ to: prospectEmail, subject, html });
+      const status = sent ? "sent" : "failed";
+
+      const [record] = await db.insert(directorOutreach).values({
+        prospectName,
+        prospectEmail,
+        prospectCity: prospectCity || null,
+        prospectState: prospectState || null,
+        templateUsed: templateKey || "custom",
+        status,
+        notes: notes || null,
+      }).returning();
+
+      res.json({ success: sent, record });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Get outreach log ────────────────────────────────────────────────
+  app.get("/api/director/admin/outreach", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const records = await db.select().from(directorOutreach).orderBy(desc(directorOutreach.sentAt)).limit(200);
+      res.json(records);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Update outreach status (e.g. mark replied) ─────────────────────
+  app.put("/api/director/admin/outreach/:id/status", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      if (!["sent", "failed", "replied", "not_interested"].includes(status)) {
+        return res.status(400).json({ error: "Invalid status" });
+      }
+      const [updated] = await db.update(directorOutreach).set({ status }).where(eq(directorOutreach.id, id)).returning();
+      res.json({ success: true, record: updated });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
