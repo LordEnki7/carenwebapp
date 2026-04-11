@@ -33,7 +33,7 @@ jobs:
 
     - name: Build Web App for Production
       env:
-        VITE_PRODUCTION_API_URL: https://carenalert.com
+        VITE_PRODUCTION_API_URL: https://citizen-care-projectdna7.replit.app
         NODE_ENV: production
       run: |
         npx vite build
