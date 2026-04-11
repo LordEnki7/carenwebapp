@@ -25,50 +25,19 @@ class BiometricServiceClass {
       return this.biometricCache;
     }
 
-    if (!this.isNative) {
-      this.biometricCache = {
-        isAvailable: false,
-        biometryType: 'none',
-        isEnrolled: false
-      };
-      return this.biometricCache;
-    }
+    this.biometricCache = {
+      isAvailable: false,
+      biometryType: 'none',
+      isEnrolled: false
+    };
 
-    try {
-      const { NativeBiometric } = await import('capacitor-native-biometric');
-      const result = await NativeBiometric.isAvailable();
-      
-      this.biometricCache = {
-        isAvailable: result.isAvailable,
-        biometryType: this.mapBiometryType(result.biometryType),
-        isEnrolled: result.isAvailable
-      };
-      
-      console.log('[BIOMETRIC] Capabilities:', this.biometricCache);
-      return this.biometricCache;
-    } catch (error) {
-      console.log('[BIOMETRIC] Native biometric not available, using fallback');
-      this.biometricCache = {
-        isAvailable: false,
-        biometryType: 'none',
-        isEnrolled: false
-      };
-      return this.biometricCache;
-    }
-  }
-
-  private mapBiometryType(type: number | undefined): 'fingerprint' | 'face' | 'iris' | 'none' {
-    switch (type) {
-      case 1: return 'fingerprint';
-      case 2: return 'face';
-      case 3: return 'iris';
-      default: return 'none';
-    }
+    console.log('[BIOMETRIC] Native biometric plugin not available in this build');
+    return this.biometricCache;
   }
 
   async authenticateWithBiometric(reason: string = 'Verify your identity'): Promise<BiometricAuthResult> {
     const capabilities = await this.checkBiometricCapabilities();
-    
+
     if (!capabilities.isAvailable) {
       return {
         success: false,
@@ -77,31 +46,11 @@ class BiometricServiceClass {
       };
     }
 
-    try {
-      const { NativeBiometric } = await import('capacitor-native-biometric');
-      
-      await NativeBiometric.verifyIdentity({
-        reason: reason,
-        title: 'C.A.R.E.N.™ Security',
-        subtitle: 'Authenticate to access sensitive features',
-        description: reason,
-        useFallback: true,
-        fallbackTitle: 'Use Device PIN'
-      });
-
-      console.log('[BIOMETRIC] Authentication successful');
-      return {
-        success: true,
-        method: capabilities.biometryType
-      };
-    } catch (error: any) {
-      console.error('[BIOMETRIC] Authentication failed:', error);
-      return {
-        success: false,
-        error: error.message || 'Biometric authentication failed',
-        method: capabilities.biometryType
-      };
-    }
+    return {
+      success: false,
+      error: 'Biometric authentication not available',
+      method: 'none'
+    };
   }
 
   async authenticateForAttorneyMessaging(): Promise<BiometricAuthResult> {
@@ -120,21 +69,7 @@ class BiometricServiceClass {
     if (!this.isNative) {
       return this.showWebFallbackDialog();
     }
-
-    try {
-      const { NativeBiometric } = await import('capacitor-native-biometric');
-      await NativeBiometric.verifyIdentity({
-        reason: 'Enter your device PIN',
-        title: 'C.A.R.E.N.™ Security',
-        subtitle: 'Use your device PIN to continue',
-        useFallback: true,
-        fallbackTitle: 'Use Device PIN'
-      });
-      return true;
-    } catch (error) {
-      console.error('[BIOMETRIC] PIN fallback failed:', error);
-      return false;
-    }
+    return false;
   }
 
   private showWebFallbackDialog(): Promise<boolean> {
@@ -155,7 +90,7 @@ class BiometricServiceClass {
 
   async requireBiometricForFeature(feature: string): Promise<BiometricAuthResult> {
     const capabilities = await this.checkBiometricCapabilities();
-    
+
     if (!capabilities.isAvailable) {
       const fallbackSuccess = await this.fallbackToPin();
       return {
