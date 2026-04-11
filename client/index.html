@@ -29,9 +29,109 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+      #caren-diag {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        background: #0a0a1a; color: #00ffff; font-family: monospace;
+        font-size: 14px; padding: 20px; z-index: 99999;
+        overflow-y: auto; display: flex; flex-direction: column;
+        gap: 8px;
+      }
+      #caren-diag h2 { color: #ff6b35; margin: 0 0 10px 0; font-size: 16px; }
+      #caren-diag .ok { color: #00ff88; }
+      #caren-diag .err { color: #ff4444; }
+      #caren-diag .info { color: #aaaaff; }
+      #caren-diag pre { background: #111; padding: 10px; border-radius: 4px;
+        white-space: pre-wrap; word-break: break-all; font-size: 11px;
+        border: 1px solid #333; max-height: 200px; overflow-y: auto; }
+    </style>
+
+    <script>
+      // === CAREN DIAGNOSTIC SYSTEM ===
+      // Shows on screen if anything fails before or during app load
+      var diagLog = [];
+      var diagVisible = false;
+      var appStarted = false;
+
+      function showDiag() {
+        if (diagVisible) return;
+        diagVisible = true;
+        var el = document.getElementById('caren-diag');
+        if (el) el.style.display = 'flex';
+      }
+
+      function addDiag(msg, type) {
+        diagLog.push({ msg: msg, type: type || 'info' });
+        var el = document.getElementById('caren-diag');
+        if (!el) return;
+        var line = document.createElement('div');
+        line.className = type || 'info';
+        line.textContent = '[' + new Date().toISOString().substr(11,12) + '] ' + msg;
+        el.appendChild(line);
+      }
+
+      function showError(title, detail) {
+        showDiag();
+        var el = document.getElementById('caren-diag');
+        if (!el) return;
+        var h = document.createElement('h2');
+        h.textContent = '⚠ ' + title;
+        el.appendChild(h);
+        if (detail) {
+          var pre = document.createElement('pre');
+          pre.className = 'err';
+          pre.textContent = detail;
+          el.appendChild(pre);
+        }
+      }
+
+      // Catch ALL JS errors
+      window.onerror = function(msg, src, line, col, err) {
+        showError('JavaScript Error', msg + '\n\nFile: ' + src + '\nLine: ' + line + ':' + col + '\n\n' + (err && err.stack ? err.stack : ''));
+        return false;
+      };
+
+      // Catch promise rejections
+      window.onunhandledrejection = function(e) {
+        var reason = e.reason;
+        var msg = reason instanceof Error ? reason.stack || reason.message : String(reason);
+        // Ignore Vite HMR websocket errors (development noise)
+        if (msg && msg.indexOf('wss://localhost') !== -1) return;
+        showError('Unhandled Promise Rejection', msg);
+      };
+
+      // If app hasn't started in 12 seconds, show timeout
+      setTimeout(function() {
+        if (!appStarted) {
+          showDiag();
+          addDiag('TIMEOUT: App bundle did not execute within 12 seconds', 'err');
+          addDiag('Capacitor: ' + (window.Capacitor ? 'DETECTED' : 'NOT DETECTED'), 'info');
+          addDiag('Location: ' + window.location.href, 'info');
+          addDiag('UserAgent: ' + navigator.userAgent, 'info');
+        }
+      }, 12000);
+
+      // Log that HTML loaded successfully
+      document.addEventListener('DOMContentLoaded', function() {
+        addDiag('HTML loaded OK', 'ok');
+        addDiag('URL: ' + window.location.href, 'info');
+        addDiag('Capacitor: ' + (window.Capacitor ? 'YES' : 'NO'), 'info');
+      });
+    </script>
   </head>
   <body>
+    <!-- Diagnostic overlay - hidden by default, shown only on error or timeout -->
+    <div id="caren-diag" style="display:none;">
+      <div class="ok">C.A.R.E.N. DIAGNOSTIC MODE</div>
+      <div class="info">Waiting for app to load...</div>
+    </div>
+
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Signal that the JS bundle at least started executing
+      window.appStarted = true;
+    </script>
   </body>
 </html>

@@ -116,13 +116,13 @@ class ErrorBoundary extends Component<Props, State> {
                 </Button>
               </div>
 
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <details className="mt-4 text-xs">
+              {this.state.error && (
+                <details className="mt-4 text-xs" open>
                   <summary className="cursor-pointer text-red-400 hover:text-red-300">
-                    Technical Details (Development)
+                    Error Details
                   </summary>
                   <pre className="mt-2 p-2 bg-black/30 rounded text-red-300 whitespace-pre-wrap text-xs">
-                    {this.state.error.stack}
+                    {this.state.error.message}{'\n\n'}{this.state.error.stack}
                   </pre>
                 </details>
               )}
