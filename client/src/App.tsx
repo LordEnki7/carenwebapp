@@ -119,6 +119,7 @@ const AnnouncementsAdmin = lazy(() => import("@/pages/AnnouncementsAdmin"));
 const DirectorApply = lazy(() => import("@/pages/DirectorApply"));
 const DirectorPortal = lazy(() => import("@/pages/DirectorPortal"));
 const DirectorAdmin = lazy(() => import("@/pages/DirectorAdmin"));
+const DirectorPlaybook = lazy(() => import("@/pages/DirectorPlaybook"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -234,6 +235,7 @@ function Router() {
             <Route path="/press" component={PressKit} />
             <Route path="/become-director" component={DirectorApply} />
             <Route path="/director-admin" component={DirectorAdmin} />
+            <Route path="/director-playbook" component={DirectorPlaybook} />
 
             {/* Catch-all route - redirect all other routes to sign in for unauthenticated users */}
             <Route path="*" component={() => {
@@ -312,6 +314,7 @@ function Router() {
             <Route path="/become-director" component={DirectorApply} />
             <Route path="/director-portal" component={DirectorPortal} />
             <Route path="/director-admin" component={DirectorAdmin} />
+            <Route path="/director-playbook" component={DirectorPlaybook} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={RedirectToDashboard} />

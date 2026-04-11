@@ -764,9 +764,16 @@ export default function DirectorPortal() {
         {activeTab === "toolkit" && (
           <div className="space-y-5">
             <div className="p-4 bg-gradient-to-r from-cyan-900/40 to-blue-900/30 border border-cyan-500/30 rounded-xl">
-              <div className="flex items-center gap-2 mb-1">
-                <Briefcase className="w-5 h-5 text-cyan-400" />
-                <h2 className="text-white font-bold text-base">Director Toolkit</h2>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-cyan-400" />
+                  <h2 className="text-white font-bold text-base">Director Toolkit</h2>
+                </div>
+                <Link href="/director-playbook">
+                  <Button size="sm" className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold h-8 text-xs gap-1.5">
+                    📄 Full Playbook PDF
+                  </Button>
+                </Link>
               </div>
               <p className="text-gray-400 text-sm">Copy-ready scripts for recruiting attorneys, partnering with businesses, and growing your user base. Tap any script to expand it, then copy with one click.</p>
             </div>
