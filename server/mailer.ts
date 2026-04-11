@@ -17,7 +17,7 @@ export async function sendEmail(options: MailOptions): Promise<boolean> {
 
   const client = new MailtrapClient({ token: process.env.MAILTRAP_TOKEN });
 
-  const fromAddress = options.from || 'info@carenalert.com';
+  const fromAddress = options.from || 'hello@carenalert.com';
   const fromName = options.fromName || 'C.A.R.E.N.™ ALERT';
 
   try {
