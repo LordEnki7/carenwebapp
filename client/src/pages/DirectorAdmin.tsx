@@ -53,9 +53,9 @@ function scoreColor(score: number) {
 type AdminTab = "directors" | "commissions" | "leaderboard" | "outreach";
 
 const TEMPLATE_OPTIONS = [
-  { key: "initial_outreach", label: "Initial Outreach — First Contact" },
+  { key: "initial_outreach", label: "Appointment Letter — Welcome + Agreement (First Contact)" },
   { key: "follow_up", label: "Follow-Up — Second Touch" },
-  { key: "final_invite", label: "Final Invite — Last Chance" },
+  { key: "final_invite", label: "Final Message — Last Chance" },
 ];
 
 const OUTREACH_STATUS_CONFIG: Record<string, { label: string; color: string }> = {

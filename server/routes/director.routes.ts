@@ -6,81 +6,97 @@ import { sendEmail } from "../mailer";
 
 const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, city: string) => string }> = {
   initial_outreach: {
-    subject: "Exclusive Opportunity: Become a C.A.R.E.N.™ Regional Director",
+    subject: "Appointment as C.A.R.E.N. Regional Director – {city}",
     html: (name, city) => `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
-        <div style="text-align: center; margin-bottom: 28px;">
-          <h1 style="color: #22d3ee; font-size: 24px; margin: 0;">C.A.R.E.N.™ ALERT</h1>
-          <p style="color: #94a3b8; font-size: 13px; margin: 4px 0 0;">Citizen Assistance for Roadside Emergencies &amp; Navigation</p>
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
+        <div style="margin-bottom: 28px;">
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.</h2>
+          <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
-        <p style="font-size: 16px;">Dear ${name},</p>
-        <p>We are reaching out to you because we believe you have the leadership, community presence, and drive to make a real difference in <strong style="color: #22d3ee;">${city}</strong>.</p>
-        <p>C.A.R.E.N.™ ALERT is a revolutionary safety platform that protects families during police encounters and roadside emergencies — providing real-time legal rights coaching, GPS-enabled incident recording, and emergency response coordination.</p>
-        <p><strong style="color: #a78bfa;">We are currently selecting Regional Directors</strong> to lead our expansion in key cities across the country. As a Regional Director, you would:</p>
-        <ul style="line-height: 1.9; color: #cbd5e1;">
-          <li>Represent C.A.R.E.N.™ in your local community</li>
-          <li>Build your own network of subscribers and attorneys</li>
-          <li>Earn <strong style="color: #22d3ee;">20%–35% commission</strong> on every subscription you bring in</li>
-          <li>Grow into Senior, State, and National Director roles</li>
-        </ul>
-        <p>This is a ground-floor opportunity with a platform that is already in the Google Play Store and growing fast.</p>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="https://carenalert.com/become-director" style="background: #22d3ee; color: #0f172a; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">Apply to Become a Director</a>
+        <p style="font-size: 15px; margin-bottom: 20px;">Hello ${name},</p>
+        <p style="line-height: 1.7;">I'm reaching out to personally welcome you as a <strong>Regional Director for C.A.R.E.N. in ${city}</strong>.</p>
+        <p style="line-height: 1.7;">C.A.R.E.N. (Citizen Assistance for Roadside Emergencies and Navigation) was built with a clear mission — to give drivers protection, documentation, and access to legal support in real-time when situations escalate on the road.</p>
+        <p style="line-height: 1.7;">As a Regional Director, you are not just promoting an app — you are helping establish a system that can impact real-world situations where people need support the most.</p>
+        <p style="line-height: 1.7;">Your role will be to help build C.A.R.E.N.'s presence in your region by connecting with attorneys, engaging your local community, and increasing awareness of the platform.</p>
+        <p style="line-height: 1.7;">You will be among the first group helping shape how C.A.R.E.N. grows across cities, and your contributions will directly influence its expansion.</p>
+        <p style="line-height: 1.7;">We are building something meaningful — and I'm glad to have you as part of it.</p>
+        <p style="line-height: 1.7;">More details on your responsibilities and next steps are included below.</p>
+        <div style="background: #f0f9ff; border-left: 4px solid #0e7490; padding: 20px 24px; margin: 28px 0; border-radius: 4px;">
+          <p style="margin: 0 0 12px; font-weight: bold; color: #0e7490; font-size: 15px;">C.A.R.E.N. REGIONAL DIRECTOR PROGRAM</p>
+          <p style="margin: 0 0 8px; font-weight: 600;">Title: Regional Director – ${city}</p>
+          <p style="margin: 0 0 12px; color: #374151; line-height: 1.6;">The Regional Director is responsible for expanding C.A.R.E.N.'s presence, awareness, and adoption within their assigned region by building local partnerships, recruiting attorneys, and driving user growth.</p>
+          <p style="margin: 0 0 8px; font-weight: 600; color: #0e7490;">Your Role as a Regional Director:</p>
+          <ul style="margin: 0 0 12px; padding-left: 20px; line-height: 1.9; color: #374151;">
+            <li><strong>Growth Operator</strong> — Build local momentum and drive user adoption</li>
+            <li><strong>Market Builder</strong> — Recruit attorneys and create local partnerships</li>
+            <li><strong>Local Ambassador</strong> — Represent C.A.R.E.N. in your community</li>
+          </ul>
+          <p style="margin: 0; color: #6b7280; font-size: 13px; font-style: italic;">Think: Uber launch teams. DoorDash early city builders. Ground-floor impact.</p>
         </div>
-        <p style="color: #94a3b8; font-size: 13px;">If you have questions or would like to schedule a call, simply reply to this email. We would love to speak with you.</p>
-        <p>With respect,<br/><strong style="color: #22d3ee;">The C.A.R.E.N.™ ALERT Leadership Team</strong></p>
-        <hr style="border-color: #1e293b; margin: 24px 0;"/>
-        <p style="color: #475569; font-size: 11px; text-align: center;">C.A.R.E.N.™ ALERT · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+        <div style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 20px 24px; margin: 24px 0; border-radius: 4px;">
+          <p style="margin: 0 0 12px; font-weight: bold; color: #111827;">C.A.R.E.N. REGIONAL DIRECTOR AGREEMENT</p>
+          <p style="margin: 0 0 8px; color: #374151; font-size: 14px;">This Agreement is made between <strong>Caren Web App LLC</strong> and <strong>${name}</strong>.</p>
+          <table style="width: 100%; font-size: 13px; color: #374151; border-collapse: collapse;">
+            <tr><td style="padding: 6px 0; font-weight: 600; width: 140px; vertical-align: top;">1. Role</td><td style="padding: 6px 0;">Appointed as Regional Director for ${city}. Director is an independent contractor, not an employee.</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">2. Purpose</td><td style="padding: 6px 0;">Recruit attorneys, increase user adoption, and build local partnerships.</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">3. Responsibilities</td><td style="padding: 6px 0;">Contact and recruit attorneys · Promote the app online and offline · Build local business partnerships · Submit weekly activity reports</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">4. Compensation</td><td style="padding: 6px 0;">Performance-based commissions · Growth milestone bonuses · Future leadership roles / equity consideration. (No guaranteed salary unless agreed in writing.)</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">5. Territory</td><td style="padding: 6px 0;">Assigned to ${city}. May become exclusive based on performance.</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">6. Conduct</td><td style="padding: 6px 0;">No misrepresentation · No legal advice · No unauthorized agreements · Professional conduct at all times</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">7. Termination</td><td style="padding: 6px 0;">Either party may terminate at any time.</td></tr>
+            <tr><td style="padding: 6px 0; font-weight: 600; vertical-align: top;">8. Confidentiality</td><td style="padding: 6px 0;">All internal strategies and systems are confidential.</td></tr>
+          </table>
+          <div style="margin-top: 20px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 13px;">
+            <p style="margin: 0 0 10px; font-weight: 600;">9. Acceptance</p>
+            <p style="margin: 0 0 6px;">Director Name: <span style="border-bottom: 1px solid #9ca3af; display: inline-block; width: 200px;">&nbsp;</span></p>
+            <p style="margin: 0 0 6px;">Signature: <span style="border-bottom: 1px solid #9ca3af; display: inline-block; width: 210px;">&nbsp;</span></p>
+            <p style="margin: 0 0 16px;">Date: <span style="border-bottom: 1px solid #9ca3af; display: inline-block; width: 220px;">&nbsp;</span></p>
+            <p style="margin: 0 0 6px;"><strong>Caren Web App LLC</strong></p>
+            <p style="margin: 0 0 6px;">Signature: <span style="border-bottom: 1px solid #9ca3af; display: inline-block; width: 210px;">&nbsp;</span></p>
+            <p style="margin: 0;">Date: <span style="border-bottom: 1px solid #9ca3af; display: inline-block; width: 220px;">&nbsp;</span></p>
+          </div>
+        </div>
+        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
       </div>
     `,
   },
   follow_up: {
-    subject: "Following Up — Regional Director Opportunity with C.A.R.E.N.™",
+    subject: "Following Up — Regional Director Role in {city} | C.A.R.E.N.",
     html: (name, city) => `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
-        <div style="text-align: center; margin-bottom: 28px;">
-          <h1 style="color: #22d3ee; font-size: 24px; margin: 0;">C.A.R.E.N.™ ALERT</h1>
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
+        <div style="margin-bottom: 28px;">
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.</h2>
+          <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
-        <p style="font-size: 16px;">Dear ${name},</p>
-        <p>We wanted to follow up on our previous message about the <strong style="color: #a78bfa;">Regional Director opportunity</strong> in <strong style="color: #22d3ee;">${city}</strong>.</p>
-        <p>We understand you are busy, but we did not want you to miss this chance. Director spots in your area are limited, and we are moving forward with selections soon.</p>
-        <p>As a reminder — this role lets you earn commissions, build community impact, and grow with a platform that is already live and gaining traction nationwide.</p>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="https://carenalert.com/become-director" style="background: #22d3ee; color: #0f172a; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">Apply Now</a>
-        </div>
-        <p style="color: #94a3b8; font-size: 13px;">Reply to this email with any questions — we are happy to talk.</p>
-        <p>With respect,<br/><strong style="color: #22d3ee;">The C.A.R.E.N.™ ALERT Leadership Team</strong></p>
-        <hr style="border-color: #1e293b; margin: 24px 0;"/>
-        <p style="color: #475569; font-size: 11px; text-align: center;">C.A.R.E.N.™ ALERT · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+        <p style="font-size: 15px;">Hello ${name},</p>
+        <p style="line-height: 1.7;">I wanted to follow up on the <strong>Regional Director opportunity in ${city}</strong> that I reached out about recently.</p>
+        <p style="line-height: 1.7;">C.A.R.E.N. is already live on the Google Play Store and growing. The director role in your area is still open, but we are actively moving forward with selections.</p>
+        <p style="line-height: 1.7;">As a reminder — this is a ground-floor position. You would be one of the first people shaping how C.A.R.E.N. expands in ${city}, with performance-based commissions and a path to senior leadership roles.</p>
+        <p style="line-height: 1.7;">If you have any questions or want to talk through the role, simply reply to this email. I'm happy to connect.</p>
+        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
       </div>
     `,
   },
   final_invite: {
-    subject: "Last Chance — Regional Director Spot in Your City",
+    subject: "Last Message — Regional Director | C.A.R.E.N. ${city}",
     html: (name, city) => `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 32px; border-radius: 12px;">
-        <div style="text-align: center; margin-bottom: 28px;">
-          <h1 style="color: #22d3ee; font-size: 24px; margin: 0;">C.A.R.E.N.™ ALERT</h1>
+      <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
+        <div style="margin-bottom: 28px;">
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.</h2>
+          <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
-        <p style="font-size: 16px;">Dear ${name},</p>
-        <p>We have one remaining <strong style="color: #f59e0b;">Regional Director position</strong> available in the <strong style="color: #22d3ee;">${city}</strong> area, and we want to give you the final opportunity to claim it before we move on.</p>
-        <p>This is the last message we will send. If this opportunity interests you, now is the time to act.</p>
-        <div style="background: #1e293b; border: 1px solid #22d3ee33; border-radius: 8px; padding: 20px; margin: 24px 0;">
-          <p style="margin: 0; color: #22d3ee; font-weight: bold; text-align: center;">Director Benefits at a Glance</p>
-          <ul style="margin: 12px 0 0; line-height: 1.9; color: #cbd5e1;">
-            <li>20%–35% recurring commission on every subscription</li>
-            <li>Exclusive territory in your city</li>
-            <li>Access to the full C.A.R.E.N.™ platform and tools</li>
-            <li>Path to State and National Director promotions</li>
-          </ul>
-        </div>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="https://carenalert.com/become-director" style="background: #f59e0b; color: #0f172a; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">Claim My Spot Now</a>
-        </div>
-        <p style="color: #94a3b8; font-size: 13px;">We wish you the best regardless of your decision.</p>
-        <p>With respect,<br/><strong style="color: #22d3ee;">The C.A.R.E.N.™ ALERT Leadership Team</strong></p>
-        <hr style="border-color: #1e293b; margin: 24px 0;"/>
-        <p style="color: #475569; font-size: 11px; text-align: center;">C.A.R.E.N.™ ALERT · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+        <p style="font-size: 15px;">Hello ${name},</p>
+        <p style="line-height: 1.7;">This will be my last message regarding the <strong>Regional Director position in ${city}</strong>.</p>
+        <p style="line-height: 1.7;">We are finalizing our director selections and I didn't want to close out without giving you one final opportunity to be part of this.</p>
+        <p style="line-height: 1.7;">C.A.R.E.N. is live, growing, and the window to come in at the ground level in your city is closing. If this is something you want to be part of — now is the time.</p>
+        <p style="line-height: 1.7;">Simply reply to this email and we will get the process started. If not, I wish you all the best.</p>
+        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
       </div>
     `,
   },
@@ -469,7 +485,10 @@ export function registerDirectorRoutes(app: Express) {
       let html: string;
 
       if (templateKey && EMAIL_TEMPLATES[templateKey]) {
-        subject = EMAIL_TEMPLATES[templateKey].subject;
+        subject = EMAIL_TEMPLATES[templateKey].subject
+          .replace(/\{city\}/g, city)
+          .replace(/\{name\}/g, prospectName)
+          .replace(/\$\{city\}/g, city);
         html = EMAIL_TEMPLATES[templateKey].html(prospectName, city);
       } else if (customSubject && customHtml) {
         subject = customSubject;
