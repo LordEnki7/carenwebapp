@@ -22,7 +22,6 @@
     "@capacitor/ios": "^7.4.0",
     "@capacitor/local-notifications": "^7.0.1",
     "@capacitor/network": "^7.0.1",
-    "@capacitor/push-notifications": "^7.0.1",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
     "@neondatabase/serverless": "^0.10.4",
