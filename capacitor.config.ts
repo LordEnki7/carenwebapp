@@ -5,7 +5,9 @@ const config: CapacitorConfig = {
   appName: 'CAREN Alert',
   webDir: 'dist/public',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    url: 'https://citizen-care-projectdna7.replit.app',
+    cleartext: false
   },
   android: {
     buildOptions: {
