@@ -58,7 +58,7 @@ const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, ci
         </div>
         <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   },
@@ -77,7 +77,7 @@ const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, ci
         <p style="line-height: 1.7;">If you have any questions or want to talk through the role, simply reply to this email. I'm happy to connect.</p>
         <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   },
@@ -96,7 +96,7 @@ const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, ci
         <p style="line-height: 1.7;">Simply reply to this email and we will get the process started. If not, I wish you all the best.</p>
         <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · To unsubscribe, reply with "unsubscribe".</p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N. · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   },
