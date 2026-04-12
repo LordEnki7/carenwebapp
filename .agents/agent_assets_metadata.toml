@@ -59,3 +59,15 @@ id = "45yuQmBEXYcrfsMQLCwoO"
 uri = "file://attached_assets/generated_images/plan_enterprise.png"
 type = "image"
 title = "Fleet & Enterprise — $49.99/month"
+
+[[outputs]]
+id = "-utJp9f_izotzylLDi7hO"
+uri = "file://client/public/caren-hero.mp4"
+type = "video"
+title = "C.A.R.E.N. Commercial — 1:02 (Hero Cut)"
+
+[[outputs]]
+id = "tjz0Awta_zYxz1P1aDlLQ"
+uri = "file://client/public/caren-30sec.mp4"
+type = "video"
+title = "C.A.R.E.N. Commercial — 30 Seconds (Short Cut)"
