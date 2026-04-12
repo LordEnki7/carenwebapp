@@ -33,6 +33,17 @@ export default function DirectorPlaybook() {
             </p>
             <p className="text-cyan-600 text-sm mt-2">— Shawn Williams, Founder</p>
           </div>
+
+          {/* QR Code on cover */}
+          <div className="mt-10 flex flex-col items-center gap-2">
+            <img
+              src="/caren-qr-code.png"
+              alt="C.A.R.E.N. QR Code — Scan to Download"
+              className="w-40 h-40 object-contain rounded-xl border-2 border-cyan-200 shadow"
+            />
+            <p className="text-gray-500 text-xs font-medium uppercase tracking-wide">Scan to Download the App</p>
+            <p className="text-gray-400 text-xs">carenalert.com</p>
+          </div>
         </div>
 
         {/* Section 1 */}
@@ -243,6 +254,19 @@ export default function DirectorPlaybook() {
             ))}
           </div>
         </Section>
+
+        {/* QR Code Share Block */}
+        <div className="my-10 border-2 border-cyan-200 rounded-2xl p-8 bg-cyan-50 flex flex-col items-center text-center print:break-inside-avoid">
+          <p className="text-cyan-700 font-bold text-xs uppercase tracking-widest mb-4">Share This with Anyone You Meet</p>
+          <img
+            src="/caren-qr-code.png"
+            alt="C.A.R.E.N. QR Code"
+            className="w-56 h-56 object-contain mb-4 rounded-xl border border-cyan-200 shadow-md"
+          />
+          <p className="text-gray-800 font-bold text-lg mb-1">Scan to Download C.A.R.E.N.</p>
+          <p className="text-gray-500 text-sm">carenalert.com — Available on iOS &amp; Android</p>
+          <p className="text-gray-400 text-xs mt-3 italic">Show this on your phone, print it on a card, or display it at a business you've partnered with.</p>
+        </div>
 
         {/* Section 10 */}
         <Section number="10" title="Contact Tracker Fields">

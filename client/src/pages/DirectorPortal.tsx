@@ -932,6 +932,25 @@ export default function DirectorPortal() {
               </Card>
             ))}
 
+            {/* QR Code Card */}
+            <Card className="bg-gradient-to-br from-cyan-900/30 to-blue-900/20 border-cyan-500/40">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-cyan-300 text-base">Your C.A.R.E.N. QR Code</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-col sm:flex-row items-center gap-5">
+                <img
+                  src="/caren-qr-code.png"
+                  alt="C.A.R.E.N. QR Code — Scan to Download"
+                  className="w-36 h-36 rounded-xl border-2 border-cyan-500/40 object-contain bg-white p-1 flex-shrink-0"
+                />
+                <div>
+                  <p className="text-white font-semibold mb-1">Scan to Download C.A.R.E.N.</p>
+                  <p className="text-gray-400 text-sm mb-3">Show this code on your phone to any prospect — they scan it and land directly on the app download. Display it on a printed card, flyer, or share it in a text.</p>
+                  <p className="text-cyan-400 text-xs font-medium uppercase tracking-wide">carenalert.com · iOS &amp; Android</p>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Quick Links */}
             <Card className="bg-cyan-900/20 border-cyan-500/30">
               <CardHeader className="pb-3">

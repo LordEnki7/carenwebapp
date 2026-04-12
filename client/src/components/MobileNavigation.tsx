@@ -4,7 +4,7 @@ import {
   Car, VideoIcon, VolumeX, Zap, Map, FileText, UserCheck, Scale,
   MessageCircle, Wrench, Brain, Cloud, Sliders, MessageSquarePlus,
   ClipboardList, HelpCircle, Monitor, LifeBuoy, ChevronDown, ChevronRight,
-  Lock
+  Lock, Search
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useAuth, performLogout } from '@/hooks/useAuth';
@@ -36,6 +36,7 @@ const navGroups = [
       { name: 'Legal Rights Map', href: '/legal-rights-map', icon: Map },
       { name: 'File Complaint', href: '/file-complaint', icon: FileText },
       { name: 'Attorneys', href: '/attorneys', icon: UserCheck },
+      { name: 'Find an Attorney', href: '/find-attorney', icon: Search },
       { name: 'Attorney Portal', href: '/attorney-portal', icon: Scale },
       { name: 'Messages', href: '/messages', icon: MessageCircle },
       { name: 'Roadside Assistance', href: '/roadside-assistance', icon: Wrench },
