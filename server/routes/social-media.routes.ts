@@ -190,5 +190,87 @@ Return JSON with exactly these fields:
     }
   });
 
+  // ── LinkedIn: check if credentials are configured ─────────────────────────
+  app.get("/api/social/linkedin/status", async (_req, res) => {
+    const hasToken = !!process.env.LINKEDIN_ACCESS_TOKEN;
+    const hasAuthor = !!process.env.LINKEDIN_AUTHOR_URN;
+    res.json({ connected: hasToken && hasAuthor, hasToken, hasAuthor });
+  });
+
+  // ── LinkedIn: post a saved post ────────────────────────────────────────────
+  app.post("/api/social/linkedin/post/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const token = process.env.LINKEDIN_ACCESS_TOKEN;
+      const authorUrn = process.env.LINKEDIN_AUTHOR_URN;
+
+      if (!token || !authorUrn) {
+        return res.status(400).json({
+          error: "LinkedIn credentials not configured. Add LINKEDIN_ACCESS_TOKEN and LINKEDIN_AUTHOR_URN to your secrets."
+        });
+      }
+
+      const [post] = await db.select().from(socialMediaPosts).where(eq(socialMediaPosts.id, id));
+      if (!post) return res.status(404).json({ error: "Post not found" });
+
+      const fullText = [
+        post.caption,
+        post.hashtags ? `\n\n${post.hashtags}` : "",
+      ].join("").trim();
+
+      const body: any = {
+        author: authorUrn,
+        lifecycleState: "PUBLISHED",
+        specificContent: {
+          "com.linkedin.ugc.ShareContent": {
+            shareCommentary: { text: fullText },
+            shareMediaCategory: "ARTICLE",
+            media: [
+              {
+                status: "READY",
+                originalUrl: "https://carenalert.com",
+                title: { attributes: [], text: post.title || "C.A.R.E.N. — Roadside Safety & Legal Protection" },
+              },
+            ],
+          },
+        },
+        visibility: {
+          "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+        },
+      };
+
+      const response = await fetch("https://api.linkedin.com/v2/ugcPosts", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "X-Restli-Protocol-Version": "2.0.0",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error("[LINKEDIN] Post failed:", errText);
+        return res.status(response.status).json({ error: `LinkedIn API error: ${errText}` });
+      }
+
+      const data: any = await response.json();
+      const postId = data.id || "";
+      const postUrl = postId
+        ? `https://www.linkedin.com/feed/update/${postId}`
+        : "https://www.linkedin.com/in/me/recent-activity/shares/";
+
+      await db.update(socialMediaPosts)
+        .set({ status: "posted", postedAt: new Date(), postUrl })
+        .where(eq(socialMediaPosts.id, id));
+
+      res.json({ success: true, postUrl });
+    } catch (err: any) {
+      console.error("[LINKEDIN] Error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   console.log("[ROUTES] Social Media Agent routes registered");
 }
