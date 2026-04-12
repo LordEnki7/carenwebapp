@@ -2843,3 +2843,23 @@ export const directorPayoutRequests = pgTable("director_payout_requests", {
 export const insertDirectorPayoutRequestSchema = createInsertSchema(directorPayoutRequests).omit({ id: true, requestedAt: true, processedAt: true });
 export type InsertDirectorPayoutRequest = z.infer<typeof insertDirectorPayoutRequestSchema>;
 export type DirectorPayoutRequest = typeof directorPayoutRequests.$inferSelect;
+
+// ── Social Media Campaign Posts ────────────────────────────────────────────
+export const socialMediaPosts = pgTable("social_media_posts", {
+  id: serial("id").primaryKey(),
+  platform: varchar("platform").notNull(), // youtube | linkedin | instagram | tiktok | twitter | facebook
+  videoFile: varchar("video_file").notNull(), // filename from /public/
+  title: varchar("title"),
+  caption: text("caption"),
+  hashtags: text("hashtags"),
+  status: varchar("status").default("draft"), // draft | scheduled | posted | failed
+  scheduledAt: timestamp("scheduled_at"),
+  postedAt: timestamp("posted_at"),
+  postUrl: varchar("post_url"),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSocialMediaPostSchema = createInsertSchema(socialMediaPosts).omit({ id: true, createdAt: true, postedAt: true });
+export type InsertSocialMediaPost = z.infer<typeof insertSocialMediaPostSchema>;
+export type SocialMediaPost = typeof socialMediaPosts.$inferSelect;

@@ -58,6 +58,7 @@ import { registerPaymentIntelligenceRoutes } from "./routes/payment-intelligence
 import { registerAnnouncementRoutes } from "./routes/announcements.routes";
 import { registerCommunityRoutes } from "./routes/community.routes";
 import { registerDirectorRoutes } from "./routes/director.routes";
+import { registerSocialMediaRoutes } from "./routes/social-media.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 import { db } from "./db";
@@ -263,6 +264,7 @@ GUIDELINES:
   registerAnnouncementRoutes(app);
   registerCommunityRoutes(app);
   registerDirectorRoutes(app);
+  registerSocialMediaRoutes(app);
   console.log("[ROUTES] Announcement & Giveaway routes registered");
 
   // NIG Command Center — division health & metrics endpoint

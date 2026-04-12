@@ -130,6 +130,7 @@ const navGroups: NavGroup[] = [
       { name: "Community", href: "/community", icon: Users, description: "News, Giveaways & Forum" },
       { name: "Director Portal", href: "/director-portal", icon: Star, description: "Your Director Dashboard" },
       { name: "Become a Director", href: "/become-director", icon: Building2, description: "Apply to Lead Your City" },
+      { name: "Social Media Agent", href: "/social-agent", icon: Zap, description: "AI-Powered Campaign Manager" },
       { name: "Feature Picker", href: "/feature-picker", icon: Sliders, description: "Customize Your Features" },
       { name: "Feedback", href: "/feedback", icon: MessageSquarePlus, description: "Request Features & Vote" },
       { name: "Waitlist", href: "/waitlist", icon: ClipboardList, description: "Join the Launch List" },
