@@ -370,6 +370,26 @@ export default function BrowserCompatibleSignIn() {
             Your safety and legal protection platform.
           </p>
         </div>
+      </div>{/* end two-column flex */}
+
+      {/* ── Full-width short clip banner ── */}
+      <div className="relative w-full overflow-hidden bg-black" style={{ maxHeight: "340px" }}>
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="w-full object-cover"
+          style={{ maxHeight: "340px" }}
+        >
+          <source src="/caren-short.mp4" type="video/mp4" />
+        </video>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-black/40 to-transparent flex flex-col items-center justify-end pb-8 px-4 text-center">
+          <p className="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-2">One Tap Could Save a Life</p>
+          <h3 className="text-white text-2xl lg:text-3xl font-black mb-1 drop-shadow-lg">Be Ready Before You Need It</h3>
+          <p className="text-gray-300 text-sm max-w-md">C.A.R.E.N.™ activates in seconds — recording, legal rights, and emergency alerts all at once.</p>
+        </div>
       </div>
 
       {/* New User Onboarding Modal */}
