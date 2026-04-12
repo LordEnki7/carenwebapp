@@ -6,6 +6,7 @@ import { eq, desc } from "drizzle-orm";
 const VIDEOS = [
   { file: "caren-hero.mp4", label: "Meet C.A.R.E.N. — 1:02 Commercial" },
   { file: "caren-short.mp4", label: "One Tap Could Save a Life — 22 sec" },
+  { file: "caren-attorney.mp4", label: "Be the First Call — Attorney Network Outreach" },
 ];
 
 const PLATFORM_GUIDES: Record<string, { tone: string; maxHashtags: number; style: string }> = {
@@ -67,28 +68,42 @@ export function registerSocialMediaRoutes(app: Express) {
       const { default: OpenAI } = await import("openai");
       const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+      const isAttorneyVideo = videoFile === "caren-attorney.mp4";
+      const audienceContext = isAttorneyVideo
+        ? `This video is specifically targeted at ATTORNEYS and legal professionals, recruiting them to join the C.A.R.E.N. Legal Access Network (CLAN). The goal is to get attorneys to apply at carenalert.com to become a partner attorney. Speak directly to attorneys — highlight new client acquisition, referral income, and being part of a mission-driven platform. Do NOT speak to everyday drivers for this one.`
+        : `This video targets everyday drivers and families. Speak to people who want legal protection and safety on the road.`;
+
       const completion = await openai.chat.completions.create({
         model: "gpt-4o",
         messages: [
           {
             role: "system",
-            content: `You are a viral social media copywriter for C.A.R.E.N. (Citizen Assistance for Roadside Emergencies and Navigation) — a GPS-powered driver safety and legal protection app. You write posts that are authentic, urgent, and compelling. You deeply understand each platform's culture and algorithm. Always end posts with a CTA pointing to carenalert.com or directing people to download the app.`,
+            content: `You are a viral social media copywriter for C.A.R.E.N. (Citizen Assistance for Roadside Emergencies and Navigation) — a GPS-powered driver safety and legal protection platform. You write posts that are authentic, urgent, and compelling. You deeply understand each platform's culture and algorithm.`,
           },
           {
             role: "user",
             content: `Write a social media post for ${platform.toUpperCase()} to accompany this video: "${videoLabel}".
 
+Audience context: ${audienceContext}
+
 Platform guidance: ${guide.style}
 Tone: ${guide.tone}
 Max hashtags: ${guide.maxHashtags}
 
-C.A.R.E.N. key features to weave in naturally (pick 2-3 relevant ones):
+${isAttorneyVideo ? `Attorney recruitment angles to weave in naturally (pick 2-3):
+- Get pre-screened, motivated clients delivered to you
+- Passive referral income with no cold calling
+- Join a growing national attorney network
+- Be the first attorney in your market before spots fill up
+- Help clients who genuinely need legal representation
+- Apply at carenalert.com/attorney-application` : `C.A.R.E.N. features to weave in naturally (pick 2-3):
 - Real-time multi-angle video recording during traffic stops
 - GPS-powered state-specific legal rights database (all 50 states)
 - One-tap emergency SOS with family notification
 - Attorney matching and legal document generation
 - Voice-commanded, hands-free operation
 - Available on iOS and Android
+- Download at carenalert.com`}
 
 Return JSON with exactly these fields:
 {
