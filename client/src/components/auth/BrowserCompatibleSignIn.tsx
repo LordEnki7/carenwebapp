@@ -270,79 +270,105 @@ export default function BrowserCompatibleSignIn() {
   // ── End terms agreement screen ─────────────────────────────────────────
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="flex justify-center mb-4">
-            <img 
-              src={carenLogo} 
-              alt="C.A.R.E.N.™ Logo" 
-              className="w-20 h-20 rounded-full border-4 border-cyan-400/30"
-            />
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-blue-950 to-gray-900">
+
+      {/* ── Two-column hero layout ── */}
+      <div className="min-h-screen flex flex-col lg:flex-row">
+
+        {/* ── LEFT: Video hero ── */}
+        <div className="flex flex-col justify-center items-center lg:items-start px-6 pt-10 pb-6 lg:px-14 lg:py-16 lg:flex-1 gap-6">
+
+          {/* Brand */}
+          <div className="flex items-center gap-3">
+            <img src={carenLogo} alt="C.A.R.E.N.™" className="w-12 h-12 rounded-full border-2 border-cyan-400/40" />
+            <div>
+              <h1 className="text-2xl font-black text-white tracking-tight leading-none">C.A.R.E.N.™</h1>
+              <p className="text-cyan-400 text-xs font-medium">Your Roadside Guardian</p>
+            </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">C.A.R.E.N.™</h1>
-          <p className="text-gray-300 text-sm">Citizen Assistance for Roadside Emergencies & Navigation</p>
+
+          {/* Headline */}
+          <div className="text-center lg:text-left max-w-lg">
+            <h2 className="text-3xl lg:text-4xl font-black text-white leading-tight mb-3">
+              Protection You Can Count On<br />
+              <span className="text-cyan-400">When It Matters Most</span>
+            </h2>
+            <p className="text-gray-400 text-sm lg:text-base leading-relaxed">
+              GPS-powered legal rights, real-time recording, attorney access, and emergency response — all in one app.
+            </p>
+          </div>
+
+          {/* Video player */}
+          <div className="w-full max-w-xl">
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video">
+              <video
+                controls
+                preload="metadata"
+                className="w-full h-full object-cover"
+                poster=""
+              >
+                <source src="/caren-hero.mp4" type="video/mp4" />
+              </video>
+            </div>
+            <p className="text-gray-500 text-xs text-center mt-2">Meet C.A.R.E.N.™ — Your Roadside Guardian</p>
+          </div>
+
+          {/* Trust badges */}
+          <div className="flex flex-wrap justify-center lg:justify-start gap-3 text-xs">
+            {["GPS-Enabled Legal Rights", "50 States + DC", "Real-Time Recording", "Attorney Network", "Emergency SOS"].map((b) => (
+              <span key={b} className="bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 px-3 py-1 rounded-full font-medium">
+                {b}
+              </span>
+            ))}
+          </div>
         </div>
 
-        {/* Advanced Features Bar */}
-        <div className="flex justify-center space-x-4 mb-6">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleVoiceRecognition}
-            className={`border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 ${isListening ? 'bg-cyan-500/20' : ''}`}
-          >
-            {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-          </Button>
-          
-        </div>
+        {/* ── RIGHT: Sign-in form ── */}
+        <div className="flex flex-col justify-center items-center px-6 pb-10 lg:py-16 lg:px-10 lg:w-[420px] lg:border-l lg:border-white/5">
 
-        {/* Main Form Container */}
-        <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl border border-white/10 p-6 shadow-2xl">
-          {currentMode === 'signin' && (
-            <SimpleSignInForm
-              onSwitchToCreate={() => setCurrentMode('create')}
-              onSwitchToForgot={() => setCurrentMode('forgot')}
-              onDemoLogin={startDemoLogin}
-            />
-          )}
-          
-          {currentMode === 'create' && (
-            <Suspense fallback={<SubFormLoader />}>
-              <SimpleCreateAccountForm
-                onSwitchToSignIn={() => setCurrentMode('signin')}
-                onNewUserCreated={handleNewUserCreated}
+          {/* Voice toggle */}
+          <div className="flex justify-end w-full max-w-sm mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={toggleVoiceRecognition}
+              className={`border-cyan-500/50 text-cyan-400 hover:bg-cyan-500/10 ${isListening ? 'bg-cyan-500/20' : ''}`}
+            >
+              {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+            </Button>
+          </div>
+
+          {/* Form card */}
+          <div className="w-full max-w-sm bg-gray-800/60 backdrop-blur-lg rounded-2xl border border-white/10 p-6 shadow-2xl">
+            {currentMode === 'signin' && (
+              <SimpleSignInForm
+                onSwitchToCreate={() => setCurrentMode('create')}
+                onSwitchToForgot={() => setCurrentMode('forgot')}
+                onDemoLogin={startDemoLogin}
               />
-            </Suspense>
-          )}
-          
-          {currentMode === 'forgot' && (
-            <Suspense fallback={<SubFormLoader />}>
-              <SimpleForgotPasswordForm
-                onSwitchToSignIn={() => setCurrentMode('signin')}
-              />
-            </Suspense>
-          )}
-        </div>
+            )}
+            {currentMode === 'create' && (
+              <Suspense fallback={<SubFormLoader />}>
+                <SimpleCreateAccountForm
+                  onSwitchToSignIn={() => setCurrentMode('signin')}
+                  onNewUserCreated={handleNewUserCreated}
+                />
+              </Suspense>
+            )}
+            {currentMode === 'forgot' && (
+              <Suspense fallback={<SubFormLoader />}>
+                <SimpleForgotPasswordForm
+                  onSwitchToSignIn={() => setCurrentMode('signin')}
+                />
+              </Suspense>
+            )}
+          </div>
 
-        {/* About C.A.R.E.N.™ Video Link */}
-        <div className="text-center mt-6">
-          <button
-            onClick={() => window.location.href = '/onboarding'}
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 shadow-lg"
-          >
-            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" />
-            </svg>
-            <span>Watch About C.A.R.E.N.™ Video</span>
-          </button>
-        </div>
-
-        {/* Footer */}
-        <div className="text-center text-xs text-gray-400 mt-6">
-          <p>© 2025 C.A.R.E.N.™ All rights reserved.</p>
-          <p>Your safety and legal protection platform</p>
+          {/* Footer */}
+          <p className="text-center text-xs text-gray-500 mt-6">
+            © 2025 C.A.R.E.N.™ All rights reserved.<br />
+            Your safety and legal protection platform.
+          </p>
         </div>
       </div>
 
