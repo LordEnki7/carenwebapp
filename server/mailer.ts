@@ -1,4 +1,4 @@
-import { MailtrapClient } from "mailtrap";
+import sgMail from "@sendgrid/mail";
 
 export interface MailOptions {
   to: string;
@@ -10,29 +10,31 @@ export interface MailOptions {
 }
 
 export async function sendEmail(options: MailOptions): Promise<boolean> {
-  if (!process.env.MAILTRAP_TOKEN) {
-    console.warn('[MAILER] No MAILTRAP_TOKEN configured — emails will not be sent');
+  const apiKey = process.env.SENDGRID_API_KEY;
+
+  if (!apiKey) {
+    console.warn("[MAILER] No SENDGRID_API_KEY configured — emails will not be sent");
     return false;
   }
 
-  const client = new MailtrapClient({ token: process.env.MAILTRAP_TOKEN });
+  sgMail.setApiKey(apiKey);
 
-  const fromAddress = options.from || 'hello@carenalert.com';
-  const fromName = options.fromName || 'C.A.R.E.N.™ ALERT';
+  const fromAddress = options.from || "hello@carenalert.com";
+  const fromName = options.fromName || "C.A.R.E.N.™ ALERT";
 
   try {
-    await client.send({
+    await sgMail.send({
+      to: options.to,
       from: { email: fromAddress, name: fromName },
-      to: [{ email: options.to }],
       subject: options.subject,
       html: options.html,
-      text: options.text || '',
-      category: 'Director Outreach',
+      text: options.text || options.html.replace(/<[^>]*>/g, ""),
     });
-    console.log(`[MAILER] Mailtrap: email sent to ${options.to} — "${options.subject}"`);
+    console.log(`[MAILER] SendGrid: email sent to ${options.to} — "${options.subject}"`);
     return true;
   } catch (error: any) {
-    console.error(`[MAILER] Mailtrap failed to send to ${options.to}:`, error.message || error);
+    const detail = error?.response?.body?.errors?.[0]?.message || error?.message || String(error);
+    console.error(`[MAILER] SendGrid failed to send to ${options.to}: ${detail}`);
     return false;
   }
 }
