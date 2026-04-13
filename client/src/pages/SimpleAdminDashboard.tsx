@@ -3,7 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target } from 'lucide-react';
+import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2 } from 'lucide-react';
+
+const ADMIN_PANELS = [
+  { label: "Director Admin", description: "Manage directors, issue PINs, track commissions", href: "/director-admin", icon: Building2, color: "border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10", badge: "Manage" },
+  { label: "Social Media Agent", description: "AI captions, post queue, LinkedIn publishing", href: "/social-agent", icon: Share2, color: "border-purple-500/40 hover:border-purple-400 hover:bg-purple-500/10", badge: "AI" },
+  { label: "Support Admin", description: "Customer support tickets and escalations", href: "/support-admin", icon: LifeBuoy, color: "border-green-500/40 hover:border-green-400 hover:bg-green-500/10", badge: "Tickets" },
+  { label: "Announcements Admin", description: "Manage posts, giveaways and announcements", href: "/announcements-admin", icon: Megaphone, color: "border-orange-500/40 hover:border-orange-400 hover:bg-orange-500/10", badge: "Posts" },
+];
 
 interface UserStats {
   totalUsers: number;
@@ -154,6 +161,31 @@ export default function SimpleAdminDashboard() {
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold mb-4">CAREN Admin Dashboard</h1>
           <p className="text-gray-300">User Login Tracking & Session Analytics</p>
+        </div>
+
+        {/* ── Admin Control Panels ─────────────────────────────────────── */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block"></span>
+            Admin Control Panels
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {ADMIN_PANELS.map(panel => (
+              <a key={panel.href} href={panel.href}
+                className={`block bg-gray-800/60 border rounded-xl p-4 transition-all cursor-pointer group ${panel.color}`}
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <panel.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="text-xs font-medium text-gray-400 bg-white/10 px-2 py-0.5 rounded-full">{panel.badge}</span>
+                </div>
+                <p className="text-white font-semibold text-sm mb-1">{panel.label}</p>
+                <p className="text-gray-400 text-xs leading-snug">{panel.description}</p>
+                <p className="text-cyan-400 text-xs mt-3 group-hover:underline">Open →</p>
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* Core Stats Cards */}
