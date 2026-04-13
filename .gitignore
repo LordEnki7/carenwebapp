@@ -30,3 +30,4 @@ zi[A-Za-z0-9]*
 .cache/
 public/videos/
 CAREN-xcode-project.zip
+.github/workflows/
