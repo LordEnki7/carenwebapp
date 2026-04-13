@@ -21,7 +21,7 @@ export async function sendEmail(options: MailOptions): Promise<boolean> {
   const fromName = options.fromName || 'C.A.R.E.N.™ ALERT';
 
   try {
-    await client.bulk.send({
+    await client.send({
       from: { email: fromAddress, name: fromName },
       to: [{ email: options.to }],
       subject: options.subject,
