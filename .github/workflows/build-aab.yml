@@ -42,6 +42,13 @@ jobs:
     - name: Sync Capacitor Android
       run: npx cap sync android
 
+    # ── VALIDATION: Runs after sync, before the slow Gradle build ──
+    # If any check fails, the build stops here and saves you time.
+    - name: Validate Android Build Configuration
+      run: |
+        chmod +x scripts/validate-android-build.sh
+        bash scripts/validate-android-build.sh
+
     - name: Write Android local.properties
       run: echo "sdk.dir=$ANDROID_HOME" > android/local.properties
 
@@ -67,6 +74,7 @@ jobs:
 
     - name: Display Build Info
       run: |
-        echo "Build completed!"
+        echo "Build completed! Version info:"
+        grep "versionCode\|versionName" android/app/build.gradle | head -2
         ls -lh android/app/build/outputs/bundle/release/
         ls -lh android/app/build/outputs/apk/release/
