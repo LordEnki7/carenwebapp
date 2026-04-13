@@ -52,49 +52,20 @@ export default function BrowserCompatibleSignIn() {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   
-  // Video player state — fetch-then-blob approach bypasses Replit/proxy streaming blocks
+  // Video player state
   const videoRef = useRef<HTMLVideoElement>(null);
-  const blobUrlRef = useRef<string | null>(null);
   const [videoState, setVideoState] = useState<'idle' | 'loading' | 'playing' | 'error'>('idle');
-  const [downloadPct, setDownloadPct] = useState(0);
 
-  // Cleanup blob URL on unmount
-  useEffect(() => {
-    return () => {
-      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-    };
-  }, []);
-
-  const handleVideoPlay = useCallback(async () => {
+  const handleVideoPlay = useCallback(() => {
     const video = videoRef.current;
     if (!video) return;
     setVideoState('loading');
-    setDownloadPct(0);
-    try {
-      // Use fetch() — works through Replit proxy even when <video> element can't stream
-      const response = await fetch('/caren-hero.mp4');
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const contentLength = Number(response.headers.get('content-length') ?? 0);
-      const reader = response.body!.getReader();
-      const chunks: Uint8Array[] = [];
-      let received = 0;
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        chunks.push(value);
-        received += value.length;
-        if (contentLength > 0) setDownloadPct(Math.round((received / contentLength) * 100));
-      }
-      const blob = new Blob(chunks, { type: 'video/mp4' });
-      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
-      blobUrlRef.current = URL.createObjectURL(blob);
-      video.src = blobUrlRef.current;
-      video.load();
-      await video.play();
-      setVideoState('playing');
-    } catch {
-      setVideoState('error');
-    }
+    // Direct streaming — works on any real server (Dokploy, production)
+    video.src = '/caren-hero.mp4';
+    video.load();
+    video.play()
+      .then(() => setVideoState('playing'))
+      .catch(() => setVideoState('error'));
   }, []);
 
   // New user onboarding state
@@ -379,22 +350,11 @@ export default function BrowserCompatibleSignIn() {
                 </button>
               )}
 
-              {/* Loading overlay — shows download progress */}
+              {/* Loading overlay */}
               {videoState === 'loading' && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/70 px-8">
-                  <Loader2 className="w-9 h-9 text-cyan-400 animate-spin" />
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/60">
+                  <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
                   <p className="text-white text-sm font-medium">Loading video…</p>
-                  {downloadPct > 0 && (
-                    <div className="w-full max-w-[180px]">
-                      <div className="w-full h-1.5 bg-white/20 rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-cyan-400 rounded-full transition-all duration-200"
-                          style={{ width: `${downloadPct}%` }}
-                        />
-                      </div>
-                      <p className="text-cyan-400 text-xs text-center mt-1">{downloadPct}%</p>
-                    </div>
-                  )}
                 </div>
               )}
 
