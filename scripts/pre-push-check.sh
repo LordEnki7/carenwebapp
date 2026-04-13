@@ -69,7 +69,29 @@ echo ""
 echo "  ⚠  Note: Browser video playback in Replit dev URL is a known"
 echo "     proxy limitation. Verify actual playback on carenalert.com"
 
-# ── 5. Director routes ───────────────────────────────────────
+# ── 5. Deployment readiness (env vars, Stripe keys, public assets, DB, OAuth)
+header "Deployment readiness"
+DEPLOY_OUT=$(bash scripts/check-deployment.sh 2>&1)
+DEPLOY_FAILS=$(echo "$DEPLOY_OUT" | grep -c "✗ FAIL" || true)
+DEPLOY_WARNS=$(echo "$DEPLOY_OUT" | grep -c "⚠ WARN" || true)
+if [ "$DEPLOY_FAILS" -gt 0 ]; then
+  # Print each failure line individually so they appear in the summary
+  while IFS= read -r LINE; do
+    if echo "$LINE" | grep -q "✗ FAIL"; then
+      LABEL=$(echo "$LINE" | sed 's/.*✗ FAIL //')
+      fail "$LABEL"
+    fi
+  done <<< "$DEPLOY_OUT"
+  echo "  Run: bash scripts/check-deployment.sh  for full details + fix hints"
+else
+  PASSED=$(echo "$DEPLOY_OUT" | grep -c "✓" || true)
+  ok "$PASSED deployment checks passed (env vars, Stripe keys, public assets, DB, OAuth)"
+fi
+if [ "$DEPLOY_WARNS" -gt 0 ]; then
+  warn "$DEPLOY_WARNS deployment warning(s) — run: bash scripts/check-deployment.sh"
+fi
+
+# ── 6. Director routes ───────────────────────────────────────
 header "Director system"
 HTTP=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 "$BASE/api/directors/leaderboard" 2>/dev/null || echo "000")
 if [ "$HTTP" = "200" ] || [ "$HTTP" = "304" ]; then

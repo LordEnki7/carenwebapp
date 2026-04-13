@@ -35,6 +35,10 @@ args = "server-health"
 task = "workflow.run"
 args = "video-stream"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "check-deployment"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -94,6 +98,17 @@ isValidation = true
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash scripts/check-videos.sh"
+
+[[workflows.workflow]]
+name = "check-deployment"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/check-deployment.sh"
+
+[workflows.workflow.metadata]
+isValidation = true
 
 [[ports]]
 localPort = 5000

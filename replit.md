@@ -28,7 +28,7 @@ This runs 10 checks automatically:
 
 The script is also installed as a **git pre-push hook** at `.git/hooks/pre-push`, so it runs automatically on every `git push`. A push is blocked if any check fails.
 
-Named validation commands (for in-session use): `typecheck`, `server-health`, `video-stream`
+Named validation commands (for in-session use): `typecheck`, `server-health`, `video-stream`, `check-deployment`
 
 ## System Architecture
 
