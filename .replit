@@ -88,21 +88,12 @@ isValidation = true
 name = "video-stream"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = """
-BASE=\"http://localhost:5000\"
-      echo \"Testing video Range request...\"
-      STATUS=$(curl -s -o /dev/null -w \"%{http_code}\" --max-time 10 -H \"Range: bytes=0-1023\" \"$BASE/caren-hero.mp4\")
-      echo \"caren-hero.mp4 Range request: HTTP $STATUS\"
-      [ \"$STATUS\" = \"206\" ] && echo \"PASS: video streaming works\" || { echo \"FAIL: expected 206, got $STATUS\"; exit 1; }
-
-      STATUS2=$(curl -s -o /dev/null -w \"%{http_code}\" --max-time 10 -H \"Range: bytes=0-1023\" \"$BASE/caren-short.mp4\")
-      echo \"caren-short.mp4 Range request: HTTP $STATUS2\"
-      [ \"$STATUS2\" = \"206\" ] && echo \"PASS: short video streaming works\" || { echo \"FAIL: expected 206, got $STATUS2\"; exit 1; }"""
-
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/check-videos.sh"
 
 [[ports]]
 localPort = 5000

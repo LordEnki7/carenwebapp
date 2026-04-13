@@ -1,9 +1,9 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
-import { Mic, MicOff } from "lucide-react";
+import { Mic, MicOff, Play, Loader2, AlertCircle } from "lucide-react";
 import carenLogo from "@assets/caren-logo.png";
 
 // SimpleSignInForm stays eager — it is shown immediately on first render
@@ -52,6 +52,23 @@ export default function BrowserCompatibleSignIn() {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<any>(null);
   
+  // Video player state — controlled load+play to bypass Replit proxy issues
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoState, setVideoState] = useState<'idle' | 'loading' | 'playing' | 'error'>('idle');
+
+  const handleVideoPlay = useCallback(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    setVideoState('loading');
+    video.src = '/caren-hero.mp4';
+    video.load();
+    video.play().then(() => {
+      setVideoState('playing');
+    }).catch(() => {
+      setVideoState('error');
+    });
+  }, []);
+
   // New user onboarding state
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [newUserEmail, setNewUserEmail] = useState<string>('');
@@ -298,29 +315,63 @@ export default function BrowserCompatibleSignIn() {
             </p>
           </div>
 
-          {/* Video player */}
+          {/* Video player — React-controlled load/play to ensure playback works */}
           <div className="w-full max-w-xl">
-            <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video">
+            <div
+              data-testid="video-player"
+              className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video"
+              style={{ background: "linear-gradient(135deg,#0a0f1a,#1e293b)" }}
+            >
+              {/* Native video element — src set via JS on play click, not via <source> */}
               <video
-                controls
+                ref={videoRef}
+                controls={videoState === 'playing'}
                 preload="none"
                 playsInline
+                data-testid="hero-video"
                 className="w-full h-full object-cover"
-                style={{ background: "linear-gradient(135deg,#0a0f1a,#1e293b)" }}
-                onError={(e) => {
-                  const container = (e.target as HTMLVideoElement).parentElement;
-                  if (container) {
-                    container.innerHTML = `
-                      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#0a0f1a,#1e293b);padding:24px;text-align:center;">
-                        <div style="font-size:48px;margin-bottom:12px;">🎬</div>
-                        <p style="color:#00e5ff;font-weight:bold;margin-bottom:6px;">C.A.R.E.N.™ ALERT</p>
-                        <p style="color:#64748b;font-size:13px;">GPS-Powered Legal Protection<br/>for Every Traffic Stop</p>
-                      </div>`;
-                  }
-                }}
-              >
-                <source src="/caren-hero.mp4" type="video/mp4" />
-              </video>
+                onPlaying={() => setVideoState('playing')}
+                onWaiting={() => { if (videoState === 'playing') setVideoState('loading'); }}
+                onError={() => setVideoState('error')}
+                onEnded={() => setVideoState('idle')}
+              />
+
+              {/* Idle overlay — custom play button */}
+              {videoState === 'idle' && (
+                <button
+                  data-testid="video-play-btn"
+                  onClick={handleVideoPlay}
+                  className="absolute inset-0 flex flex-col items-center justify-center gap-3 group cursor-pointer bg-black/40 hover:bg-black/20 transition-colors"
+                  aria-label="Play C.A.R.E.N. demo video"
+                >
+                  <div className="w-16 h-16 rounded-full bg-cyan-500/90 flex items-center justify-center shadow-lg shadow-cyan-500/40 group-hover:scale-110 transition-transform">
+                    <Play className="w-7 h-7 text-black ml-1" fill="black" />
+                  </div>
+                  <span className="text-white/80 text-sm font-medium">Watch the Demo</span>
+                </button>
+              )}
+
+              {/* Loading overlay */}
+              {videoState === 'loading' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/60">
+                  <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
+                </div>
+              )}
+
+              {/* Error overlay */}
+              {videoState === 'error' && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/80 px-6 text-center">
+                  <AlertCircle className="w-10 h-10 text-red-400" />
+                  <p className="text-white font-semibold">Video unavailable</p>
+                  <p className="text-gray-400 text-sm">GPS-Powered Legal Protection for Every Traffic Stop</p>
+                  <button
+                    onClick={() => setVideoState('idle')}
+                    className="text-cyan-400 text-xs underline mt-1"
+                  >
+                    Try again
+                  </button>
+                </div>
+              )}
             </div>
             <p className="text-gray-500 text-xs text-center mt-2">Meet C.A.R.E.N.™ — Your Roadside Guardian</p>
           </div>

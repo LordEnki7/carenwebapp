@@ -58,21 +58,16 @@ else
   fail "Subscription plans API not responding (HTTP $HTTP)"
 fi
 
-# ── 4. Video routes ──────────────────────────────────────────
-header "Video streaming routes"
-for VIDEO in "caren-hero.mp4" "caren-short.mp4"; do
-  HTTP=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 \
-    -H "Range: bytes=0-1023" "$BASE/$VIDEO" 2>/dev/null || echo "000")
-  if [ "$HTTP" = "206" ]; then
-    ok "$VIDEO — Range streaming OK (HTTP 206)"
-  elif [ "$HTTP" = "200" ]; then
-    ok "$VIDEO — Full file streaming OK (HTTP 200)"
-  elif [ "$HTTP" = "404" ]; then
-    warn "$VIDEO — Not found (file may not be on this machine, OK for CI)"
-  else
-    fail "$VIDEO — Unexpected response (HTTP $HTTP)"
-  fi
-done
+# ── 4. Video quality + format checks ─────────────────────────
+header "Video format validation (codec, faststart, size, HTTP 206)"
+if bash scripts/check-videos.sh 2>&1 | grep -q "^  FAIL"; then
+  fail "Video format issues detected — run: bash scripts/check-videos.sh"
+else
+  ok "All video files: H.264, moov-first, proxy-safe, HTTP 206 OK"
+fi
+echo ""
+echo "  ⚠  Note: Browser video playback in Replit dev URL is a known"
+echo "     proxy limitation. Verify actual playback on carenalert.com"
 
 # ── 5. Director routes ───────────────────────────────────────
 header "Director system"

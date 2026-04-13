@@ -93,6 +93,7 @@ export default function SimpleSignIn() {
           </div>
         </div>
       </div>
+      </div>
     </MobileResponsiveLayout>
   );
 }
