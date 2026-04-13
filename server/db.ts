@@ -722,6 +722,18 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS emergency_contacts JSONB`,
+    // regional_directors — columns added after initial table creation
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS director_code VARCHAR(20) UNIQUE`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS portal_pin VARCHAR(10)`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS contract_signature VARCHAR(255)`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS contract_signed_at TIMESTAMP`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS contract_version VARCHAR(20) DEFAULT 'v1.0-2025'`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS contract_ip VARCHAR(100)`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS contract_document_url TEXT`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS contract_method VARCHAR(50) DEFAULT 'electronic'`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS invite_token VARCHAR(100)`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS invite_token_expiry TIMESTAMP`,
+    `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS invite_sent_at TIMESTAMP`,
   ];
 
   const allMigrations = [...createTables, ...addMissingColumns];
