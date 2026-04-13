@@ -227,6 +227,8 @@ export default function DirectorPortal() {
   const [payoutHandle, setPayoutHandle] = useState("");
   const [showPayoutForm, setShowPayoutForm] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
+  const [contractDocUrl, setContractDocUrl] = useState("");
+  const [contractDocMethod, setContractDocMethod] = useState("external");
 
   const email = portalSession?.email || "";
   const pin = portalSession?.pin || "";
@@ -324,6 +326,25 @@ export default function DirectorPortal() {
     onError: (err: any) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     },
+  });
+
+  const submitContractDoc = useMutation({
+    mutationFn: async () => {
+      if (!contractDocUrl.trim()) throw new Error("Please enter a document link");
+      const res = await fetch("/api/director/portal-contract-doc", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, pin, contractDocumentUrl: contractDocUrl.trim(), contractMethod: contractDocMethod }),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || "Failed"); }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Contract document submitted!", description: "Your document link has been sent to the admin for review." });
+      setContractDocUrl("");
+      queryClient.invalidateQueries({ queryKey: ["/api/director/portal-profile", email, pin] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
   const handleLogin = async () => {
@@ -999,6 +1020,56 @@ export default function DirectorPortal() {
         {/* ── TOOLKIT TAB ───────────────────────────────────────────── */}
         {activeTab === "toolkit" && (
           <div className="space-y-5">
+
+            {/* Contract Document Section */}
+            <Card className={`border ${profile.contractSignature ? "border-green-500/30 bg-green-900/10" : "border-yellow-500/30 bg-yellow-900/10"}`}>
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-base">{profile.contractSignature ? "✅" : "📄"}</span>
+                  <h3 className="text-white font-semibold text-sm">
+                    {profile.contractSignature ? "Contract On File" : "Contract Not Yet On File"}
+                  </h3>
+                </div>
+                {profile.contractSignature ? (
+                  <div className="space-y-1">
+                    <p className="text-gray-400 text-xs">Signed as: <span className="font-serif italic text-white">{profile.contractSignature}</span></p>
+                    <p className="text-gray-500 text-xs">Date: {profile.contractSignedAt ? new Date(profile.contractSignedAt).toLocaleDateString() : "—"} · {profile.contractVersion || "v1.0-2025"}</p>
+                    {profile.contractDocumentUrl && (
+                      <a href={profile.contractDocumentUrl} target="_blank" rel="noopener noreferrer"
+                        className="text-cyan-400 text-xs underline block mt-1">View Contract Document →</a>
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-yellow-300 text-xs">You signed a contract outside the app. You can submit a link to your signed document below so it's on file with the admin.</p>
+                )}
+
+                {/* Upload section — always available for external documents */}
+                <div className="pt-2 border-t border-white/10 space-y-2">
+                  <p className="text-gray-400 text-xs font-medium">
+                    {profile.contractDocumentUrl ? "Update document link:" : "Submit signed contract document link:"}
+                  </p>
+                  {profile.contractDocumentUrl && (
+                    <p className="text-gray-500 text-xs break-all">Current: {profile.contractDocumentUrl}</p>
+                  )}
+                  <p className="text-gray-500 text-xs">Upload your signed contract to Google Drive, Dropbox, or DocuSign — then paste the sharing link here.</p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={contractDocUrl}
+                      onChange={e => setContractDocUrl(e.target.value)}
+                      placeholder="https://drive.google.com/file/d/..."
+                      className="bg-white/5 border-white/20 text-white placeholder:text-gray-600 text-sm flex-1"
+                    />
+                    <Button size="sm"
+                      onClick={() => submitContractDoc.mutate()}
+                      disabled={submitContractDoc.isPending || !contractDocUrl.trim()}
+                      className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold text-xs shrink-0">
+                      {submitContractDoc.isPending ? "Saving…" : "Submit"}
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="p-4 bg-gradient-to-r from-cyan-900/40 to-blue-900/30 border border-cyan-500/30 rounded-xl">
               <div className="flex items-center justify-between mb-1">
                 <div className="flex items-center gap-2">

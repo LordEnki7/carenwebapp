@@ -2774,6 +2774,8 @@ export const regionalDirectors = pgTable("regional_directors", {
   contractSignedAt: timestamp("contract_signed_at"), // timestamp when contract was signed
   contractVersion: varchar("contract_version", { length: 20 }).default("v1.0-2025"), // contract version agreed to
   contractIp: varchar("contract_ip", { length: 100 }), // IP address at time of signing
+  contractDocumentUrl: text("contract_document_url"), // link to uploaded/external contract document
+  contractMethod: varchar("contract_method", { length: 50 }).default("electronic"), // electronic | paper | docusign | external
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

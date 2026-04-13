@@ -202,6 +202,55 @@ export function registerDirectorRoutes(app: Express) {
     }
   });
 
+  // ── DIRECTOR: Submit external contract document link ──────────────────────
+  app.put("/api/director/portal-contract-doc", async (req: any, res) => {
+    try {
+      const { email, pin, contractDocumentUrl, contractMethod } = req.body;
+      if (!email || !pin) return res.status(401).json({ error: "Not authenticated" });
+      if (!contractDocumentUrl?.trim()) return res.status(400).json({ error: "Document link is required" });
+
+      const rows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.email, email.toLowerCase().trim()));
+      if (!rows.length) return res.status(404).json({ error: "Director not found" });
+      const director = rows[0];
+      if (!director.portalPin || director.portalPin !== pin.toString().trim()) return res.status(401).json({ error: "Invalid session" });
+
+      const [updated] = await db.update(regionalDirectors)
+        .set({
+          contractDocumentUrl: contractDocumentUrl.trim(),
+          contractMethod: contractMethod || "external",
+          updatedAt: new Date(),
+        })
+        .where(eq(regionalDirectors.id, director.id))
+        .returning();
+      console.log(`[DIRECTOR CONTRACT DOC] ${director.name} submitted contract doc: ${contractDocumentUrl}`);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Manually set contract document for a director ──────────────────
+  app.put("/api/director/admin/:id/contract-doc", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const id = parseInt(req.params.id);
+      const { contractDocumentUrl, contractMethod, contractSignature, contractSignedAt } = req.body;
+      const [updated] = await db.update(regionalDirectors)
+        .set({
+          contractDocumentUrl: contractDocumentUrl?.trim() || null,
+          contractMethod: contractMethod || "paper",
+          contractSignature: contractSignature?.trim() || undefined,
+          contractSignedAt: contractSignedAt ? new Date(contractSignedAt) : undefined,
+          updatedAt: new Date(),
+        })
+        .where(eq(regionalDirectors.id, id))
+        .returning();
+      res.json({ success: true, director: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── DIRECTOR: Portal PIN Login (standalone, no app session required) ────────
   app.post("/api/director/portal-login", async (req: any, res) => {
     try {

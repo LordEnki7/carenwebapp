@@ -579,10 +579,47 @@ export default function DirectorAdmin() {
                                       Date: {d.contractSignedAt ? new Date(d.contractSignedAt).toLocaleString() : "—"} · Version: {d.contractVersion || "v1.0-2025"}
                                     </p>
                                     {d.contractIp && <p className="text-gray-600 text-xs">IP: {d.contractIp}</p>}
+                                    {d.contractMethod && <p className="text-gray-500 text-xs">Method: {d.contractMethod}</p>}
                                   </div>
                                 ) : (
-                                  <p className="text-gray-500 text-xs">This applicant applied before the contract system was added. You may need to have them re-apply or sign a separate agreement.</p>
+                                  <p className="text-gray-500 text-xs">No electronic signature on file. Director may have signed outside the app — use the field below to log their document.</p>
                                 )}
+                                {/* Contract document link */}
+                                {d.contractDocumentUrl ? (
+                                  <a href={d.contractDocumentUrl} target="_blank" rel="noopener noreferrer"
+                                    className="text-cyan-400 text-xs underline block mt-2">📎 View Contract Document →</a>
+                                ) : (
+                                  <p className="text-gray-600 text-xs mt-1 italic">No document link on file.</p>
+                                )}
+                                {/* Admin: manually log contract doc */}
+                                <div className="mt-2 pt-2 border-t border-white/10">
+                                  <p className="text-gray-500 text-xs mb-1.5">Manually log contract (paste Google Drive / DocuSign / Dropbox link):</p>
+                                  <div className="flex gap-2">
+                                    <Input
+                                      placeholder="https://drive.google.com/..."
+                                      value={pinInputs[`contract_${d.id}`] ?? ""}
+                                      onChange={e => setPinInputs(prev => ({ ...prev, [`contract_${d.id}`]: e.target.value }))}
+                                      className="bg-white/5 border-white/20 text-white placeholder:text-gray-600 text-xs"
+                                    />
+                                    <Button size="sm"
+                                      onClick={async () => {
+                                        const url = pinInputs[`contract_${d.id}`];
+                                        if (!url) return;
+                                        const res = await fetch(`/api/director/admin/${d.id}/contract-doc`, {
+                                          method: "PUT", headers,
+                                          body: JSON.stringify({ contractDocumentUrl: url, contractMethod: "paper" }),
+                                        });
+                                        if (res.ok) {
+                                          toast({ title: "Contract document logged" });
+                                          setPinInputs(prev => ({ ...prev, [`contract_${d.id}`]: "" }));
+                                          queryClient.invalidateQueries({ queryKey: ["/api/director/admin/all"] });
+                                        }
+                                      }}
+                                      className="bg-slate-600 hover:bg-slate-500 text-white text-xs shrink-0">
+                                      Save
+                                    </Button>
+                                  </div>
+                                </div>
                               </div>
                             </div>
 
