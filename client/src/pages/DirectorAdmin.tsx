@@ -74,6 +74,8 @@ export default function DirectorAdmin() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [territoryInput, setTerritoryInput] = useState<Record<number, string>>({});
   const [notesInput, setNotesInput] = useState<Record<number, string>>({});
+  const [pinInputs, setPinInputs] = useState<Record<number, string>>({});
+  const [revealedPins, setRevealedPins] = useState<Record<number, string>>({});
   // Commission form state
   const [commForm, setCommForm] = useState({ directorId: "", referredEmail: "", planName: "Standard", notes: "", periodStart: "" });
   // Outreach form state
@@ -255,6 +257,24 @@ export default function DirectorAdmin() {
       toast({ title: "Notes saved" });
       queryClient.invalidateQueries({ queryKey: ["/api/director/admin/all"] });
     },
+  });
+
+  const setPin = useMutation({
+    mutationFn: async ({ id, pin }: { id: number; pin?: string }) => {
+      const res = await fetch(`/api/director/admin/${id}/pin`, {
+        method: "PUT", headers,
+        body: JSON.stringify({ pin }),
+      });
+      if (!res.ok) throw new Error("Failed to set PIN");
+      return res.json();
+    },
+    onSuccess: (data, { id }) => {
+      setRevealedPins(prev => ({ ...prev, [id]: data.pin }));
+      setPinInputs(prev => ({ ...prev, [id]: "" }));
+      toast({ title: `PIN Set: ${data.pin}`, description: `Share this PIN with ${data.director.name} so they can log into the Director Portal.` });
+      queryClient.invalidateQueries({ queryKey: ["/api/director/admin/all"] });
+    },
+    onError: () => toast({ title: "Failed to set PIN", variant: "destructive" }),
   });
 
   const addCommission = useMutation({
@@ -585,6 +605,38 @@ export default function DirectorAdmin() {
                                   className="mt-2 bg-slate-600 hover:bg-slate-500 text-white text-xs">
                                   Save Notes
                                 </Button>
+                              </div>
+
+                              <div className="border border-cyan-500/20 rounded-lg p-3 bg-cyan-900/10">
+                                <p className="text-cyan-300 text-xs font-semibold uppercase tracking-wide mb-2 flex items-center gap-2">
+                                  🔐 Director Portal PIN
+                                </p>
+                                {revealedPins[d.id] ? (
+                                  <div className="mb-2 p-2 bg-green-900/30 border border-green-500/30 rounded-lg text-center">
+                                    <p className="text-gray-400 text-xs mb-1">PIN generated — share with director:</p>
+                                    <p className="text-green-400 font-mono text-2xl font-bold tracking-widest">{revealedPins[d.id]}</p>
+                                    <p className="text-gray-500 text-xs mt-1">Director logs in at /director-portal with their email + this PIN</p>
+                                  </div>
+                                ) : (
+                                  <p className="text-gray-500 text-xs mb-2">
+                                    {d.portalPin ? "PIN is set. Generate a new one to replace it." : "No PIN set yet. Generate one for this director."}
+                                  </p>
+                                )}
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Custom PIN (optional)"
+                                    value={pinInputs[d.id] ?? ""}
+                                    onChange={e => setPinInputs(prev => ({ ...prev, [d.id]: e.target.value }))}
+                                    maxLength={10}
+                                    className="bg-white/5 border-white/20 text-white placeholder:text-gray-600 text-sm font-mono"
+                                  />
+                                  <Button size="sm"
+                                    onClick={() => setPin.mutate({ id: d.id, pin: pinInputs[d.id] || undefined })}
+                                    disabled={setPin.isPending}
+                                    className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold text-xs shrink-0">
+                                    {pinInputs[d.id] ? "Set PIN" : "Generate PIN"}
+                                  </Button>
+                                </div>
                               </div>
                             </div>
                           </div>

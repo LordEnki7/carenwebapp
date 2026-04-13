@@ -2769,6 +2769,7 @@ export const regionalDirectors = pgTable("regional_directors", {
   territory: varchar("territory", { length: 255 }),
   adminNotes: text("admin_notes"),
   directorCode: varchar("director_code", { length: 20 }).unique(), // unique code for referral link e.g. "DIR-AB12CD"
+  portalPin: varchar("portal_pin", { length: 10 }), // 6-digit PIN for Director Portal login
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

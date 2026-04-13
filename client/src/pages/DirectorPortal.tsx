@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
 
 const ACTIVITY_TYPES = [
@@ -205,9 +204,19 @@ function ScriptCard({ script }: { script: { title: string; content: string } }) 
 }
 
 export default function DirectorPortal() {
-  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // ── Standalone PIN auth — completely separate from C.A.R.E.N. app login ──
+  const [portalSession, setPortalSession] = useState<{ email: string; pin: string } | null>(() => {
+    try { return JSON.parse(localStorage.getItem("directorPortalSession") || "null"); } catch { return null; }
+  });
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPin, setLoginPin] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  // ── Dashboard state (always declared — hooks must be unconditional) ────────
   const [logType, setLogType] = useState("attorney_contacted");
   const [logCount, setLogCount] = useState("1");
   const [logNotes, setLogNotes] = useState("");
@@ -219,16 +228,17 @@ export default function DirectorPortal() {
   const [showPayoutForm, setShowPayoutForm] = useState(false);
   const [linkCopied, setLinkCopied] = useState(false);
 
-  const email = user?.email || "";
+  const email = portalSession?.email || "";
+  const pin = portalSession?.pin || "";
 
   const { data: profile, isLoading, error } = useQuery({
-    queryKey: ["/api/director/me", email],
+    queryKey: ["/api/director/portal-profile", email, pin],
     queryFn: async () => {
-      const res = await fetch(`/api/director/me?email=${encodeURIComponent(email)}`, { credentials: "include" });
-      if (!res.ok) throw new Error("Director profile not found");
+      const res = await fetch(`/api/director/portal-profile?email=${encodeURIComponent(email)}&pin=${encodeURIComponent(pin)}`);
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || "Session invalid"); }
       return res.json();
     },
-    enabled: !!email,
+    enabled: !!email && !!pin,
     retry: false,
   });
 
@@ -309,12 +319,95 @@ export default function DirectorPortal() {
       setLogNotes("");
       setLogCount("1");
       setShowLogForm(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/director/me", email] });
+      queryClient.invalidateQueries({ queryKey: ["/api/director/portal-profile", email, pin] });
     },
     onError: (err: any) => {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     },
   });
+
+  const handleLogin = async () => {
+    if (!loginEmail.trim() || !loginPin.trim()) { setLoginError("Please enter your email and PIN."); return; }
+    setLoginLoading(true);
+    setLoginError("");
+    try {
+      const res = await fetch("/api/director/portal-login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: loginEmail.trim(), pin: loginPin.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setLoginError(data.error || "Login failed."); setLoginLoading(false); return; }
+      const session = { email: loginEmail.trim().toLowerCase(), pin: loginPin.trim() };
+      localStorage.setItem("directorPortalSession", JSON.stringify(session));
+      setPortalSession(session);
+    } catch { setLoginError("Connection error. Please try again."); }
+    finally { setLoginLoading(false); }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("directorPortalSession");
+    setPortalSession(null);
+    setLoginEmail("");
+    setLoginPin("");
+    queryClient.removeQueries({ queryKey: ["/api/director/portal-profile"] });
+  };
+
+  if (!portalSession) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 flex items-center justify-center p-6">
+        <div className="w-full max-w-sm space-y-6">
+          <div className="text-center">
+            <div className="w-16 h-16 rounded-full bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center mx-auto mb-4">
+              <Shield className="w-8 h-8 text-cyan-400" />
+            </div>
+            <h1 className="text-2xl font-bold text-white">Director Portal</h1>
+            <p className="text-gray-400 text-sm mt-1">Sign in with your director credentials</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-xl p-6 space-y-4">
+            <div>
+              <label className="text-gray-300 text-sm font-medium block mb-1.5">Email Address</label>
+              <Input
+                type="email"
+                placeholder="your@email.com"
+                value={loginEmail}
+                onChange={e => setLoginEmail(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleLogin()}
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-500"
+              />
+            </div>
+            <div>
+              <label className="text-gray-300 text-sm font-medium block mb-1.5">Director PIN</label>
+              <Input
+                type="password"
+                placeholder="Enter your 6-digit PIN"
+                value={loginPin}
+                onChange={e => setLoginPin(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleLogin()}
+                className="bg-white/5 border-white/20 text-white placeholder:text-gray-500 font-mono tracking-widest"
+              />
+            </div>
+            {loginError && (
+              <div className="bg-red-900/30 border border-red-500/30 rounded-lg p-3 text-red-400 text-sm text-center">
+                {loginError}
+              </div>
+            )}
+            <Button onClick={handleLogin} disabled={loginLoading} className="w-full bg-cyan-500 hover:bg-cyan-600 text-black font-bold">
+              {loginLoading ? "Signing in…" : "Access Portal"}
+            </Button>
+          </div>
+          <p className="text-center text-gray-500 text-xs">
+            Don't have a PIN? Contact C.A.R.E.N. administration after your application is approved.
+          </p>
+          <div className="text-center">
+            <Link href="/become-director">
+              <span className="text-cyan-400 text-sm hover:underline cursor-pointer">Apply to become a Director →</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -330,10 +423,11 @@ export default function DirectorPortal() {
         <div className="max-w-md text-center space-y-4">
           <Shield className="w-16 h-16 text-gray-600 mx-auto" />
           <h2 className="text-2xl font-bold text-white">No Director Profile Found</h2>
-          <p className="text-gray-400">Your account isn't linked to an approved director profile yet. If you applied, check back after your application is reviewed.</p>
+          <p className="text-gray-400">Profile not found or your session has expired. Please sign in again.</p>
           <div className="flex gap-3 justify-center">
+            <Button onClick={handleLogout} className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold">Sign In Again</Button>
             <Link href="/become-director">
-              <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold">Apply Now</Button>
+              <Button variant="outline" className="border-white/20 text-white">Apply Now</Button>
             </Link>
             <Link href="/">
               <Button variant="outline" className="border-white/20 text-white">Dashboard</Button>
@@ -398,6 +492,12 @@ export default function DirectorPortal() {
                 🏆 Rank #{myRank}
               </Badge>
             )}
+            <button
+              onClick={handleLogout}
+              className="text-gray-500 hover:text-red-400 text-xs underline transition-colors mt-1"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
 

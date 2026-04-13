@@ -193,6 +193,59 @@ export function registerDirectorRoutes(app: Express) {
     }
   });
 
+  // ── DIRECTOR: Portal PIN Login (standalone, no app session required) ────────
+  app.post("/api/director/portal-login", async (req: any, res) => {
+    try {
+      const { email, pin } = req.body;
+      if (!email || !pin) return res.status(400).json({ error: "Email and PIN are required" });
+
+      const rows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.email, email.toLowerCase().trim()));
+      if (!rows.length) return res.status(404).json({ error: "No director account found with that email" });
+
+      const director = rows[0];
+      if (!director.portalPin) return res.status(403).json({ error: "No PIN set for this account. Contact your administrator." });
+      if (director.portalPin !== pin.toString().trim()) return res.status(401).json({ error: "Incorrect PIN" });
+      if (director.status === "rejected") return res.status(403).json({ error: "Your director application was not approved." });
+
+      // Return safe director data (no PIN)
+      const { portalPin: _pin, ...safeDirector } = director;
+      return res.json({ success: true, director: safeDirector });
+    } catch (err) {
+      console.error("[DIRECTOR PORTAL LOGIN]", err);
+      return res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  // ── DIRECTOR: Verify portal session (re-fetch by email after login) ─────────
+  app.get("/api/director/portal-profile", async (req: any, res) => {
+    try {
+      const email = req.query.email as string;
+      const pin = req.query.pin as string;
+      if (!email || !pin) return res.status(401).json({ error: "Not authenticated" });
+
+      const rows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.email, email.toLowerCase().trim()));
+      if (!rows.length) return res.status(404).json({ error: "Director not found" });
+
+      const director = rows[0];
+      if (!director.portalPin || director.portalPin !== pin.toString().trim()) return res.status(401).json({ error: "Invalid session" });
+
+      const weekOf = getWeekStart();
+      const activities = await db.select().from(directorActivities)
+        .where(and(eq(directorActivities.directorId, director.id), eq(directorActivities.weekOf, weekOf)));
+      const allActivities = await db.select().from(directorActivities).where(eq(directorActivities.directorId, director.id));
+      const lifetime = allActivities.reduce((acc: any, a) => {
+        acc[a.type] = (acc[a.type] || 0) + (a.count || 1);
+        return acc;
+      }, {});
+
+      const { portalPin: _pin, ...safeDirector } = director;
+      return res.json({ ...safeDirector, activities, lifetime });
+    } catch (err) {
+      console.error("[DIRECTOR PORTAL PROFILE]", err);
+      return res.status(500).json({ error: "Failed to load profile" });
+    }
+  });
+
   // ── DIRECTOR: Get my profile (matched by session email or userId) ──────────
   app.get("/api/director/me", async (req: any, res) => {
     try {
@@ -327,6 +380,24 @@ export function registerDirectorRoutes(app: Express) {
         sendApprovalEmail(updated).catch(err => console.error("[DIRECTOR] Approval email failed:", err));
       }
       res.json({ success: true, director: updated });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Set / Reset Director Portal PIN ────────────────────────────────
+  app.put("/api/director/admin/:id/pin", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const id = parseInt(req.params.id);
+      const { pin } = req.body;
+      const newPin = pin ? pin.toString().trim() : Math.floor(100000 + Math.random() * 900000).toString();
+      if (newPin.length < 4 || newPin.length > 10) return res.status(400).json({ error: "PIN must be 4–10 digits" });
+      const [updated] = await db.update(regionalDirectors)
+        .set({ portalPin: newPin, updatedAt: new Date() })
+        .where(eq(regionalDirectors.id, id))
+        .returning();
+      res.json({ success: true, pin: newPin, director: { id: updated.id, name: updated.name, email: updated.email } });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
