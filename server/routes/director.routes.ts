@@ -225,11 +225,13 @@ export function registerDirectorRoutes(app: Express) {
       let code = "DIR-";
       for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
 
-      // Create the director record (status: invited)
+      // Create the director record (city/state filled in later — empty string satisfies NOT NULL)
       const [director] = await db.insert(regionalDirectors).values({
         name: name.trim(),
         email: emailLower,
         phone: phone?.trim() || null,
+        city: "",
+        state: "",
         territory: territory?.trim() || null,
         level: level || "regional_director",
         status: "pending",
@@ -313,15 +315,26 @@ export function registerDirectorRoutes(app: Express) {
 
       const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
 
+      // Build background text combining bio, experience, and referral source
+      const backgroundParts = [
+        bio?.trim() ? `Bio: ${bio.trim()}` : "",
+        experience?.trim() ? `Experience: ${experience.trim()}` : "",
+        referralSource?.trim() ? `Referred by: ${referralSource.trim()}` : "",
+      ].filter(Boolean);
+
+      // Build social links combining existing + LinkedIn
+      const socialLinksText = [
+        director.socialLinks || "",
+        linkedinUrl?.trim() ? `LinkedIn: ${linkedinUrl.trim()}` : "",
+      ].filter(Boolean).join("\n");
+
       const [updated] = await db.update(regionalDirectors)
         .set({
           portalPin: pin.toString().trim(),
           phone: phone?.trim() || director.phone,
           territory: territory?.trim() || director.territory,
-          bio: bio?.trim() || null,
-          linkedinUrl: linkedinUrl?.trim() || null,
-          referralSource: referralSource?.trim() || null,
-          experience: experience?.trim() || null,
+          background: backgroundParts.length ? backgroundParts.join("\n") : director.background,
+          socialLinks: socialLinksText || director.socialLinks,
           contractSignature: contractSignature.trim(),
           contractSignedAt: new Date(),
           contractVersion: "v1.0-2025",
