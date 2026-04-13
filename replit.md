@@ -24,7 +24,7 @@ This runs 10 checks automatically:
 5. Attorney drip email route is registered
 6. Frontend root `/` renders
 7. `.github/workflows/` is in `.gitignore` (prevents GitHub push errors due to PAT scope)
-8. `*.mp4` is in `.gitignore` (prevents large file commits)
+8. Production video files (`caren-hero.mp4`, `caren-short.mp4`, `caren-attorney.mp4`) are present — they must be committed and deployed to Dokploy or the sign-in page will show "Video unavailable"
 
 The script is also installed as a **git pre-push hook** at `.git/hooks/pre-push`, so it runs automatically on every `git push`. A push is blocked if any check fails.
 

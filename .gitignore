@@ -24,12 +24,14 @@ attached_assets/
 *.ipa
 *.zip
 *.mp4
+# Allow the three production videos — re-encoded to <15MB each, safe to commit
+!caren-hero.mp4
+!caren-short.mp4
+!caren-attorney.mp4
 *.mov
 *.avi
 zi[A-Za-z0-9]*
 .cache/
 public/videos/
 CAREN-xcode-project.zip
-.github/workflows/
-.github/workflows/
 .github/workflows/

@@ -108,10 +108,15 @@ else
   warn ".github/workflows/ is NOT in .gitignore — push will fail without 'workflow' token scope"
 fi
 
-if grep -q "\*\.mp4" .gitignore 2>/dev/null; then
-  ok "*.mp4 files excluded from git (large files won't bloat repo)"
-else
-  warn "*.mp4 not in .gitignore — large video files may be committed"
+MISSING_VIDEOS=0
+for VID in "caren-hero.mp4" "caren-short.mp4" "caren-attorney.mp4"; do
+  if [ ! -f "client/public/$VID" ]; then
+    fail "Missing production video: client/public/$VID — Dokploy deploy will show 'Video unavailable'"
+    MISSING_VIDEOS=1
+  fi
+done
+if [ "$MISSING_VIDEOS" -eq 0 ]; then
+  ok "Production video files present and committed (Dokploy deploy will serve them)"
 fi
 
 # ── Summary ──────────────────────────────────────────────────
