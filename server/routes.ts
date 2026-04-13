@@ -5115,7 +5115,10 @@ GUIDELINES:
       const nodePath = await import("path");
       const absPath = nodePath.resolve(process.cwd(), filePath);
 
+      console.log(`[VIDEO] ${req.method} ${route} range="${req.headers.range || "none"}" file=${absPath}`);
+
       if (!existsSync(absPath)) {
+        console.warn(`[VIDEO] File not found: ${absPath}`);
         return res.status(404).json({ error: "Video not found" });
       }
 
@@ -5123,22 +5126,30 @@ GUIDELINES:
       const fileSize = stat.size;
       const range = req.headers.range;
 
-      res.setHeader("Content-Type", "video/mp4");
-      res.setHeader("Accept-Ranges", "bytes");
-
       if (range) {
         const [startStr, endStr] = range.replace(/bytes=/, "").split("-");
-        const start = parseInt(startStr, 10);
-        const end = endStr ? parseInt(endStr, 10) : Math.min(start + 10 * 1024 * 1024, fileSize - 1);
+        const start = parseInt(startStr, 10) || 0;
+        const end = (endStr && endStr.trim() !== "") ? parseInt(endStr, 10) : Math.min(start + 2 * 1024 * 1024, fileSize - 1);
         const chunkSize = end - start + 1;
+
+        console.log(`[VIDEO] Serving range ${start}-${end}/${fileSize} (${chunkSize} bytes)`);
 
         res.writeHead(206, {
           "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Accept-Ranges": "bytes",
           "Content-Length": chunkSize,
+          "Content-Type": "video/mp4",
+          "Cache-Control": "public, max-age=3600",
         });
         createReadStream(absPath, { start, end }).pipe(res);
       } else {
-        res.setHeader("Content-Length", fileSize);
+        console.log(`[VIDEO] Serving full file ${fileSize} bytes`);
+        res.writeHead(200, {
+          "Content-Length": fileSize,
+          "Content-Type": "video/mp4",
+          "Accept-Ranges": "bytes",
+          "Cache-Control": "public, max-age=3600",
+        });
         createReadStream(absPath).pipe(res);
       }
     });

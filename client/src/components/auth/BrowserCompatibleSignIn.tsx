@@ -303,9 +303,10 @@ export default function BrowserCompatibleSignIn() {
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-black aspect-video">
               <video
                 controls
-                preload="metadata"
+                preload="none"
                 playsInline
                 className="w-full h-full object-cover"
+                style={{ background: "linear-gradient(135deg,#0a0f1a,#1e293b)" }}
                 onError={(e) => {
                   const container = (e.target as HTMLVideoElement).parentElement;
                   if (container) {
