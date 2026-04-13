@@ -38,6 +38,7 @@ import { registerAuthRoutes } from "./routes/auth.routes";
 import { registerEmergencyRoutes } from "./routes/emergency.routes";
 import { registerAttorneyRoutes } from "./routes/attorney.routes";
 import { registerAttorneyNetworkRoutes } from "./routes/attorney-network.routes";
+import { registerWebhookRoutes } from "./routes/webhooks.routes";
 import { registerLegalRoutes } from "./routes/legal.routes";
 import { registerJourneyRoutes } from "./routes/journey.routes";
 import { registerForumRoutes } from "./routes/forum.routes";
@@ -264,6 +265,7 @@ GUIDELINES:
   registerAnnouncementRoutes(app);
   registerCommunityRoutes(app);
   registerDirectorRoutes(app);
+  registerWebhookRoutes(app);
   registerSocialMediaRoutes(app);
   console.log("[ROUTES] Announcement & Giveaway routes registered");
 
