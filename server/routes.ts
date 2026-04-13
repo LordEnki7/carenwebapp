@@ -5102,6 +5102,48 @@ GUIDELINES:
     }
   });
 
+  // ── Video file streaming (bypasses dist/public, works in dev & prod) ──────
+  const videoFiles: Record<string, string> = {
+    "/caren-hero.mp4":     "client/public/caren-hero.mp4",
+    "/caren-short.mp4":    "client/public/caren-short.mp4",
+    "/caren-attorney.mp4": "client/public/caren-attorney.mp4",
+  };
+
+  Object.entries(videoFiles).forEach(([route, filePath]) => {
+    app.get(route, async (req, res) => {
+      const { createReadStream, statSync, existsSync } = await import("fs");
+      const nodePath = await import("path");
+      const absPath = nodePath.resolve(process.cwd(), filePath);
+
+      if (!existsSync(absPath)) {
+        return res.status(404).json({ error: "Video not found" });
+      }
+
+      const stat = statSync(absPath);
+      const fileSize = stat.size;
+      const range = req.headers.range;
+
+      res.setHeader("Content-Type", "video/mp4");
+      res.setHeader("Accept-Ranges", "bytes");
+
+      if (range) {
+        const [startStr, endStr] = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(startStr, 10);
+        const end = endStr ? parseInt(endStr, 10) : Math.min(start + 10 * 1024 * 1024, fileSize - 1);
+        const chunkSize = end - start + 1;
+
+        res.writeHead(206, {
+          "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+          "Content-Length": chunkSize,
+        });
+        createReadStream(absPath, { start, end }).pipe(res);
+      } else {
+        res.setHeader("Content-Length", fileSize);
+        createReadStream(absPath).pipe(res);
+      }
+    });
+  });
+
   const httpServer = createServer(app);
   
   // Initialize WebSocket manager for real-time synchronization

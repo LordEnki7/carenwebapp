@@ -304,8 +304,19 @@ export default function BrowserCompatibleSignIn() {
               <video
                 controls
                 preload="metadata"
+                playsInline
                 className="w-full h-full object-cover"
-                poster=""
+                onError={(e) => {
+                  const container = (e.target as HTMLVideoElement).parentElement;
+                  if (container) {
+                    container.innerHTML = `
+                      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;background:linear-gradient(135deg,#0a0f1a,#1e293b);padding:24px;text-align:center;">
+                        <div style="font-size:48px;margin-bottom:12px;">🎬</div>
+                        <p style="color:#00e5ff;font-weight:bold;margin-bottom:6px;">C.A.R.E.N.™ ALERT</p>
+                        <p style="color:#64748b;font-size:13px;">GPS-Powered Legal Protection<br/>for Every Traffic Stop</p>
+                      </div>`;
+                  }
+                }}
               >
                 <source src="/caren-hero.mp4" type="video/mp4" />
               </video>
@@ -381,6 +392,7 @@ export default function BrowserCompatibleSignIn() {
           playsInline
           className="w-full object-cover"
           style={{ maxHeight: "340px" }}
+          onError={(e) => { (e.target as HTMLVideoElement).style.display = "none"; }}
         >
           <source src="/caren-short.mp4" type="video/mp4" />
         </video>
