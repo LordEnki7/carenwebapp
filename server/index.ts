@@ -309,7 +309,14 @@ app.use((req, res, next) => {
 app.use(sessionLimiterMiddleware());
 
 // Body parsing with size limits
-app.use(express.json({ limit: '10mb' }));
+// The verify callback stores the raw buffer on req so webhook signature
+// verification can compute an HMAC over the exact bytes Mailtrap sent.
+app.use(express.json({
+  limit: '10mb',
+  verify: (req: any, _res, buf) => {
+    req.rawBody = buf;
+  },
+}));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 // Token-to-session bridge: if Bearer token is present but session.userId is missing,
