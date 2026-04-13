@@ -23,6 +23,18 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "typecheck"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "server-health"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "video-stream"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -31,6 +43,66 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "typecheck"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsc --noEmit 2>&1 | head -50"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "server-health"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+sleep 2
+      BASE=\"http://localhost:5000\"
+      PASS=0; FAIL=0
+      check() {
+        STATUS=$(curl -s -o /dev/null -w \"%{http_code}\" --max-time 5 \"$1\")
+        if [ \"$STATUS\" -ge 200 ] && [ \"$STATUS\" -lt 500 ]; then
+          echo \"PASS [$STATUS] $1\"; PASS=$((PASS+1))
+        else
+          echo \"FAIL [$STATUS] $1\"; FAIL=$((FAIL+1))
+        fi
+      }
+      check \"$BASE/api/auth/user\"
+      check \"$BASE/caren-hero.mp4\"
+      check \"$BASE/caren-short.mp4\"
+      check \"$BASE/api/subscription-plans\"
+      echo \"---\"
+      echo \"Results: $PASS passed, $FAIL failed\"
+      [ \"$FAIL\" -eq 0 ]"""
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "video-stream"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = """
+BASE=\"http://localhost:5000\"
+      echo \"Testing video Range request...\"
+      STATUS=$(curl -s -o /dev/null -w \"%{http_code}\" --max-time 10 -H \"Range: bytes=0-1023\" \"$BASE/caren-hero.mp4\")
+      echo \"caren-hero.mp4 Range request: HTTP $STATUS\"
+      [ \"$STATUS\" = \"206\" ] && echo \"PASS: video streaming works\" || { echo \"FAIL: expected 206, got $STATUS\"; exit 1; }
+
+      STATUS2=$(curl -s -o /dev/null -w \"%{http_code}\" --max-time 10 -H \"Range: bytes=0-1023\" \"$BASE/caren-short.mp4\")
+      echo \"caren-short.mp4 Range request: HTTP $STATUS2\"
+      [ \"$STATUS2\" = \"206\" ] && echo \"PASS: short video streaming works\" || { echo \"FAIL: expected 206, got $STATUS2\"; exit 1; }"""
+
+[workflows.workflow.metadata]
+isValidation = true
 
 [[ports]]
 localPort = 5000

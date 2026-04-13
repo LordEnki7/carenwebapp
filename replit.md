@@ -8,6 +8,28 @@ C.A.R.E.N.™ is a comprehensive family protection platform offering GPS-enabled
 
 Preferred communication style: Simple, everyday language.
 
+## Pre-Push / Pre-Commit Policy
+
+**Before any GitHub push or major save, always run the full validation checklist:**
+
+```bash
+bash scripts/pre-push-check.sh
+```
+
+This runs 10 checks automatically:
+1. TypeScript — no type errors
+2. Server health — `/api/auth/user` and `/api/subscription-plans` respond
+3. Video streaming — `caren-hero.mp4` and `caren-short.mp4` return HTTP 206 on Range requests
+4. Director leaderboard API responds
+5. Attorney drip email route is registered
+6. Frontend root `/` renders
+7. `.github/workflows/` is in `.gitignore` (prevents GitHub push errors due to PAT scope)
+8. `*.mp4` is in `.gitignore` (prevents large file commits)
+
+The script is also installed as a **git pre-push hook** at `.git/hooks/pre-push`, so it runs automatically on every `git push`. A push is blocked if any check fails.
+
+Named validation commands (for in-session use): `typecheck`, `server-health`, `video-stream`
+
 ## System Architecture
 
 ### System Design
