@@ -40,26 +40,14 @@ check_env "STRIPE_SECRET_KEY"    "All payments silently fail"
 check_env "GOOGLE_CLIENT_ID"     "Google sign-in broken for all users"
 check_env "GOOGLE_CLIENT_SECRET" "Google sign-in broken for all users"
 
-# Email provider — SendGrid is the production provider
-# IMPORTANT: MAILTRAP_TOKEN is a SANDBOX/TESTING token only.
-#            It captures emails in Mailtrap's test inbox and NEVER delivers to real users.
-#            Directors, attorneys, and users will not receive any emails if only Mailtrap is set.
-SENDGRID="${SENDGRID_API_KEY:-}"
+# Email provider — Mailtrap sending API is the configured provider
 MAILTRAP="${MAILTRAP_TOKEN:-}"
 
-if [ -n "$SENDGRID" ]; then
-  ok "SENDGRID_API_KEY set — real emails will be delivered to recipients"
+if [ -n "$MAILTRAP" ]; then
+  ok "MAILTRAP_TOKEN set — emails will be delivered via Mailtrap sending API"
 else
-  fail "SENDGRID_API_KEY not set — no emails will be delivered to real users"
+  fail "MAILTRAP_TOKEN not set — no emails will be delivered"
   hint "Impact: director messages, attorney drip, emergency alerts, invite emails all silently fail"
-fi
-
-if [ -n "$MAILTRAP" ] && [ -z "$SENDGRID" ]; then
-  fail "MAILTRAP_TOKEN is set but SENDGRID_API_KEY is missing"
-  hint "Mailtrap sandbox ONLY captures test emails — real users never receive them"
-  hint "Add SENDGRID_API_KEY to your Dokploy environment variables"
-elif [ -n "$MAILTRAP" ]; then
-  warn "MAILTRAP_TOKEN is set — this is a sandbox-only token; ensure you're using SENDGRID_API_KEY for real delivery"
 fi
 
 # ── 2. Stripe key environment mismatch ───────────────────────────────────────
