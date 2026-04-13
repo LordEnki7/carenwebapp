@@ -58,11 +58,17 @@ const TEMPLATE_OPTIONS = [
   { key: "final_invite", label: "Final Message — Last Chance" },
 ];
 
-const OUTREACH_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
-  sent: { label: "Sent", color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-  failed: { label: "Failed", color: "bg-red-500/20 text-red-400 border-red-500/30" },
-  replied: { label: "Replied", color: "bg-green-500/20 text-green-400 border-green-500/30" },
-  not_interested: { label: "Not Interested", color: "bg-gray-500/20 text-gray-400 border-gray-500/30" },
+const OUTREACH_STATUS_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
+  sent:           { label: "Sent",           color: "bg-blue-500/20 text-blue-400 border-blue-500/30",    icon: "📤" },
+  delivered:      { label: "Delivered",      color: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",    icon: "📬" },
+  opened:         { label: "Opened",         color: "bg-green-500/20 text-green-400 border-green-500/30", icon: "👁️" },
+  replied:        { label: "Replied",        color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", icon: "💬" },
+  not_interested: { label: "Not Interested", color: "bg-gray-500/20 text-gray-400 border-gray-500/30",    icon: "🚫" },
+  bounced:        { label: "Bounced",        color: "bg-orange-500/20 text-orange-400 border-orange-500/30", icon: "⚠️" },
+  spam_complaint: { label: "Spam",           color: "bg-red-500/20 text-red-400 border-red-500/30",       icon: "🚨" },
+  unsubscribed:   { label: "Unsubscribed",   color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", icon: "🔕" },
+  rejected:       { label: "Rejected",       color: "bg-red-700/20 text-red-500 border-red-700/30",       icon: "❌" },
+  failed:         { label: "Failed",         color: "bg-red-500/20 text-red-400 border-red-500/30",       icon: "💥" },
 };
 
 export default function DirectorAdmin() {
@@ -1185,16 +1191,21 @@ export default function DirectorAdmin() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 flex-shrink-0">
-                            <Badge className={`text-xs border ${sc.color}`}>{sc.label}</Badge>
+                            <Badge className={`text-xs border ${sc.color}`}>{sc.icon} {sc.label}</Badge>
                             <select
                               value={r.status}
                               onChange={e => updateOutreachStatus.mutate({ id: r.id, status: e.target.value })}
                               className="bg-white/5 border border-white/10 text-gray-400 rounded text-xs px-1.5 py-1"
                             >
-                              <option value="sent" className="bg-gray-900">Sent</option>
-                              <option value="replied" className="bg-gray-900">Replied</option>
-                              <option value="not_interested" className="bg-gray-900">Not Interested</option>
-                              <option value="failed" className="bg-gray-900">Failed</option>
+                              <option value="sent" className="bg-gray-900">📤 Sent</option>
+                              <option value="delivered" className="bg-gray-900">📬 Delivered</option>
+                              <option value="opened" className="bg-gray-900">👁️ Opened</option>
+                              <option value="replied" className="bg-gray-900">💬 Replied</option>
+                              <option value="not_interested" className="bg-gray-900">🚫 Not Interested</option>
+                              <option value="bounced" className="bg-gray-900">⚠️ Bounced</option>
+                              <option value="spam_complaint" className="bg-gray-900">🚨 Spam</option>
+                              <option value="unsubscribed" className="bg-gray-900">🔕 Unsubscribed</option>
+                              <option value="failed" className="bg-gray-900">💥 Failed</option>
                             </select>
                           </div>
                         </div>
