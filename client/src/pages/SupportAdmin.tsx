@@ -991,6 +991,25 @@ function AttorneyNetworkTab() {
     },
   });
 
+  const sendDrip = useMutation({
+    mutationFn: (id: number) =>
+      fetch(`/api/attorney-network/outreach/${id}/drip`, {
+        method: "POST",
+        headers: adminHeaders,
+      }).then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.message || "Failed to send");
+        return data;
+      }),
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/attorney-network/outreach"] });
+      toast({ title: `Email ${data.stepSent} of 5 sent`, description: data.subject });
+    },
+    onError: (err: any) => {
+      toast({ title: "Failed to send email", description: err.message, variant: "destructive" });
+    },
+  });
+
   const filteredApps = applications.filter((a) => filterStatus === "all" || a.verification_status === filterStatus);
 
   const scoreColor = (s: number) => s >= 85 ? "text-green-400" : s >= 70 ? "text-yellow-400" : s >= 50 ? "text-orange-400" : "text-red-400";
@@ -1179,40 +1198,92 @@ function AttorneyNetworkTab() {
             </div>
           ) : (
             <div className="space-y-3">
-              {outreach.map((lead: any) => (
-                <div key={lead.id} className="bg-gray-800/60 border border-gray-700 rounded-xl p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <p className="text-white font-semibold text-sm">{lead.firm_name}</p>
-                        <Badge className={`text-xs ${OUTREACH_STATUS_COLORS[lead.status] || ""}`}>{lead.status?.replace(/_/g, " ")}</Badge>
+              {outreach.map((lead: any) => {
+                const step = lead.drip_step ?? 0;
+                const dripDone = step >= 5;
+                const hasEmail = !!lead.email;
+                const dripLabels = ["Initial Outreach", "Follow-Up", "How Matching Works", "Limited Spots", "Final Closing"];
+                return (
+                  <div key={lead.id} className="bg-gray-800/60 border border-gray-700 rounded-xl p-4 space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                          <p className="text-white font-semibold text-sm">{lead.firm_name}</p>
+                          <Badge className={`text-xs ${OUTREACH_STATUS_COLORS[lead.status] || ""}`}>{lead.status?.replace(/_/g, " ")}</Badge>
+                          {dripDone && <Badge className="text-xs bg-green-500/20 text-green-400 border-green-500/30">Sequence Complete</Badge>}
+                        </div>
+                        <div className="flex gap-4 text-xs text-gray-400 flex-wrap">
+                          {lead.contact_name && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{lead.contact_name}</span>}
+                          {lead.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{lead.email}</span>}
+                          {lead.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{lead.phone}</span>}
+                          <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.city ? `${lead.city}, ` : ""}{lead.state}</span>
+                        </div>
+                        {lead.notes && <p className="text-gray-500 text-xs mt-2">{lead.notes}</p>}
                       </div>
-                      <div className="flex gap-4 text-xs text-gray-400 flex-wrap">
-                        {lead.contact_name && <span className="flex items-center gap-1"><Users className="w-3 h-3" />{lead.contact_name}</span>}
-                        {lead.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{lead.email}</span>}
-                        {lead.phone && <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{lead.phone}</span>}
-                        <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{lead.city ? `${lead.city}, ` : ""}{lead.state}</span>
+                      <div className="flex gap-1 shrink-0">
+                        <Select value={lead.status} onValueChange={(v) => updateOutreach.mutate({ id: lead.id, status: v })}>
+                          <SelectTrigger className="w-36 h-7 text-xs bg-gray-700 border-gray-600 text-white">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="bg-gray-800 border-gray-600">
+                            {["not_contacted", "contacted", "responded", "interested", "onboarded", "passed"].map((s) => (
+                              <SelectItem key={s} value={s} className="text-xs">{s.replace(/_/g, " ")}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 w-7 p-0" onClick={() => deleteOutreach.mutate(lead.id)}>
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
                       </div>
-                      {lead.notes && <p className="text-gray-500 text-xs mt-2">{lead.notes}</p>}
                     </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Select value={lead.status} onValueChange={(v) => updateOutreach.mutate({ id: lead.id, status: v })}>
-                        <SelectTrigger className="w-36 h-7 text-xs bg-gray-700 border-gray-600 text-white">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="bg-gray-800 border-gray-600">
-                          {["not_contacted", "contacted", "responded", "interested", "onboarded", "passed"].map((s) => (
-                            <SelectItem key={s} value={s} className="text-xs">{s.replace(/_/g, " ")}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 h-7 w-7 p-0" onClick={() => deleteOutreach.mutate(lead.id)}>
-                        <Trash2 className="w-3 h-3" />
-                      </Button>
+
+                    {/* Drip email progress bar */}
+                    <div className="bg-gray-900/60 border border-gray-700/50 rounded-lg p-3">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs text-gray-400 font-medium">Email Drip Sequence</span>
+                        <span className="text-xs text-gray-500">{step}/5 sent</span>
+                      </div>
+                      <div className="flex gap-1 mb-2">
+                        {[1, 2, 3, 4, 5].map((n) => (
+                          <div
+                            key={n}
+                            title={dripLabels[n - 1]}
+                            className={`flex-1 h-1.5 rounded-full transition-colors ${n <= step ? "bg-cyan-500" : "bg-gray-700"}`}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-gray-500">
+                          {dripDone ? (
+                            <span className="text-green-400">All 5 emails sent ✓</span>
+                          ) : step === 0 ? (
+                            <span>Next: {dripLabels[0]}</span>
+                          ) : (
+                            <span>
+                              Last: <span className="text-gray-400">{dripLabels[step - 1]}</span>
+                              {lead.drip_last_sent_at && (
+                                <span className="ml-1 text-gray-600">· {new Date(lead.drip_last_sent_at).toLocaleDateString()}</span>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                        {!dripDone && (
+                          <Button
+                            size="sm"
+                            disabled={!hasEmail || sendDrip.isPending}
+                            onClick={() => sendDrip.mutate(lead.id)}
+                            className="h-6 text-xs bg-cyan-600 hover:bg-cyan-700 gap-1 px-2"
+                            title={!hasEmail ? "Add an email address to this lead first" : `Send: ${dripLabels[step]}`}
+                          >
+                            <Mail className="w-3 h-3" />
+                            {sendDrip.isPending ? "Sending…" : `Send Email ${step + 1}`}
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

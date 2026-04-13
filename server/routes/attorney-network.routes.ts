@@ -11,6 +11,7 @@ import {
 } from "@shared/schema";
 import { getOpenAIClient } from "../aiService";
 import nodemailer from "nodemailer";
+import { sendNextDripEmail, DRIP_SEQUENCE_LENGTH } from "../attorneyDripEmails";
 
 const ADMIN_EMAIL = "info@carenalert.com";
 
@@ -530,6 +531,51 @@ export function registerAttorneyNetworkRoutes(app: Express) {
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete lead" });
+    }
+  });
+
+  // ── DRIP EMAIL: send next email in 5-step sequence ───────────────────────
+  app.post("/api/attorney-network/outreach/:id/drip", isAuthenticated, async (req: any, res) => {
+    if (!isAdmin(req)) return res.status(403).json({ message: "Admin access required" });
+    try {
+      const leadId = parseInt(req.params.id);
+      const [lead] = await db.select().from(attorneyOutreach).where(eq(attorneyOutreach.id, leadId));
+      if (!lead) return res.status(404).json({ message: "Lead not found" });
+
+      const currentStep = lead.dripStep ?? 0;
+      if (currentStep >= DRIP_SEQUENCE_LENGTH) {
+        return res.status(400).json({ message: "Drip sequence already completed — all 5 emails sent" });
+      }
+      if (!lead.email) {
+        return res.status(400).json({ message: "No email address on this lead" });
+      }
+
+      const { nextStep, subject } = await sendNextDripEmail(
+        {
+          email: lead.email,
+          contactName: lead.contactName ?? undefined,
+          firmName: lead.firmName,
+          state: lead.state,
+          city: lead.city ?? undefined,
+        },
+        currentStep
+      );
+
+      await db
+        .update(attorneyOutreach)
+        .set({
+          dripStep: nextStep,
+          dripLastSentAt: new Date(),
+          status: lead.status === "not_contacted" ? "contacted" : lead.status,
+          lastContactDate: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(attorneyOutreach.id, leadId));
+
+      res.json({ success: true, stepSent: currentStep + 1, nextStep, subject });
+    } catch (error: any) {
+      console.error("[DRIP] Error sending drip email:", error);
+      res.status(500).json({ message: error.message || "Failed to send drip email" });
     }
   });
 

@@ -734,6 +734,9 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS invite_token VARCHAR(100)`,
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS invite_token_expiry TIMESTAMP`,
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS invite_sent_at TIMESTAMP`,
+    // attorney_outreach — drip email tracking columns
+    `ALTER TABLE attorney_outreach ADD COLUMN IF NOT EXISTS drip_step INTEGER DEFAULT 0`,
+    `ALTER TABLE attorney_outreach ADD COLUMN IF NOT EXISTS drip_last_sent_at TIMESTAMP`,
   ];
 
   const allMigrations = [...createTables, ...addMissingColumns];

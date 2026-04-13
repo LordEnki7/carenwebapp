@@ -422,6 +422,8 @@ export const attorneyOutreach = pgTable("attorney_outreach", {
   notes: text("notes"),
   score: integer("score").default(0), // fit score 0-100
   source: varchar("source").default("manual"), // bar_directory | linkedin | referral | cold | manual
+  dripStep: integer("drip_step").default(0),         // 0 = not started, 1-5 = step sent
+  dripLastSentAt: timestamp("drip_last_sent_at"),    // when last drip email went out
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
