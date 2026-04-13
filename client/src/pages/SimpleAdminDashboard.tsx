@@ -238,7 +238,7 @@ export default function SimpleAdminDashboard() {
                 <div>
                   <p className="text-gray-400 text-sm">Avg Session</p>
                   <p className="text-3xl font-bold text-purple-400">
-                    {userStats?.averageSessionDuration || 0}m
+                    {userStats?.averageSessionDuration != null ? `${userStats.averageSessionDuration}m` : '—'}
                   </p>
                 </div>
                 <Clock className="h-8 w-8 text-purple-400" />
@@ -297,7 +297,7 @@ export default function SimpleAdminDashboard() {
                 <div>
                   <p className="text-gray-400 text-sm">Legal Rights Viewed</p>
                   <p className="text-3xl font-bold text-cyan-400">
-                    {userStats?.legalRightsViewed || 0}
+                    {userStats?.legalRightsViewed != null ? userStats.legalRightsViewed : '—'}
                   </p>
                 </div>
                 <BookOpen className="h-8 w-8 text-cyan-400" />

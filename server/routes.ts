@@ -2600,19 +2600,23 @@ GUIDELINES:
       const subscriptionBreakdown = await storage.getSubscriptionBreakdown();
       const paymentStats = await storage.getPaymentStatistics();
 
+      const recentLoginActivity = await storage.getRecentLoginActivity(1000);
+      const totalLogins = recentLoginActivity.length;
+      const demoUsers = allUsers.filter(u => u.id.includes('demo')).length;
+
       const userStats = {
         totalUsers,
         activeUsers,
-        totalLogins: totalUsers * 5, // Estimated average
-        averageSessionDuration: 15.3,
-        demoUsers: allUsers.filter(u => u.id.includes('demo')).length,
-        regularUsers: totalUsers - allUsers.filter(u => u.id.includes('demo')).length,
+        totalLogins,
+        averageSessionDuration: null,
+        demoUsers,
+        regularUsers: totalUsers - demoUsers,
         usersToday: allUsers.filter(u => new Date(u.createdAt) >= today).length,
         usersThisWeek: allUsers.filter(u => new Date(u.createdAt) >= oneWeekAgo).length,
         totalIncidents: allIncidents.length,
         emergencyAlerts: weeklyAlerts,
         recordingsToday: todayIncidents,
-        legalRightsViewed: totalUsers * 12, // Estimated
+        legalRightsViewed: null,
         // Real payment data from database
         subscriptionBreakdown,
         paymentStatistics: paymentStats
@@ -2643,78 +2647,8 @@ GUIDELINES:
       console.log('[ADMIN_SESSIONS] Raw login data:', JSON.stringify(recentLogins, null, 2));
       
       if (!recentLogins || recentLogins.length === 0) {
-        console.log('[ADMIN_SESSIONS] No login records found, returning demo data...');
-        // Return demonstration login data when database table doesn't exist yet
-        const currentTime = new Date();
-        const demoSessions = [
-          {
-            id: 'user_demo_001',
-            email: 'john.doe@email.com',
-            firstName: 'john.doe',
-            lastName: 'BASIC',
-            lastLogin: new Date(currentTime.getTime() - 15 * 60 * 1000).toISOString(),
-            isCurrentlyActive: true,
-            sessionDuration: 25 * 60 * 1000,
-            loginCount: 12,
-            authMethod: 'password' as const,
-            deviceInfo: 'Chrome/Windows',
-            ipAddress: '192.168.1.100'
-          },
-          {
-            id: 'user_demo_002',
-            email: 'sarah.smith@email.com',
-            firstName: 'sarah.smith',
-            lastName: 'FREE',
-            lastLogin: new Date(currentTime.getTime() - 32 * 60 * 1000).toISOString(),
-            isCurrentlyActive: true,
-            sessionDuration: 18 * 60 * 1000,
-            loginCount: 8,
-            authMethod: 'password' as const,
-            deviceInfo: 'Mobile Safari/iOS',
-            ipAddress: '10.0.0.45'
-          },
-          {
-            id: 'demo-user-123',
-            email: 'demo@caren.app',
-            firstName: 'demo',
-            lastName: 'FREE',
-            lastLogin: new Date(currentTime.getTime() - 45 * 60 * 1000).toISOString(),
-            isCurrentlyActive: false,
-            sessionDuration: 12 * 60 * 1000,
-            loginCount: 3,
-            authMethod: 'demo' as const,
-            deviceInfo: 'Firefox/Mac',
-            ipAddress: '172.16.0.23'
-          },
-          {
-            id: 'user_demo_003',
-            email: 'mike.johnson@email.com',
-            firstName: 'mike.johnson',
-            lastName: 'PREMIUM',
-            lastLogin: new Date(currentTime.getTime() - 78 * 60 * 1000).toISOString(),
-            isCurrentlyActive: false,
-            sessionDuration: 35 * 60 * 1000,
-            loginCount: 24,
-            authMethod: 'password' as const,
-            deviceInfo: 'Edge/Windows',
-            ipAddress: '192.168.1.105'
-          },
-          {
-            id: 'user_demo_004',
-            email: 'lisa.anderson@email.com',
-            firstName: 'lisa.anderson',
-            lastName: 'BASIC',
-            lastLogin: new Date(currentTime.getTime() - 2 * 60 * 60 * 1000).toISOString(),
-            isCurrentlyActive: false,
-            sessionDuration: 28 * 60 * 1000,
-            loginCount: 15,
-            authMethod: 'password' as const,
-            deviceInfo: 'Chrome/Android',
-            ipAddress: '10.0.0.67'
-          }
-        ];
-        
-        return res.json(demoSessions);
+        console.log('[ADMIN_SESSIONS] No login records found in database.');
+        return res.json([]);
       }
       
       // Transform database records to match frontend expectations
