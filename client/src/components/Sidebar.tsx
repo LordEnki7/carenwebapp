@@ -130,7 +130,6 @@ const navGroups: NavGroup[] = [
       { name: "Community", href: "/community", icon: Users, description: "News, Giveaways & Forum" },
       { name: "Director Portal", href: "/director-portal", icon: Star, description: "Your Director Dashboard" },
       { name: "Become a Director", href: "/become-director", icon: Building2, description: "Apply to Lead Your City" },
-      { name: "Social Media Agent", href: "/social-agent", icon: Zap, description: "AI-Powered Campaign Manager" },
       { name: "Feature Picker", href: "/feature-picker", icon: Sliders, description: "Customize Your Features" },
       { name: "Feedback", href: "/feedback", icon: MessageSquarePlus, description: "Request Features & Vote" },
       { name: "Waitlist", href: "/waitlist", icon: ClipboardList, description: "Join the Launch List" },
@@ -146,6 +145,7 @@ const navGroups: NavGroup[] = [
     items: [
       { name: "Settings", href: "/settings", icon: Settings, description: "Account & Pricing" },
       { name: "Account Security", href: "/account-security", icon: Shield, description: "Session & Security Management" },
+      { name: "Social Media Agent", href: "/social-agent", icon: Zap, description: "AI-Powered Campaign Manager" },
       { name: "Support Admin", href: "/support-admin", icon: LifeBuoy, description: "Customer Support Tickets" },
       { name: "Announcements Admin", href: "/announcements-admin", icon: Megaphone, description: "Manage Posts & Giveaways" },
       { name: "Director Admin", href: "/director-admin", icon: Building2, description: "Manage Regional Directors" },
