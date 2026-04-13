@@ -202,6 +202,176 @@ export function registerDirectorRoutes(app: Express) {
     }
   });
 
+  // ── ADMIN: Invite a director by email ────────────────────────────────────
+  app.post("/api/director/admin/invite", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const { name, email, phone, territory, level, adminNotes } = req.body;
+      if (!name?.trim() || !email?.trim()) return res.status(400).json({ error: "Name and email are required" });
+
+      const emailLower = email.toLowerCase().trim();
+
+      // Check if already exists
+      const existing = await db.select().from(regionalDirectors).where(eq(regionalDirectors.email, emailLower));
+      if (existing.length) return res.status(409).json({ error: "A director with this email already exists" });
+
+      // Generate secure invite token
+      const { randomBytes } = await import("crypto");
+      const token = randomBytes(32).toString("hex");
+      const expiry = new Date(Date.now() + 72 * 60 * 60 * 1000); // 72 hours
+
+      // Generate director code
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "DIR-";
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+
+      // Create the director record (status: invited)
+      const [director] = await db.insert(regionalDirectors).values({
+        name: name.trim(),
+        email: emailLower,
+        phone: phone?.trim() || null,
+        territory: territory?.trim() || null,
+        level: level || "regional_director",
+        status: "pending",
+        adminNotes: adminNotes?.trim() || null,
+        directorCode: code,
+        inviteToken: token,
+        inviteTokenExpiry: expiry,
+        inviteSentAt: new Date(),
+      }).returning();
+
+      // Send invite email
+      const baseUrl = req.headers.origin || `https://${req.headers.host}` || "https://carenalert.com";
+      const inviteUrl = `${baseUrl}/director-invite/${token}`;
+
+      await sendEmail({
+        to: emailLower,
+        subject: "You're Invited to Join the C.A.R.E.N.™ Regional Director Network",
+        html: `
+          <div style="font-family:Arial,sans-serif;background:#0a0f1a;color:#e2e8f0;padding:32px;max-width:560px;margin:0 auto;border-radius:12px;">
+            <div style="text-align:center;margin-bottom:24px;">
+              <h1 style="color:#00e5ff;font-size:22px;margin:0;">C.A.R.E.N.™ ALERT</h1>
+              <p style="color:#64748b;font-size:12px;margin:4px 0 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
+            </div>
+            <h2 style="color:#ffffff;font-size:18px;">Welcome, ${name}!</h2>
+            <p style="color:#94a3b8;line-height:1.6;">You've been personally invited by the C.A.R.E.N.™ ALERT team to join our <strong style="color:#00e5ff;">Regional Director Network</strong>.</p>
+            <p style="color:#94a3b8;line-height:1.6;">As a Regional Director, you'll earn commissions helping grow C.A.R.E.N.'s mission of keeping families safe and legally protected during roadside encounters.</p>
+            <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:16px;margin:24px 0;">
+              <p style="color:#64748b;font-size:12px;margin:0 0 8px;">Your Director Code:</p>
+              <p style="color:#00e5ff;font-size:20px;font-weight:bold;margin:0;letter-spacing:2px;">${code}</p>
+            </div>
+            <p style="color:#94a3b8;line-height:1.6;">Click the button below to complete your profile and set up your secure portal login. This link expires in <strong style="color:#fbbf24;">72 hours</strong>.</p>
+            <div style="text-align:center;margin:28px 0;">
+              <a href="${inviteUrl}" style="background:#00e5ff;color:#0a0f1a;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;display:inline-block;">Complete My Profile →</a>
+            </div>
+            <p style="color:#475569;font-size:12px;text-align:center;">If the button doesn't work, copy and paste this link:<br/><span style="color:#00e5ff;">${inviteUrl}</span></p>
+            <hr style="border-color:#1e293b;margin:24px 0;"/>
+            <p style="color:#475569;font-size:11px;text-align:center;">C.A.R.E.N.™ ALERT · carenalert.com<br/>This invite expires in 72 hours. If you didn't expect this email, you can safely ignore it.</p>
+          </div>
+        `,
+        text: `Welcome to the C.A.R.E.N.™ Regional Director Network!\n\nYou've been invited by the C.A.R.E.N.™ team.\n\nComplete your profile here: ${inviteUrl}\n\nYour Director Code: ${code}\n\nThis link expires in 72 hours.`,
+      });
+
+      console.log(`[DIRECTOR INVITE] Sent invite to ${emailLower} — token expires ${expiry.toISOString()}`);
+      res.json({ success: true, directorCode: code, message: `Invite sent to ${emailLower}` });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── PUBLIC: Validate invite token ────────────────────────────────────────
+  app.get("/api/director/invite/:token", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const rows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.inviteToken, token));
+      if (!rows.length) return res.status(404).json({ error: "Invalid or expired invite link" });
+      const director = rows[0];
+      if (!director.inviteTokenExpiry || director.inviteTokenExpiry < new Date()) {
+        return res.status(410).json({ error: "This invite link has expired. Please ask the admin to resend your invite." });
+      }
+      res.json({ name: director.name, email: director.email, directorCode: director.directorCode, territory: director.territory || "" });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── PUBLIC: Complete registration via invite token ────────────────────────
+  app.post("/api/director/invite/:token/complete", async (req, res) => {
+    try {
+      const { token } = req.params;
+      const { pin, phone, territory, bio, linkedinUrl, referralSource, experience, contractSignature } = req.body;
+
+      if (!pin || pin.toString().length !== 6) return res.status(400).json({ error: "A 6-digit PIN is required" });
+      if (!contractSignature?.trim()) return res.status(400).json({ error: "Contract signature is required" });
+
+      const rows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.inviteToken, token));
+      if (!rows.length) return res.status(404).json({ error: "Invalid invite link" });
+      const director = rows[0];
+      if (!director.inviteTokenExpiry || director.inviteTokenExpiry < new Date()) {
+        return res.status(410).json({ error: "Invite link has expired" });
+      }
+
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
+
+      const [updated] = await db.update(regionalDirectors)
+        .set({
+          portalPin: pin.toString().trim(),
+          phone: phone?.trim() || director.phone,
+          territory: territory?.trim() || director.territory,
+          bio: bio?.trim() || null,
+          linkedinUrl: linkedinUrl?.trim() || null,
+          referralSource: referralSource?.trim() || null,
+          experience: experience?.trim() || null,
+          contractSignature: contractSignature.trim(),
+          contractSignedAt: new Date(),
+          contractVersion: "v1.0-2025",
+          contractIp: ip,
+          contractMethod: "electronic",
+          inviteToken: null,          // consume the token
+          inviteTokenExpiry: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(regionalDirectors.id, director.id))
+        .returning();
+
+      console.log(`[DIRECTOR INVITE COMPLETE] ${director.name} completed registration via invite`);
+      res.json({ success: true, email: director.email, name: director.name });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── ADMIN: Resend invite email ────────────────────────────────────────────
+  app.post("/api/director/admin/:id/resend-invite", async (req, res) => {
+    try {
+      if (req.headers["x-admin-key"] !== ADMIN_KEY) return res.status(403).json({ error: "Forbidden" });
+      const id = parseInt(req.params.id);
+      const rows = await db.select().from(regionalDirectors).where(eq(regionalDirectors.id, id));
+      if (!rows.length) return res.status(404).json({ error: "Not found" });
+      const director = rows[0];
+
+      const { randomBytes } = await import("crypto");
+      const token = randomBytes(32).toString("hex");
+      const expiry = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
+      await db.update(regionalDirectors).set({ inviteToken: token, inviteTokenExpiry: expiry, inviteSentAt: new Date(), updatedAt: new Date() }).where(eq(regionalDirectors.id, id));
+
+      const baseUrl = req.headers.origin || `https://${req.headers.host}` || "https://carenalert.com";
+      const inviteUrl = `${baseUrl}/director-invite/${token}`;
+
+      await sendEmail({
+        to: director.email,
+        subject: "Your C.A.R.E.N.™ Director Invite Link (Resent)",
+        html: `<div style="font-family:Arial,sans-serif;background:#0a0f1a;color:#e2e8f0;padding:32px;max-width:560px;margin:0 auto;border-radius:12px;"><h2 style="color:#00e5ff;">Hi ${director.name},</h2><p style="color:#94a3b8;">Here's your refreshed invite link to complete your C.A.R.E.N.™ Director profile:</p><div style="text-align:center;margin:28px 0;"><a href="${inviteUrl}" style="background:#00e5ff;color:#0a0f1a;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">Complete My Profile →</a></div><p style="color:#475569;font-size:12px;text-align:center;">Expires in 72 hours · ${inviteUrl}</p></div>`,
+        text: `Hi ${director.name},\n\nHere's your refreshed invite link:\n${inviteUrl}\n\nExpires in 72 hours.`,
+      });
+
+      res.json({ success: true, message: `Invite resent to ${director.email}` });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── DIRECTOR: Submit external contract document link ──────────────────────
   app.put("/api/director/portal-contract-doc", async (req: any, res) => {
     try {

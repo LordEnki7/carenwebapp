@@ -76,6 +76,9 @@ export default function DirectorAdmin() {
   const [notesInput, setNotesInput] = useState<Record<number, string>>({});
   const [pinInputs, setPinInputs] = useState<Record<number, string>>({});
   const [revealedPins, setRevealedPins] = useState<Record<number, string>>({});
+  // Invite form state
+  const [showInviteForm, setShowInviteForm] = useState(false);
+  const [inviteForm, setInviteForm] = useState({ name: "", email: "", phone: "", territory: "", level: "regional_director", adminNotes: "" });
   // Commission form state
   const [commForm, setCommForm] = useState({ directorId: "", referredEmail: "", planName: "Standard", notes: "", periodStart: "" });
   // Outreach form state
@@ -306,6 +309,31 @@ export default function DirectorAdmin() {
     onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
   });
 
+  const sendInvite = useMutation({
+    mutationFn: async () => {
+      if (!inviteForm.name.trim() || !inviteForm.email.trim()) throw new Error("Name and email are required");
+      const res = await fetch("/api/director/admin/invite", {
+        method: "POST", headers,
+        body: JSON.stringify(inviteForm),
+      });
+      if (!res.ok) { const e = await res.json(); throw new Error(e.error || "Failed to send invite"); }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({ title: "Invite sent!", description: `${inviteForm.email} will receive an email with their setup link. Code: ${data.directorCode}` });
+      setInviteForm({ name: "", email: "", phone: "", territory: "", level: "regional_director", adminNotes: "" });
+      setShowInviteForm(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/director/admin/all"] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" }),
+  });
+
+  const resendInvite = async (id: number, email: string) => {
+    const res = await fetch(`/api/director/admin/${id}/resend-invite`, { method: "POST", headers });
+    if (res.ok) toast({ title: "Invite resent", description: `A fresh invite link was emailed to ${email}` });
+    else toast({ title: "Error resending invite", variant: "destructive" });
+  };
+
   const updateCommissionStatus = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: string }) => {
       const res = await fetch(`/api/director/admin/commission/${id}/status`, {
@@ -432,6 +460,67 @@ export default function DirectorAdmin() {
         {/* ── DIRECTORS TAB ─────────────────────────────── */}
         {activeTab === "directors" && (
           <>
+            {/* Invite New Director */}
+            <div>
+              <Button onClick={() => setShowInviteForm(v => !v)}
+                className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold gap-2">
+                <Plus className="w-4 h-4" />
+                {showInviteForm ? "Cancel Invite" : "Invite New Director"}
+              </Button>
+            </div>
+
+            {showInviteForm && (
+              <Card className="bg-gradient-to-br from-cyan-900/20 to-blue-900/10 border-cyan-500/30">
+                <CardContent className="p-5 space-y-4">
+                  <h3 className="text-white font-bold text-base flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-cyan-400" /> Invite a Director by Email
+                  </h3>
+                  <p className="text-gray-400 text-xs">Fill in their info and click Send Invite. They'll receive an email with a personal link to complete their profile, sign the contract, and set their PIN.</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-gray-400 text-xs">Full Name *</label>
+                      <Input value={inviteForm.name} onChange={e => setInviteForm(p => ({ ...p, name: e.target.value }))}
+                        placeholder="Jane Smith" className="bg-white/5 border-white/20 text-white placeholder:text-gray-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-gray-400 text-xs">Email Address *</label>
+                      <Input type="email" value={inviteForm.email} onChange={e => setInviteForm(p => ({ ...p, email: e.target.value }))}
+                        placeholder="jane@example.com" className="bg-white/5 border-white/20 text-white placeholder:text-gray-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-gray-400 text-xs">Phone (optional)</label>
+                      <Input value={inviteForm.phone} onChange={e => setInviteForm(p => ({ ...p, phone: e.target.value }))}
+                        placeholder="(555) 000-0000" className="bg-white/5 border-white/20 text-white placeholder:text-gray-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-gray-400 text-xs">Territory (optional)</label>
+                      <Input value={inviteForm.territory} onChange={e => setInviteForm(p => ({ ...p, territory: e.target.value }))}
+                        placeholder="Los Angeles, CA" className="bg-white/5 border-white/20 text-white placeholder:text-gray-600" />
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <label className="text-gray-400 text-xs">Director Level</label>
+                      <select value={inviteForm.level} onChange={e => setInviteForm(p => ({ ...p, level: e.target.value }))}
+                        className="w-full bg-white/5 border border-white/20 text-white rounded-md px-3 py-2 text-sm">
+                        <option value="regional_director">Regional Director (20%)</option>
+                        <option value="senior_director">Senior Director (25%)</option>
+                        <option value="state_director">State Director (30%)</option>
+                        <option value="national_director">National Director (35%)</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1 sm:col-span-2">
+                      <label className="text-gray-400 text-xs">Admin Notes (optional — not shown to director)</label>
+                      <Input value={inviteForm.adminNotes} onChange={e => setInviteForm(p => ({ ...p, adminNotes: e.target.value }))}
+                        placeholder="How you know them, context, etc." className="bg-white/5 border-white/20 text-white placeholder:text-gray-600" />
+                    </div>
+                  </div>
+                  <Button onClick={() => sendInvite.mutate()} disabled={sendInvite.isPending}
+                    className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold gap-2 w-full sm:w-auto">
+                    {sendInvite.isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</> : <><Send className="w-4 h-4" /> Send Invite Email</>}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
@@ -559,6 +648,25 @@ export default function DirectorAdmin() {
                               )}
                               {d.phone && <p className="text-gray-400 text-sm mt-3">📞 {d.phone}</p>}
                               <p className="text-gray-500 text-xs mt-2">Applied: {new Date(d.createdAt).toLocaleDateString()}</p>
+
+                              {/* Invite Status */}
+                              {d.inviteSentAt && (
+                                <div className={`mt-3 rounded-lg p-3 border flex items-center justify-between gap-3 flex-wrap ${d.portalPin ? "border-green-500/20 bg-green-900/10" : "border-yellow-500/20 bg-yellow-900/10"}`}>
+                                  <div>
+                                    <p className="text-xs font-semibold mb-0.5">
+                                      {d.portalPin ? <span className="text-green-400">✅ Invite Completed</span> : <span className="text-yellow-400">📧 Invite Sent — Awaiting Setup</span>}
+                                    </p>
+                                    <p className="text-gray-500 text-xs">Sent: {new Date(d.inviteSentAt).toLocaleString()}</p>
+                                  </div>
+                                  {!d.portalPin && (
+                                    <Button size="sm" variant="outline"
+                                      onClick={() => resendInvite(d.id, d.email)}
+                                      className="border-yellow-500/30 text-yellow-400 hover:bg-yellow-900/20 text-xs h-8 gap-1.5">
+                                      <Send className="w-3 h-3" /> Resend Invite
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
 
                               {/* Contract Record */}
                               <div className={`mt-4 rounded-lg p-3 border ${d.contractSignature ? "border-green-500/30 bg-green-900/10" : "border-red-500/20 bg-red-900/10"}`}>

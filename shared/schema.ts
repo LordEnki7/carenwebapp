@@ -2776,6 +2776,9 @@ export const regionalDirectors = pgTable("regional_directors", {
   contractIp: varchar("contract_ip", { length: 100 }), // IP address at time of signing
   contractDocumentUrl: text("contract_document_url"), // link to uploaded/external contract document
   contractMethod: varchar("contract_method", { length: 50 }).default("electronic"), // electronic | paper | docusign | external
+  inviteToken: varchar("invite_token", { length: 100 }), // secure token for invite email link
+  inviteTokenExpiry: timestamp("invite_token_expiry"), // 72-hour expiry
+  inviteSentAt: timestamp("invite_sent_at"), // when the invite email was last sent
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
