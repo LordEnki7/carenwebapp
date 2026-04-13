@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.caren.safetyapp',
+  appId: 'com.caren.caren',
   appName: 'CAREN Alert',
   webDir: 'dist/public',
   server: {
