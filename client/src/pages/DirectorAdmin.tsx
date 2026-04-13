@@ -316,8 +316,10 @@ export default function DirectorAdmin() {
         method: "POST", headers,
         body: JSON.stringify(inviteForm),
       });
-      if (!res.ok) { const e = await res.json(); throw new Error(e.error || "Failed to send invite"); }
-      return res.json();
+      let data: any;
+      try { data = await res.json(); } catch { throw new Error("Server error — please redeploy the app and try again."); }
+      if (!res.ok) throw new Error(data?.error || "Failed to send invite");
+      return data;
     },
     onSuccess: (data) => {
       toast({ title: "Invite sent!", description: `${inviteForm.email} will receive an email with their setup link. Code: ${data.directorCode}` });
