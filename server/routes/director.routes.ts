@@ -161,12 +161,20 @@ function calcScore(attorneys: number, users: number, partnerships: number, strea
 export function registerDirectorRoutes(app: Express) {
 
   // ── PUBLIC: Submit director application ────────────────────────────────────
-  app.post("/api/director/apply", async (req, res) => {
+  app.post("/api/director/apply", async (req: any, res) => {
     try {
+      const { contractSignature, ...rest } = req.body;
+      if (!contractSignature || contractSignature.trim().length < 2) {
+        return res.status(400).json({ error: "Contract signature is required to complete your application." });
+      }
       const parsed = insertRegionalDirectorSchema.safeParse({
-        ...req.body,
+        ...rest,
         status: "pending",
         level: "regional_director",
+        contractSignature: contractSignature.trim(),
+        contractSignedAt: new Date(),
+        contractVersion: "v1.0-2025",
+        contractIp: req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() || req.socket?.remoteAddress || "unknown",
       });
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
@@ -187,6 +195,7 @@ export function registerDirectorRoutes(app: Express) {
         attempts++;
       }
       const [created] = await db.insert(regionalDirectors).values({ ...parsed.data, directorCode }).returning();
+      console.log(`[DIRECTOR APPLY] New application: ${created.name} (${created.email}) from ${created.city}, ${created.state} — Contract signed as "${created.contractSignature}"`);
       res.status(201).json({ success: true, id: created.id });
     } catch (err: any) {
       res.status(500).json({ error: err.message });

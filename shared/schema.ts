@@ -2770,6 +2770,10 @@ export const regionalDirectors = pgTable("regional_directors", {
   adminNotes: text("admin_notes"),
   directorCode: varchar("director_code", { length: 20 }).unique(), // unique code for referral link e.g. "DIR-AB12CD"
   portalPin: varchar("portal_pin", { length: 10 }), // 6-digit PIN for Director Portal login
+  contractSignature: varchar("contract_signature", { length: 255 }), // typed full legal name when signing
+  contractSignedAt: timestamp("contract_signed_at"), // timestamp when contract was signed
+  contractVersion: varchar("contract_version", { length: 20 }).default("v1.0-2025"), // contract version agreed to
+  contractIp: varchar("contract_ip", { length: 100 }), // IP address at time of signing
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

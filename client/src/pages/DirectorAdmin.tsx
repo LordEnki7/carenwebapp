@@ -559,6 +559,31 @@ export default function DirectorAdmin() {
                               )}
                               {d.phone && <p className="text-gray-400 text-sm mt-3">📞 {d.phone}</p>}
                               <p className="text-gray-500 text-xs mt-2">Applied: {new Date(d.createdAt).toLocaleDateString()}</p>
+
+                              {/* Contract Record */}
+                              <div className={`mt-4 rounded-lg p-3 border ${d.contractSignature ? "border-green-500/30 bg-green-900/10" : "border-red-500/20 bg-red-900/10"}`}>
+                                <p className="text-xs font-semibold uppercase tracking-wide mb-2 flex items-center gap-2">
+                                  {d.contractSignature ? (
+                                    <span className="text-green-400">✅ Contract Signed</span>
+                                  ) : (
+                                    <span className="text-red-400">⚠️ No Contract On File</span>
+                                  )}
+                                </p>
+                                {d.contractSignature ? (
+                                  <div className="space-y-1">
+                                    <p className="text-gray-300 text-sm">
+                                      <span className="text-gray-500">Signed as: </span>
+                                      <span className="font-serif italic text-white">{d.contractSignature}</span>
+                                    </p>
+                                    <p className="text-gray-500 text-xs">
+                                      Date: {d.contractSignedAt ? new Date(d.contractSignedAt).toLocaleString() : "—"} · Version: {d.contractVersion || "v1.0-2025"}
+                                    </p>
+                                    {d.contractIp && <p className="text-gray-600 text-xs">IP: {d.contractIp}</p>}
+                                  </div>
+                                ) : (
+                                  <p className="text-gray-500 text-xs">This applicant applied before the contract system was added. You may need to have them re-apply or sign a separate agreement.</p>
+                                )}
+                              </div>
                             </div>
 
                             <div className="space-y-4">
