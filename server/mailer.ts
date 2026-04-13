@@ -21,7 +21,7 @@ export async function sendEmail(options: MailOptions): Promise<boolean> {
   const fromName = options.fromName || 'C.A.R.E.N.™ ALERT';
 
   try {
-    await client.send({
+    await client.bulk.send({
       from: { email: fromAddress, name: fromName },
       to: [{ email: options.to }],
       subject: options.subject,
@@ -29,11 +29,11 @@ export async function sendEmail(options: MailOptions): Promise<boolean> {
       text: options.text || options.html.replace(/<[^>]*>/g, ''),
       category: 'Director Outreach',
     });
-    console.log(`[MAILER] Mailtrap: email sent to ${options.to} — "${options.subject}"`);
+    console.log(`[MAILER] Mailtrap bulk: email sent to ${options.to} — "${options.subject}"`);
     return true;
   } catch (error: any) {
     const detail = error?.response?.body?.errors?.[0]?.message || error?.message || String(error);
-    console.error(`[MAILER] Mailtrap failed to send to ${options.to}: ${detail}`);
+    console.error(`[MAILER] Mailtrap bulk failed to send to ${options.to}: ${detail}`);
     return false;
   }
 }
