@@ -8,6 +8,55 @@ C.A.R.E.N.™ is a comprehensive family protection platform offering GPS-enabled
 
 Preferred communication style: Simple, everyday language.
 
+## GitHub Push → Dokploy Deploy Policy
+
+**Every time you want to deploy to carenalert.com, follow these exact steps in the Replit Shell tab:**
+
+### Step 1 — Validate before pushing
+```bash
+bash scripts/pre-push-check.sh
+```
+All 10 checks must pass. Fix any failures before continuing.
+
+### Step 2 — Remove any workflow files from tracking (CRITICAL)
+The GitHub PAT does not have `workflow` scope. If any `.github/workflows/` file is staged, the push will be rejected. Always run:
+```bash
+git rm --cached .github/workflows/*.yml 2>/dev/null; git add -A
+```
+This silently skips the step if no workflow files exist.
+
+### Step 3 — Commit (if needed)
+```bash
+git commit -m "Your message here"
+```
+If it says "nothing to commit", that's fine — the checkpoint system may have already committed your changes.
+
+### Step 4 — Push to GitHub (triggers Dokploy)
+```bash
+git push github fresh-main:main
+```
+- Remote name: **`github`** (not `origin`)
+- Local branch: **`fresh-main`**
+- Target branch on GitHub: **`main`**
+
+### If the push says "Authentication failed"
+The PAT token expired. Refresh it first, then push:
+```bash
+git remote set-url github https://$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/LordEnki7/carenwebapp.git
+git push github fresh-main:main
+```
+
+### If the push says "could not lock config file"
+A stale lock file is blocking git. Remove it then retry:
+```bash
+rm -f .git/config.lock
+```
+
+### After pushing
+Go to **Dokploy dashboard** and either wait for auto-deploy or click **Deploy** manually.
+
+---
+
 ## Pre-Push / Pre-Commit Policy
 
 **Before any GitHub push or major save, always run the full validation checklist:**
