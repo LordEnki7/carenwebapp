@@ -29,24 +29,34 @@ interface SimpleSignInFormProps {
 }
 
 import { Capacitor } from "@capacitor/core";
+import { Browser } from "@capacitor/browser";
 
-// Detect iOS native app (Capacitor) OR any WKWebView on iOS.
-// Google OAuth must be hidden in both — it fails with "disallowed_useragent" in WKWebView.
-// Safari on iPhone includes "Safari/" in the UA; WKWebView does not — that's the distinction.
+// ── Platform detection ────────────────────────────────────────────────────────
+// Google OAuth via WebView redirect is blocked by Google on BOTH iOS and Android
+// since 2021 ("disallowed_useragent" error). On Android we open it in a Chrome
+// Custom Tab (real browser) instead; on iOS it is hidden entirely.
+
 const isNativeiOS = (): boolean => {
-  // Primary: Capacitor native bridge
   try {
     if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') return true;
   } catch {}
-  // Fallback: WKWebView UA fingerprint (no "Safari/" token, but has "AppleWebKit" + iPhone/iPad)
   const ua = typeof navigator !== 'undefined' ? navigator.userAgent : '';
   return /iPhone|iPad|iPod/.test(ua) && /AppleWebKit/.test(ua) && !/Safari\//.test(ua);
+};
+
+const isNativeAndroid = (): boolean => {
+  try {
+    if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android') return true;
+  } catch {}
+  return false;
 };
 
 export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, onDemoLogin }: SimpleSignInFormProps) {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [oniOS] = useState(() => isNativeiOS());
+  const [onAndroid] = useState(() => isNativeAndroid());
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [showWelcomeAnimation, setShowWelcomeAnimation] = useState(false);
   const [welcomeUserName, setWelcomeUserName] = useState<string>("");
 
@@ -149,6 +159,75 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
     }, 500);
   };
 
+  // ── Android: Google Sign-In via Chrome Custom Tab ─────────────────────────
+  // Standard WebView OAuth is blocked by Google since 2021. We open the auth
+  // URL in a real Chrome Custom Tab (shares cookies with the WebView on modern
+  // Android), then check /api/auth/user once the tab closes.
+  const handleAndroidGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      let authCheckInterval: ReturnType<typeof setInterval> | null = null;
+
+      // Poll for auth after tab closes
+      const checkAuthAfterTab = async () => {
+        try {
+          const res = await fetch('/api/auth/user', { credentials: 'include' });
+          if (res.ok) {
+            const user = await res.json();
+            if (user?.id) {
+              if (authCheckInterval) clearInterval(authCheckInterval);
+              setGoogleLoading(false);
+              const userName = user.firstName || user.email?.split('@')[0] || 'User';
+              setWelcomeUserName(userName);
+              setShowWelcomeAnimation(true);
+              return true;
+            }
+          }
+        } catch {}
+        return false;
+      };
+
+      // Listen for tab close
+      await Browser.addListener('browserFinished', async () => {
+        if (authCheckInterval) clearInterval(authCheckInterval);
+        const signedIn = await checkAuthAfterTab();
+        if (!signedIn) {
+          setGoogleLoading(false);
+          toast({
+            title: "Sign-In Incomplete",
+            description: "Google sign-in was not completed. Please try again or use email.",
+            variant: "destructive",
+          });
+        }
+        await Browser.removeAllListeners();
+      });
+
+      // Start polling while tab is open (handles mid-flow completions)
+      authCheckInterval = setInterval(async () => {
+        const signedIn = await checkAuthAfterTab();
+        if (signedIn) {
+          clearInterval(authCheckInterval!);
+          await Browser.close().catch(() => {});
+          await Browser.removeAllListeners();
+        }
+      }, 2000);
+
+      // Open Google OAuth in Chrome Custom Tab
+      await Browser.open({
+        url: 'https://carenalert.com/api/auth/google',
+        windowName: '_self',
+        presentationStyle: 'popover',
+      });
+    } catch (err: any) {
+      setGoogleLoading(false);
+      toast({
+        title: "Google Sign-In Error",
+        description: "Could not open Google sign-in. Please use email/password instead.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -236,20 +315,36 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
         {/* Sign in with Apple — required for iOS App Store (Guideline 4.8) */}
         <AppleSignInButton onSuccess={handleAppleSignInSuccess} />
 
-        {/* Google Sign-In — hidden on iOS native (OAuth redirect doesn't work in WKWebView) */}
+        {/* Google Sign-In:
+            • Desktop / web browser → standard redirect
+            • Android native → Chrome Custom Tab (WebView OAuth blocked by Google since 2021)
+            • iOS native → hidden (Apple requires Apple Sign In; Google WebView OAuth also blocked) */}
         {!oniOS && (
           <Button
             type="button"
-            onClick={() => window.location.href = '/api/auth/google'}
-            className="w-full bg-white hover:bg-gray-50 text-gray-800 font-semibold border border-gray-300 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-3 py-3 rounded-lg"
+            disabled={googleLoading}
+            onClick={() => {
+              if (onAndroid) {
+                handleAndroidGoogleSignIn();
+              } else {
+                window.location.href = '/api/auth/google';
+              }
+            }}
+            className="w-full bg-white hover:bg-gray-50 text-gray-800 font-semibold border border-gray-300 shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center space-x-3 py-3 rounded-lg disabled:opacity-60"
           >
-            <svg className="w-6 h-6" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-            </svg>
-            <span className="text-base font-semibold">Continue with Google</span>
+            {googleLoading ? (
+              <span className="text-base font-semibold text-gray-600">Opening Google…</span>
+            ) : (
+              <>
+                <svg className="w-6 h-6" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                <span className="text-base font-semibold">Continue with Google</span>
+              </>
+            )}
           </Button>
         )}
 

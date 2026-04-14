@@ -106,6 +106,66 @@ This runs 13 checks automatically:
 
 Named validation commands (for in-session use): `typecheck`, `server-health`, `video-stream`, `check-deployment`
 
+---
+
+## Android Play Store App — Build & Submit Guide
+
+### Why a New APK Is Needed (One-Time)
+
+The Capacitor config now includes `server.url: 'https://carenalert.com'`, which makes the
+Android WebView load the app live from carenalert.com instead of bundled assets. This fixes:
+- **Video not playing** — MP4s were never bundled in the APK; they now stream from the server
+- **Google Sign-In** — the Google button now opens a Chrome Custom Tab (real browser) instead of
+  the WebView; Google blocked WebView OAuth since 2021
+
+After this one new APK is submitted, **all future code changes auto-update** via Dokploy — no
+more Play Store submissions for web changes.
+
+### Steps to Build & Submit the New AAB
+
+Run these commands in Android Studio's terminal (or your local machine with JDK + Android SDK):
+
+```bash
+# 1. In Replit Shell — build the web assets first
+npm run build
+
+# 2. Sync Capacitor config & web assets to the android/ project
+npx cap sync android
+
+# 3. Open Android Studio (or run Gradle directly)
+cd android
+./gradlew bundleRelease
+
+# The signed AAB will be at:
+#   android/app/build/outputs/bundle/release/app-release.aab
+```
+
+The keystore is already configured in `capacitor.config.ts` buildOptions:
+- Path: `android/caren-release.jks`
+- Password: `carenstore123`
+- Alias: `caren-key`
+
+### Submitting to Google Play Console
+
+1. Go to [play.google.com/console](https://play.google.com/console)
+2. Select the CAREN Alert app
+3. Open Testing → Internal Testing
+4. Create new release → upload `app-release.aab`
+5. Submit for review
+
+### Google Sign-In on Android — How It Works Now
+
+| Scenario | Behavior |
+|----------|----------|
+| Desktop / web browser | Standard redirect to `/api/auth/google` |
+| Android native app | Opens Chrome Custom Tab (real Chrome browser) |
+| iOS native app | Google button hidden; use Apple Sign In or email |
+
+The Chrome Custom Tab completes OAuth normally (no "disallowed_useragent" block), then the
+WebView detects the session via cookie polling once the tab closes.
+
+---
+
 ## System Architecture
 
 ### System Design

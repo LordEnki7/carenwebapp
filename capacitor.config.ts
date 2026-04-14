@@ -5,6 +5,11 @@ const config: CapacitorConfig = {
   appName: 'CAREN Alert',
   webDir: 'dist/public',
   server: {
+    // Load all content from carenalert.com so that:
+    //   1. Web deploys via Dokploy automatically update the app (no new APK needed)
+    //   2. Video files stream from the server instead of being bundled in the APK
+    //   3. Google OAuth can open in Chrome Custom Tab and return to the same origin
+    url: 'https://carenalert.com',
     androidScheme: 'https',
     cleartext: false
   },
