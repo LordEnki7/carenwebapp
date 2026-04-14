@@ -349,7 +349,7 @@ RESPOND IN JSON:
     nextLikelyScenario: string;
   }> {
     try {
-      const systemPrompt = `You are a real-time legal coaching AI for the C.A.R.E.N Alert™ safety app. You provide calm, clear guidance during police encounters and emergencies.
+      const systemPrompt = `You are a real-time legal coaching AI for the C.A.R.E.N™ Alert safety app. You provide calm, clear guidance during police encounters and emergencies.
 
 CRITICAL COACHING RULES:
 1. Keep spoken guidance SHORT (under 15 words) - user may be listening through earpiece

@@ -106,7 +106,7 @@ async function aiScoreApplication(app: any): Promise<{ score: number; notes: str
       messages: [
         {
           role: "system",
-          content: `You are an attorney network quality reviewer for C.A.R.E.N Alert 
+          content: `You are an attorney network quality reviewer for C.A.R.E.N™ Alert 
 Score this attorney application 0-100 based on:
 - Practice fit (traffic defense, civil rights, criminal defense, personal injury = high value)
 - Emergency availability (huge plus)
@@ -183,7 +183,7 @@ export function registerAttorneyNetworkRoutes(app: Express) {
       // Notify admin
       try {
         await transporter.sendMail({
-          from: '"C.A.R.E.N Alert Network" <info@carenalert.com>',
+          from: '"C.A.R.E.N™ Alert Network" <info@carenalert.com>',
           to: ADMIN_EMAIL,
           subject: `New Attorney Application — ${data.firstName} ${data.lastName} (${data.firmName})`,
           html: `
@@ -287,12 +287,12 @@ export function registerAttorneyNetworkRoutes(app: Express) {
         // Send approval email to attorney
         try {
           await transporter.sendMail({
-            from: '"C.A.R.E.N Alert Network" <info@carenalert.com>',
+            from: '"C.A.R.E.N™ Alert Network" <info@carenalert.com>',
             to: updated.email,
-            subject: "Welcome to the C.A.R.E.N Alert Attorney Network!",
+            subject: "Welcome to the C.A.R.E.N™ Alert Attorney Network!",
             html: `
               <h2>Welcome, ${updated.firstName}!</h2>
-              <p>Your application to join the <strong>C.A.R.E.N Alert Legal Access Network</strong> has been approved.</p>
+              <p>Your application to join the <strong>C.A.R.E.N™ Alert Legal Access Network</strong> has been approved.</p>
               <p>Your profile is now active in our verified attorney directory.</p>
               <p>Next steps:</p>
               <ul>
@@ -303,7 +303,7 @@ export function registerAttorneyNetworkRoutes(app: Express) {
               <p>Visit: <a href="https://carenalert.com/attorney-portal">Attorney Portal →</a></p>
               <br/>
               <p>Questions? Email us at info@carenalert.com</p>
-              <p>— The C.A.R.E.N Alert Team</p>
+              <p>— The C.A.R.E.N™ Alert Team</p>
             `,
           });
         } catch (emailErr) {

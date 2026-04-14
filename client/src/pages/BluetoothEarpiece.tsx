@@ -463,7 +463,7 @@ export default function BluetoothEarpiece() {
                 <div className="flex-1">
                   <h3 className="text-blue-400 font-semibold mb-2">Demo Mode Information</h3>
                   <p className="text-blue-200 text-sm mb-3">
-                    This is a demonstration of C.A.R.E.N Alert™'s Bluetooth connectivity features. 
+                    This is a demonstration of C.A.R.E.N™ Alert's Bluetooth connectivity features. 
                     In production, this would connect to real Bluetooth earpieces and car audio systems.
                   </p>
                   <div className="text-blue-200 text-sm space-y-1">

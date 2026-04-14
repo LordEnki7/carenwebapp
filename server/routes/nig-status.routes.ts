@@ -103,7 +103,7 @@ router.get("/", async (req: Request, res: Response) => {
     const metrics = await getMetrics();
     return res.status(200).json({
       ...metrics,
-      division: process.env.DIVISION_NAME || "C.A.R.E.N Alert Safety App",
+      division: process.env.DIVISION_NAME || "C.A.R.E.N™ Alert Safety App",
       timestamp: new Date().toISOString(),
     });
   } catch (err: any) {
@@ -111,7 +111,7 @@ router.get("/", async (req: Request, res: Response) => {
       status: "degraded",
       health: 0,
       error: err.message,
-      division: process.env.DIVISION_NAME || "C.A.R.E.N Alert Safety App",
+      division: process.env.DIVISION_NAME || "C.A.R.E.N™ Alert Safety App",
       timestamp: new Date().toISOString(),
     });
   }

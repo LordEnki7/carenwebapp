@@ -427,7 +427,7 @@ function WallOfGuardians() {
 function HowToEarn() {
   const [, setLocation] = useLocation();
   const steps = [
-    { icon: Download, label: "Download", desc: "Get the C.A.R.E.N Alert app", color: "bg-cyan-700", num: 1 },
+    { icon: Download, label: "Download", desc: "Get the C.A.R.E.N™ Alert app", color: "bg-cyan-700", num: 1 },
     { icon: Share2, label: "Share", desc: "Refer friends with your link", color: "bg-purple-700", num: 2 },
     { icon: Zap, label: "Engage", desc: "Use features & give feedback", color: "bg-orange-700", num: 3 },
     { icon: Trophy, label: "Earn", desc: "Level up & unlock rewards", color: "bg-yellow-700", num: 4 },
@@ -535,7 +535,7 @@ function FirstRespondersCircle() {
           ))}
         </div>
         <p className="text-gray-400 text-sm mb-3 leading-relaxed">
-          A limited group of founding members with a direct line to the C.A.R.E.N Alert team. Early access, private updates, and a lifetime discount.
+          A limited group of founding members with a direct line to the C.A.R.E.N™ Alert team. Early access, private updates, and a lifetime discount.
         </p>
         <Button className="w-full bg-yellow-700 hover:bg-yellow-600 text-white gap-2" onClick={() => setLocation('/waitlist')}>
           <Crown className="w-4 h-4" /> Apply for Early Access
@@ -688,7 +688,7 @@ function AnnouncementsTab() {
       <CardContent className="p-10 text-center">
         <Megaphone className="w-10 h-10 text-gray-500 mx-auto mb-3" />
         <p className="text-gray-400 font-medium">No announcements yet</p>
-        <p className="text-gray-500 text-sm mt-1">Check back soon for updates from C.A.R.E.N Alert</p>
+        <p className="text-gray-500 text-sm mt-1">Check back soon for updates from C.A.R.E.N™ Alert</p>
       </CardContent>
     </Card>
   );
@@ -846,7 +846,7 @@ export default function Community() {
 
           {/* Page Header */}
           <div>
-            <h1 className="text-2xl md:text-3xl font-black text-white">C.A.R.E.N Alert Community</h1>
+            <h1 className="text-2xl md:text-3xl font-black text-white">C.A.R.E.N™ Alert Community</h1>
             <p className="text-gray-400 text-sm mt-1">Recognition · Belonging · Status · Purpose</p>
           </div>
 

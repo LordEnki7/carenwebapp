@@ -11,7 +11,7 @@ interface OnboardingWalkthroughProps {
 const steps = [
   {
     icon: Shield,
-    title: "Welcome to C.A.R.E.N Alert™",
+    title: "Welcome to C.A.R.E.N™ Alert",
     description: "Your personal legal protection and emergency response companion.",
     color: "from-cyan-500 to-blue-600",
     accent: "cyan",

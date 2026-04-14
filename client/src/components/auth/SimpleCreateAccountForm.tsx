@@ -127,7 +127,7 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
       // Fallback to direct dashboard redirect if no onboarding handler
       toast({
         title: "Account Created Successfully",
-        description: "Welcome to C.A.R.E.N Alert™! Redirecting to your dashboard...",
+        description: "Welcome to C.A.R.E.N™ Alert! Redirecting to your dashboard...",
       });
       setTimeout(() => {
         window.location.href = '/dashboard';
@@ -183,7 +183,7 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-white">Create Your Account</h2>
-        <p className="text-gray-300">Join C.A.R.E.N Alert™ for legal protection</p>
+        <p className="text-gray-300">Join C.A.R.E.N™ Alert for legal protection</p>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -450,14 +450,14 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
             className="prose prose-invert max-w-none overflow-y-auto max-h-[60vh] pr-4 text-gray-200"
             onScroll={(e) => handleDocumentScroll(e, 'terms')}
           >
-            <h3>C.A.R.E.N Alert™ User Agreement</h3>
-            <p>This User Agreement governs your use of the C.A.R.E.N Alert™ (Citizen Assistance for Roadside Emergencies and Navigation) platform and services.</p>
+            <h3>C.A.R.E.N™ Alert User Agreement</h3>
+            <p>This User Agreement governs your use of the C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) platform and services.</p>
             
             <h4>1. Acceptance of Terms</h4>
-            <p>By creating an account and using C.A.R.E.N Alert™, you agree to be bound by this User Agreement and all applicable laws and regulations.</p>
+            <p>By creating an account and using C.A.R.E.N™ Alert, you agree to be bound by this User Agreement and all applicable laws and regulations.</p>
             
             <h4>2. Service Description</h4>
-            <p>C.A.R.E.N Alert™ provides legal information, emergency assistance coordination, and attorney-client communication services for roadside encounters.</p>
+            <p>C.A.R.E.N™ Alert provides legal information, emergency assistance coordination, and attorney-client communication services for roadside encounters.</p>
             
             <h4>3. User Responsibilities</h4>
             <p>You agree to provide accurate information, use the service lawfully, and maintain the confidentiality of your account credentials.</p>
@@ -466,7 +466,7 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
             <p>Your privacy is important to us. Please review our Privacy Policy to understand how we collect, use, and protect your information.</p>
             
             <h4>5. Limitation of Liability</h4>
-            <p>C.A.R.E.N Alert™ provides information and coordination services but does not provide legal advice. Always consult with qualified legal professionals.</p>
+            <p>C.A.R.E.N™ Alert provides information and coordination services but does not provide legal advice. Always consult with qualified legal professionals.</p>
             
             <div className="mt-8 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
               <p className="text-sm font-medium text-cyan-200">By scrolling to this point, you acknowledge that you have read the complete User Agreement.</p>
@@ -508,8 +508,8 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
             className="prose prose-invert max-w-none overflow-y-auto max-h-[60vh] pr-4 text-gray-200"
             onScroll={(e) => handleDocumentScroll(e, 'privacy')}
           >
-            <h3>C.A.R.E.N Alert™ Privacy Policy</h3>
-            <p>This Privacy Policy describes how C.A.R.E.N Alert™ collects, uses, and protects your personal information.</p>
+            <h3>C.A.R.E.N™ Alert Privacy Policy</h3>
+            <p>This Privacy Policy describes how C.A.R.E.N™ Alert collects, uses, and protects your personal information.</p>
             
             <h4>1. Information We Collect</h4>
             <p>We collect information you provide directly, such as account details, emergency contacts, and incident reports.</p>
@@ -563,14 +563,14 @@ export default function SimpleCreateAccountForm({ onSwitchToSignIn, onNewUserCre
             className="prose prose-invert max-w-none overflow-y-auto max-h-[60vh] pr-4 text-gray-200"
             onScroll={(e) => handleDocumentScroll(e, 'eula')}
           >
-            <h3>C.A.R.E.N Alert™ End User License Agreement</h3>
-            <p>This EULA governs your use of the C.A.R.E.N Alert™ software and mobile applications.</p>
+            <h3>C.A.R.E.N™ Alert End User License Agreement</h3>
+            <p>This EULA governs your use of the C.A.R.E.N™ Alert software and mobile applications.</p>
             
             <h4>1. License Grant</h4>
-            <p>We grant you a limited, non-exclusive license to use C.A.R.E.N Alert™ software for your personal emergency and legal protection needs.</p>
+            <p>We grant you a limited, non-exclusive license to use C.A.R.E.N™ Alert software for your personal emergency and legal protection needs.</p>
             
             <h4>2. Restrictions</h4>
-            <p>You may not modify, reverse engineer, or distribute the C.A.R.E.N Alert™ software without explicit permission.</p>
+            <p>You may not modify, reverse engineer, or distribute the C.A.R.E.N™ Alert software without explicit permission.</p>
             
             <h4>3. Updates and Maintenance</h4>
             <p>We may provide updates to improve functionality and security. Use of updated versions is governed by this EULA.</p>

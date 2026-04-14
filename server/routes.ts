@@ -175,9 +175,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         messages: [
           {
             role: 'system',
-            content: `You are C.A.R.E.N Alert™'s friendly AI assistant on the website. C.A.R.E.N Alert™ stands for Citizen Assistance for Roadside Emergencies and Navigation. You help potential and current customers learn about the platform.
+            content: `You are C.A.R.E.N™ Alert's friendly AI assistant on the website. C.A.R.E.N™ Alert stands for Citizen Assistance for Roadside Emergencies and Navigation. You help potential and current customers learn about the platform.
 
-KEY INFORMATION ABOUT C.A.R.E.N Alert™:
+KEY INFORMATION ABOUT C.A.R.E.N™ Alert:
 - A comprehensive family protection app for legal encounters and roadside emergencies
 - GPS-enabled: automatically detects your state and shows your specific legal rights
 - Covers all 50 states + DC with 467+ legal protections across 5 categories (Traffic Stops, Recording Rights, Search & Seizure, Police Accountability, State-Specific Laws)
@@ -274,7 +274,7 @@ GUIDELINES:
   const BUILD_TIME = new Date().toISOString();
   app.get("/api/version", (_req, res) => {
     res.json({
-      app: "C.A.R.E.N Alert",
+      app: "C.A.R.E.N™ Alert",
       buildTime: BUILD_TIME,
       env: process.env.NODE_ENV || "development",
       ok: true,
@@ -1563,7 +1563,7 @@ GUIDELINES:
           timestamp: location.timestamp
         },
         userMessage: customMessage || getDefaultMessage(emergencyType),
-        userName: 'C.A.R.E.N Alert™ User',
+        userName: 'C.A.R.E.N™ Alert User',
         timestamp: new Date().toISOString()
       };
 
@@ -1734,7 +1734,7 @@ GUIDELINES:
         alertType: alertData.alertType,
         location: alertData.location,
         userMessage: alertData.message,
-        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'C.A.R.E.N Alert™ User' : 'C.A.R.E.N Alert™ User'
+        userName: user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email || 'C.A.R.E.N™ Alert User' : 'C.A.R.E.N™ Alert User'
       };
       
       // 🚀 TRIGGER N8N EMERGENCY RESPONSE AUTOMATION
@@ -2269,7 +2269,7 @@ GUIDELINES:
             currency: 'usd',
             product_data: {
               name: plan.name,
-              description: `C.A.R.E.N Alert™ ${plan.name} - Legal protection for drivers`,
+              description: `C.A.R.E.N™ Alert ${plan.name} - Legal protection for drivers`,
             },
             unit_amount: plan.price,
             recurring: {
@@ -2484,7 +2484,7 @@ GUIDELINES:
         currency: 'usd',
         product_data: {
           name: planName,
-          description: `C.A.R.E.N Alert™ ${planName} - Legal protection`,
+          description: `C.A.R.E.N™ Alert ${planName} - Legal protection`,
         },
         unit_amount: amount,
       };

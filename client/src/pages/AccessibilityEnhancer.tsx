@@ -457,7 +457,7 @@ export default function AccessibilityEnhancer() {
                     letterSpacing: `${settings.letterSpacing}px`
                   }}
                 >
-                  <p className="mb-2">C.A.R.E.N Alert™ (Citizen Assistance for Roadside Emergencies and Navigation)</p>
+                  <p className="mb-2">C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation)</p>
                   <p className="text-sm">This is sample text showing how your typography settings affect readability. The quick brown fox jumps over the lazy dog.</p>
                 </div>
               </div>
@@ -483,7 +483,7 @@ export default function AccessibilityEnhancer() {
                       <div className="text-center space-y-2">
                         <div className="h-12 w-full bg-gradient-to-r from-gray-800 to-gray-600 rounded border"></div>
                         <h3 className="font-medium text-white">Default Theme</h3>
-                        <p className="text-xs text-gray-400">Standard C.A.R.E.N Alert™ appearance</p>
+                        <p className="text-xs text-gray-400">Standard C.A.R.E.N™ Alert appearance</p>
                       </div>
                     </CardContent>
                   </Card>

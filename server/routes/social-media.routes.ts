@@ -4,7 +4,7 @@ import { socialMediaPosts } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
 const VIDEOS = [
-  { file: "caren-hero.mp4", label: "Meet C.A.R.E.N Alert — 1:02 Commercial" },
+  { file: "caren-hero.mp4", label: "Meet C.A.R.E.N™ Alert — 1:02 Commercial" },
   { file: "caren-short.mp4", label: "One Tap Could Save a Life — 22 sec" },
   { file: "caren-attorney.mp4", label: "Be the First Call — Attorney Network Outreach" },
 ];
@@ -71,7 +71,7 @@ export function registerSocialMediaRoutes(app: Express) {
       const isAttorneyVideo = videoFile === "caren-attorney.mp4";
 
       // ── COMPLIANCE RULES for attorney content ────────────────────────────
-      // C.A.R.E.N Alert is NOT a law firm. We do NOT provide legal advice.
+      // C.A.R.E.N™ Alert is NOT a law firm. We do NOT provide legal advice.
       // We do NOT share fees, referral payments, or any portion of legal fees.
       // Attorneys keep 100% of their fees. We are a directory + connection tool only.
       // We do NOT "recommend" any attorney — the user always chooses.
@@ -80,14 +80,14 @@ export function registerSocialMediaRoutes(app: Express) {
       // ─────────────────────────────────────────────────────────────────────
 
       const audienceContext = isAttorneyVideo
-        ? `This video is targeted at ATTORNEYS and legal professionals. The goal is to invite them to apply to join the C.A.R.E.N Alert Legal Access Network (CLAN) — a free verified attorney directory.
+        ? `This video is targeted at ATTORNEYS and legal professionals. The goal is to invite them to apply to join the C.A.R.E.N™ Alert Legal Access Network (CLAN) — a free verified attorney directory.
 
 CRITICAL COMPLIANCE RULES — you MUST follow these exactly:
-- Do NOT mention referral fees, referral income, commissions, or any form of payment from C.A.R.E.N Alert to attorneys. There are none.
-- Do NOT say C.A.R.E.N Alert "delivers clients" or "guarantees clients." We do not.
-- Do NOT say C.A.R.E.N Alert "recommends" attorneys. Users choose independently.
+- Do NOT mention referral fees, referral income, commissions, or any form of payment from C.A.R.E.N™ Alert to attorneys. There are none.
+- Do NOT say C.A.R.E.N™ Alert "delivers clients" or "guarantees clients." We do not.
+- Do NOT say C.A.R.E.N™ Alert "recommends" attorneys. Users choose independently.
 - Do NOT use phrases like "passive income," "referral income," or any income-related language.
-- DO say C.A.R.E.N Alert is NOT a law firm and does NOT provide legal advice.
+- DO say C.A.R.E.N™ Alert is NOT a law firm and does NOT provide legal advice.
 - DO say attorneys retain 100% of their fees and remain fully independent.
 - DO emphasize this is a directory listing with structured visibility, not a referral scheme.
 - The attorney applies once, gets listed, and users in their area can find and contact them directly.`
@@ -98,7 +98,7 @@ CRITICAL COMPLIANCE RULES — you MUST follow these exactly:
         messages: [
           {
             role: "system",
-            content: `You are a compliant social media copywriter for C.A.R.E.N Alert (Citizen Assistance for Roadside Emergencies and Navigation). C.A.R.E.N Alert is NOT a law firm. It does NOT provide legal advice. It does NOT share legal fees or pay referral fees to attorneys. You write posts that are authentic, compelling, and fully compliant with bar association advertising rules and legal ethics. You deeply understand each platform's culture and algorithm.`,
+            content: `You are a compliant social media copywriter for C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation). C.A.R.E.N™ Alert is NOT a law firm. It does NOT provide legal advice. It does NOT share legal fees or pay referral fees to attorneys. You write posts that are authentic, compelling, and fully compliant with bar association advertising rules and legal ethics. You deeply understand each platform's culture and algorithm.`,
           },
           {
             role: "user",
@@ -114,11 +114,11 @@ ${isAttorneyVideo ? `COMPLIANT attorney recruitment angles (pick 2-3, use exact 
 - "Be part of a growing national attorney directory" (not a referral network)
 - "Get visibility to users who need legal help in your area"
 - "You stay fully independent — 100% of your fees remain yours"
-- "C.A.R.E.N Alert is not a law firm and does not share fees"
+- "C.A.R.E.N™ Alert is not a law firm and does not share fees"
 - "Be an early verified attorney in your market"
 - "Help people who need legal representation at critical moments"
 - "Apply at carenalert.com/attorney-application"
-- Always end with: C.A.R.E.N Alert does not provide legal advice. Attorneys are independent professionals.` : `C.A.R.E.N Alert features to weave in naturally (pick 2-3):
+- Always end with: C.A.R.E.N™ Alert does not provide legal advice. Attorneys are independent professionals.` : `C.A.R.E.N™ Alert features to weave in naturally (pick 2-3):
 - Real-time multi-angle video recording during traffic stops
 - GPS-powered state-specific legal rights database (all 50 states)
 - One-tap emergency SOS with family notification
@@ -229,7 +229,7 @@ Return JSON with exactly these fields:
               {
                 status: "READY",
                 originalUrl: "https://carenalert.com",
-                title: { attributes: [], text: post.title || "C.A.R.E.N Alert — Roadside Safety & Legal Protection" },
+                title: { attributes: [], text: post.title || "C.A.R.E.N™ Alert — Roadside Safety & Legal Protection" },
               },
             ],
           },

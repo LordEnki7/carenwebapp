@@ -5,7 +5,7 @@ import { storage } from "./storage";
 
 /**
  * Production Migration Service
- * Migrates C.A.R.E.N Alert™ from demo data to production-ready state
+ * Migrates C.A.R.E.N™ Alert from demo data to production-ready state
  * This service handles the complete transition to real user data
  */
 
@@ -16,7 +16,7 @@ export class ProductionMigrationService {
    * This migrates all systems from demo to production
    */
   async executeProductionMigration() {
-    console.log("🚀 Starting C.A.R.E.N Alert™ production migration...");
+    console.log("🚀 Starting C.A.R.E.N™ Alert production migration...");
     
     const migrationResults = {
       attorneys: { success: false, count: 0 },

@@ -334,7 +334,7 @@ export default function Dashboard() {
                   <h1 className={`cyber-title text-4xl ${
                     systemStatus.emergency ? 'text-red-400' : ''
                   }`}>
-                    {systemStatus.emergency ? 'EMERGENCY PROTECTION' : 'WELCOME TO C.A.R.E.N Alert™'}
+                    {systemStatus.emergency ? 'EMERGENCY PROTECTION' : 'WELCOME TO C.A.R.E.N™ Alert'}
                   </h1>
                   <p className="text-cyan-300 text-lg font-medium">
                     {systemStatus.emergency ? 'Emergency mode active - All systems ready' : 'Citizen Assistance for Roadside Emergencies and Navigation'}

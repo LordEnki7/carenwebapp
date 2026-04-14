@@ -101,7 +101,7 @@ function CreateForm({ onCreated }: { onCreated: () => void }) {
         <div className="space-y-2">
           <Label className="text-gray-300">Title *</Label>
           <Input
-            placeholder={form.type === "giveaway" ? "Win a free year of C.A.R.E.N Alert!" : "Important update for all members"}
+            placeholder={form.type === "giveaway" ? "Win a free year of C.A.R.E.N™ Alert!" : "Important update for all members"}
             value={form.title}
             onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
             className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"

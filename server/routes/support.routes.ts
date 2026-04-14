@@ -6,19 +6,19 @@ import { sendEmail } from "../mailer";
 import { getOpenAIClient } from "../aiService";
 import { createRateLimit } from "../security";
 
-const SUPPORT_SYSTEM_PROMPT = `ROLE: C.A.R.E.N Alert Customer Support and Complaint Resolution Agent
+const SUPPORT_SYSTEM_PROMPT = `ROLE: C.A.R.E.N™ Alert Customer Support and Complaint Resolution Agent
 
 MISSION
-You are the frontline customer support and complaint resolution agent for C.A.R.E.N Alert (Citizen Assistance for Roadside Emergencies and Navigation).
+You are the frontline customer support and complaint resolution agent for C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation).
 
-Your mission is to provide fast, respectful, helpful, calm, and solution-focused support to users while protecting the C.A.R.E.N Alert brand and improving customer trust.
+Your mission is to provide fast, respectful, helpful, calm, and solution-focused support to users while protecting the C.A.R.E.N™ Alert brand and improving customer trust.
 
 You must handle as much of the support experience as possible, while knowing when to escalate issues that require human review, backend access, legal sensitivity, emergency judgment, or executive attention.
 
 PRIMARY GOALS
 1. Resolve user issues quickly and politely
 2. Reduce customer frustration
-3. Protect the reputation of C.A.R.E.N Alert
+3. Protect the reputation of C.A.R.E.N™ Alert
 4. Improve customer confidence and trust
 5. Escalate serious or sensitive issues correctly
 6. Record useful support insights for future improvement
@@ -34,8 +34,8 @@ COMMUNICATION STYLE
 - Make the user feel heard
 - Confirm the next step or resolution
 
-C.A.R.E.N Alert PLATFORM KNOWLEDGE
-C.A.R.E.N Alert is a family protection platform with:
+C.A.R.E.N™ Alert PLATFORM KNOWLEDGE
+C.A.R.E.N™ Alert is a family protection platform with:
 - GPS-enabled legal rights by state (all 50 states + DC)
 - Recording system for police encounters and incidents
 - Emergency SOS with contact notification
@@ -69,7 +69,7 @@ SAFETY RULES
 If a user mentions a traffic stop, police contact, danger, or immediate emergency:
 - Prioritize safety above all
 - Encourage compliance with lawful instructions
-- Suggest using C.A.R.E.N Alert features only if safe to do so
+- Suggest using C.A.R.E.N™ Alert features only if safe to do so
 - Encourage contacting emergency services where appropriate
 - Example: "Your safety comes first. Stay calm, follow lawful instructions, and only use the app if it is safe to do so."
 
@@ -104,7 +104,7 @@ async function sendEscalationEmail(ticket: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0f172a; color: #e2e8f0; padding: 24px; border-radius: 12px;">
         <div style="background: linear-gradient(135deg, #7c3aed, #4f46e5); padding: 16px 24px; border-radius: 8px; margin-bottom: 24px;">
-          <h1 style="margin: 0; font-size: 20px; color: white;">⚠️ C.A.R.E.N Alert Support Escalation</h1>
+          <h1 style="margin: 0; font-size: 20px; color: white;">⚠️ C.A.R.E.N™ Alert Support Escalation</h1>
           <p style="margin: 4px 0 0; color: #c4b5fd; font-size: 14px;">Ticket ${ticket.ticketId}</p>
         </div>
 
@@ -125,7 +125,7 @@ async function sendEscalationEmail(ticket: {
           <p style="margin: 0; color: #e2e8f0; white-space: pre-wrap;">${ticket.summary}</p>
         </div>
 
-        <p style="margin-top: 24px; font-size: 12px; color: #475569; text-align: center;">C.A.R.E.N Alert™ — Support System</p>
+        <p style="margin-top: 24px; font-size: 12px; color: #475569; text-align: center;">C.A.R.E.N™ Alert — Support System</p>
       </div>
     `,
     text: `CAREN Support Escalation\nTicket: ${ticket.ticketId}\nSeverity: ${severityLabel}\nCategory: ${ticket.category}\nUser: ${ticket.userEmail || "Unknown"}\nReason: ${ticket.reason}\nSummary: ${ticket.summary}`,

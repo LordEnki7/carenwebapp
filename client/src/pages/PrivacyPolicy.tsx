@@ -21,7 +21,7 @@ export default function PrivacyPolicy() {
         <div className="space-y-8 text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. Introduction</h2>
-            <p>C.A.R.E.N Alert™ (Citizen Assistance for Roadside Emergencies and Navigation) ("we," "our," or "the App") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and web platform. Please read this policy carefully. By using C.A.R.E.N Alert™, you consent to the practices described in this Privacy Policy.</p>
+            <p>C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) ("we," "our," or "the App") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our mobile application and web platform. Please read this policy carefully. By using C.A.R.E.N™ Alert, you consent to the practices described in this Privacy Policy.</p>
           </section>
 
           <section>
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
             </ul>
 
             <h3 className="text-lg font-medium text-cyan-300 mt-4 mb-2">2.2 Location Data</h3>
-            <p>C.A.R.E.N Alert™ uses GPS and location services to provide state-specific legal rights information and emergency response features. Location data is used to:</p>
+            <p>C.A.R.E.N™ Alert uses GPS and location services to provide state-specific legal rights information and emergency response features. Location data is used to:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>Determine your current state/jurisdiction for accurate legal rights display</li>
               <li>Embed GPS coordinates in incident documentation</li>
@@ -145,7 +145,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">8. Children's Privacy</h2>
-            <p>C.A.R.E.N Alert™ is not intended for use by individuals under the age of 13. We do not knowingly collect personal information from children under 13. If we learn we have collected data from a child under 13, we will promptly delete it.</p>
+            <p>C.A.R.E.N™ Alert is not intended for use by individuals under the age of 13. We do not knowingly collect personal information from children under 13. If we learn we have collected data from a child under 13, we will promptly delete it.</p>
           </section>
 
           <section>
@@ -161,7 +161,7 @@ export default function PrivacyPolicy() {
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">10. Changes to This Policy</h2>
-            <p>We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the updated policy within the app and updating the "Last Updated" date. Your continued use of C.A.R.E.N Alert™ after changes constitutes acceptance of the updated policy.</p>
+            <p>We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the updated policy within the app and updating the "Last Updated" date. Your continued use of C.A.R.E.N™ Alert after changes constitutes acceptance of the updated policy.</p>
           </section>
 
           <section>
@@ -172,7 +172,7 @@ export default function PrivacyPolicy() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500 text-sm space-y-2">
-          <p>&copy; {new Date().getFullYear()} C.A.R.E.N Alert™ All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} C.A.R.E.N™ Alert All rights reserved.</p>
           <div className="flex justify-center gap-4">
             <Link href="/terms" className="text-cyan-400 hover:text-cyan-300">Terms of Service</Link>
             <span>|</span>

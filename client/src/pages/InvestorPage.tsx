@@ -112,7 +112,7 @@ export default function InvestorPage() {
 
         <div className="text-center space-y-4">
           <p className="text-gray-500 text-sm uppercase tracking-widest">Confidential</p>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">C.A.R.E.N Alert™</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">C.A.R.E.N™ Alert</h1>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
             Citizen Assistance for Roadside Emergencies & Navigation
           </p>
@@ -125,7 +125,7 @@ export default function InvestorPage() {
           </div>
           <div className="border border-white/10 rounded-xl bg-white/[0.02] p-6 md:p-8 space-y-5">
             <p className="text-gray-300 leading-relaxed text-lg">
-              C.A.R.E.N Alert™ is a GPS-enabled legal protection platform that gives drivers real-time, state-specific legal rights information during police encounters, with AI-powered voice coaching, emergency documentation, and coordinated family notification — delivered through a mobile app and future hardware accessory.
+              C.A.R.E.N™ Alert is a GPS-enabled legal protection platform that gives drivers real-time, state-specific legal rights information during police encounters, with AI-powered voice coaching, emergency documentation, and coordinated family notification — delivered through a mobile app and future hardware accessory.
             </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
               <div className="p-4 rounded-lg bg-white/[0.03] border border-white/5">

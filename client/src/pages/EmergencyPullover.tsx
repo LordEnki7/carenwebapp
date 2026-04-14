@@ -773,7 +773,7 @@ export default function EmergencyPullover() {
                   <AlertTriangle className="h-4 w-4 text-orange-400" />
                   <AlertDescription className="cyber-text-secondary">
                     <strong>Remember:</strong> Your goal is getting home safely. Comply first, challenge later in court. 
-                    Document everything with C.A.R.E.N Alert™ but prioritize de-escalation over proving a point.
+                    Document everything with C.A.R.E.N™ Alert but prioritize de-escalation over proving a point.
                   </AlertDescription>
                 </Alert>
               </div>

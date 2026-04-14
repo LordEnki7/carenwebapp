@@ -74,7 +74,7 @@ export default function AudioFeedbackSettings() {
               Audio Feedback Settings
             </h1>
             <p className="text-gray-300 text-lg">
-              Configure voice confirmations and audio feedback for all C.A.R.E.N Alert™ actions
+              Configure voice confirmations and audio feedback for all C.A.R.E.N™ Alert actions
             </p>
           </div>
 

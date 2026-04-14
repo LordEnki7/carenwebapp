@@ -779,6 +779,6 @@ Property Damage: ${data.damages || 'None reported'}
 Injuries: ${data.injuries || 'None reported'}
 Property Recovered: ${data.propertyRecovered || 'None reported'}
 
-This report was generated using the C.A.R.E.N Alert™ legal protection platform.
+This report was generated using the C.A.R.E.N™ Alert legal protection platform.
 For legal assistance, contact an attorney immediately.`;
 }

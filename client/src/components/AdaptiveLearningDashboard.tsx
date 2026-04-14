@@ -249,7 +249,7 @@ export default function AdaptiveLearningDashboard() {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-white">Adaptive Learning System</h1>
-            <p className="text-gray-300">How C.A.R.E.N Alert™ learns from your interactions to provide better responses</p>
+            <p className="text-gray-300">How C.A.R.E.N™ Alert learns from your interactions to provide better responses</p>
           </div>
         </div>
 

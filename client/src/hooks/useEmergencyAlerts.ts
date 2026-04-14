@@ -165,14 +165,14 @@ export function useEmergencyAlerts() {
       : `${location.latitude}, ${location.longitude}`;
 
     const messages = {
-      police_encounter: `🚨 EMERGENCY ALERT: I'm having a police encounter at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please monitor my safety.`,
-      traffic_stop: `🚨 EMERGENCY ALERT: I've been pulled over in a traffic stop at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please monitor my situation.`,
-      arrest: `🚨 URGENT ALERT: I may be under arrest at ${locationText}. This is an automated emergency alert from C.A.R.E.N Alert™ Please contact an attorney immediately.`,
-      civil_rights: `🚨 EMERGENCY ALERT: I'm experiencing a civil rights incident at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please monitor my safety.`,
-      workplace: `🚨 ALERT: I'm dealing with a workplace emergency at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please monitor my situation.`,
-      property: `🚨 ALERT: I'm experiencing a property-related emergency at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please monitor my safety.`,
-      medical: `🚨 MEDICAL ALERT: I'm experiencing a medical emergency at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please check on my welfare.`,
-      general: `🚨 EMERGENCY ALERT: I need help at ${locationText}. This is an automated alert from C.A.R.E.N Alert™ Please monitor my safety.`
+      police_encounter: `🚨 EMERGENCY ALERT: I'm having a police encounter at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please monitor my safety.`,
+      traffic_stop: `🚨 EMERGENCY ALERT: I've been pulled over in a traffic stop at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please monitor my situation.`,
+      arrest: `🚨 URGENT ALERT: I may be under arrest at ${locationText}. This is an automated emergency alert from C.A.R.E.N™ Alert Please contact an attorney immediately.`,
+      civil_rights: `🚨 EMERGENCY ALERT: I'm experiencing a civil rights incident at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please monitor my safety.`,
+      workplace: `🚨 ALERT: I'm dealing with a workplace emergency at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please monitor my situation.`,
+      property: `🚨 ALERT: I'm experiencing a property-related emergency at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please monitor my safety.`,
+      medical: `🚨 MEDICAL ALERT: I'm experiencing a medical emergency at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please check on my welfare.`,
+      general: `🚨 EMERGENCY ALERT: I need help at ${locationText}. This is an automated alert from C.A.R.E.N™ Alert Please monitor my safety.`
     };
 
     return messages[alertType];

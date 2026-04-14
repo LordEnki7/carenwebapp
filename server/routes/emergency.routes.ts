@@ -68,7 +68,7 @@ export function registerEmergencyRoutes(app: Express) {
     try {
       const { type, message, location, timestamp, urgency } = req.body;
       console.log('🚨 Emergency alert triggered:', { type, urgency, location });
-      const userName = req.session?.userId ? "C.A.R.E.N Alert User" : "Anonymous";
+      const userName = req.session?.userId ? "C.A.R.E.N™ Alert User" : "Anonymous";
       const locationStr = location?.address || location?.city || "Unknown location";
       notifySOS(userName, locationStr, type || "Emergency", urgency || "high").catch(() => {});
       
@@ -136,7 +136,7 @@ export function registerEmergencyRoutes(app: Express) {
             await sendEmergencyEmail({
               to: contact.email,
               subject: `🚨 EMERGENCY ALERT - ${contact.name}`,
-              message: `${alertData.message}\n\nLocation: ${alertData.location}\nTime: ${alertData.timestamp}\n\nThis is an automated emergency notification from C.A.R.E.N Alert™`,
+              message: `${alertData.message}\n\nLocation: ${alertData.location}\nTime: ${alertData.timestamp}\n\nThis is an automated emergency notification from C.A.R.E.N™ Alert`,
               priority: alertData.urgency
             });
             notificationResults.push({ 
