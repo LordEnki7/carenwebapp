@@ -72,10 +72,34 @@ export default function BrowserCompatibleSignIn() {
     source.type = 'video/mp4';
     video.appendChild(source);
 
+    // Wait for canplay before calling play() — calling play() immediately after
+    // load() can cause AbortError in some browsers (play interrupted by load).
+    const onCanPlay = () => {
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('error', onError);
+      clearTimeout(loadTimeout);
+      video.play()
+        .then(() => setVideoState('playing'))
+        .catch(() => setVideoState('error'));
+    };
+
+    const onError = () => {
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('error', onError);
+      clearTimeout(loadTimeout);
+      setVideoState('error');
+    };
+
+    // Fallback: if video hasn't fired canplay after 8 seconds, show error
+    const loadTimeout = setTimeout(() => {
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('error', onError);
+      setVideoState('error');
+    }, 8000);
+
+    video.addEventListener('canplay', onCanPlay);
+    video.addEventListener('error', onError);
     video.load();
-    video.play()
-      .then(() => setVideoState('playing'))
-      .catch(() => setVideoState('error'));
   }, []);
 
   // New user onboarding state
