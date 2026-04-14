@@ -6,10 +6,10 @@
 #   bash scripts/deploy-to-dokploy.sh
 #
 # What it does:
-#   1. Clears any .github/workflows/ files from git tracking
+#   1. Stages all current changes
+#   2. Removes .github/workflows/ from staging AFTER add-all
 #      (the PAT lacks 'workflow' scope — staged workflow files
 #       will cause GitHub to reject the push)
-#   2. Stages all current changes
 #   3. Pushes fresh-main → github/main
 #   4. Confirms the push succeeded and tells you what to do next
 # ============================================================
@@ -22,17 +22,27 @@ echo ""
 echo -e "${BOLD}C.A.R.E.N Alert — Deploy to carenalert.com${RESET}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
-# ── Step 1: Clear workflow files from staging ────────────────
-echo -e "\n${YELLOW}Step 1 — Clearing .github/workflows/ from staging...${RESET}"
-git rm --cached .github/workflows/*.yml 2>/dev/null && \
-  echo -e "  ${YELLOW}⚠ Workflow files removed from staging (PAT lacks workflow scope)${RESET}" || \
-  echo -e "  ${GREEN}✓ No workflow files staged — safe to push${RESET}"
-
-# ── Step 2: Stage everything ─────────────────────────────────
-echo -e "\n${YELLOW}Step 2 — Staging all changes...${RESET}"
+# ── Step 1: Stage everything FIRST ───────────────────────────
+echo -e "\n${YELLOW}Step 1 — Staging all changes...${RESET}"
 git add -A
 CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
 echo -e "  ${GREEN}✓ $CHANGED file(s) staged${RESET}"
+
+# ── Step 2: Remove workflow files AFTER staging ──────────────
+# IMPORTANT: must come AFTER git add -A, otherwise add-all re-stages them
+echo -e "\n${YELLOW}Step 2 — Removing .github/workflows/ from staging...${RESET}"
+if git ls-files --cached .github/workflows/ | grep -q '.'; then
+  git rm --cached .github/workflows/*.yml 2>/dev/null || true
+  echo -e "  ${YELLOW}⚠ Workflow files removed from staging (PAT lacks workflow scope)${RESET}"
+else
+  echo -e "  ${GREEN}✓ No workflow files staged — safe to push${RESET}"
+fi
+
+# Confirm no workflow files remain staged
+if git diff --cached --name-only | grep -q '.github/workflows'; then
+  echo -e "  ${RED}✗ Workflow files still staged! Forcing removal...${RESET}"
+  git diff --cached --name-only | grep '.github/workflows' | xargs git rm --cached
+fi
 
 # ── Step 3: Check commits ahead of GitHub ────────────────────
 echo -e "\n${YELLOW}Step 3 — Checking commits ahead of GitHub...${RESET}"
