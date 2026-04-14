@@ -61,45 +61,14 @@ export default function BrowserCompatibleSignIn() {
     if (!video) return;
     setVideoState('loading');
 
-    // Remove any existing <source> children first
-    while (video.firstChild) video.removeChild(video.firstChild);
-
-    // Add <source type="video/mp4"> explicitly — required by Firefox to identify
-    // the codec without guessing. Setting video.src alone omits the type and
-    // Firefox will refuse to play with "format not supported".
-    const source = document.createElement('source');
-    source.src = '/caren-hero.mp4';
-    source.type = 'video/mp4';
-    video.appendChild(source);
-
-    // Wait for canplay before calling play() — calling play() immediately after
-    // load() can cause AbortError in some browsers (play interrupted by load).
-    const onCanPlay = () => {
-      video.removeEventListener('canplay', onCanPlay);
-      video.removeEventListener('error', onError);
-      clearTimeout(loadTimeout);
-      video.play()
-        .then(() => setVideoState('playing'))
-        .catch(() => setVideoState('error'));
-    };
-
-    const onError = () => {
-      video.removeEventListener('canplay', onCanPlay);
-      video.removeEventListener('error', onError);
-      clearTimeout(loadTimeout);
-      setVideoState('error');
-    };
-
-    // Fallback: if video hasn't fired canplay after 8 seconds, show error
-    const loadTimeout = setTimeout(() => {
-      video.removeEventListener('canplay', onCanPlay);
-      video.removeEventListener('error', onError);
-      setVideoState('error');
-    }, 8000);
-
-    video.addEventListener('canplay', onCanPlay);
-    video.addEventListener('error', onError);
-    video.load();
+    // Set src directly — the server sends Content-Type: video/mp4 so all
+    // browsers (including Firefox) detect the format without a <source> tag.
+    // Calling play() on the same tick as setting src is valid; the browser
+    // handles buffering internally and the promise resolves once playback starts.
+    video.src = '/caren-hero.mp4';
+    video.play()
+      .then(() => setVideoState('playing'))
+      .catch(() => setVideoState('error'));
   }, []);
 
   // New user onboarding state
