@@ -60,8 +60,18 @@ export default function BrowserCompatibleSignIn() {
     const video = videoRef.current;
     if (!video) return;
     setVideoState('loading');
-    // Direct streaming — works on any real server (Dokploy, production)
-    video.src = '/caren-hero.mp4';
+
+    // Remove any existing <source> children first
+    while (video.firstChild) video.removeChild(video.firstChild);
+
+    // Add <source type="video/mp4"> explicitly — required by Firefox to identify
+    // the codec without guessing. Setting video.src alone omits the type and
+    // Firefox will refuse to play with "format not supported".
+    const source = document.createElement('source');
+    source.src = '/caren-hero.mp4';
+    source.type = 'video/mp4';
+    video.appendChild(source);
+
     video.load();
     video.play()
       .then(() => setVideoState('playing'))
