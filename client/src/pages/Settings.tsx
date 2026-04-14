@@ -842,7 +842,7 @@ export default function Settings() {
                     <div>
                       <h4 className="font-semibold text-white mb-1">Delete Account</h4>
                       <p className="text-sm text-gray-400 mb-3">
-                        Permanently delete your C.A.R.E.N™ Alert account and all associated data. This action cannot be undone.
+                        Permanently delete your C.A.R.E.N.™ Alert account and all associated data. This action cannot be undone.
                       </p>
                       <Button
                         variant="destructive"

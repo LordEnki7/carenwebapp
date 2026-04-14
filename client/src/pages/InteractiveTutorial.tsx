@@ -44,14 +44,14 @@ export default function InteractiveTutorial() {
   const tutorialSteps: TutorialStep[] = [
     {
       id: "adaptive-learning",
-      title: "How C.A.R.E.N™ Alert Learns From You",
+      title: "How C.A.R.E.N.™ Alert Learns From You",
       description: "The core purpose of this app is to learn from your interactions and respond better over time.",
       icon: Brain,
       category: 'learning',
       estimatedTime: "3 minutes",
-      practicalExample: "Every time you use voice commands, C.A.R.E.N™ Alert analyzes your speech patterns, preferred phrases, and context to improve recognition accuracy.",
+      practicalExample: "Every time you use voice commands, C.A.R.E.N.™ Alert analyzes your speech patterns, preferred phrases, and context to improve recognition accuracy.",
       learningPoints: [
-        "C.A.R.E.N™ Alert tracks your voice patterns and preferred commands",
+        "C.A.R.E.N.™ Alert tracks your voice patterns and preferred commands",
         "The system adapts to your speaking style and emergency scenarios",
         "AI learns from successful and failed interactions to improve responses",
         "Personal adaptations are stored securely and never shared"
@@ -70,7 +70,7 @@ export default function InteractiveTutorial() {
       learningPoints: [
         "Voice commands work even when your phone screen is locked",
         "Emergency commands have lower confidence thresholds for reliability",
-        "C.A.R.E.N™ Alert learns your preferred command variations over time",
+        "C.A.R.E.N.™ Alert learns your preferred command variations over time",
         "Commands automatically trigger GPS location capture and legal documentation"
       ],
       nextAction: "Practice voice commands in a safe environment before needing them"
@@ -99,7 +99,7 @@ export default function InteractiveTutorial() {
       icon: Shield,
       category: 'core',
       estimatedTime: "6 minutes",
-      practicalExample: "When pulled over in Texas, C.A.R.E.N™ Alert automatically shows Texas-specific recording laws, search and seizure protections, and traffic stop procedures.",
+      practicalExample: "When pulled over in Texas, C.A.R.E.N.™ Alert automatically shows Texas-specific recording laws, search and seizure protections, and traffic stop procedures.",
       learningPoints: [
         "467+ legal protections across all 50 states plus DC",
         "GPS automatically detects your location and shows relevant rights",
@@ -144,11 +144,11 @@ export default function InteractiveTutorial() {
     {
       id: "ai-learning-system",
       title: "Continuous Learning & Adaptation",
-      description: "Understand how C.A.R.E.N™ Alert's AI continuously improves your experience through pattern recognition.",
+      description: "Understand how C.A.R.E.N.™ Alert's AI continuously improves your experience through pattern recognition.",
       icon: Zap,
       category: 'learning',
       estimatedTime: "5 minutes",
-      practicalExample: "If you often say 'start video' instead of 'start recording', C.A.R.E.N™ Alert learns this pattern and adds it as a custom voice trigger.",
+      practicalExample: "If you often say 'start video' instead of 'start recording', C.A.R.E.N.™ Alert learns this pattern and adds it as a custom voice trigger.",
       learningPoints: [
         "AI analyzes your interaction patterns to identify improvements",
         "System creates personalized voice command adaptations",
@@ -188,7 +188,7 @@ export default function InteractiveTutorial() {
     
     toast({
       title: "Step Completed! 🎉",
-      description: `C.A.R.E.N™ Alert learned from your ${current.title.toLowerCase()} tutorial interaction.`,
+      description: `C.A.R.E.N.™ Alert learned from your ${current.title.toLowerCase()} tutorial interaction.`,
     });
     
     setIsSimulating(false);
@@ -224,11 +224,11 @@ export default function InteractiveTutorial() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="h-8 w-8 text-cyan-400" />
             <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-              C.A.R.E.N™ Alert Interactive Tutorial
+              C.A.R.E.N.™ Alert Interactive Tutorial
             </h1>
           </div>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            Learn how C.A.R.E.N™ Alert adapts to your needs and master the essential features for legal protection and emergency response.
+            Learn how C.A.R.E.N.™ Alert adapts to your needs and master the essential features for legal protection and emergency response.
           </p>
         </div>
 
@@ -299,7 +299,7 @@ export default function InteractiveTutorial() {
             <div>
               <h4 className="font-medium mb-3 cyber-text-primary flex items-center gap-2">
                 <Brain className="h-4 w-4" />
-                How C.A.R.E.N™ Alert Learns From This
+                How C.A.R.E.N.™ Alert Learns From This
               </h4>
               <div className="space-y-2">
                 {current.learningPoints.map((point, index) => (

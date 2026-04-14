@@ -157,7 +157,7 @@ export default function Plans() {
         </Button>
         <div>
           <h1 className="font-bold text-white text-base">Choose Your Plan</h1>
-          <p className="text-xs text-gray-400">C.A.R.E.N™ Alert Legal Protection</p>
+          <p className="text-xs text-gray-400">C.A.R.E.N.™ Alert Legal Protection</p>
         </div>
       </div>
 

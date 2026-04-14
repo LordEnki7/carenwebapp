@@ -417,7 +417,7 @@ export default function DirectorAdmin() {
           <Shield className="w-8 h-8 text-cyan-400" />
           <div>
             <h1 className="text-2xl font-bold text-white">Regional Director Admin</h1>
-            <p className="text-gray-400 text-sm">C.A.R.E.N™ Alert Command Center — Director Management</p>
+            <p className="text-gray-400 text-sm">C.A.R.E.N.™ Alert Command Center — Director Management</p>
           </div>
         </div>
 

@@ -205,7 +205,7 @@ export default function AttorneyPortal() {
               <CardContent className="space-y-2 text-xs text-gray-400">
                 <p>• Contacting a user does not itself create an attorney-client relationship</p>
                 <p>• You remain responsible for all ethics compliance in your licensed jurisdictions</p>
-                <p>• C.A.R.E.N™ Alert is a directory platform — not a law firm</p>
+                <p>• C.A.R.E.N.™ Alert is a directory platform — not a law firm</p>
                 <p>• You retain 100% of legal fees — no fee sharing with this platform</p>
               </CardContent>
             </Card>

@@ -150,7 +150,7 @@ export default function UnifiedVoiceHub() {
             <Card className="bg-gray-800/50 border-cyan-500/20">
               <CardHeader>
                 <CardTitle className="text-cyan-400">Voice AI Learning</CardTitle>
-                <CardDescription>How C.A.R.E.N™ Alert learns from your voice patterns</CardDescription>
+                <CardDescription>How C.A.R.E.N.™ Alert learns from your voice patterns</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

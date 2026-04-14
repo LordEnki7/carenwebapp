@@ -153,11 +153,11 @@ export function registerRecordingRoutes(app: Express) {
         
         ${message ? `ADDITIONAL MESSAGE:\n${message}` : ''}
         
-        This complaint was filed through the C.A.R.E.N™ Alert digital platform.
+        This complaint was filed through the C.A.R.E.N.™ Alert digital platform.
         
         Contact Information:
         Email: ${currentUser.email}
-        Platform: C.A.R.E.N™ Alert Legal Protection System
+        Platform: C.A.R.E.N.™ Alert Legal Protection System
       `;
 
       // Update complaint status to filed

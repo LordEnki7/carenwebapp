@@ -116,7 +116,7 @@ export default function BrowserCompatibleSignIn() {
         headers,
       });
       if (!res.ok) throw new Error('Failed to save terms agreement');
-      toast({ title: 'Welcome to C.A.R.E.N™ Alert!', description: 'Redirecting to your dashboard…' });
+      toast({ title: 'Welcome to C.A.R.E.N.™ Alert!', description: 'Redirecting to your dashboard…' });
       setTimeout(() => { window.location.href = '/'; }, 800);
     } catch (err: any) {
       toast({ title: 'Something went wrong', description: err.message, variant: 'destructive' });
@@ -199,7 +199,7 @@ export default function BrowserCompatibleSignIn() {
       
       toast({
         title: "Demo Access Granted",
-        description: "Welcome to the C.A.R.E.N™ Alert demo!",
+        description: "Welcome to the C.A.R.E.N.™ Alert demo!",
       });
       
       // Redirect to dashboard after brief delay
@@ -247,7 +247,7 @@ export default function BrowserCompatibleSignIn() {
   const handleOnboardingComplete = () => {
     setShowOnboardingModal(false);
     toast({
-      title: "Welcome to C.A.R.E.N™ Alert!",
+      title: "Welcome to C.A.R.E.N.™ Alert!",
       description: "Your account is ready. Redirecting to dashboard...",
     });
     setTimeout(() => {
@@ -265,13 +265,13 @@ export default function BrowserCompatibleSignIn() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 space-y-6">
           <div className="text-center">
-            <img src={carenLogo} alt="C.A.R.E.N™ Alert" className="w-16 h-16 rounded-full border-4 border-cyan-400/30 mx-auto mb-4" />
+            <img src={carenLogo} alt="C.A.R.E.N.™ Alert" className="w-16 h-16 rounded-full border-4 border-cyan-400/30 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white">One Last Step</h2>
             <p className="text-gray-300 text-sm mt-1">Your Google account is ready. Please agree to our terms to complete sign-up.</p>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-sm text-gray-300 space-y-2 max-h-40 overflow-y-auto">
-            <p>By using C.A.R.E.N™ Alert you agree to our <a href="/terms-of-service" className="text-cyan-400 underline" target="_blank">Terms of Service</a> and <a href="/privacy-policy" className="text-cyan-400 underline" target="_blank">Privacy Policy</a>.</p>
-            <p>C.A.R.E.N™ Alert is a legal assistance and emergency response tool. It does not constitute legal advice. Always consult a qualified attorney for legal matters specific to your situation.</p>
+            <p>By using C.A.R.E.N.™ Alert you agree to our <a href="/terms-of-service" className="text-cyan-400 underline" target="_blank">Terms of Service</a> and <a href="/privacy-policy" className="text-cyan-400 underline" target="_blank">Privacy Policy</a>.</p>
+            <p>C.A.R.E.N.™ Alert is a legal assistance and emergency response tool. It does not constitute legal advice. Always consult a qualified attorney for legal matters specific to your situation.</p>
           </div>
           <label className="flex items-center gap-3 cursor-pointer">
             <input
@@ -287,7 +287,7 @@ export default function BrowserCompatibleSignIn() {
             onClick={handleAgreeToTerms}
             disabled={!termsAccepted || isAgreeingToTerms}
           >
-            {isAgreeingToTerms ? 'Saving…' : 'Continue to C.A.R.E.N™ Alert'}
+            {isAgreeingToTerms ? 'Saving…' : 'Continue to C.A.R.E.N.™ Alert'}
           </Button>
         </div>
       </div>
@@ -306,9 +306,9 @@ export default function BrowserCompatibleSignIn() {
 
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <img src={carenLogo} alt="C.A.R.E.N™ Alert" className="w-12 h-12 rounded-full border-2 border-cyan-400/40" />
+            <img src={carenLogo} alt="C.A.R.E.N.™ Alert" className="w-12 h-12 rounded-full border-2 border-cyan-400/40" />
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight leading-none">C.A.R.E.N™ Alert</h1>
+              <h1 className="text-2xl font-black text-white tracking-tight leading-none">C.A.R.E.N.™ Alert</h1>
               <p className="text-cyan-400 text-xs font-medium">Your Roadside Guardian</p>
             </div>
           </div>
@@ -351,7 +351,7 @@ export default function BrowserCompatibleSignIn() {
                   data-testid="video-play-btn"
                   onClick={handleVideoPlay}
                   className="absolute inset-0 flex flex-col items-center justify-center gap-3 group cursor-pointer bg-black/40 hover:bg-black/20 transition-colors"
-                  aria-label="Play C.A.R.E.N™ Alert demo video"
+                  aria-label="Play C.A.R.E.N.™ Alert demo video"
                 >
                   <div className="w-16 h-16 rounded-full bg-cyan-500/90 flex items-center justify-center shadow-lg shadow-cyan-500/40 group-hover:scale-110 transition-transform">
                     <Play className="w-7 h-7 text-black ml-1" fill="black" />
@@ -383,7 +383,7 @@ export default function BrowserCompatibleSignIn() {
                 </div>
               )}
             </div>
-            <p className="text-gray-500 text-xs text-center mt-2">Meet C.A.R.E.N™ Alert — Your Roadside Guardian</p>
+            <p className="text-gray-500 text-xs text-center mt-2">Meet C.A.R.E.N.™ Alert — Your Roadside Guardian</p>
           </div>
 
           {/* Trust badges */}
@@ -439,7 +439,7 @@ export default function BrowserCompatibleSignIn() {
 
           {/* Footer */}
           <p className="text-center text-xs text-gray-500 mt-6">
-            © 2025 C.A.R.E.N™ Alert. All rights reserved.<br />
+            © 2025 C.A.R.E.N.™ Alert. All rights reserved.<br />
             Your safety and legal protection platform.
           </p>
         </div>
@@ -462,7 +462,7 @@ export default function BrowserCompatibleSignIn() {
         <div className="absolute inset-0 bg-gradient-to-t from-gray-950 via-black/40 to-transparent flex flex-col items-center justify-end pb-8 px-4 text-center">
           <p className="text-cyan-400 text-xs font-bold uppercase tracking-widest mb-2">One Tap Could Save a Life</p>
           <h3 className="text-white text-2xl lg:text-3xl font-black mb-1 drop-shadow-lg">Be Ready Before You Need It</h3>
-          <p className="text-gray-300 text-sm max-w-md">C.A.R.E.N™ Alert activates in seconds — recording, legal rights, and emergency alerts all at once.</p>
+          <p className="text-gray-300 text-sm max-w-md">C.A.R.E.N.™ Alert activates in seconds — recording, legal rights, and emergency alerts all at once.</p>
         </div>
       </div>
 

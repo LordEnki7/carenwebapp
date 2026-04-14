@@ -16,7 +16,7 @@ export default function SupportAgent() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      content: "Hi there! I'm the C.A.R.E.N™ Alert support agent. I'm here to help you with any questions, issues, or concerns about the app. What can I help you with today?",
+      content: "Hi there! I'm the C.A.R.E.N.™ Alert support agent. I'm here to help you with any questions, issues, or concerns about the app. What can I help you with today?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -127,7 +127,7 @@ export default function SupportAgent() {
               <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-white truncate">C.A.R.E.N™ Alert Support</p>
+              <p className="text-sm font-semibold text-white truncate">C.A.R.E.N.™ Alert Support</p>
               <p className="text-xs text-violet-300">Always here to help</p>
             </div>
             <button
@@ -239,7 +239,7 @@ export default function SupportAgent() {
               </Button>
             </div>
             <p className="text-center text-xs text-gray-600 mt-1.5">
-              Powered by C.A.R.E.N™ Alert AI Support
+              Powered by C.A.R.E.N.™ Alert AI Support
             </p>
           </div>
         </div>

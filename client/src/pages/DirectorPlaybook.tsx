@@ -21,7 +21,7 @@ export default function DirectorPlaybook() {
         <div className="text-center mb-14 pb-10 border-b-2 border-gray-200">
           <p className="text-cyan-600 font-bold text-sm uppercase tracking-widest mb-3">Confidential — For Regional Directors Only</p>
           <h1 className="text-4xl font-black text-gray-900 mb-2 leading-tight">
-            C.A.R.E.N™ Alert<span className="text-cyan-600">™</span>
+            C.A.R.E.N.™ Alert<span className="text-cyan-600">™</span>
           </h1>
           <h2 className="text-2xl font-bold text-gray-700 mb-4">Regional Director Playbook</h2>
           <p className="text-gray-500 text-sm max-w-md mx-auto">
@@ -29,7 +29,7 @@ export default function DirectorPlaybook() {
           </p>
           <div className="mt-6 inline-block bg-cyan-50 border border-cyan-200 rounded-xl px-8 py-4">
             <p className="text-cyan-800 font-semibold text-base italic">
-              "Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N™ Alert"
+              "Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N.™ Alert"
             </p>
             <p className="text-cyan-600 text-sm mt-2">— Shawn Williams, Founder</p>
           </div>
@@ -38,7 +38,7 @@ export default function DirectorPlaybook() {
           <div className="mt-10 flex flex-col items-center gap-2">
             <img
               src="/caren-qr-code.png"
-              alt="C.A.R.E.N™ Alert QR Code — Scan to Download"
+              alt="C.A.R.E.N.™ Alert QR Code — Scan to Download"
               className="w-40 h-40 object-contain rounded-xl border-2 border-cyan-200 shadow"
             />
             <p className="text-gray-500 text-xs font-medium uppercase tracking-wide">Scan to Download the App</p>
@@ -52,7 +52,7 @@ export default function DirectorPlaybook() {
             Before any script, every director needs one simple introduction:
           </p>
           <blockquote className="border-l-4 border-cyan-500 bg-cyan-50 pl-5 py-3 pr-4 rounded-r-lg text-gray-800 font-medium italic mb-5">
-            "I represent C.A.R.E.N™ Alert in this region. C.A.R.E.N™ Alert is a driver safety and incident-documentation platform built to help people be more prepared when roadside situations escalate. My role is to help build local awareness, connect with attorneys and businesses, and grow the platform in this city."
+            "I represent C.A.R.E.N.™ Alert in this region. C.A.R.E.N.™ Alert is a driver safety and incident-documentation platform built to help people be more prepared when roadside situations escalate. My role is to help build local awareness, connect with attorneys and businesses, and grow the platform in this city."
           </blockquote>
           <TwoCol
             left={<><strong className="text-red-600">You are NOT:</strong><List items={["A lawyer", "A police expert", "A legal advisor", "Someone who can promise outcomes"]} style="neg" /></>}
@@ -63,19 +63,19 @@ export default function DirectorPlaybook() {
         {/* Section 2 */}
         <Section number="2" title="Lawyer Outreach Scripts">
           <Script title="In Person / Phone — Full Version">
-            Hi, my name is [Name], and I'm a Regional Director with C.A.R.E.N™ Alert in [City].{"\n\n"}We're building a platform that helps drivers document roadside incidents in real time and connect with attorneys when situations escalate.{"\n\n"}We're expanding our attorney network in this area and looking to connect with firms that handle traffic, civil rights, accident, or related cases.{"\n\n"}I'd love to share a little more and see if your firm might be a fit.
+            Hi, my name is [Name], and I'm a Regional Director with C.A.R.E.N.™ Alert in [City].{"\n\n"}We're building a platform that helps drivers document roadside incidents in real time and connect with attorneys when situations escalate.{"\n\n"}We're expanding our attorney network in this area and looking to connect with firms that handle traffic, civil rights, accident, or related cases.{"\n\n"}I'd love to share a little more and see if your firm might be a fit.
           </Script>
           <Script title="Short Version">
-            Hi, I'm with C.A.R.E.N™ Alert in [City]. We help drivers protect themselves during roadside incidents and connect with legal support when needed. We're building our local attorney network and wanted to connect.
+            Hi, I'm with C.A.R.E.N.™ Alert in [City]. We help drivers protect themselves during roadside incidents and connect with legal support when needed. We're building our local attorney network and wanted to connect.
           </Script>
           <Script title="Email / DM">
-            Subject: Quick question about your practice{"\n\n"}Hi [Attorney Name],{"\n\n"}My name is [Name], and I serve as a Regional Director for C.A.R.E.N™ Alert in [City/Region].{"\n\n"}C.A.R.E.N™ Alert is a driver safety and incident-documentation platform designed to help users capture important roadside events and connect with attorneys when situations escalate.{"\n\n"}We are identifying attorneys in [City/State] whose practice areas align with traffic defense, civil rights, accident-related matters, and related legal support.{"\n\n"}I thought your firm may be a strong fit for what we are building locally. Would you be open to a brief conversation or receiving more information?{"\n\n"}Respectfully,{"\n"}[Name]{"\n"}Regional Director, C.A.R.E.N™ Alert{"\n"}[Phone] | [Email]
+            Subject: Quick question about your practice{"\n\n"}Hi [Attorney Name],{"\n\n"}My name is [Name], and I serve as a Regional Director for C.A.R.E.N.™ Alert in [City/Region].{"\n\n"}C.A.R.E.N.™ Alert is a driver safety and incident-documentation platform designed to help users capture important roadside events and connect with attorneys when situations escalate.{"\n\n"}We are identifying attorneys in [City/State] whose practice areas align with traffic defense, civil rights, accident-related matters, and related legal support.{"\n\n"}I thought your firm may be a strong fit for what we are building locally. Would you be open to a brief conversation or receiving more information?{"\n\n"}Respectfully,{"\n"}[Name]{"\n"}Regional Director, C.A.R.E.N.™ Alert{"\n"}[Phone] | [Email]
           </Script>
           <Script title="Follow-Up">
-            Hi [Name], just following up on my earlier note. We're continuing to build out the C.A.R.E.N™ Alert attorney network in [City], and I wanted to make sure my message didn't get buried.{"\n\n"}If your firm has any interest in learning more, I'd be glad to connect briefly.
+            Hi [Name], just following up on my earlier note. We're continuing to build out the C.A.R.E.N.™ Alert attorney network in [City], and I wanted to make sure my message didn't get buried.{"\n\n"}If your firm has any interest in learning more, I'd be glad to connect briefly.
           </Script>
           <Script title="Social Media DM">
-            Hi [Name], I came across your work and wanted to introduce myself. I'm a Regional Director for C.A.R.E.N™ Alert in [City], and we're building a local attorney network tied to driver safety and roadside incident documentation. I'd love to connect if you're open.
+            Hi [Name], I came across your work and wanted to introduce myself. I'm a Regional Director for C.A.R.E.N.™ Alert in [City], and we're building a local attorney network tied to driver safety and roadside incident documentation. I'd love to connect if you're open.
           </Script>
           <QBox title="Questions to Ask Lawyers">
             <List items={[
@@ -102,16 +102,16 @@ export default function DirectorPlaybook() {
           <p className="text-gray-600 text-sm mb-4">Target: towing companies, car washes, mechanics, dealerships, tire shops, driving schools, rideshare communities, gas stations, insurance-adjacent businesses.</p>
           <p className="text-gray-700 font-semibold mb-3">Goal: flyer placement · referral partnerships · QR code placement · event support · awareness</p>
           <Script title="In Person — Full Version">
-            Hi, my name is [Name], and I'm a Regional Director for C.A.R.E.N™ Alert here in [City].{"\n\n"}We're growing a platform that helps drivers protect themselves during roadside incidents by documenting what happens and connecting them to support if needed.{"\n\n"}I'm reaching out because your business serves drivers directly, and I'd love to explore a simple partnership that helps bring more awareness to your customers.
+            Hi, my name is [Name], and I'm a Regional Director for C.A.R.E.N.™ Alert here in [City].{"\n\n"}We're growing a platform that helps drivers protect themselves during roadside incidents by documenting what happens and connecting them to support if needed.{"\n\n"}I'm reaching out because your business serves drivers directly, and I'd love to explore a simple partnership that helps bring more awareness to your customers.
           </Script>
           <Script title="Short Version">
-            Hi, I'm with C.A.R.E.N™ Alert in [City]. We help drivers stay protected during roadside incidents, and I'm reaching out to local driver-focused businesses to see who might want to partner with us locally.
+            Hi, I'm with C.A.R.E.N.™ Alert in [City]. We help drivers stay protected during roadside incidents, and I'm reaching out to local driver-focused businesses to see who might want to partner with us locally.
           </Script>
           <Script title="Email">
-            Subject: Local partnership opportunity for driver safety awareness{"\n\n"}Hi [Business Name / Owner Name],{"\n\n"}My name is [Name], and I serve as a Regional Director for C.A.R.E.N™ Alert in [City].{"\n\n"}C.A.R.E.N™ Alert is a platform designed to help drivers document roadside incidents and access support when situations escalate.{"\n\n"}Because your business serves drivers in the local community, I wanted to reach out about a possible awareness partnership. This could be as simple as sharing a QR code, flyer, or information card with customers.{"\n\n"}We're currently building local relationships with businesses that want to support driver awareness and protection.{"\n\n"}If this sounds worth discussing, I'd be happy to connect briefly.{"\n\n"}Thank you,{"\n"}[Name]{"\n"}Regional Director, C.A.R.E.N™ Alert
+            Subject: Local partnership opportunity for driver safety awareness{"\n\n"}Hi [Business Name / Owner Name],{"\n\n"}My name is [Name], and I serve as a Regional Director for C.A.R.E.N.™ Alert in [City].{"\n\n"}C.A.R.E.N.™ Alert is a platform designed to help drivers document roadside incidents and access support when situations escalate.{"\n\n"}Because your business serves drivers in the local community, I wanted to reach out about a possible awareness partnership. This could be as simple as sharing a QR code, flyer, or information card with customers.{"\n\n"}We're currently building local relationships with businesses that want to support driver awareness and protection.{"\n\n"}If this sounds worth discussing, I'd be happy to connect briefly.{"\n\n"}Thank you,{"\n"}[Name]{"\n"}Regional Director, C.A.R.E.N.™ Alert
           </Script>
           <Script title="Social Media DM">
-            Hi [Business Name], I'm with C.A.R.E.N™ Alert in [City]. We're connecting with local driver-focused businesses to build awareness around roadside safety and documentation. I'd love to share a simple partnership idea if you're open.
+            Hi [Business Name], I'm with C.A.R.E.N.™ Alert in [City]. We're connecting with local driver-focused businesses to build awareness around roadside safety and documentation. I'd love to share a simple partnership idea if you're open.
           </Script>
           <Script title="Partnership Ask">
             We're looking for a few good local businesses to help us spread awareness by displaying a flyer, QR code, or referral card — and potentially becoming a community partner for drivers in this area.
@@ -132,22 +132,22 @@ export default function DirectorPlaybook() {
           <p className="text-gray-600 text-sm mb-4">Use in: direct conversations, events, Facebook groups, street teams, community meetups, car groups, local networking.</p>
           <p className="text-gray-700 font-semibold mb-3">Goal: downloads · signups · trust · feedback</p>
           <Script title="Quick Intro">
-            Have you heard of C.A.R.E.N™ Alert?{"\n\n"}It's a driver protection app designed to help document roadside incidents and keep important information in one place when things go left fast.
+            Have you heard of C.A.R.E.N.™ Alert?{"\n\n"}It's a driver protection app designed to help document roadside incidents and keep important information in one place when things go left fast.
           </Script>
           <Script title="Natural Conversation Version">
-            Most people don't think about this stuff until something happens on the road. C.A.R.E.N™ Alert was built to help drivers document what's going on and get support faster when situations escalate.
+            Most people don't think about this stuff until something happens on the road. C.A.R.E.N.™ Alert was built to help drivers document what's going on and get support faster when situations escalate.
           </Script>
           <Script title="Event / Tabling Version">
-            Hey, I'm with C.A.R.E.N™ Alert We're helping spread awareness about driver protection and roadside documentation.{"\n\n"}The app is designed to help people be more prepared if something happens on the road — whether it's a traffic stop, accident, or another high-pressure situation.{"\n\n"}I can show you where to download it and give you a quick overview of how it works.
+            Hey, I'm with C.A.R.E.N.™ Alert We're helping spread awareness about driver protection and roadside documentation.{"\n\n"}The app is designed to help people be more prepared if something happens on the road — whether it's a traffic stop, accident, or another high-pressure situation.{"\n\n"}I can show you where to download it and give you a quick overview of how it works.
           </Script>
           <Script title="Text / DM">
-            Hey [Name], I wanted to share something useful with you.{"\n\n"}I'm helping grow C.A.R.E.N™ Alert in [City], and it's a driver protection app built to help document incidents and make people more prepared when situations happen on the road.{"\n\n"}Here's the link: [Insert Link]{"\n\n"}If you know anybody who drives a lot, has family on the road, or just likes being prepared — send it to them too.
+            Hey [Name], I wanted to share something useful with you.{"\n\n"}I'm helping grow C.A.R.E.N.™ Alert in [City], and it's a driver protection app built to help document incidents and make people more prepared when situations happen on the road.{"\n\n"}Here's the link: [Insert Link]{"\n\n"}If you know anybody who drives a lot, has family on the road, or just likes being prepared — send it to them too.
           </Script>
           <Script title="Follow-Up">
-            Just checking in — were you able to download C.A.R.E.N™ Alert?{"\n\n"}If you did, I'd love to hear what you think. We're growing city by city and feedback matters.
+            Just checking in — were you able to download C.A.R.E.N.™ Alert?{"\n\n"}If you did, I'd love to hear what you think. We're growing city by city and feedback matters.
           </Script>
           <Script title="Community Post">
-            If something went wrong on the road today, would you be ready?{"\n\n"}C.A.R.E.N™ Alert is built to help drivers document incidents and be more prepared when things escalate.{"\n\n"}[Link to carenalert.com]
+            If something went wrong on the road today, would you be ready?{"\n\n"}C.A.R.E.N.™ Alert is built to help drivers document incidents and be more prepared when things escalate.{"\n\n"}[Link to carenalert.com]
           </Script>
         </Section>
 
@@ -168,10 +168,10 @@ export default function DirectorPlaybook() {
             ))}
           </div>
           <Script title="Follow-Up for Lawyers">
-            Just wanted to follow up and reintroduce C.A.R.E.N™ Alert as we continue building the network in [City]. If it makes sense, I'd be glad to send over a short overview.
+            Just wanted to follow up and reintroduce C.A.R.E.N.™ Alert as we continue building the network in [City]. If it makes sense, I'd be glad to send over a short overview.
           </Script>
           <Script title="Follow-Up for Businesses">
-            Following up on my note about a possible local awareness partnership with C.A.R.E.N™ Alert We're continuing to connect with driver-facing businesses in [City] and would love to keep the conversation open.
+            Following up on my note about a possible local awareness partnership with C.A.R.E.N.™ Alert We're continuing to connect with driver-facing businesses in [City] and would love to keep the conversation open.
           </Script>
         </Section>
 
@@ -216,7 +216,7 @@ export default function DirectorPlaybook() {
         <Section number="8" title="Fast Cheat Sheet">
           <div className="space-y-3">
             {[
-              { q: "What is C.A.R.E.N™ Alert?", a: "A driver safety and incident-documentation platform designed to help people be more prepared when roadside situations escalate." },
+              { q: "What is C.A.R.E.N.™ Alert?", a: "A driver safety and incident-documentation platform designed to help people be more prepared when roadside situations escalate." },
               { q: "Why does it matter?", a: "Because things can happen fast on the road, and people need better tools to document what happened and connect with support." },
               { q: "Why talk to lawyers?", a: "Because legal support can matter after certain roadside incidents, and we want a strong network in each region." },
               { q: "Why talk to businesses?", a: "Because local businesses that serve drivers can help spread awareness and become trusted community partners." },
@@ -260,10 +260,10 @@ export default function DirectorPlaybook() {
           <p className="text-cyan-700 font-bold text-xs uppercase tracking-widest mb-4">Share This with Anyone You Meet</p>
           <img
             src="/caren-qr-code.png"
-            alt="C.A.R.E.N™ Alert QR Code"
+            alt="C.A.R.E.N.™ Alert QR Code"
             className="w-56 h-56 object-contain mb-4 rounded-xl border border-cyan-200 shadow-md"
           />
-          <p className="text-gray-800 font-bold text-lg mb-1">Scan to Download C.A.R.E.N™ Alert</p>
+          <p className="text-gray-800 font-bold text-lg mb-1">Scan to Download C.A.R.E.N.™ Alert</p>
           <p className="text-gray-500 text-sm">carenalert.com — Available on iOS &amp; Android</p>
           <p className="text-gray-400 text-xs mt-3 italic">Show this on your phone, print it on a card, or display it at a business you've partnered with.</p>
         </div>
@@ -290,11 +290,11 @@ export default function DirectorPlaybook() {
           <div className="bg-gray-900 text-white rounded-2xl px-8 py-8 max-w-2xl mx-auto">
             <p className="text-cyan-400 font-bold text-xs uppercase tracking-widest mb-3">Your Mission as a Director</p>
             <p className="text-xl font-bold leading-relaxed">
-              "Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N™ Alert"
+              "Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N.™ Alert"
             </p>
-            <p className="text-gray-400 text-sm mt-4">— Shawn Williams, Founder, C.A.R.E.N™ Alert</p>
+            <p className="text-gray-400 text-sm mt-4">— Shawn Williams, Founder, C.A.R.E.N.™ Alert</p>
           </div>
-          <p className="text-gray-400 text-xs mt-6">C.A.R.E.N™ Alert · carenalert.com · Regional Director Program · Confidential</p>
+          <p className="text-gray-400 text-xs mt-6">C.A.R.E.N.™ Alert · carenalert.com · Regional Director Program · Confidential</p>
         </div>
 
       </div>

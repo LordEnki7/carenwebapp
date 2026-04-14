@@ -385,7 +385,7 @@ export default function AccountSecurity() {
                 <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
                   <h4 className="font-semibold text-white mb-1">Delete Account</h4>
                   <p className="text-sm text-gray-400 mb-4">
-                    Permanently delete your C.A.R.E.N™ Alert account and all associated data — incidents, contacts, recordings, subscription history, and personal information. This action cannot be undone.
+                    Permanently delete your C.A.R.E.N.™ Alert account and all associated data — incidents, contacts, recordings, subscription history, and personal information. This action cannot be undone.
                   </p>
 
                   {!showDeleteConfirm ? (

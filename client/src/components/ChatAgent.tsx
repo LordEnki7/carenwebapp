@@ -48,7 +48,7 @@ function useSpeech() {
 }
 
 const SUGGESTED_QUESTIONS = [
-  "What does C.A.R.E.N™ Alert do?",
+  "What does C.A.R.E.N.™ Alert do?",
   "How much does it cost?",
   "What are my rights during a traffic stop?",
   "How does emergency SOS work?",
@@ -159,7 +159,7 @@ export default function ChatAgent() {
             <Bot className="w-5 h-5 text-white" />
           </div>
           <div>
-            <p className="text-white text-sm font-semibold">C.A.R.E.N™ Alert Assistant</p>
+            <p className="text-white text-sm font-semibold">C.A.R.E.N.™ Alert Assistant</p>
             <p className="text-cyan-400 text-xs">Ask me anything</p>
           </div>
         </div>
@@ -191,7 +191,7 @@ export default function ChatAgent() {
               <Bot className="w-7 h-7 text-cyan-400" />
             </div>
             <p className="text-white text-sm font-medium mb-1">
-              Hi! I'm C.A.R.E.N™ Alert's AI assistant.
+              Hi! I'm C.A.R.E.N.™ Alert's AI assistant.
             </p>
             <p className="text-gray-400 text-xs mb-4">
               Ask me about features, pricing, legal rights, or how the app works.

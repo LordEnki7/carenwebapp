@@ -22,14 +22,14 @@ async function sendLeadWelcomeEmail(email: string, firstName?: string | null) {
   await sendEmail({
     to: email,
     from: 'noreply@carenalert.com',
-    fromName: 'C.A.R.E.N™ Alert',
-    subject: "Welcome to C.A.R.E.N™ Alert — You're Protected",
+    fromName: 'C.A.R.E.N.™ Alert',
+    subject: "Welcome to C.A.R.E.N.™ Alert — You're Protected",
     html: `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f172a;color:#e2e8f0;padding:40px;border-radius:12px;">
-      <h1 style="color:#06b6d4;font-size:28px;margin-bottom:4px;">C.A.R.E.N™ Alert</h1>
+      <h1 style="color:#06b6d4;font-size:28px;margin-bottom:4px;">C.A.R.E.N.™ Alert</h1>
       <p style="color:#94a3b8;font-size:13px;margin-bottom:32px;">Citizen Assistance for Roadside Emergencies and Navigation</p>
       <h2 style="color:#f8fafc;">Welcome${firstName ? `, ${firstName}` : ""}! You're now protected.</h2>
-      <p style="color:#cbd5e1;line-height:1.7;">Thank you for joining C.A.R.E.N™ Alert. You now have access to GPS-enabled legal protection for all 50 states — putting your rights in your hands, wherever you are.</p>
+      <p style="color:#cbd5e1;line-height:1.7;">Thank you for joining C.A.R.E.N.™ Alert. You now have access to GPS-enabled legal protection for all 50 states — putting your rights in your hands, wherever you are.</p>
       <div style="background:#1e293b;border-radius:8px;padding:24px;margin:24px 0;border-left:4px solid #06b6d4;">
         <h3 style="color:#06b6d4;margin-top:0;">What's waiting for you:</h3>
         <ul style="color:#cbd5e1;line-height:2.2;padding-left:20px;">
@@ -43,7 +43,7 @@ async function sendLeadWelcomeEmail(email: string, firstName?: string | null) {
       </div>
       <a href="https://carenalert.com" style="display:inline-block;background:#06b6d4;color:#000;padding:14px 36px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;">Start Protecting Yourself →</a>
       <p style="color:#475569;font-size:12px;margin-top:32px;border-top:1px solid #1e293b;padding-top:16px;">
-        © 2025 C.A.R.E.N™ Alert. All rights reserved.<br>
+        © 2025 C.A.R.E.N.™ Alert. All rights reserved.<br>
         <a href="https://carenalert.com/privacy" style="color:#475569;">Unsubscribe</a>
       </p>
     </div>
@@ -107,27 +107,27 @@ export function registerAgentRoutes(app: Express) {
 
     const { platform = "instagram", count = 5 } = req.body;
 
-    const systemPrompt = `You are a social media marketing expert for C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation). The app provides GPS-enabled legal protection, emergency recording, AI legal assistance, and roadside safety tools for all 50 US states. Target audience: everyday drivers, civil rights advocates, families, and people who want to know their legal rights. Tone: empowering, urgent, educational, never fearful. Always include the ™ trademark symbol.`;
+    const systemPrompt = `You are a social media marketing expert for C.A.R.E.N.™ Alert (Citizen Assistance for Roadside Emergencies and Navigation). The app provides GPS-enabled legal protection, emergency recording, AI legal assistance, and roadside safety tools for all 50 US states. Target audience: everyday drivers, civil rights advocates, families, and people who want to know their legal rights. Tone: empowering, urgent, educational, never fearful. Always include the ™ trademark symbol.`;
 
     const platformPrompts: Record<string, string> = {
-      tiktok: `Generate exactly ${count} TikTok video scripts for C.A.R.E.N™ Alert. Each script is 30-60 seconds when spoken. Hook viewers in the first 3 seconds. Cover topics: knowing your rights during traffic stops, why recording matters, how C.A.R.E.N™ Alert protects you, legal rights by state, emergency features. Format EACH as:
+      tiktok: `Generate exactly ${count} TikTok video scripts for C.A.R.E.N.™ Alert. Each script is 30-60 seconds when spoken. Hook viewers in the first 3 seconds. Cover topics: knowing your rights during traffic stops, why recording matters, how C.A.R.E.N.™ Alert protects you, legal rights by state, emergency features. Format EACH as:
 ---
 HOOK: [first 3-second attention-grabber]
 BODY: [main content, 4-6 sentences]
 CTA: [call to action]
 HASHTAGS: [10 relevant hashtags]
 ---`,
-      instagram: `Generate exactly ${count} Instagram captions for C.A.R.E.N™ Alert. Mix educational (know your rights), feature-highlighting, and community posts. Format EACH as:
+      instagram: `Generate exactly ${count} Instagram captions for C.A.R.E.N.™ Alert. Mix educational (know your rights), feature-highlighting, and community posts. Format EACH as:
 ---
 CAPTION: [caption text, 3-5 sentences with emojis]
 HASHTAGS: [15 relevant hashtags]
 ---`,
-      twitter: `Generate exactly ${count} tweets for C.A.R.E.N™ Alert. Keep each tweet under 250 characters. Mix fact tweets, tips, and feature highlights. Format EACH as:
+      twitter: `Generate exactly ${count} tweets for C.A.R.E.N.™ Alert. Keep each tweet under 250 characters. Mix fact tweets, tips, and feature highlights. Format EACH as:
 ---
 TWEET: [tweet text]
 HASHTAGS: [5 hashtags]
 ---`,
-      facebook: `Generate exactly ${count} Facebook posts for C.A.R.E.N™ Alert. Longer form, community-focused, educational. Format EACH as:
+      facebook: `Generate exactly ${count} Facebook posts for C.A.R.E.N.™ Alert. Longer form, community-focused, educational. Format EACH as:
 ---
 POST: [post text, 4-8 sentences]
 HASHTAGS: [8 relevant hashtags]
@@ -254,7 +254,7 @@ HASHTAGS: [8 relevant hashtags]
       }).from(agentContent).groupBy(agentContent.platform);
 
       const dataContext = `
-Current business metrics for C.A.R.E.N™ Alert:
+Current business metrics for C.A.R.E.N.™ Alert:
 - Total registered users: ${Number(totalUsers?.count ?? 0)}
 - Total leads captured: ${Number(totalLeads?.count ?? 0)} (${Number(newLeads?.count ?? 0)} new, ${Number(convertedLeads?.count ?? 0)} converted)
 - Lead conversion rate: ${Number(totalLeads?.count ?? 0) > 0 ? Math.round((Number(convertedLeads?.count ?? 0) / Number(totalLeads?.count ?? 1)) * 100) : 0}%
@@ -266,22 +266,22 @@ Current business metrics for C.A.R.E.N™ Alert:
       const roleConfig: Record<string, { title: string; persona: string; focus: string }> = {
         cmo: {
           title: "Chief Marketing Officer",
-          persona: "You are the CMO of C.A.R.E.N™ Alert, a civil rights technology startup. You focus on lead generation, brand awareness, content marketing, social media growth, and converting leads into paying subscribers.",
+          persona: "You are the CMO of C.A.R.E.N.™ Alert, a civil rights technology startup. You focus on lead generation, brand awareness, content marketing, social media growth, and converting leads into paying subscribers.",
           focus: "marketing performance, lead quality, content strategy, social media engagement, email campaigns, and subscriber acquisition"
         },
         coo: {
           title: "Chief Operating Officer",
-          persona: "You are the COO of C.A.R.E.N™ Alert. You focus on operational efficiency, user experience, feature adoption, platform reliability, and scaling the business systematically.",
+          persona: "You are the COO of C.A.R.E.N.™ Alert. You focus on operational efficiency, user experience, feature adoption, platform reliability, and scaling the business systematically.",
           focus: "user growth, feature utilization, operational bottlenecks, onboarding optimization, and scaling the platform"
         },
         cso: {
           title: "Chief Strategy Officer",
-          persona: "You are the CSO of C.A.R.E.N™ Alert. You focus on long-term growth strategy, market positioning, competitive advantage, new market opportunities, and strategic partnerships.",
+          persona: "You are the CSO of C.A.R.E.N.™ Alert. You focus on long-term growth strategy, market positioning, competitive advantage, new market opportunities, and strategic partnerships.",
           focus: "growth opportunities, market positioning, strategic priorities, expansion plans, and competitive differentiation"
         },
         cfo: {
           title: "Chief Financial Officer",
-          persona: "You are the CFO of C.A.R.E.N™ Alert. You focus on revenue optimization, subscription tier performance, conversion rates, cost efficiency, and financial health of the business.",
+          persona: "You are the CFO of C.A.R.E.N.™ Alert. You focus on revenue optimization, subscription tier performance, conversion rates, cost efficiency, and financial health of the business.",
           focus: "revenue per user, subscription conversion optimization, pricing strategy, financial sustainability, and monetization"
         }
       };
@@ -396,25 +396,25 @@ Current business metrics for C.A.R.E.N™ Alert:
       {
         subject: "Did you know you have the right to record police? 📹",
         headline: "Your Recording Rights — Know Before You Need Them",
-        body: `Hey ${name},<br><br>One of the most powerful tools you have in any police encounter is your right to record — but the rules vary by state.<br><br>C.A.R.E.N™ Alert knows your state's specific recording laws automatically using your GPS. Whether you're in a two-party consent state or a single-party state, you'll know your rights in real time.<br><br><strong>Key fact:</strong> In all 50 states, it is legal to record police in public — but there are important rules about distance, interference, and audio consent.`,
+        body: `Hey ${name},<br><br>One of the most powerful tools you have in any police encounter is your right to record — but the rules vary by state.<br><br>C.A.R.E.N.™ Alert knows your state's specific recording laws automatically using your GPS. Whether you're in a two-party consent state or a single-party state, you'll know your rights in real time.<br><br><strong>Key fact:</strong> In all 50 states, it is legal to record police in public — but there are important rules about distance, interference, and audio consent.`,
         cta: "Check My State's Laws →",
       },
       {
         subject: "What to do in the first 30 seconds of a traffic stop 🚗",
         headline: "The 30-Second Protocol That Could Save Your Life",
-        body: `Hey ${name},<br><br>The first 30 seconds of a traffic stop are the most critical — and most people freeze because they don't know exactly what to do.<br><br>C.A.R.E.N™ Alert's Voice Coaching feature walks you through exactly what to say and do in real time, based on your specific state's laws and the officer's statements.<br><br><strong>The protocol:</strong> Hands visible. Engine off. Window down. Recording started. Rights stated calmly.`,
+        body: `Hey ${name},<br><br>The first 30 seconds of a traffic stop are the most critical — and most people freeze because they don't know exactly what to do.<br><br>C.A.R.E.N.™ Alert's Voice Coaching feature walks you through exactly what to say and do in real time, based on your specific state's laws and the officer's statements.<br><br><strong>The protocol:</strong> Hands visible. Engine off. Window down. Recording started. Rights stated calmly.`,
         cta: "Try Voice Coaching Now →",
       },
       {
         subject: "3 words that can protect you in any encounter 🛡️",
         headline: "\"I Do Not Consent\"",
-        body: `Hey ${name},<br><br>Three words that have legal power in every state: <strong>"I do not consent."</strong><br><br>Saying these words clearly — on camera — significantly limits what law enforcement can do without a warrant. C.A.R.E.N™ Alert's AI Legal Assistant helps you understand exactly when and how to use this phrase based on your specific situation.<br><br>Don't wait until you're in the moment to learn this. Know it now.`,
+        body: `Hey ${name},<br><br>Three words that have legal power in every state: <strong>"I do not consent."</strong><br><br>Saying these words clearly — on camera — significantly limits what law enforcement can do without a warrant. C.A.R.E.N.™ Alert's AI Legal Assistant helps you understand exactly when and how to use this phrase based on your specific situation.<br><br>Don't wait until you're in the moment to learn this. Know it now.`,
         cta: "Ask the AI Legal Assistant →",
       },
       {
         subject: "Your protection starts at $1 — here's why it's worth it 💡",
         headline: "Full Legal Protection for Less Than a Coffee",
-        body: `Hey ${name},<br><br>C.A.R.E.N™ Alert offers protection starting at just <strong>$1 one-time</strong> — and the constitutional_pro plan is $9.99/month for complete coverage including attorney matching, AI coaching, emergency family coordination, and evidence cataloging.<br><br>The question isn't whether you can afford to be protected. It's whether you can afford not to be.<br><br>Thousands of encounters happen every day where people wish they'd been prepared. Today is a good day to get ready.`,
+        body: `Hey ${name},<br><br>C.A.R.E.N.™ Alert offers protection starting at just <strong>$1 one-time</strong> — and the constitutional_pro plan is $9.99/month for complete coverage including attorney matching, AI coaching, emergency family coordination, and evidence cataloging.<br><br>The question isn't whether you can afford to be protected. It's whether you can afford not to be.<br><br>Thousands of encounters happen every day where people wish they'd been prepared. Today is a good day to get ready.`,
         cta: "View Pricing & Protect Yourself →",
       },
     ];
@@ -424,13 +424,13 @@ Current business metrics for C.A.R.E.N™ Alert:
 
     const html = `
       <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f172a;color:#e2e8f0;padding:40px;border-radius:12px;">
-        <h1 style="color:#06b6d4;font-size:24px;margin-bottom:4px;">C.A.R.E.N™ Alert</h1>
+        <h1 style="color:#06b6d4;font-size:24px;margin-bottom:4px;">C.A.R.E.N.™ Alert</h1>
         <p style="color:#94a3b8;font-size:12px;margin-bottom:28px;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         <h2 style="color:#f8fafc;font-size:20px;">${drip.headline}</h2>
         <div style="color:#cbd5e1;line-height:1.8;margin:20px 0;">${drip.body}</div>
         <a href="https://citizen-care-projectdna7.replit.app" style="display:inline-block;background:#06b6d4;color:#000;padding:12px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;margin:16px 0;">${drip.cta}</a>
         <p style="color:#475569;font-size:11px;margin-top:32px;border-top:1px solid #1e293b;padding-top:16px;">
-          © 2025 C.A.R.E.N™ Alert. You're receiving this because you signed up for updates.<br>
+          © 2025 C.A.R.E.N.™ Alert. You're receiving this because you signed up for updates.<br>
           <a href="https://citizen-care-projectdna7.replit.app/privacy" style="color:#475569;">Unsubscribe</a>
         </p>
       </div>
@@ -439,7 +439,7 @@ Current business metrics for C.A.R.E.N™ Alert:
     return sendEmail({
       to: email,
       from: 'noreply@carenalert.com',
-      fromName: 'C.A.R.E.N™ Alert',
+      fromName: 'C.A.R.E.N.™ Alert',
       subject: drip.subject,
       html,
     });

@@ -50,12 +50,12 @@ export default function Landing() {
           <div className="flex items-center justify-center mb-8">
             <img 
               src={carenLogo} 
-              alt="C.A.R.E.N™ Alert - Citizen Assistance for Roadside Emergencies and Navigation" 
+              alt="C.A.R.E.N.™ Alert - Citizen Assistance for Roadside Emergencies and Navigation" 
               className="w-32 h-32 caren-logo"
             />
           </div>
           <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-lg">
-            C.A.R.E.N™ Alert
+            C.A.R.E.N.™ Alert
           </h1>
           <p className="text-xl text-gray-600 mb-4 max-w-2xl mx-auto">
             Citizen Assistance for Roadside Emergencies and Navigation
@@ -179,7 +179,7 @@ export default function Landing() {
                   Get Protected Today
                 </h2>
                 <p className="text-slate-400 mb-8 text-lg">
-                  Join the C.A.R.E.N™ Alert community and receive a free guide to your legal rights during police encounters.
+                  Join the C.A.R.E.N.™ Alert community and receive a free guide to your legal rights during police encounters.
                 </p>
 
                 {leadSubmitted ? (
@@ -236,7 +236,7 @@ export default function Landing() {
                 Ready to Protect Your Rights?
               </h2>
               <p className="text-blue-100 mb-6 text-lg">
-                Join thousands of users who trust C.A.R.E.N™ Alert for their legal protection needs.
+                Join thousands of users who trust C.A.R.E.N.™ Alert for their legal protection needs.
               </p>
               <Button 
                 size="lg"

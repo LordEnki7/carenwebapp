@@ -18,11 +18,11 @@ interface CampaignStatus {
 }
 
 const CAMPAIGN_EMAILS = [
-  { step: 1, day: 0, title: "Welcome & Getting Started", icon: Send, description: "Introduction to C.A.R.E.N™ Alert, how to set up your profile, and a quick tour of essential features that keep you safe." },
-  { step: 2, day: 2, title: "Know Your Rights - GPS Legal Protection", icon: Shield, description: "Learn how C.A.R.E.N™ Alert uses GPS-based legal rights to show you exactly what protections apply in your location during any encounter." },
+  { step: 1, day: 0, title: "Welcome & Getting Started", icon: Send, description: "Introduction to C.A.R.E.N.™ Alert, how to set up your profile, and a quick tour of essential features that keep you safe." },
+  { step: 2, day: 2, title: "Know Your Rights - GPS Legal Protection", icon: Shield, description: "Learn how C.A.R.E.N.™ Alert uses GPS-based legal rights to show you exactly what protections apply in your location during any encounter." },
   { step: 3, day: 5, title: "Stay Safe - Emergency Features", icon: Zap, description: "Discover emergency recording, one-tap evidence collection, and how to share your location with trusted contacts instantly." },
   { step: 4, day: 8, title: "AI-Powered Protection", icon: Brain, description: "Explore AI-driven features like voice commands, smart auto-mute, de-escalation coaching, and real-time legal guidance." },
-  { step: 5, day: 13, title: "You're Protected - What's Next?", icon: Gift, description: "Advanced tips, community features, attorney matching, and how to get the most out of your C.A.R.E.N™ Alert subscription." },
+  { step: 5, day: 13, title: "You're Protected - What's Next?", icon: Gift, description: "Advanced tips, community features, attorney matching, and how to get the most out of your C.A.R.E.N.™ Alert subscription." },
 ];
 
 export default function EmailCampaigns() {
@@ -80,7 +80,7 @@ export default function EmailCampaigns() {
             <h1 className="text-3xl font-bold text-white tracking-tight">Email Education Series</h1>
           </div>
           <p className="text-gray-400 max-w-xl mx-auto">
-            A free 5-email course delivered over 13 days. Learn how to use C.A.R.E.N™ Alert to protect yourself, know your rights, and stay safe during any encounter.
+            A free 5-email course delivered over 13 days. Learn how to use C.A.R.E.N.™ Alert to protect yourself, know your rights, and stay safe during any encounter.
           </p>
         </div>
 
@@ -178,7 +178,7 @@ export default function EmailCampaigns() {
           </CardHeader>
           <CardContent className="space-y-3">
             {[
-              { icon: Send, text: "How to set up and customize C.A.R.E.N™ Alert for your personal safety needs" },
+              { icon: Send, text: "How to set up and customize C.A.R.E.N.™ Alert for your personal safety needs" },
               { icon: Shield, text: "Your constitutional rights during police encounters based on your GPS location" },
               { icon: Zap, text: "Emergency recording, evidence collection, and instant contact sharing" },
               { icon: Brain, text: "AI-powered voice commands, auto-mute, and real-time de-escalation coaching" },

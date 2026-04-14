@@ -156,7 +156,7 @@ export function DemoLimitReachedBanner({ error }: { error: string }) {
         <div className="font-medium mb-1">Demo Limit Reached</div>
         <div className="text-sm text-red-400">{error}</div>
         <div className="text-xs text-gray-400 mt-2">
-          Sign up for a free account to continue using C.A.R.E.N™ Alert
+          Sign up for a free account to continue using C.A.R.E.N.™ Alert
         </div>
       </AlertDescription>
     </Alert>

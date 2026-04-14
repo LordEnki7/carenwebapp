@@ -1,8 +1,8 @@
-# C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation)
+# C.A.R.E.N.™ Alert (Citizen Assistance for Roadside Emergencies and Navigation)
 
 ## Overview
 
-C.A.R.E.N™ Alert is a comprehensive family protection platform offering GPS-enabled, state-specific legal protection and coordinated emergency response. It integrates real-time voice commands, multi-angle video recording, attorney communication, and roadside assistance within a unified ecosystem (PWA and native mobile applications). The platform aims to cover legal encounters and vehicle emergencies with family notification systems, leveraging AI for legal assistance, smart emergency detection, incident summarization, multi-language legal translation, attorney matching, and real-time voice coaching during police encounters.
+C.A.R.E.N.™ Alert is a comprehensive family protection platform offering GPS-enabled, state-specific legal protection and coordinated emergency response. It integrates real-time voice commands, multi-angle video recording, attorney communication, and roadside assistance within a unified ecosystem (PWA and native mobile applications). The platform aims to cover legal encounters and vehicle emergencies with family notification systems, leveraging AI for legal assistance, smart emergency detection, incident summarization, multi-language legal translation, attorney matching, and real-time voice coaching during police encounters.
 
 ## User Preferences
 

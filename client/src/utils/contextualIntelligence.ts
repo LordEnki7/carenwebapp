@@ -531,7 +531,7 @@ export function getContextualHelp(
       {
         id: 'general',
         title: 'Context-Aware Features',
-        description: 'C.A.R.E.N™ Alert adapts to your situation and provides relevant tools automatically.',
+        description: 'C.A.R.E.N.™ Alert adapts to your situation and provides relevant tools automatically.',
         priority: 1,
         conditions: ['general']
       }

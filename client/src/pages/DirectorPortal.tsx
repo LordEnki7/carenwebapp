@@ -75,29 +75,29 @@ const TOOLKIT_SECTIONS = [
     scripts: [
       {
         title: "Cold Call Opening — Attorney",
-        content: `"Hi, my name is [Your Name] and I'm a Regional Director with C.A.R.E.N™ Alert — Citizen Assistance for Roadside Emergencies and Navigation. We're building a network of attorneys across [City] who want to be connected directly with people who've had a roadside encounter and need legal help. It's free to join the network and you only get contacted when someone in your area needs assistance. Would you be open to a 5-minute conversation about how it works?"`,
+        content: `"Hi, my name is [Your Name] and I'm a Regional Director with C.A.R.E.N.™ Alert — Citizen Assistance for Roadside Emergencies and Navigation. We're building a network of attorneys across [City] who want to be connected directly with people who've had a roadside encounter and need legal help. It's free to join the network and you only get contacted when someone in your area needs assistance. Would you be open to a 5-minute conversation about how it works?"`,
       },
       {
         title: "Attorney Email Outreach",
-        content: `Subject: Join the C.A.R.E.N™ Alert Legal Network in [City]
+        content: `Subject: Join the C.A.R.E.N.™ Alert Legal Network in [City]
 
 Hello [Attorney Name],
 
-My name is [Your Name] and I'm a Regional Director for C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) — a platform that gives drivers real-time legal support during roadside encounters.
+My name is [Your Name] and I'm a Regional Director for C.A.R.E.N.™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) — a platform that gives drivers real-time legal support during roadside encounters.
 
 We're building a verified attorney network in [City/State] and I'd love to connect you with people in your area who need exactly the type of help you provide.
 
-There's no cost to join. You receive referrals when a C.A.R.E.N™ Alert member in your area needs legal assistance.
+There's no cost to join. You receive referrals when a C.A.R.E.N.™ Alert member in your area needs legal assistance.
 
 Would you be open to a 10-minute call this week?
 
 Respectfully,
 [Your Name]
-C.A.R.E.N™ Alert Regional Director — [City], [State]`,
+C.A.R.E.N.™ Alert Regional Director — [City], [State]`,
       },
       {
         title: "In-Person Law Firm Pitch",
-        content: `"Good [morning/afternoon]. I'm [Your Name], a Regional Director with C.A.R.E.N™ Alert — a platform that helps drivers document roadside encounters and connect with attorneys instantly. We're building a verified attorney referral network right here in [City] and we want [Firm Name] to be part of it. There's no fee to join — you simply get matched with clients in your area who are already looking for legal help. Do you have a card I can leave some information with? I'd love to have someone from the firm connect with us."`,
+        content: `"Good [morning/afternoon]. I'm [Your Name], a Regional Director with C.A.R.E.N.™ Alert — a platform that helps drivers document roadside encounters and connect with attorneys instantly. We're building a verified attorney referral network right here in [City] and we want [Firm Name] to be part of it. There's no fee to join — you simply get matched with clients in your area who are already looking for legal help. Do you have a card I can leave some information with? I'd love to have someone from the firm connect with us."`,
       },
     ],
   },
@@ -108,26 +108,26 @@ C.A.R.E.N™ Alert Regional Director — [City], [State]`,
     scripts: [
       {
         title: "Business Partnership Pitch",
-        content: `"Hi, I'm [Your Name], a Regional Director with C.A.R.E.N™ Alert — an app that protects drivers during roadside emergencies and legal encounters. We're partnering with local businesses in [City] to offer C.A.R.E.N™ Alert subscriptions to their employees or customers as a value-add. It's a low-cost way to show your community you care about their safety. Would you be open to hearing more about our business partnership program?"`,
+        content: `"Hi, I'm [Your Name], a Regional Director with C.A.R.E.N.™ Alert — an app that protects drivers during roadside emergencies and legal encounters. We're partnering with local businesses in [City] to offer C.A.R.E.N.™ Alert subscriptions to their employees or customers as a value-add. It's a low-cost way to show your community you care about their safety. Would you be open to hearing more about our business partnership program?"`,
       },
       {
         title: "Auto Shop / Dealership Outreach",
-        content: `Subject: Protect Your Customers on the Road — C.A.R.E.N™ Alert Partnership
+        content: `Subject: Protect Your Customers on the Road — C.A.R.E.N.™ Alert Partnership
 
 Hi [Owner/Manager Name],
 
-I'm reaching out because I think your customers would love what we've built. C.A.R.E.N™ Alert is a roadside protection app that records encounters, provides real-time legal guidance, and connects drivers to attorneys when needed.
+I'm reaching out because I think your customers would love what we've built. C.A.R.E.N.™ Alert is a roadside protection app that records encounters, provides real-time legal guidance, and connects drivers to attorneys when needed.
 
-As an auto-related business, you already serve drivers. Offering C.A.R.E.N™ Alert as a recommended tool — or bundling it with your services — gives your customers one more reason to trust and choose you.
+As an auto-related business, you already serve drivers. Offering C.A.R.E.N.™ Alert as a recommended tool — or bundling it with your services — gives your customers one more reason to trust and choose you.
 
 I'd love to explore a simple referral partnership. Can we connect this week?
 
 [Your Name]
-C.A.R.E.N™ Alert Regional Director — [City], [State]`,
+C.A.R.E.N.™ Alert Regional Director — [City], [State]`,
       },
       {
         title: "Community Organization Outreach",
-        content: `"Hello, I'm [Your Name] with C.A.R.E.N™ Alert We're a citizen safety platform focused on giving everyday drivers the tools and legal knowledge they need during roadside situations. We're working with community organizations in [City] to spread awareness and potentially offer group pricing to your members. A lot of the people your organization serves could benefit from this type of protection. Would you be open to hosting a 15-minute info session or letting us share a flyer with your network?"`,
+        content: `"Hello, I'm [Your Name] with C.A.R.E.N.™ Alert We're a citizen safety platform focused on giving everyday drivers the tools and legal knowledge they need during roadside situations. We're working with community organizations in [City] to spread awareness and potentially offer group pricing to your members. A lot of the people your organization serves could benefit from this type of protection. Would you be open to hosting a 15-minute info session or letting us share a flyer with your network?"`,
       },
     ],
   },
@@ -138,15 +138,15 @@ C.A.R.E.N™ Alert Regional Director — [City], [State]`,
     scripts: [
       {
         title: "Direct Message / Text Script",
-        content: `"Hey [Name]! I wanted to share something I think you'd find valuable. It's called C.A.R.E.N™ Alert — an app that protects you during traffic stops and roadside situations. It records the encounter, tells you your legal rights in real time, and connects you to an attorney if needed. Plans start at under $5/month. I'm actually a Regional Director for them now. Check it out: carenalert.com — let me know if you have questions!"`,
+        content: `"Hey [Name]! I wanted to share something I think you'd find valuable. It's called C.A.R.E.N.™ Alert — an app that protects you during traffic stops and roadside situations. It records the encounter, tells you your legal rights in real time, and connects you to an attorney if needed. Plans start at under $5/month. I'm actually a Regional Director for them now. Check it out: carenalert.com — let me know if you have questions!"`,
       },
       {
         title: "Social Media Caption",
         content: `Do you know your rights when you're pulled over? 🚗
 
-Most people don't — and that's exactly why I joined C.A.R.E.N™ Alert
+Most people don't — and that's exactly why I joined C.A.R.E.N.™ Alert
 
-C.A.R.E.N™ Alert is a real-time protection app for drivers that:
+C.A.R.E.N.™ Alert is a real-time protection app for drivers that:
 ✅ Records your encounter automatically
 ✅ Tells you your legal rights state-by-state
 ✅ Connects you to a local attorney instantly
@@ -160,7 +160,7 @@ Plans start at $0.99/month. This is the protection everyone needs but nobody tal
       },
       {
         title: "Community Event / Tabling Script",
-        content: `"Hi there! Have you heard of C.A.R.E.N™ Alert? It's a citizen safety app I'm here to tell you about today. It stands for Citizen Assistance for Roadside Emergencies and Navigation. Basically, it protects drivers during traffic stops — it records the encounter, gives you your legal rights on screen in real time, and can alert your family and connect you to an attorney. It works across all 50 states. Plans start at under $5 a month. Here's a card — and I'd love to answer any questions you have about how it works."`,
+        content: `"Hi there! Have you heard of C.A.R.E.N.™ Alert? It's a citizen safety app I'm here to tell you about today. It stands for Citizen Assistance for Roadside Emergencies and Navigation. Basically, it protects drivers during traffic stops — it records the encounter, gives you your legal rights on screen in real time, and can alert your family and connect you to an attorney. It works across all 50 states. Plans start at under $5 a month. Here's a card — and I'd love to answer any questions you have about how it works."`,
       },
     ],
   },
@@ -207,7 +207,7 @@ export default function DirectorPortal() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  // ── Standalone PIN auth — completely separate from C.A.R.E.N™ Alert app login ──
+  // ── Standalone PIN auth — completely separate from C.A.R.E.N.™ Alert app login ──
   const [portalSession, setPortalSession] = useState<{ email: string; pin: string } | null>(() => {
     try { return JSON.parse(localStorage.getItem("directorPortalSession") || "null"); } catch { return null; }
   });
@@ -418,7 +418,7 @@ export default function DirectorPortal() {
             </Button>
           </div>
           <p className="text-center text-gray-500 text-xs">
-            Don't have a PIN? Contact C.A.R.E.N™ Alert administration after your application is approved.
+            Don't have a PIN? Contact C.A.R.E.N.™ Alert administration after your application is approved.
           </p>
           <div className="text-center">
             <Link href="/become-director">
@@ -1106,16 +1106,16 @@ export default function DirectorPortal() {
             {/* QR Code Card */}
             <Card className="bg-gradient-to-br from-cyan-900/30 to-blue-900/20 border-cyan-500/40">
               <CardHeader className="pb-2">
-                <CardTitle className="text-cyan-300 text-base">Your C.A.R.E.N™ Alert QR Code</CardTitle>
+                <CardTitle className="text-cyan-300 text-base">Your C.A.R.E.N.™ Alert QR Code</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col sm:flex-row items-center gap-5">
                 <img
                   src="/caren-qr-code.png"
-                  alt="C.A.R.E.N™ Alert QR Code — Scan to Download"
+                  alt="C.A.R.E.N.™ Alert QR Code — Scan to Download"
                   className="w-36 h-36 rounded-xl border-2 border-cyan-500/40 object-contain bg-white p-1 flex-shrink-0"
                 />
                 <div>
-                  <p className="text-white font-semibold mb-1">Scan to Download C.A.R.E.N™ Alert</p>
+                  <p className="text-white font-semibold mb-1">Scan to Download C.A.R.E.N.™ Alert</p>
                   <p className="text-gray-400 text-sm mb-3">Show this code on your phone to any prospect — they scan it and land directly on the app download. Display it on a printed card, flyer, or share it in a text.</p>
                   <p className="text-cyan-400 text-xs font-medium uppercase tracking-wide">carenalert.com · iOS &amp; Android</p>
                 </div>
@@ -1130,7 +1130,7 @@ export default function DirectorPortal() {
               <CardContent className="space-y-2">
                 {[
                   { label: "Attorney Application Form", href: "/attorney-application", desc: "Direct link — send to any attorney you recruit" },
-                  { label: "C.A.R.E.N™ Alert Homepage", href: "/", desc: "Share this with users and businesses" },
+                  { label: "C.A.R.E.N.™ Alert Homepage", href: "/", desc: "Share this with users and businesses" },
                   { label: "Legal Rights Database", href: "/rights", desc: "Show prospects what the platform covers" },
                   { label: "Record an Encounter", href: "/record", desc: "Demo the core product feature" },
                 ].map((r, i) => (

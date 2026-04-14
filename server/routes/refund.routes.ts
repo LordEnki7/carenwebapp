@@ -6,7 +6,7 @@ import { getOpenAIClient } from "../aiService";
 import { createRateLimit } from "../security";
 import { sendEmail } from "../mailer";
 
-const REFUND_POLICY_ENGINE_PROMPT = `ROLE: C.A.R.E.N™ Alert Refund Policy Engine
+const REFUND_POLICY_ENGINE_PROMPT = `ROLE: C.A.R.E.N.™ Alert Refund Policy Engine
 
 MISSION
 You are the authority that determines whether a refund request is approved, denied, escalated, or partially approved based strictly on defined policy rules. You do not guess. You evaluate facts against rules only.
@@ -62,10 +62,10 @@ REQUIRED OUTPUT FORMAT (JSON only, no other text):
   "quality_review": "Brief assessment of fairness, accuracy, and consistency"
 }`;
 
-const SUPPORT_REFUND_AGENT_PROMPT = `ROLE: C.A.R.E.N™ Alert Customer Support, Payments, and Refund Resolution Agent
+const SUPPORT_REFUND_AGENT_PROMPT = `ROLE: C.A.R.E.N.™ Alert Customer Support, Payments, and Refund Resolution Agent
 
 MISSION
-You handle customer support, complaints, billing issues, subscription issues, and refund requests for the C.A.R.E.N™ Alert platform. Your goal is to resolve issues quickly, professionally, and fairly while protecting both the customer experience and the financial integrity of the business.
+You handle customer support, complaints, billing issues, subscription issues, and refund requests for the C.A.R.E.N.™ Alert platform. Your goal is to resolve issues quickly, professionally, and fairly while protecting both the customer experience and the financial integrity of the business.
 
 You must be polite, calm, respectful, and solution-oriented at all times.
 
@@ -128,8 +128,8 @@ BILLING ISSUE: "Thanks for reaching out — let's take a look at this together s
 FRUSTRATED CUSTOMER: "I hear you, and I understand why that would be frustrating. Let's work through this and get it handled properly."
 ESCALATION: "I want to make sure this is handled correctly, so I'm escalating this for a deeper review. I'll make sure everything is clearly documented for you."
 
-C.A.R.E.N™ Alert PLATFORM KNOWLEDGE
-C.A.R.E.N™ Alert subscription plans: Legal Shield ($9.99/mo), Constitutional Pro ($19.99/mo), Family Protection ($29.99/mo), Enterprise Fleet ($49.99/mo).
+C.A.R.E.N.™ Alert PLATFORM KNOWLEDGE
+C.A.R.E.N.™ Alert subscription plans: Legal Shield ($9.99/mo), Constitutional Pro ($19.99/mo), Family Protection ($29.99/mo), Enterprise Fleet ($49.99/mo).
 Refund window is 7 days from purchase.
 
 LEGAL BOUNDARY
@@ -236,7 +236,7 @@ async function sendRefundEscalationEmail(data: {
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; background:#0f172a; color:#e2e8f0; padding:24px; border-radius:12px;">
         <div style="background:linear-gradient(135deg,#dc2626,#7c3aed); padding:16px 24px; border-radius:8px; margin-bottom:24px;">
-          <h1 style="margin:0; font-size:20px; color:white;">💰 C.A.R.E.N™ Alert Refund Escalation</h1>
+          <h1 style="margin:0; font-size:20px; color:white;">💰 C.A.R.E.N.™ Alert Refund Escalation</h1>
           <p style="margin:4px 0 0; color:#fca5a5; font-size:14px;">Refund ID: ${data.refundId}</p>
         </div>
         <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
@@ -251,7 +251,7 @@ async function sendRefundEscalationEmail(data: {
           <h3 style="margin:0 0 8px; color:#a78bfa; font-size:14px; text-transform:uppercase;">Decision Reason</h3>
           <p style="margin:0; color:#e2e8f0;">${data.decisionReason}</p>
         </div>
-        <p style="margin-top:24px; font-size:12px; color:#475569; text-align:center;">C.A.R.E.N™ Alert — Refund Policy Engine</p>
+        <p style="margin-top:24px; font-size:12px; color:#475569; text-align:center;">C.A.R.E.N.™ Alert — Refund Policy Engine</p>
       </div>
     `,
     text: `CAREN Refund Escalation\nRefund ID: ${data.refundId}\nAmount: $${data.amountPaid}\nDecision: ${data.decision}\nUser: ${data.userEmail}\nReason: ${data.decisionReason}`,

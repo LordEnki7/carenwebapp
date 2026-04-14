@@ -42,7 +42,7 @@ export default function PressKit() {
           <Badge className="bg-white/10 text-gray-300 border-white/10 text-xs uppercase tracking-widest">
             Press Kit
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">C.A.R.E.N™ Alert</h1>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">C.A.R.E.N.™ Alert</h1>
           <p className="text-gray-400 text-lg">
             Citizen Assistance for Roadside Emergencies & Navigation
           </p>
@@ -55,7 +55,7 @@ export default function PressKit() {
           </h2>
           <div className="border border-white/10 rounded-xl bg-white/[0.02] p-6 md:p-8">
             <p className="text-gray-300 leading-relaxed text-lg">
-              C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) is a mobile and web app designed to protect drivers during police stops by educating them on their legal rights in real-time, reducing unlawful searches, and de-escalating encounters through accessible legal support tools.
+              C.A.R.E.N.™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) is a mobile and web app designed to protect drivers during police stops by educating them on their legal rights in real-time, reducing unlawful searches, and de-escalating encounters through accessible legal support tools.
             </p>
             <p className="text-gray-400 leading-relaxed mt-4">
               The platform combines state-specific legal guidance, AI-powered voice coaching, audio/video recording, one-tap emergency alerts, and instant attorney connection into a unified mobile experience. We aim to bridge the gap between the law and the street — particularly for underserved communities disproportionately affected by traffic stops.
@@ -105,7 +105,7 @@ export default function PressKit() {
               </div>
             </div>
             <p className="text-gray-400 leading-relaxed">
-              Black and Brown drivers are disproportionately stopped, searched, and arrested during traffic stops. Most drivers don't know their state-specific rights, what to say without escalating, or how to secure legal help instantly. C.A.R.E.N™ Alert fills that gap.
+              Black and Brown drivers are disproportionately stopped, searched, and arrested during traffic stops. Most drivers don't know their state-specific rights, what to say without escalating, or how to secure legal help instantly. C.A.R.E.N.™ Alert fills that gap.
             </p>
           </div>
         </section>
@@ -220,7 +220,7 @@ export default function PressKit() {
 
         <div className="text-center pb-4">
           <p className="text-gray-700 text-xs">
-            &copy; {new Date().getFullYear()} C.A.R.E.N™ Alert &mdash; All rights reserved.
+            &copy; {new Date().getFullYear()} C.A.R.E.N.™ Alert &mdash; All rights reserved.
           </p>
         </div>
       </div>

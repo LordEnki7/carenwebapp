@@ -88,7 +88,7 @@ export default function LocationAwareLegalRights() {
                   Detected: {location.city ? `${location.city}, ` : ''}{location.country}
                 </p>
                 <p className="text-sm text-amber-700 mt-2">
-                  C.A.R.E.N™ Alert legal rights are specific to US jurisdictions. Your full US legal reference library is still available to browse below.
+                  C.A.R.E.N.™ Alert legal rights are specific to US jurisdictions. Your full US legal reference library is still available to browse below.
                 </p>
               </div>
               <Button

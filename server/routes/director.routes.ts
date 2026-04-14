@@ -18,16 +18,16 @@ async function sendApprovalEmail(director: any) {
   const portalLink = `https://carenalert.com/director-portal`;
   await sendEmail({
     to: director.email,
-    subject: "You're Approved — Welcome to the C.A.R.E.N™ Alert Director Team",
+    subject: "You're Approved — Welcome to the C.A.R.E.N.™ Alert Director Team",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
         <div style="margin-bottom: 28px;">
-          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N™ Alert</h2>
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.™ Alert</h2>
           <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
         <p style="font-size: 15px; margin-bottom: 20px;">Hello ${director.name},</p>
-        <p style="line-height: 1.7;">Your application has been reviewed and <strong style="color: #0e7490;">you are officially approved</strong> as a Regional Director for C.A.R.E.N™ Alert in <strong>${director.city}, ${director.state}</strong>.</p>
-        <p style="line-height: 1.7;">Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N™ Alert</p>
+        <p style="line-height: 1.7;">Your application has been reviewed and <strong style="color: #0e7490;">you are officially approved</strong> as a Regional Director for C.A.R.E.N.™ Alert in <strong>${director.city}, ${director.state}</strong>.</p>
+        <p style="line-height: 1.7;">Your job is not to pressure people. Your job is to open doors, introduce the mission, build trust, and create local momentum for C.A.R.E.N.™ Alert</p>
         <div style="background: #f0f9ff; border-left: 4px solid #0e7490; padding: 20px 24px; margin: 28px 0; border-radius: 4px;">
           <p style="font-weight: bold; margin: 0 0 12px; color: #0e7490;">Your Director Resources</p>
           <p style="margin: 6px 0;"><strong>Your Personal Referral Link:</strong><br/>
@@ -38,9 +38,9 @@ async function sendApprovalEmail(director: any) {
           <p style="margin: 6px 0;"><a href="${playbookLink}" style="color: #0e7490; font-weight: bold;">Download Your Director Playbook →</a></p>
         </div>
         <p style="line-height: 1.7;">Log into your portal to track your activity, view commissions, and access outreach scripts. Your playbook has everything you need to start opening doors.</p>
-        <p style="line-height: 1.7; margin-top: 28px;">Welcome to the team.<br/><br/>Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N™ Alert</span></p>
+        <p style="line-height: 1.7; margin-top: 28px;">Welcome to the team.<br/><br/>Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.™ Alert</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N.™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   });
@@ -48,35 +48,35 @@ async function sendApprovalEmail(director: any) {
 
 const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, city: string) => string }> = {
   initial_outreach: {
-    subject: "Appointment as C.A.R.E.N™ Alert Regional Director – {city}",
+    subject: "Appointment as C.A.R.E.N.™ Alert Regional Director – {city}",
     html: (name, city) => `
       <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
         <div style="margin-bottom: 28px;">
-          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N™ Alert</h2>
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.™ Alert</h2>
           <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
         <p style="font-size: 15px; margin-bottom: 20px;">Hello ${name},</p>
-        <p style="line-height: 1.7;">I'm reaching out to personally welcome you as a <strong>Regional Director for C.A.R.E.N™ Alert in ${city}</strong>.</p>
-        <p style="line-height: 1.7;">C.A.R.E.N™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) was built with a clear mission — to give drivers protection, documentation, and access to legal support in real-time when situations escalate on the road.</p>
+        <p style="line-height: 1.7;">I'm reaching out to personally welcome you as a <strong>Regional Director for C.A.R.E.N.™ Alert in ${city}</strong>.</p>
+        <p style="line-height: 1.7;">C.A.R.E.N.™ Alert (Citizen Assistance for Roadside Emergencies and Navigation) was built with a clear mission — to give drivers protection, documentation, and access to legal support in real-time when situations escalate on the road.</p>
         <p style="line-height: 1.7;">As a Regional Director, you are not just promoting an app — you are helping establish a system that can impact real-world situations where people need support the most.</p>
-        <p style="line-height: 1.7;">Your role will be to help build C.A.R.E.N™ Alert's presence in your region by connecting with attorneys, engaging your local community, and increasing awareness of the platform.</p>
-        <p style="line-height: 1.7;">You will be among the first group helping shape how C.A.R.E.N™ Alert grows across cities, and your contributions will directly influence its expansion.</p>
+        <p style="line-height: 1.7;">Your role will be to help build C.A.R.E.N.™ Alert's presence in your region by connecting with attorneys, engaging your local community, and increasing awareness of the platform.</p>
+        <p style="line-height: 1.7;">You will be among the first group helping shape how C.A.R.E.N.™ Alert grows across cities, and your contributions will directly influence its expansion.</p>
         <p style="line-height: 1.7;">We are building something meaningful — and I'm glad to have you as part of it.</p>
         <p style="line-height: 1.7;">More details on your responsibilities and next steps are included below.</p>
         <div style="background: #f0f9ff; border-left: 4px solid #0e7490; padding: 20px 24px; margin: 28px 0; border-radius: 4px;">
-          <p style="margin: 0 0 12px; font-weight: bold; color: #0e7490; font-size: 15px;">C.A.R.E.N™ Alert REGIONAL DIRECTOR PROGRAM</p>
+          <p style="margin: 0 0 12px; font-weight: bold; color: #0e7490; font-size: 15px;">C.A.R.E.N.™ Alert REGIONAL DIRECTOR PROGRAM</p>
           <p style="margin: 0 0 8px; font-weight: 600;">Title: Regional Director – ${city}</p>
-          <p style="margin: 0 0 12px; color: #374151; line-height: 1.6;">The Regional Director is responsible for expanding C.A.R.E.N™ Alert's presence, awareness, and adoption within their assigned region by building local partnerships, recruiting attorneys, and driving user growth.</p>
+          <p style="margin: 0 0 12px; color: #374151; line-height: 1.6;">The Regional Director is responsible for expanding C.A.R.E.N.™ Alert's presence, awareness, and adoption within their assigned region by building local partnerships, recruiting attorneys, and driving user growth.</p>
           <p style="margin: 0 0 8px; font-weight: 600; color: #0e7490;">Your Role as a Regional Director:</p>
           <ul style="margin: 0 0 12px; padding-left: 20px; line-height: 1.9; color: #374151;">
             <li><strong>Growth Operator</strong> — Build local momentum and drive user adoption</li>
             <li><strong>Market Builder</strong> — Recruit attorneys and create local partnerships</li>
-            <li><strong>Local Ambassador</strong> — Represent C.A.R.E.N™ Alert in your community</li>
+            <li><strong>Local Ambassador</strong> — Represent C.A.R.E.N.™ Alert in your community</li>
           </ul>
           <p style="margin: 0; color: #6b7280; font-size: 13px; font-style: italic;">Think: Uber launch teams. DoorDash early city builders. Ground-floor impact.</p>
         </div>
         <div style="background: #f9fafb; border: 1px solid #e5e7eb; padding: 20px 24px; margin: 24px 0; border-radius: 4px;">
-          <p style="margin: 0 0 12px; font-weight: bold; color: #111827;">C.A.R.E.N™ Alert REGIONAL DIRECTOR AGREEMENT</p>
+          <p style="margin: 0 0 12px; font-weight: bold; color: #111827;">C.A.R.E.N.™ Alert REGIONAL DIRECTOR AGREEMENT</p>
           <p style="margin: 0 0 8px; color: #374151; font-size: 14px;">This Agreement is made between <strong>Caren Web App LLC</strong> and <strong>${name}</strong>.</p>
           <table style="width: 100%; font-size: 13px; color: #374151; border-collapse: collapse;">
             <tr><td style="padding: 6px 0; font-weight: 600; width: 140px; vertical-align: top;">1. Role</td><td style="padding: 6px 0;">Appointed as Regional Director for ${city}. Director is an independent contractor, not an employee.</td></tr>
@@ -98,47 +98,47 @@ const EMAIL_TEMPLATES: Record<string, { subject: string; html: (name: string, ci
             <p style="margin: 0;">Date: <span style="border-bottom: 1px solid #9ca3af; display: inline-block; width: 220px;">&nbsp;</span></p>
           </div>
         </div>
-        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N™ Alert</span></p>
+        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.™ Alert</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N.™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   },
   follow_up: {
-    subject: "Following Up — Regional Director Role in {city} | C.A.R.E.N™ Alert",
+    subject: "Following Up — Regional Director Role in {city} | C.A.R.E.N.™ Alert",
     html: (name, city) => `
       <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
         <div style="margin-bottom: 28px;">
-          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N™ Alert</h2>
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.™ Alert</h2>
           <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
         <p style="font-size: 15px;">Hello ${name},</p>
         <p style="line-height: 1.7;">I wanted to follow up on the <strong>Regional Director opportunity in ${city}</strong> that I reached out about recently.</p>
-        <p style="line-height: 1.7;">C.A.R.E.N™ Alert is already live on the Google Play Store and growing. The director role in your area is still open, but we are actively moving forward with selections.</p>
-        <p style="line-height: 1.7;">As a reminder — this is a ground-floor position. You would be one of the first people shaping how C.A.R.E.N™ Alert expands in ${city}, with performance-based commissions and a path to senior leadership roles.</p>
+        <p style="line-height: 1.7;">C.A.R.E.N.™ Alert is already live on the Google Play Store and growing. The director role in your area is still open, but we are actively moving forward with selections.</p>
+        <p style="line-height: 1.7;">As a reminder — this is a ground-floor position. You would be one of the first people shaping how C.A.R.E.N.™ Alert expands in ${city}, with performance-based commissions and a path to senior leadership roles.</p>
         <p style="line-height: 1.7;">If you have any questions or want to talk through the role, simply reply to this email. I'm happy to connect.</p>
-        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N™ Alert</span></p>
+        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.™ Alert</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N.™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   },
   final_invite: {
-    subject: "Last Message — Regional Director | C.A.R.E.N™ Alert ${city}",
+    subject: "Last Message — Regional Director | C.A.R.E.N.™ Alert ${city}",
     html: (name, city) => `
       <div style="font-family: Arial, sans-serif; max-width: 620px; margin: 0 auto; background: #ffffff; color: #1a1a1a; padding: 40px 36px; border-radius: 8px; border: 1px solid #e5e7eb;">
         <div style="margin-bottom: 28px;">
-          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N™ Alert</h2>
+          <h2 style="color: #0e7490; font-size: 22px; margin: 0 0 4px;">C.A.R.E.N.™ Alert</h2>
           <p style="color: #6b7280; font-size: 12px; margin: 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
         </div>
         <p style="font-size: 15px;">Hello ${name},</p>
         <p style="line-height: 1.7;">This will be my last message regarding the <strong>Regional Director position in ${city}</strong>.</p>
         <p style="line-height: 1.7;">We are finalizing our director selections and I didn't want to close out without giving you one final opportunity to be part of this.</p>
-        <p style="line-height: 1.7;">C.A.R.E.N™ Alert is live, growing, and the window to come in at the ground level in your city is closing. If this is something you want to be part of — now is the time.</p>
+        <p style="line-height: 1.7;">C.A.R.E.N.™ Alert is live, growing, and the window to come in at the ground level in your city is closing. If this is something you want to be part of — now is the time.</p>
         <p style="line-height: 1.7;">Simply reply to this email and we will get the process started. If not, I wish you all the best.</p>
-        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N™ Alert</span></p>
+        <p style="line-height: 1.7; margin-top: 28px;">Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color: #6b7280; font-size: 13px;">Founder, C.A.R.E.N.™ Alert</span></p>
         <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 28px 0;"/>
-        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
+        <p style="color: #9ca3af; font-size: 11px; text-align: center;">C.A.R.E.N.™ Alert · carenalert.com · <a href="__unsubscribe_url__" style="color: #9ca3af;">Unsubscribe</a></p>
       </div>
     `,
   },
@@ -248,16 +248,16 @@ export function registerDirectorRoutes(app: Express) {
 
       await sendEmail({
         to: emailLower,
-        subject: "You're Invited to Join the C.A.R.E.N™ Alert Regional Director Network",
+        subject: "You're Invited to Join the C.A.R.E.N.™ Alert Regional Director Network",
         html: `
           <div style="font-family:Arial,sans-serif;background:#0a0f1a;color:#e2e8f0;padding:32px;max-width:560px;margin:0 auto;border-radius:12px;">
             <div style="text-align:center;margin-bottom:24px;">
-              <h1 style="color:#00e5ff;font-size:22px;margin:0;">C.A.R.E.N™ Alert</h1>
+              <h1 style="color:#00e5ff;font-size:22px;margin:0;">C.A.R.E.N.™ Alert</h1>
               <p style="color:#64748b;font-size:12px;margin:4px 0 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
             </div>
             <h2 style="color:#ffffff;font-size:18px;">Welcome, ${name}!</h2>
-            <p style="color:#94a3b8;line-height:1.6;">You've been personally invited by the C.A.R.E.N™ Alert team to join our <strong style="color:#00e5ff;">Regional Director Network</strong>.</p>
-            <p style="color:#94a3b8;line-height:1.6;">As a Regional Director, you'll earn commissions helping grow C.A.R.E.N™ Alert's mission of keeping families safe and legally protected during roadside encounters.</p>
+            <p style="color:#94a3b8;line-height:1.6;">You've been personally invited by the C.A.R.E.N.™ Alert team to join our <strong style="color:#00e5ff;">Regional Director Network</strong>.</p>
+            <p style="color:#94a3b8;line-height:1.6;">As a Regional Director, you'll earn commissions helping grow C.A.R.E.N.™ Alert's mission of keeping families safe and legally protected during roadside encounters.</p>
             <div style="background:#1e293b;border:1px solid #334155;border-radius:8px;padding:16px;margin:24px 0;">
               <p style="color:#64748b;font-size:12px;margin:0 0 8px;">Your Director Code:</p>
               <p style="color:#00e5ff;font-size:20px;font-weight:bold;margin:0;letter-spacing:2px;">${code}</p>
@@ -268,10 +268,10 @@ export function registerDirectorRoutes(app: Express) {
             </div>
             <p style="color:#475569;font-size:12px;text-align:center;">If the button doesn't work, copy and paste this link:<br/><span style="color:#00e5ff;">${inviteUrl}</span></p>
             <hr style="border-color:#1e293b;margin:24px 0;"/>
-            <p style="color:#475569;font-size:11px;text-align:center;">C.A.R.E.N™ Alert · carenalert.com<br/>This invite expires in 72 hours. If you didn't expect this email, you can safely ignore it.</p>
+            <p style="color:#475569;font-size:11px;text-align:center;">C.A.R.E.N.™ Alert · carenalert.com<br/>This invite expires in 72 hours. If you didn't expect this email, you can safely ignore it.</p>
           </div>
         `,
-        text: `Welcome to the C.A.R.E.N™ Alert Regional Director Network!\n\nYou've been invited by the C.A.R.E.N™ Alert team.\n\nComplete your profile here: ${inviteUrl}\n\nYour Director Code: ${code}\n\nThis link expires in 72 hours.`,
+        text: `Welcome to the C.A.R.E.N.™ Alert Regional Director Network!\n\nYou've been invited by the C.A.R.E.N.™ Alert team.\n\nComplete your profile here: ${inviteUrl}\n\nYour Director Code: ${code}\n\nThis link expires in 72 hours.`,
       });
 
       console.log(`[DIRECTOR INVITE] Sent invite to ${emailLower} — token expires ${expiry.toISOString()}`);
@@ -374,8 +374,8 @@ export function registerDirectorRoutes(app: Express) {
 
       await sendEmail({
         to: director.email,
-        subject: "Your C.A.R.E.N™ Alert Director Invite Link (Resent)",
-        html: `<div style="font-family:Arial,sans-serif;background:#0a0f1a;color:#e2e8f0;padding:32px;max-width:560px;margin:0 auto;border-radius:12px;"><h2 style="color:#00e5ff;">Hi ${director.name},</h2><p style="color:#94a3b8;">Here's your refreshed invite link to complete your C.A.R.E.N™ Alert Director profile:</p><div style="text-align:center;margin:28px 0;"><a href="${inviteUrl}" style="background:#00e5ff;color:#0a0f1a;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">Complete My Profile →</a></div><p style="color:#475569;font-size:12px;text-align:center;">Expires in 72 hours · ${inviteUrl}</p></div>`,
+        subject: "Your C.A.R.E.N.™ Alert Director Invite Link (Resent)",
+        html: `<div style="font-family:Arial,sans-serif;background:#0a0f1a;color:#e2e8f0;padding:32px;max-width:560px;margin:0 auto;border-radius:12px;"><h2 style="color:#00e5ff;">Hi ${director.name},</h2><p style="color:#94a3b8;">Here's your refreshed invite link to complete your C.A.R.E.N.™ Alert Director profile:</p><div style="text-align:center;margin:28px 0;"><a href="${inviteUrl}" style="background:#00e5ff;color:#0a0f1a;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:15px;">Complete My Profile →</a></div><p style="color:#475569;font-size:12px;text-align:center;">Expires in 72 hours · ${inviteUrl}</p></div>`,
         text: `Hi ${director.name},\n\nHere's your refreshed invite link:\n${inviteUrl}\n\nExpires in 72 hours.`,
       });
 

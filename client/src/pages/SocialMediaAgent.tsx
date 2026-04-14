@@ -13,7 +13,7 @@ import {
 import { SiYoutube, SiLinkedin, SiInstagram, SiTiktok, SiX, SiFacebook } from "react-icons/si";
 
 const VIDEOS = [
-  { file: "caren-hero.mp4", label: "Meet C.A.R.E.N™ Alert — 1:02 Commercial" },
+  { file: "caren-hero.mp4", label: "Meet C.A.R.E.N.™ Alert — 1:02 Commercial" },
   { file: "caren-short.mp4", label: "One Tap Could Save a Life — 22 sec" },
   { file: "caren-attorney.mp4", label: "Be the First Call — Attorney Network Outreach" },
 ];

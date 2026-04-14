@@ -83,9 +83,9 @@ const TIER_CONFIG = {
 
 const DRIP_EMAILS = [
   {
-    subject: "Welcome to C.A.R.E.N™ Alert - Getting Started",
-    body: `<h2>Welcome to C.A.R.E.N™ Alert!</h2>
-<p>Thank you for joining C.A.R.E.N™ Alert - your Citizen Assistance for Roadside Emergencies and Navigation platform.</p>
+    subject: "Welcome to C.A.R.E.N.™ Alert - Getting Started",
+    body: `<h2>Welcome to C.A.R.E.N.™ Alert!</h2>
+<p>Thank you for joining C.A.R.E.N.™ Alert - your Citizen Assistance for Roadside Emergencies and Navigation platform.</p>
 <h3>Getting Started Guide</h3>
 <ul>
 <li><strong>Set Up Your Profile</strong> - Add your emergency contacts and vehicle information</li>
@@ -100,7 +100,7 @@ const DRIP_EMAILS = [
     body: `<h2>Know Your Rights Wherever You Are</h2>
 <p>Did you know your legal rights change depending on which state you're in?</p>
 <h3>GPS-Powered Legal Protection</h3>
-<p>C.A.R.E.N™ Alert's GPS Legal Rights feature automatically detects your location and provides:</p>
+<p>C.A.R.E.N.™ Alert's GPS Legal Rights feature automatically detects your location and provides:</p>
 <ul>
 <li><strong>State-Specific Rights</strong> - Know exactly what you can and cannot do during a traffic stop</li>
 <li><strong>Recording Laws</strong> - Understand one-party vs two-party consent laws</li>
@@ -112,7 +112,7 @@ const DRIP_EMAILS = [
   {
     subject: "Stay Safe - Emergency Features",
     body: `<h2>Emergency Features That Could Save Your Life</h2>
-<p>C.A.R.E.N™ Alert has powerful emergency features designed to keep you safe.</p>
+<p>C.A.R.E.N.™ Alert has powerful emergency features designed to keep you safe.</p>
 <h3>Key Emergency Features</h3>
 <ul>
 <li><strong>Emergency SOS</strong> - One-tap alert that notifies your emergency contacts with your GPS location</li>
@@ -125,7 +125,7 @@ const DRIP_EMAILS = [
   {
     subject: "AI-Powered Protection",
     body: `<h2>AI-Powered Protection at Your Fingertips</h2>
-<p>C.A.R.E.N™ Alert uses advanced AI to provide you with intelligent protection features.</p>
+<p>C.A.R.E.N.™ Alert uses advanced AI to provide you with intelligent protection features.</p>
 <h3>AI Features Overview</h3>
 <ul>
 <li><strong>AI Legal Assistant</strong> - Get instant answers to legal questions during encounters</li>
@@ -139,7 +139,7 @@ const DRIP_EMAILS = [
   {
     subject: "You're Protected - What's Next?",
     body: `<h2>You're Protected - What's Next?</h2>
-<p>You've been using C.A.R.E.N™ Alert and we hope you're feeling more protected on the road.</p>
+<p>You've been using C.A.R.E.N.™ Alert and we hope you're feeling more protected on the road.</p>
 <h3>Maximize Your Protection</h3>
 <ul>
 <li><strong>Upgrade Your Plan</strong> - Get access to premium features like AI attorney matching and video recording</li>
@@ -147,8 +147,8 @@ const DRIP_EMAILS = [
 <li><strong>Join the Community</strong> - Share experiences and learn from others in our forum</li>
 </ul>
 <h3>We'd Love Your Feedback</h3>
-<p>Your input helps us improve C.A.R.E.N™ Alert for everyone. Visit our feedback board to share your thoughts and vote on features you'd like to see!</p>
-<p>Thank you for being part of the C.A.R.E.N™ Alert community. Stay safe!</p>`,
+<p>Your input helps us improve C.A.R.E.N.™ Alert for everyone. Visit our feedback board to share your thoughts and vote on features you'd like to see!</p>
+<p>Thank you for being part of the C.A.R.E.N.™ Alert community. Stay safe!</p>`,
   },
 ];
 
@@ -168,16 +168,16 @@ async function sendDripEmail(toEmail: string, step: number): Promise<boolean> {
   return sendEmail({
     to: toEmail,
     from: 'info@carenalert.com',
-    fromName: 'C.A.R.E.N™ Alert Support Team',
+    fromName: 'C.A.R.E.N.™ Alert Support Team',
     subject: emailContent.subject,
     html: `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Arial,sans-serif;line-height:1.6;color:#333;max-width:600px;margin:0 auto;padding:20px;">
 <div style="background:linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%);color:white;padding:30px;border-radius:10px;text-align:center;margin-bottom:30px;">
-<h1 style="margin:0;font-size:24px;">C.A.R.E.N™ Alert</h1>
+<h1 style="margin:0;font-size:24px;">C.A.R.E.N.™ Alert</h1>
 <p style="margin:5px 0 0;opacity:0.9;">${emailContent.subject}</p>
 </div>
 <div style="padding:20px;">${emailContent.body}</div>
 <div style="border-top:1px solid #e2e8f0;padding-top:20px;margin-top:30px;text-align:center;color:#64748b;font-size:12px;">
-<p>C.A.R.E.N™ Alert - Citizen Assistance for Roadside Emergencies and Navigation</p>
+<p>C.A.R.E.N.™ Alert - Citizen Assistance for Roadside Emergencies and Navigation</p>
 </div></body></html>`,
   });
 }

@@ -117,7 +117,7 @@ export default function MobileNavigation() {
       {/* Top header bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-lg border-b border-cyan-500/30">
         <div className="flex items-center justify-between p-4 ios-safe-area">
-          <div className="text-xl font-bold text-cyan-400">C.A.R.E.N™ Alert</div>
+          <div className="text-xl font-bold text-cyan-400">C.A.R.E.N.™ Alert</div>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-2 text-cyan-400 hover:text-cyan-300 transition-colors touch-friendly"

@@ -5,7 +5,7 @@ import { eq, desc } from "drizzle-orm";
 import { getOpenAIClient } from "../aiService";
 import { createRateLimit } from "../security";
 
-const PAYMENT_INTELLIGENCE_PROMPT = `ROLE: C.A.R.E.N™ Alert Payment and Subscription Intelligence Agent
+const PAYMENT_INTELLIGENCE_PROMPT = `ROLE: C.A.R.E.N.™ Alert Payment and Subscription Intelligence Agent
 
 MISSION
 You analyze payments, subscriptions, customer behavior, and financial patterns to increase revenue, reduce refunds, and improve customer retention. You act as a financial intelligence system working alongside Customer Support and Refund systems.
@@ -92,7 +92,7 @@ export function registerPaymentIntelligenceRoutes(app: Express) {
           .limit(10);
       }
 
-      const prompt = `Analyze this C.A.R.E.N™ Alert subscriber for payment intelligence:
+      const prompt = `Analyze this C.A.R.E.N.™ Alert subscriber for payment intelligence:
 
 USER_ID: ${targetUserId || "unknown"}
 USER_EMAIL: ${targetUserEmail || "unknown"}

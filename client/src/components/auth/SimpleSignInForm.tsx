@@ -153,7 +153,7 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h2 className="text-2xl font-bold text-white">Welcome Back</h2>
-        <p className="text-gray-300">Sign in to your C.A.R.E.N™ Alert account</p>
+        <p className="text-gray-300">Sign in to your C.A.R.E.N.™ Alert account</p>
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

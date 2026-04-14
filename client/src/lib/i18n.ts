@@ -1,6 +1,6 @@
 const translations = {
   en: {
-    welcome: "Welcome to C.A.R.E.N™ Alert",
+    welcome: "Welcome to C.A.R.E.N.™ Alert",
     dashboard: "Dashboard",
     incidents: "My Incidents",
     record: "Record Incident",
@@ -27,7 +27,7 @@ const translations = {
     connectLegal: "Connect with legal help",
     exportReport: "Export Report",
     generateDocs: "Generate legal documentation",
-    upgradePrompt: "Upgrade to C.A.R.E.N™ Alert Pro",
+    upgradePrompt: "Upgrade to C.A.R.E.N.™ Alert Pro",
     upgradeDescription: "Get cloud backup, emergency alerts, and advanced legal resources.",
     upgradeNow: "Upgrade Now",
     yourRights: "Your Rights by State",
@@ -69,7 +69,7 @@ const translations = {
     generalInquiry: "General Inquiry",
   },
   es: {
-    welcome: "Bienvenido a C.A.R.E.N™ Alert",
+    welcome: "Bienvenido a C.A.R.E.N.™ Alert",
     dashboard: "Panel de Control",
     incidents: "Mis Incidentes",
     record: "Grabar Incidente",
@@ -94,7 +94,7 @@ const translations = {
     connectLegal: "Conectar con ayuda legal",
     exportReport: "Exportar Informe",
     generateDocs: "Generar documentación legal",
-    upgradePrompt: "Actualizar a C.A.R.E.N™ Alert Pro",
+    upgradePrompt: "Actualizar a C.A.R.E.N.™ Alert Pro",
     upgradeDescription: "Obtén respaldo en la nube, alertas de emergencia y recursos legales avanzados.",
     upgradeNow: "Actualizar Ahora",
     yourRights: "Tus Derechos por Estado",

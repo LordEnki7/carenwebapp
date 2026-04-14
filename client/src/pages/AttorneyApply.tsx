@@ -144,7 +144,7 @@ export default function AttorneyApply() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-3">Application Submitted!</h1>
           <p className="text-gray-400 mb-6">
-            Thank you for applying to the C.A.R.E.N™ Alert Legal Access Network. Our team will review your application and contact you within 3 business days.
+            Thank you for applying to the C.A.R.E.N.™ Alert Legal Access Network. Our team will review your application and contact you within 3 business days.
           </p>
           <div className="bg-gray-900 border border-gray-700 rounded-xl p-4 text-left space-y-2 mb-8">
             <p className="text-sm text-gray-300"><span className="text-cyan-400">✓</span> Application received</p>
@@ -152,7 +152,7 @@ export default function AttorneyApply() {
             <p className="text-sm text-gray-300"><span className="text-gray-500">○</span> Admin verification (1–3 days)</p>
             <p className="text-sm text-gray-300"><span className="text-gray-500">○</span> Profile activation</p>
           </div>
-          <a href="/" className="text-cyan-400 hover:text-cyan-300 text-sm">← Return to C.A.R.E.N™ Alert</a>
+          <a href="/" className="text-cyan-400 hover:text-cyan-300 text-sm">← Return to C.A.R.E.N.™ Alert</a>
         </div>
       </div>
     );
@@ -168,7 +168,7 @@ export default function AttorneyApply() {
               <Scale className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-white">C.A.R.E.N™ Alert Legal Access Network</h1>
+              <h1 className="text-sm font-bold text-white">C.A.R.E.N.™ Alert Legal Access Network</h1>
               <p className="text-xs text-gray-400">Attorney Network Application</p>
             </div>
           </div>
@@ -450,15 +450,15 @@ export default function AttorneyApply() {
             {step === 4 && (
               <>
                 <div className="bg-gray-800/60 border border-gray-600 rounded-xl p-5 max-h-72 overflow-y-auto text-sm text-gray-300 space-y-3">
-                  <h3 className="text-white font-bold text-base">C.A.R.E.N™ Alert Attorney Participation Agreement</h3>
-                  <p><strong className="text-white">1. Relationship:</strong> Attorney is an independent legal professional. C.A.R.E.N™ Alert is NOT a law firm and does NOT provide legal advice.</p>
-                  <p><strong className="text-white">2. Platform Role:</strong> C.A.R.E.N™ Alert provides a directory listing, user connection tools, and incident documentation support. C.A.R.E.N™ Alert does NOT recommend attorneys, guarantee clients, or interfere in legal representation.</p>
-                  <p><strong className="text-white">3. No Fee Sharing:</strong> Attorney retains 100% of legal fees. C.A.R.E.N™ Alert does NOT receive any portion of settlements or legal fees.</p>
+                  <h3 className="text-white font-bold text-base">C.A.R.E.N.™ Alert Attorney Participation Agreement</h3>
+                  <p><strong className="text-white">1. Relationship:</strong> Attorney is an independent legal professional. C.A.R.E.N.™ Alert is NOT a law firm and does NOT provide legal advice.</p>
+                  <p><strong className="text-white">2. Platform Role:</strong> C.A.R.E.N.™ Alert provides a directory listing, user connection tools, and incident documentation support. C.A.R.E.N.™ Alert does NOT recommend attorneys, guarantee clients, or interfere in legal representation.</p>
+                  <p><strong className="text-white">3. No Fee Sharing:</strong> Attorney retains 100% of legal fees. C.A.R.E.N.™ Alert does NOT receive any portion of settlements or legal fees.</p>
                   <p><strong className="text-white">4. Compliance:</strong> Attorney agrees to follow all state bar rules, maintain licensing in good standing, and handle all client relationships independently.</p>
                   <p><strong className="text-white">5. Communication:</strong> Attorney agrees to respond to inquiries within a reasonable timeframe and maintain professionalism with users.</p>
-                  <p><strong className="text-white">6. Listing & Visibility:</strong> C.A.R.E.N™ Alert may display attorney profile, practice areas, and contact details.</p>
+                  <p><strong className="text-white">6. Listing & Visibility:</strong> C.A.R.E.N.™ Alert may display attorney profile, practice areas, and contact details.</p>
                   <p><strong className="text-white">7. Termination:</strong> Either party may terminate at any time with no penalty.</p>
-                  <p><strong className="text-white">8. Liability:</strong> C.A.R.E.N™ Alert is not responsible for legal outcomes or attorney-client disputes.</p>
+                  <p><strong className="text-white">8. Liability:</strong> C.A.R.E.N.™ Alert is not responsible for legal outcomes or attorney-client disputes.</p>
                   <p><strong className="text-white">9. Disclaimer:</strong> Contacting an attorney through the platform does not itself create an attorney-client relationship unless confirmed by the attorney.</p>
                 </div>
 
@@ -473,10 +473,10 @@ export default function AttorneyApply() {
                     className="border-gray-500 mt-0.5"
                   />
                   <div>
-                    <p className="text-white text-sm font-semibold">I agree to the C.A.R.E.N™ Alert Attorney Participation Agreement</p>
+                    <p className="text-white text-sm font-semibold">I agree to the C.A.R.E.N.™ Alert Attorney Participation Agreement</p>
                     <p className="text-gray-400 text-xs mt-1">
                       I confirm that I am a licensed attorney in good standing and agree to all terms above.
-                      I understand that C.A.R.E.N™ Alert is a directory platform, not a law firm, and does not share in legal fees.
+                      I understand that C.A.R.E.N.™ Alert is a directory platform, not a law firm, and does not share in legal fees.
                     </p>
                   </div>
                 </label>

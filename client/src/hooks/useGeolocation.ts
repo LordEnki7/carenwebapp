@@ -35,7 +35,7 @@ export function useGeolocation() {
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1&extratags=1&namedetails=1`,
         {
           headers: {
-            'User-Agent': 'C.A.R.E.N™ Alert Legal Protection App v2.0',
+            'User-Agent': 'C.A.R.E.N.™ Alert Legal Protection App v2.0',
             'Accept': 'application/json',
           }
         }
@@ -48,7 +48,7 @@ export function useGeolocation() {
           `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
           {
             headers: {
-              'User-Agent': 'C.A.R.E.N™ Alert Legal Protection App v2.0',
+              'User-Agent': 'C.A.R.E.N.™ Alert Legal Protection App v2.0',
             }
           }
         );
@@ -276,7 +276,7 @@ export function useGeolocation() {
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1&addressdetails=1&extratags=1`,
         {
           headers: {
-            'User-Agent': 'C.A.R.E.N™ Alert Legal Protection App v2.0',
+            'User-Agent': 'C.A.R.E.N.™ Alert Legal Protection App v2.0',
             'Accept': 'application/json',
           }
         }

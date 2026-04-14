@@ -150,7 +150,7 @@ export default function DeEscalationGuide() {
             🚨 EMERGENCY ESCALATION SYSTEM
           </CardTitle>
           <CardDescription className="text-purple-700">
-            When the situation becomes aggressive or violent, C.A.R.E.N™ Alert can automatically contact supervisors
+            When the situation becomes aggressive or violent, C.A.R.E.N.™ Alert can automatically contact supervisors
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -427,7 +427,7 @@ export default function DeEscalationGuide() {
               <h4 className="font-bold text-red-800 mb-3">Immediate Emergency Actions:</h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="font-medium text-red-700 mb-2">Voice Commands (C.A.R.E.N™ Alert):</p>
+                  <p className="font-medium text-red-700 mb-2">Voice Commands (C.A.R.E.N.™ Alert):</p>
                   <ul className="space-y-1 text-sm text-red-600">
                     <li>• "Emergency recording now"</li>
                     <li>• "Alert my family emergency"</li>
@@ -452,7 +452,7 @@ export default function DeEscalationGuide() {
               <h4 className="font-bold text-red-700">Step-by-Step Escalation Response:</h4>
               <div className="space-y-3">
                 {[
-                  { step: 1, action: "Increase Documentation", description: "Activate C.A.R.E.N™ Alert recording immediately", priority: "Critical" },
+                  { step: 1, action: "Increase Documentation", description: "Activate C.A.R.E.N.™ Alert recording immediately", priority: "Critical" },
                   { step: 2, action: "Lower Your Voice Even More", description: "Speak even more quietly and slowly", priority: "High" },
                   { step: 3, action: "Emphasize Compliance", description: "Say 'Officer, I'm complying fully with your instructions'", priority: "High" },
                   { step: 4, action: "Request Supervisor", description: "Politely ask 'May I speak with your supervisor?'", priority: "Medium" },
@@ -493,7 +493,7 @@ export default function DeEscalationGuide() {
         </AlertTitle>
         <AlertDescription className="text-red-700 text-base mt-2">
           <strong>Your primary goal is getting home safely.</strong> Comply first, challenge later in court. 
-          Document everything with C.A.R.E.N™ Alert, but prioritize de-escalation over proving a point. 
+          Document everything with C.A.R.E.N.™ Alert, but prioritize de-escalation over proving a point. 
           Every encounter is temporary - your life and safety are permanent.
         </AlertDescription>
       </Alert>
@@ -639,7 +639,7 @@ export default function DeEscalationGuide() {
         <AlertDescription className="text-yellow-700 mt-2">
           While you have these constitutional rights, always prioritize your immediate safety. 
           Assert your rights calmly and respectfully. If officers violate your rights, 
-          document it with C.A.R.E.N™ Alert and challenge it later through proper legal channels.
+          document it with C.A.R.E.N.™ Alert and challenge it later through proper legal channels.
         </AlertDescription>
       </Alert>
     </div>
@@ -828,7 +828,7 @@ export default function DeEscalationGuide() {
         <AlertTitle className="text-cyan-300 font-bold">Remember: The Recording IS the Win</AlertTitle>
         <AlertDescription className="text-cyan-200 mt-1">
           You don't need to win the argument at the scene. You need to get home safely and get it on record. 
-          C.A.R.E.N™ Alert is documenting everything. Your attorney will use that footage. Stay calm. Stay safe. Challenge it in court.
+          C.A.R.E.N.™ Alert is documenting everything. Your attorney will use that footage. Stay calm. Stay safe. Challenge it in court.
         </AlertDescription>
       </Alert>
     </div>

@@ -63,7 +63,7 @@ AGENT SYSTEM:
 - Agent memory entries: ${memoryEntries}
 - Agent scans this week: ${weeklyScans}
 
-BUSINESS: C.A.R.E.N™ Alert — Citizen Assistance for Roadside Emergencies and Navigation
+BUSINESS: C.A.R.E.N.™ Alert — Citizen Assistance for Roadside Emergencies and Navigation
 PRODUCT: GPS-enabled legal protection app for all 50 US states, police encounter rights, attorney network, emergency coordination
 MONETIZATION: Subscription tiers from $1 one-time to $49.99/month, targeting families and individuals
 DISTRIBUTION: PWA + iOS + Android, targeting US market
@@ -150,7 +150,7 @@ async function callOpenAI(systemPrompt: string, userPrompt: string, maxTokens = 
 }
 
 async function runDailyScan(context: string): Promise<ProposalFromAI[]> {
-  const systemPrompt = `You are the Ecosystem Command Center AI for C.A.R.E.N™ Alert.
+  const systemPrompt = `You are the Ecosystem Command Center AI for C.A.R.E.N.™ Alert.
 You function as CEO + CSO. Review live business data and identify the 3 highest-impact actions RIGHT NOW.
 Prioritize revenue, growth, automation, and strategic leverage. Avoid low-value tasks.
 ${EXECUTION_TYPES_GUIDE}
@@ -161,7 +161,7 @@ Respond ONLY with valid JSON: ${ACTION_PROPOSAL_JSON_FORMAT}`;
 }
 
 async function runGrowthEngine(context: string): Promise<ProposalFromAI[]> {
-  const systemPrompt = `You are the Growth Engine Agent for C.A.R.E.N™ Alert.
+  const systemPrompt = `You are the Growth Engine Agent for C.A.R.E.N.™ Alert.
 Your sole mission: increase app installs, user acquisition, lead conversion, and brand visibility.
 Analyze the marketing and growth metrics and propose 3 specific growth actions.
 Focus on: viral content opportunities, lead conversion improvements, content strategies, social media growth.
@@ -173,7 +173,7 @@ Respond ONLY with valid JSON: ${ACTION_PROPOSAL_JSON_FORMAT}`;
 }
 
 async function runRevenueGenerator(context: string): Promise<ProposalFromAI[]> {
-  const systemPrompt = `You are the Revenue Generator Agent for C.A.R.E.N™ Alert.
+  const systemPrompt = `You are the Revenue Generator Agent for C.A.R.E.N.™ Alert.
 Your sole mission: identify and activate new monetization opportunities.
 Analyze revenue-relevant data and propose 3 specific revenue actions.
 Focus on: pricing optimization, premium feature ideas, referral incentives, partnership revenue, subscription upsells, drip campaign effectiveness.
@@ -185,7 +185,7 @@ Respond ONLY with valid JSON: ${ACTION_PROPOSAL_JSON_FORMAT}`;
 }
 
 async function runSystemOptimizer(context: string): Promise<ProposalFromAI[]> {
-  const systemPrompt = `You are the System Optimizer Agent for C.A.R.E.N™ Alert.
+  const systemPrompt = `You are the System Optimizer Agent for C.A.R.E.N.™ Alert.
 Your sole mission: reduce friction, improve operational efficiency, and automate manual work.
 Analyze operational metrics and propose 3 specific optimization actions.
 Focus on: workflow automation, user onboarding friction, lead pipeline efficiency, content publishing automation, drip campaign optimization.
@@ -197,7 +197,7 @@ Respond ONLY with valid JSON: ${ACTION_PROPOSAL_JSON_FORMAT}`;
 }
 
 async function runOpportunityHunter(context: string): Promise<ProposalFromAI[]> {
-  const systemPrompt = `You are the Opportunity Hunter Agent for C.A.R.E.N™ Alert.
+  const systemPrompt = `You are the Opportunity Hunter Agent for C.A.R.E.N.™ Alert.
 Your mission: identify high-value external opportunities — investors, partners, distributors, media, licensing deals, and market opportunities that could dramatically accelerate growth.
 Generate 3 Opportunity Briefs with difficulty ratings and time estimates. These are NOT tasks to execute immediately — they are opportunities to track and pursue strategically.
 
@@ -219,7 +219,7 @@ Respond ONLY with valid JSON in this format:
         "difficulty": "Medium",
         "whyItMatters": "Why this specific opportunity matters for CAREN right now",
         "estimatedTimeDays": 14,
-        "platformsAffected": ["C.A.R.E.N™ Alert ALERT"],
+        "platformsAffected": ["C.A.R.E.N.™ Alert ALERT"],
         "potentialRevenue": "High recurring revenue potential through distribution"
       },
       "executionPlan": {
@@ -325,7 +325,7 @@ async function executeProposal(proposal: any): Promise<{ summary: string; output
       messages: [
         {
           role: "system",
-          content: `You are a social media expert for C.A.R.E.N™ Alert. Generate ${count} ${platform} posts about legal rights during police encounters. Each post should be empowering and educational. Format each post separated by "---". End with hashtags on a new line starting with #.`,
+          content: `You are a social media expert for C.A.R.E.N.™ Alert. Generate ${count} ${platform} posts about legal rights during police encounters. Each post should be empowering and educational. Format each post separated by "---". End with hashtags on a new line starting with #.`,
         },
         { role: "user", content: `Create ${count} ${platform} posts. Context: ${proposal.summary}` },
       ],

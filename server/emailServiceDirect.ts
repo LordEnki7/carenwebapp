@@ -14,13 +14,13 @@ export async function sendDirectWelcomeEmail({ email, firstName, lastName }: Dir
   return sendEmail({
     to: email,
     from: 'info@carenalert.com',
-    fromName: 'C.A.R.E.N™ Alert Support Team',
-    subject: 'Welcome to C.A.R.E.N™ Alert - Your Legal Protection is Active',
-    text: `Welcome to C.A.R.E.N™ Alert, ${userName}! Your account is now active. Visit https://carenalert.com/dashboard to get started. Questions? Email support@carenalert.com`,
+    fromName: 'C.A.R.E.N.™ Alert Support Team',
+    subject: 'Welcome to C.A.R.E.N.™ Alert - Your Legal Protection is Active',
+    text: `Welcome to C.A.R.E.N.™ Alert, ${userName}! Your account is now active. Visit https://carenalert.com/dashboard to get started. Questions? Email support@carenalert.com`,
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 40px 20px;">
       <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0;">C.A.R.E.N™ Alert</h1>
+        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0;">C.A.R.E.N.™ Alert</h1>
         <p style="color: #94a3b8; font-size: 1.1rem; margin: 5px 0 0 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
       </div>
       <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
@@ -43,7 +43,7 @@ export async function sendDirectWelcomeEmail({ email, firstName, lastName }: Dir
       </div>
       <div style="text-align: center; margin-top: 30px;">
         <p style="color: #00d4ff; font-weight: bold; margin: 0;">Stay Safe and Protected,</p>
-        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N™ Alert Team</p>
+        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N.™ Alert Team</p>
       </div>
     </div>
     `,
@@ -56,13 +56,13 @@ export async function sendDirectGoogleWelcomeEmail({ email, firstName }: DirectE
   return sendEmail({
     to: email,
     from: 'info@carenalert.com',
-    fromName: 'C.A.R.E.N™ Alert Support Team',
-    subject: 'Welcome to C.A.R.E.N™ Alert - Google Account Connected Successfully',
-    text: `Welcome to C.A.R.E.N™ Alert, ${userName}! Your Google account has been connected and your legal protection is now active. Visit https://carenalert.com/dashboard to get started.`,
+    fromName: 'C.A.R.E.N.™ Alert Support Team',
+    subject: 'Welcome to C.A.R.E.N.™ Alert - Google Account Connected Successfully',
+    text: `Welcome to C.A.R.E.N.™ Alert, ${userName}! Your Google account has been connected and your legal protection is now active. Visit https://carenalert.com/dashboard to get started.`,
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 40px 20px;">
       <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0;">C.A.R.E.N™ Alert</h1>
+        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0;">C.A.R.E.N.™ Alert</h1>
         <p style="color: #94a3b8; font-size: 1.1rem; margin: 5px 0 0 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
       </div>
       <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
@@ -74,7 +74,7 @@ export async function sendDirectGoogleWelcomeEmail({ email, firstName }: DirectE
       </div>
       <div style="text-align: center; margin-top: 30px;">
         <p style="color: #00d4ff; font-weight: bold; margin: 0;">Stay Safe and Protected,</p>
-        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N™ Alert Team</p>
+        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N.™ Alert Team</p>
       </div>
     </div>
     `,

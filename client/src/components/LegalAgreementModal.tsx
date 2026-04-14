@@ -89,7 +89,7 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent className="max-w-4xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle>Legal Agreements - C.A.R.E.N™ Alert Platform</DialogTitle>
+          <DialogTitle>Legal Agreements - C.A.R.E.N.™ Alert Platform</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="overview" className="w-full">
@@ -107,7 +107,7 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
               <CardHeader>
                 <CardTitle>Legal Requirements</CardTitle>
                 <CardDescription>
-                  To use the C.A.R.E.N™ Alert platform, you must read and accept all legal agreements.
+                  To use the C.A.R.E.N.™ Alert platform, you must read and accept all legal agreements.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -116,7 +116,7 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
                     <div className="p-4 border rounded-lg">
                       <h3 className="font-semibold mb-2">User Agreement</h3>
                       <p className="text-sm text-muted-foreground">
-                        Defines your rights and responsibilities when using C.A.R.E.N™ Alert
+                        Defines your rights and responsibilities when using C.A.R.E.N.™ Alert
                       </p>
                     </div>
                     <div className="p-4 border rounded-lg">
@@ -153,7 +153,7 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
                   <div className="space-y-4 text-sm">
                     <h3 className="font-semibold">User Agreement</h3>
                     <p>
-                      This User Agreement ("Agreement") is a legal agreement between you ("User" or "you") and The C.A.R.E.N™ Alert Inc. ("Company," "we," "us," or "our"), located at 1298 Winston Rd. South Euclid Ohio 44121, governing your use of the C.A.R.E.N web application and related services ("Service").
+                      This User Agreement ("Agreement") is a legal agreement between you ("User" or "you") and The C.A.R.E.N.™ Alert Inc. ("Company," "we," "us," or "our"), located at 1298 Winston Rd. South Euclid Ohio 44121, governing your use of the C.A.R.E.N web application and related services ("Service").
                     </p>
                     <p>
                       By accessing or using the Service, you agree to be bound by this Agreement. If you do not agree with any part of this Agreement, you may not use the Service.
@@ -176,22 +176,22 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
                     
                     <h4 className="font-semibold">4. Intellectual Property</h4>
                     <p>
-                      The Service and its original content, features, and functionality are owned by The C.A.R.E.N™ Alert Inc. and are protected by intellectual property laws.
+                      The Service and its original content, features, and functionality are owned by The C.A.R.E.N.™ Alert Inc. and are protected by intellectual property laws.
                     </p>
                     
                     <h4 className="font-semibold">5. Limitation of Liability and Hold Harmless Clause</h4>
                     <p>
-                      The C.A.R.E.N™ Alert Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to the use of the Service. By using the Service, you agree to hold harmless and indemnify The C.A.R.E.N™ Alert Inc. from any claims, damages, or legal issues that may arise from a traffic stop or any action taken based on information obtained from the Service during or after a traffic stop.
+                      The C.A.R.E.N.™ Alert Inc. shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising out of or related to the use of the Service. By using the Service, you agree to hold harmless and indemnify The C.A.R.E.N.™ Alert Inc. from any claims, damages, or legal issues that may arise from a traffic stop or any action taken based on information obtained from the Service during or after a traffic stop.
                     </p>
                     
                     <h4 className="font-semibold">6. Termination</h4>
                     <p>
-                      The C.A.R.E.N™ Alert Inc. reserves the right to terminate or suspend access to the Service at any time, without prior notice, for any reason.
+                      The C.A.R.E.N.™ Alert Inc. reserves the right to terminate or suspend access to the Service at any time, without prior notice, for any reason.
                     </p>
                     
                     <h4 className="font-semibold">7. Amendments</h4>
                     <p>
-                      The C.A.R.E.N™ Alert Inc. reserves the right to modify or replace this Agreement at any time. Continued use of the Service after any such changes constitutes your consent to the changes.
+                      The C.A.R.E.N.™ Alert Inc. reserves the right to modify or replace this Agreement at any time. Continued use of the Service after any such changes constitutes your consent to the changes.
                     </p>
                     
                     <h4 className="font-semibold">8. Governing Law</h4>
@@ -227,34 +227,34 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
               <CardContent>
                 <ScrollArea className="h-96 w-full border rounded p-4">
                   <div className="space-y-4 text-sm">
-                    <h3 className="font-semibold">End User License Agreement (EULA) for The C.A.R.E.N™ Alert Web App</h3>
+                    <h3 className="font-semibold">End User License Agreement (EULA) for The C.A.R.E.N.™ Alert Web App</h3>
                     <p>
-                      This End User License Agreement ("Agreement") governs your use of The C.A.R.E.N™ Alert web application ("The C.A.R.E.N™ Alert," "the app," "we," "us," or "our"). By using The C.A.R.E.N™ Alert, you agree to be bound by this Agreement.
+                      This End User License Agreement ("Agreement") governs your use of The C.A.R.E.N.™ Alert web application ("The C.A.R.E.N.™ Alert," "the app," "we," "us," or "our"). By using The C.A.R.E.N.™ Alert, you agree to be bound by this Agreement.
                     </p>
                     
                     <h4 className="font-semibold">1. License Grant</h4>
                     <p>
-                      <strong>Limited License:</strong> Subject to the terms of this Agreement, we grant you a limited, non-exclusive, non-transferable license to access and use The C.A.R.E.N™ Alert for personal use to obtain state-specific information relevant to Ohio's driving laws and interactions with law enforcement.
+                      <strong>Limited License:</strong> Subject to the terms of this Agreement, we grant you a limited, non-exclusive, non-transferable license to access and use The C.A.R.E.N.™ Alert for personal use to obtain state-specific information relevant to Ohio's driving laws and interactions with law enforcement.
                     </p>
                     <p>
                       <strong>Restrictions:</strong> You agree not to:
-                      • Modify, adapt, or create derivative works of The C.A.R.E.N™ Alert
-                      • Use The C.A.R.E.N™ Alert for any illegal, unauthorized, or prohibited purposes.
+                      • Modify, adapt, or create derivative works of The C.A.R.E.N.™ Alert
+                      • Use The C.A.R.E.N.™ Alert for any illegal, unauthorized, or prohibited purposes.
                     </p>
                     
                     <h4 className="font-semibold">2. No Legal Advice</h4>
                     <p>
-                      <strong>Informational Purpose:</strong> The information provided within The C.A.R.E.N™ Alert is for informational purposes only and is not intended as legal advice. We do not provide legal counsel, and users should consult appropriate legal professionals for specific advice tailored to their circumstances.
+                      <strong>Informational Purpose:</strong> The information provided within The C.A.R.E.N.™ Alert is for informational purposes only and is not intended as legal advice. We do not provide legal counsel, and users should consult appropriate legal professionals for specific advice tailored to their circumstances.
                     </p>
                     
                     <h4 className="font-semibold">3. Disclaimer of Warranties</h4>
                     <p>
-                      <strong>As-Is Basis:</strong> The C.A.R.E.N™ Alert is provided "as is" without warranties of any kind, whether express or implied. We do not warrant the accuracy, reliability, or completeness of the information provided within the app.
+                      <strong>As-Is Basis:</strong> The C.A.R.E.N.™ Alert is provided "as is" without warranties of any kind, whether express or implied. We do not warrant the accuracy, reliability, or completeness of the information provided within the app.
                     </p>
                     
                     <h4 className="font-semibold">4. Limitation of Liability</h4>
                     <p>
-                      <strong>No Liability for Actions:</strong> We shall not be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in any way connected with the use or inability to use The C.A.R.E.N™ Alert, including but not limited to reliance on the information provided within the app.
+                      <strong>No Liability for Actions:</strong> We shall not be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in any way connected with the use or inability to use The C.A.R.E.N.™ Alert, including but not limited to reliance on the information provided within the app.
                     </p>
                     
                     <h4 className="font-semibold">5. Governing Law and Jurisdiction</h4>
@@ -264,7 +264,7 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
                     
                     <h4 className="font-semibold">6. Termination</h4>
                     <p>
-                      <strong>Termination of License:</strong> We reserve the right to terminate this license at any time if you breach any terms of this Agreement. Upon termination, you must cease all use of The C.A.R.E.N™ Alert
+                      <strong>Termination of License:</strong> We reserve the right to terminate this license at any time if you breach any terms of this Agreement. Upon termination, you must cease all use of The C.A.R.E.N.™ Alert
                     </p>
                   </div>
                 </ScrollArea>
@@ -290,27 +290,27 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
               <CardContent>
                 <ScrollArea className="h-96 w-full border rounded p-4">
                   <div className="space-y-4 text-sm">
-                    <h3 className="font-semibold">Disclaimer for The C.A.R.E.N™ Alert Web App</h3>
+                    <h3 className="font-semibold">Disclaimer for The C.A.R.E.N.™ Alert Web App</h3>
                     <p>
-                      The C.A.R.E.N™ Alert web application ("The C.A.R.E.N™ Alert," "the app," "we," "us," or "our") is designed to provide information to Ohio drivers regarding state-specific laws, regulations, and rights during interactions with law enforcement. Please read this disclaimer carefully before using The C.A.R.E.N™ Alert
+                      The C.A.R.E.N.™ Alert web application ("The C.A.R.E.N.™ Alert," "the app," "we," "us," or "our") is designed to provide information to Ohio drivers regarding state-specific laws, regulations, and rights during interactions with law enforcement. Please read this disclaimer carefully before using The C.A.R.E.N.™ Alert
                     </p>
                     
                     <h4 className="font-semibold">Informational Purpose Only</h4>
                     <p>
-                      <strong>No Legal Advice:</strong> The information provided within The C.A.R.E.N™ Alert is for informational purposes only and should not be construed as legal advice. It is not intended to replace professional legal counsel or guidance.
+                      <strong>No Legal Advice:</strong> The information provided within The C.A.R.E.N.™ Alert is for informational purposes only and should not be construed as legal advice. It is not intended to replace professional legal counsel or guidance.
                     </p>
                     <p>
-                      <strong>Accuracy Not Guaranteed:</strong> While we strive to provide accurate and up-to-date information, we do not guarantee the accuracy, reliability, or completeness of the information provided within The C.A.R.E.N™ Alert
+                      <strong>Accuracy Not Guaranteed:</strong> While we strive to provide accurate and up-to-date information, we do not guarantee the accuracy, reliability, or completeness of the information provided within The C.A.R.E.N.™ Alert
                     </p>
                     
                     <h4 className="font-semibold">Understanding Your Rights</h4>
                     <p>
-                      <strong>Educational Resource:</strong> The C.A.R.E.N™ Alert aims to educate users about their rights and responsibilities as Ohio drivers and offer insights into state-specific laws. It is not a substitute for legal representation or professional advice.
+                      <strong>Educational Resource:</strong> The C.A.R.E.N.™ Alert aims to educate users about their rights and responsibilities as Ohio drivers and offer insights into state-specific laws. It is not a substitute for legal representation or professional advice.
                     </p>
                     
                     <h4 className="font-semibold">Limitation of Liability</h4>
                     <p>
-                      <strong>No Liability for Actions:</strong> We shall not be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in any way connected with the use or reliance on the information provided within The C.A.R.E.N™ Alert
+                      <strong>No Liability for Actions:</strong> We shall not be liable for any direct, indirect, incidental, special, or consequential damages arising out of or in any way connected with the use or reliance on the information provided within The C.A.R.E.N.™ Alert
                     </p>
                     
                     <h4 className="font-semibold">Consult Legal Professionals</h4>
@@ -346,37 +346,37 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
               <CardContent>
                 <ScrollArea className="h-96 w-full border rounded p-4">
                   <div className="space-y-4 text-sm">
-                    <h3 className="font-semibold">Cookies Policy for The C.A.R.E.N™ Alert Web App</h3>
+                    <h3 className="font-semibold">Cookies Policy for The C.A.R.E.N.™ Alert Web App</h3>
                     
                     <h4 className="font-semibold">What Are Cookies?</h4>
                     <p>
-                      <strong>Cookies:</strong> The C.A.R.E.N™ Alert web application ("The C.A.R.E.N™ Alert," "the app," "we," "us," or "our") may use cookies and similar technologies to enhance user experience and provide relevant information to Ohio drivers. Cookies are small pieces of data stored on your device when you visit websites or use applications.
+                      <strong>Cookies:</strong> The C.A.R.E.N.™ Alert web application ("The C.A.R.E.N.™ Alert," "the app," "we," "us," or "our") may use cookies and similar technologies to enhance user experience and provide relevant information to Ohio drivers. Cookies are small pieces of data stored on your device when you visit websites or use applications.
                     </p>
                     
                     <h4 className="font-semibold">How We Use Cookies</h4>
                     <p>
-                      <strong>Essential Cookies:</strong> We use essential cookies necessary for the functioning of The C.A.R.E.N™ Alert These cookies enable core functionalities such as session management and security.
+                      <strong>Essential Cookies:</strong> We use essential cookies necessary for the functioning of The C.A.R.E.N.™ Alert These cookies enable core functionalities such as session management and security.
                     </p>
                     <p>
-                      <strong>Analytics Cookies:</strong> We may use analytics cookies to gather information about how users interact with The C.A.R.E.N™ Alert This helps us improve the app's performance and user experience.
+                      <strong>Analytics Cookies:</strong> We may use analytics cookies to gather information about how users interact with The C.A.R.E.N.™ Alert This helps us improve the app's performance and user experience.
                     </p>
                     <p>
-                      <strong>Preference Cookies:</strong> Preference cookies allow The C.A.R.E.N™ Alert to remember user preferences, such as language settings, to enhance the user experience.
+                      <strong>Preference Cookies:</strong> Preference cookies allow The C.A.R.E.N.™ Alert to remember user preferences, such as language settings, to enhance the user experience.
                     </p>
                     
                     <h4 className="font-semibold">Third-Party Cookies</h4>
                     <p>
-                      <strong>Third-Party Services:</strong> We may engage third-party services that use cookies on The C.A.R.E.N™ Alert These services include analytics tools or plugins. Please note that third parties may also use cookies as per their own policies.
+                      <strong>Third-Party Services:</strong> We may engage third-party services that use cookies on The C.A.R.E.N.™ Alert These services include analytics tools or plugins. Please note that third parties may also use cookies as per their own policies.
                     </p>
                     
                     <h4 className="font-semibold">Your Cookie Choices</h4>
                     <p>
-                      <strong>Consent:</strong> By using The C.A.R.E.N™ Alert, you consent to the use of cookies as described in this policy. You can manage or delete cookies using your browser settings. Please note that disabling cookies may affect certain functionalities of the app.
+                      <strong>Consent:</strong> By using The C.A.R.E.N.™ Alert, you consent to the use of cookies as described in this policy. You can manage or delete cookies using your browser settings. Please note that disabling cookies may affect certain functionalities of the app.
                     </p>
                     
                     <h4 className="font-semibold">Changes to This Policy</h4>
                     <p>
-                      <strong>Policy Updates:</strong> We reserve the right to update or change this Cookies Policy at any time. Any updates will be posted on The C.A.R.E.N™ Alert with a revised effective date.
+                      <strong>Policy Updates:</strong> We reserve the right to update or change this Cookies Policy at any time. Any updates will be posted on The C.A.R.E.N.™ Alert with a revised effective date.
                     </p>
                   </div>
                 </ScrollArea>
@@ -461,7 +461,7 @@ export default function LegalAgreementModal({ isOpen, onAccept, onDecline }: Leg
                   {!allAgreed && (
                     <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
                       <p className="text-sm text-yellow-800">
-                        You must accept all legal agreements to continue using C.A.R.E.N™ Alert
+                        You must accept all legal agreements to continue using C.A.R.E.N.™ Alert
                       </p>
                     </div>
                   )}

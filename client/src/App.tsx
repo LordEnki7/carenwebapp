@@ -19,7 +19,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
       return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-slate-950 text-white p-6 text-center">
           <div className="text-4xl mb-4">🛡️</div>
-          <h1 className="text-xl font-bold mb-2">C.A.R.E.N™ Alert ALERT</h1>
+          <h1 className="text-xl font-bold mb-2">C.A.R.E.N.™ Alert ALERT</h1>
           <p className="text-slate-400 mb-6">Something went wrong. Please restart the app.</p>
           <button onClick={() => window.location.reload()} className="bg-cyan-500 text-white px-6 py-3 rounded-lg font-semibold">Reload App</button>
         </div>
