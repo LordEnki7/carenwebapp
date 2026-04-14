@@ -35,7 +35,7 @@ export default function WelcomeAnimation({ isVisible, userName, onComplete }: We
     },
     {
       icon: Sparkles,
-      title: "C.A.R.E.N.™ Ready",
+      title: "C.A.R.E.N Alert™ Ready",
       subtitle: "Your protection platform is active",
       color: "text-purple-400",
       bg: "bg-purple-500/20"

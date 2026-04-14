@@ -36,7 +36,7 @@ export async function notifyNewSignup(name: string, email: string, platform: str
       },
       {
         type: "context",
-        elements: [{ type: "mrkdwn", text: "C.A.R.E.N.™ Early Access Program" }],
+        elements: [{ type: "mrkdwn", text: "C.A.R.E.N Alert™ Early Access Program" }],
       },
     ],
     `🎉 New tester signup: ${name} (${email}) on ${platform}`
@@ -62,7 +62,7 @@ export async function notifySOS(userName: string, location: string, alertType: s
       },
       {
         type: "context",
-        elements: [{ type: "mrkdwn", text: "⚠️ C.A.R.E.N.™ Emergency Response System" }],
+        elements: [{ type: "mrkdwn", text: "⚠️ C.A.R.E.N Alert™ Emergency Response System" }],
       },
     ],
     `🚨 SOS Alert from ${userName} — ${alertType} (${urgency}) at ${location}`
@@ -87,7 +87,7 @@ export async function notifyNewPayment(planName: string, amount: string, email?:
       },
       {
         type: "context",
-        elements: [{ type: "mrkdwn", text: "💰 C.A.R.E.N.™ Revenue — Stripe" }],
+        elements: [{ type: "mrkdwn", text: "💰 C.A.R.E.N Alert™ Revenue — Stripe" }],
       },
     ],
     `💳 New payment: ${planName} — ${amount} from ${email || "unknown"}`

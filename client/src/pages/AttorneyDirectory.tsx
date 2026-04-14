@@ -47,10 +47,10 @@ export default function AttorneyDirectory() {
         <div className="text-center pt-4">
           <div className="flex items-center justify-center gap-2 mb-2">
             <Shield className="w-7 h-7 text-cyan-400" />
-            <h1 className="text-2xl md:text-3xl font-black text-white">C.A.R.E.N. Legal Network</h1>
+            <h1 className="text-2xl md:text-3xl font-black text-white">C.A.R.E.N Alert Legal Network</h1>
           </div>
           <p className="text-gray-400 text-sm max-w-lg mx-auto">
-            Verified attorneys across the country ready to assist C.A.R.E.N. members. Filter by state or search by name or firm.
+            Verified attorneys across the country ready to assist C.A.R.E.N Alert members. Filter by state or search by name or firm.
           </p>
         </div>
 
@@ -224,7 +224,7 @@ export default function AttorneyDirectory() {
           <CardContent className="p-5 flex items-center justify-between gap-4">
             <div>
               <p className="text-white font-semibold">Are you an attorney?</p>
-              <p className="text-gray-400 text-sm">Join the C.A.R.E.N. Legal Network and connect with drivers who need your help.</p>
+              <p className="text-gray-400 text-sm">Join the C.A.R.E.N Alert Legal Network and connect with drivers who need your help.</p>
             </div>
             <Link href="/attorney-application">
               <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold flex-shrink-0">

@@ -53,7 +53,7 @@ export default function AdminDashboard() {
       setIsAuthenticated(true);
       toast({
         title: "✅ Admin Access Granted", 
-        description: "Welcome to C.A.R.E.N.™ Production Admin Dashboard",
+        description: "Welcome to C.A.R.E.N Alert™ Production Admin Dashboard",
       });
     } else {
       toast({
@@ -176,7 +176,7 @@ export default function AdminDashboard() {
               </div>
               <CardTitle className="text-2xl font-bold text-white">Admin Access</CardTitle>
               <CardDescription className="text-gray-400">
-                Enter admin key to access C.A.R.E.N.™ production dashboard
+                Enter admin key to access C.A.R.E.N Alert™ production dashboard
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">

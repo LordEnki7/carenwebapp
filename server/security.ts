@@ -35,7 +35,7 @@ export class EncryptionService {
     const encryptionKey = key || this.generateKey();
     const iv = crypto.randomBytes(SECURITY_CONFIG.encryption.ivLength);
     const cipher = crypto.createCipher(SECURITY_CONFIG.encryption.algorithm, Buffer.from(encryptionKey, 'hex'));
-    cipher.setAAD(Buffer.from('C.A.R.E.N.™', 'utf8'));
+    cipher.setAAD(Buffer.from('C.A.R.E.N Alert™', 'utf8'));
     
     let encrypted = cipher.update(text, 'utf8', 'hex');
     encrypted += cipher.final('hex');
@@ -54,7 +54,7 @@ export class EncryptionService {
     try {
       const decipher = crypto.createDecipher(SECURITY_CONFIG.encryption.algorithm, Buffer.from(encryptedData.key, 'hex'));
       decipher.setAuthTag(Buffer.from(encryptedData.tag, 'hex'));
-      decipher.setAAD(Buffer.from('C.A.R.E.N.™', 'utf8'));
+      decipher.setAAD(Buffer.from('C.A.R.E.N Alert™', 'utf8'));
       
       let decrypted = decipher.update(encryptedData.encrypted, 'hex', 'utf8');
       decrypted += decipher.final('utf8');

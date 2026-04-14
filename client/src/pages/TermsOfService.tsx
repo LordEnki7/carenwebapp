@@ -21,12 +21,12 @@ export default function TermsOfService() {
         <div className="space-y-8 text-gray-300 leading-relaxed">
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">1. Acceptance of Terms</h2>
-            <p>By downloading, installing, or using C.A.R.E.N.™ (Citizen Assistance for Roadside Emergencies and Navigation) ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.</p>
+            <p>By downloading, installing, or using C.A.R.E.N Alert™ (Citizen Assistance for Roadside Emergencies and Navigation) ("the App"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, do not use the App.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">2. Description of Service</h2>
-            <p>C.A.R.E.N.™ is a personal safety and legal awareness platform that provides:</p>
+            <p>C.A.R.E.N Alert™ is a personal safety and legal awareness platform that provides:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>GPS-enabled, state-specific legal rights information</li>
               <li>Audio and video incident recording</li>
@@ -43,14 +43,14 @@ export default function TermsOfService() {
             <h2 className="text-xl font-semibold text-white mb-3">3. Important Disclaimers</h2>
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mb-4">
               <p className="text-yellow-300 font-semibold mb-2">Critical Notice</p>
-              <p className="text-yellow-200">C.A.R.E.N.™ is an informational and documentation tool. It is NOT a substitute for professional legal counsel, emergency services (911), or law enforcement.</p>
+              <p className="text-yellow-200">C.A.R.E.N Alert™ is an informational and documentation tool. It is NOT a substitute for professional legal counsel, emergency services (911), or law enforcement.</p>
             </div>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong className="text-white">Not Legal Advice:</strong> The legal information provided by C.A.R.E.N.™, including AI-powered responses, is for general informational purposes only and does not constitute legal advice. Laws vary by jurisdiction and change over time. Always consult a licensed attorney for legal guidance specific to your situation.</li>
-              <li><strong className="text-white">Not Emergency Services:</strong> C.A.R.E.N.™ is not a replacement for 911 or other emergency services. In any life-threatening emergency, call 911 first. Our emergency notification features are supplementary tools only.</li>
+              <li><strong className="text-white">Not Legal Advice:</strong> The legal information provided by C.A.R.E.N Alert™, including AI-powered responses, is for general informational purposes only and does not constitute legal advice. Laws vary by jurisdiction and change over time. Always consult a licensed attorney for legal guidance specific to your situation.</li>
+              <li><strong className="text-white">Not Emergency Services:</strong> C.A.R.E.N Alert™ is not a replacement for 911 or other emergency services. In any life-threatening emergency, call 911 first. Our emergency notification features are supplementary tools only.</li>
               <li><strong className="text-white">No Guarantee of Accuracy:</strong> While we strive to maintain accurate and up-to-date legal information across all 50 states and Washington D.C., we cannot guarantee the completeness or accuracy of all legal data at all times.</li>
               <li><strong className="text-white">AI Limitations:</strong> AI-powered features (legal assistant, incident analysis, voice coaching, attorney matching) provide automated suggestions based on general patterns. AI responses may contain errors and should not be relied upon as definitive legal guidance.</li>
-              <li><strong className="text-white">Recording Laws:</strong> Recording laws vary by state. Some states require all-party consent for recording. It is your responsibility to understand and comply with recording laws in your jurisdiction. C.A.R.E.N.™ displays relevant recording laws but cannot guarantee compliance.</li>
+              <li><strong className="text-white">Recording Laws:</strong> Recording laws vary by state. Some states require all-party consent for recording. It is your responsibility to understand and comply with recording laws in your jurisdiction. C.A.R.E.N Alert™ displays relevant recording laws but cannot guarantee compliance.</li>
             </ul>
           </section>
 
@@ -69,7 +69,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">5. Subscriptions and Payments</h2>
             <h3 className="text-lg font-medium text-cyan-300 mt-4 mb-2">5.1 Subscription Tiers</h3>
-            <p>C.A.R.E.N.™ offers multiple subscription tiers with varying levels of access. Features available to you depend on your subscription level. Free features may be limited compared to paid tiers.</p>
+            <p>C.A.R.E.N Alert™ offers multiple subscription tiers with varying levels of access. Features available to you depend on your subscription level. Free features may be limited compared to paid tiers.</p>
 
             <h3 className="text-lg font-medium text-cyan-300 mt-4 mb-2">5.2 Billing</h3>
             <ul className="list-disc list-inside space-y-1 ml-4">
@@ -90,7 +90,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">6. User Content and Recordings</h2>
             <h3 className="text-lg font-medium text-cyan-300 mt-4 mb-2">6.1 Ownership</h3>
-            <p>You retain ownership of all content you create using C.A.R.E.N.™, including audio and video recordings, incident reports, and submitted feedback.</p>
+            <p>You retain ownership of all content you create using C.A.R.E.N Alert™, including audio and video recordings, incident reports, and submitted feedback.</p>
 
             <h3 className="text-lg font-medium text-cyan-300 mt-4 mb-2">6.2 License</h3>
             <p>By using our cloud sync features, you grant us a limited, non-exclusive license to store and process your encrypted content solely for the purpose of providing the service to you.</p>
@@ -101,7 +101,7 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">7. Acceptable Use</h2>
-            <p className="mb-2">You agree not to use C.A.R.E.N.™ to:</p>
+            <p className="mb-2">You agree not to use C.A.R.E.N Alert™ to:</p>
             <ul className="list-disc list-inside space-y-1 ml-4">
               <li>Violate any laws or regulations</li>
               <li>Record individuals without proper consent where required by law</li>
@@ -116,17 +116,17 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">8. Attorney Communication</h2>
-            <p>C.A.R.E.N.™ facilitates communication between users and attorneys through our platform. We are not a law firm and do not provide legal services. Communications with attorneys through our platform may be subject to attorney-client privilege, but we make no guarantees regarding the establishment of such privilege. The selection of an attorney is your decision and responsibility.</p>
+            <p>C.A.R.E.N Alert™ facilitates communication between users and attorneys through our platform. We are not a law firm and do not provide legal services. Communications with attorneys through our platform may be subject to attorney-client privilege, but we make no guarantees regarding the establishment of such privilege. The selection of an attorney is your decision and responsibility.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">9. Emergency Features</h2>
-            <p>C.A.R.E.N.™'s emergency notification features (SMS alerts, email notifications, location sharing) depend on network connectivity, device functionality, and third-party service availability. We do not guarantee that emergency notifications will be delivered successfully in all circumstances. These features supplement, but do not replace, calling 911 or contacting local emergency services directly.</p>
+            <p>C.A.R.E.N Alert™'s emergency notification features (SMS alerts, email notifications, location sharing) depend on network connectivity, device functionality, and third-party service availability. We do not guarantee that emergency notifications will be delivered successfully in all circumstances. These features supplement, but do not replace, calling 911 or contacting local emergency services directly.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">10. Limitation of Liability</h2>
-            <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, C.A.R.E.N.™ AND ITS DEVELOPERS, OFFICERS, EMPLOYEES, AND AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO:</p>
+            <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, C.A.R.E.N Alert™ AND ITS DEVELOPERS, OFFICERS, EMPLOYEES, AND AFFILIATES SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO:</p>
             <ul className="list-disc list-inside space-y-1 ml-4 mt-2">
               <li>Loss of data or recordings</li>
               <li>Failure of emergency notifications to be delivered</li>
@@ -140,22 +140,22 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">11. Indemnification</h2>
-            <p>You agree to indemnify and hold harmless C.A.R.E.N.™ and its affiliates from any claims, damages, or expenses arising from your use of the App, violation of these Terms, or violation of any law or rights of a third party.</p>
+            <p>You agree to indemnify and hold harmless C.A.R.E.N Alert™ and its affiliates from any claims, damages, or expenses arising from your use of the App, violation of these Terms, or violation of any law or rights of a third party.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">12. Intellectual Property</h2>
-            <p>All content, features, and functionality of C.A.R.E.N.™ — including but not limited to text, graphics, logos, icons, software, the legal database, and AI models — are owned by C.A.R.E.N.™ and are protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works without our written permission.</p>
+            <p>All content, features, and functionality of C.A.R.E.N Alert™ — including but not limited to text, graphics, logos, icons, software, the legal database, and AI models — are owned by C.A.R.E.N Alert™ and are protected by copyright, trademark, and other intellectual property laws. You may not copy, modify, distribute, or create derivative works without our written permission.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">13. Modifications to Service and Terms</h2>
-            <p>We reserve the right to modify, suspend, or discontinue any part of C.A.R.E.N.™ at any time. We may update these Terms periodically. Material changes will be communicated through the App or by email. Continued use after changes constitutes acceptance of the updated Terms.</p>
+            <p>We reserve the right to modify, suspend, or discontinue any part of C.A.R.E.N Alert™ at any time. We may update these Terms periodically. Material changes will be communicated through the App or by email. Continued use after changes constitutes acceptance of the updated Terms.</p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-white mb-3">14. Governing Law</h2>
-            <p>These Terms are governed by the laws of the United States. Any disputes arising from these Terms or your use of C.A.R.E.N.™ shall be resolved in the appropriate courts within the United States.</p>
+            <p>These Terms are governed by the laws of the United States. Any disputes arising from these Terms or your use of C.A.R.E.N Alert™ shall be resolved in the appropriate courts within the United States.</p>
           </section>
 
           <section>
@@ -171,7 +171,7 @@ export default function TermsOfService() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-gray-700 text-center text-gray-500 text-sm space-y-2">
-          <p>&copy; {new Date().getFullYear()} C.A.R.E.N.™ All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} C.A.R.E.N Alert™ All rights reserved.</p>
           <div className="flex justify-center gap-4">
             <Link href="/privacy" className="text-cyan-400 hover:text-cyan-300">Privacy Policy</Link>
             <span>|</span>

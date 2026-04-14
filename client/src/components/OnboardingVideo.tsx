@@ -22,8 +22,8 @@ const VIDEOS = {
 };
 
 const TITLES = {
-  en: 'Welcome to C.A.R.E.N.™ — Your Legal Protection Platform',
-  es: 'Bienvenido a C.A.R.E.N.™ — Su Plataforma de Protección Legal',
+  en: 'Welcome to C.A.R.E.N Alert™ — Your Legal Protection Platform',
+  es: 'Bienvenido a C.A.R.E.N Alert™ — Su Plataforma de Protección Legal',
 };
 
 const OnboardingVideo: React.FC<OnboardingVideoProps> = ({

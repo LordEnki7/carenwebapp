@@ -29,7 +29,7 @@ export default function Login() {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
       toast({
-        title: "Welcome to C.A.R.E.N.™",
+        title: "Welcome to C.A.R.E.N Alert™",
         description: "Terms accepted successfully. Loading your dashboard...",
       });
       
@@ -85,7 +85,7 @@ export default function Login() {
           <div className="mx-auto mb-4 w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <CardTitle className="text-2xl font-bold">Welcome to C.A.R.E.N.™</CardTitle>
+          <CardTitle className="text-2xl font-bold">Welcome to C.A.R.E.N Alert™</CardTitle>
           <CardDescription>
             Citizen Assistance for Roadside Emergencies and Navigation
           </CardDescription>
@@ -111,7 +111,7 @@ export default function Login() {
                   <div className="prose dark:prose-invert max-w-none">
                     <h3>Important Legal Notice</h3>
                     <p className="text-red-600 dark:text-red-400 font-semibold">
-                      C.A.R.E.N.™ provides informational resources only and does not constitute legal advice.
+                      C.A.R.E.N Alert™ provides informational resources only and does not constitute legal advice.
                     </p>
                     <ul>
                       <li>Information may not be current or complete</li>
@@ -137,8 +137,8 @@ export default function Login() {
                 </label>
                 <PolicyDialog title="User Agreement" icon={FileText}>
                   <div className="prose dark:prose-invert max-w-none">
-                    <h3>C.A.R.E.N.™ User Agreement</h3>
-                    <p>By using C.A.R.E.N.™, you agree to:</p>
+                    <h3>C.A.R.E.N Alert™ User Agreement</h3>
+                    <p>By using C.A.R.E.N Alert™, you agree to:</p>
                     <ul>
                       <li>Use the platform responsibly and lawfully</li>
                       <li>Provide accurate information when creating incidents</li>
@@ -146,7 +146,7 @@ export default function Login() {
                       <li>Comply with all applicable laws and regulations</li>
                       <li>Not misuse emergency features or contact systems</li>
                     </ul>
-                    <p>This agreement governs your access to and use of the C.A.R.E.N.™ platform and all its features.</p>
+                    <p>This agreement governs your access to and use of the C.A.R.E.N Alert™ platform and all its features.</p>
                   </div>
                 </PolicyDialog>
               </div>

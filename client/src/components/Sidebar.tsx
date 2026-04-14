@@ -276,13 +276,13 @@ export default function Sidebar() {
           <div className="relative">
             <img
               src={carenLogo}
-              alt="C.A.R.E.N.™ Logo"
+              alt="C.A.R.E.N Alert™ Logo"
               className="w-10 h-10 rounded-lg shadow-sm"
             />
             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white"></div>
           </div>
           <div>
-            <h1 className="text-lg font-bold cyber-text tracking-tight">C.A.R.E.N.™</h1>
+            <h1 className="text-lg font-bold cyber-text tracking-tight">C.A.R.E.N Alert™</h1>
             <p className="text-xs text-cyan-300 font-medium">Pro-Tecktion</p>
           </div>
         </div>
@@ -380,7 +380,7 @@ export default function Sidebar() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Sign Out?</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-400">
-              Are you sure you want to sign out of C.A.R.E.N.™?
+              Are you sure you want to sign out of C.A.R.E.N Alert™?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

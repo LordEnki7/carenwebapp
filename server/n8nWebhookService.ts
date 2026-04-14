@@ -1,4 +1,4 @@
-// N8N Webhook Integration Service for C.A.R.E.N.™ Emergency Response Automation
+// N8N Webhook Integration Service for C.A.R.E.N Alert™ Emergency Response Automation
 
 interface N8NWebhookConfig {
   emergencyResponseUrl: string;

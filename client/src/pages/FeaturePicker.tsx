@@ -134,7 +134,7 @@ export default function FeaturePicker() {
           <div className="flex items-center justify-center gap-3">
             <Shield className="w-8 h-8 text-cyan-400" />
             <h1 className="text-4xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-green-400 bg-clip-text text-transparent">
-              Customize Your C.A.R.E.N.™
+              Customize Your C.A.R.E.N Alert™
             </h1>
           </div>
           <p className="text-gray-400 text-lg">Choose which features appear on your dashboard</p>

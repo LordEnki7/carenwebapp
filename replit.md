@@ -1,71 +1,95 @@
-# C.A.R.E.N.™ (Citizen Assistance for Roadside Emergencies and Navigation)
+# C.A.R.E.N Alert™ (Citizen Assistance for Roadside Emergencies and Navigation)
 
 ## Overview
 
-C.A.R.E.N.™ is a comprehensive family protection platform offering GPS-enabled, state-specific legal protection and coordinated emergency response. It integrates real-time voice commands, multi-angle video recording, attorney communication, and roadside assistance within a unified ecosystem (PWA and native mobile applications). The platform aims to cover legal encounters and vehicle emergencies with family notification systems, leveraging AI for legal assistance, smart emergency detection, incident summarization, multi-language legal translation, attorney matching, and real-time voice coaching during police encounters.
+C.A.R.E.N Alert™ is a comprehensive family protection platform offering GPS-enabled, state-specific legal protection and coordinated emergency response. It integrates real-time voice commands, multi-angle video recording, attorney communication, and roadside assistance within a unified ecosystem (PWA and native mobile applications). The platform aims to cover legal encounters and vehicle emergencies with family notification systems, leveraging AI for legal assistance, smart emergency detection, incident summarization, multi-language legal translation, attorney matching, and real-time voice coaching during police encounters.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
 
-## GitHub Push → Dokploy Deploy Policy
+## Deployment Policy — Pushing Code to carenalert.com
 
-**Every time you want to deploy to carenalert.com, follow these exact steps in the Replit Shell tab:**
+> **Root cause of past failures:** Replit's checkpoint system commits code to Replit's own git branch but NEVER pushes to GitHub automatically. Dokploy watches GitHub, not Replit. So if you don't run the push command below, Dokploy keeps deploying old code forever — even when everything looks up-to-date in Replit.
 
-### Step 1 — Validate before pushing
+### THE ONE COMMAND TO DEPLOY
+
+Open the **Shell tab** in Replit and run:
+
 ```bash
-bash scripts/pre-push-check.sh
+bash scripts/deploy-to-dokploy.sh
 ```
-All 10 checks must pass. Fix any failures before continuing.
 
-### Step 2 — Remove any workflow files from tracking (CRITICAL)
-The GitHub PAT does not have `workflow` scope. If any `.github/workflows/` file is staged, the push will be rejected. Always run:
-```bash
-git rm --cached .github/workflows/*.yml 2>/dev/null; git add -A
+This single script handles everything:
+1. Removes `.github/workflows/` from staging (PAT lacks workflow scope — staged workflow files cause push rejection)
+2. Stages all current changes (`git add -A`)
+3. Refreshes the GitHub remote URL with the current PAT token
+4. Pushes `fresh-main` → `github/main` (what Dokploy watches)
+5. Prints confirmation and next steps
+
+**IMPORTANT:** This script MUST be run from the **Shell tab** — not a workflow, not the AI agent. Only the Shell tab can run `git push`.
+
+---
+
+### After the Push — Verify Deployment
+
+Once Dokploy finishes building (check the Dokploy dashboard), open:
+
 ```
-This silently skips the step if no workflow files exist.
-
-### Step 3 — Commit (if needed)
-```bash
-git commit -m "Your message here"
+https://carenalert.com/api/version
 ```
-If it says "nothing to commit", that's fine — the checkpoint system may have already committed your changes.
 
-### Step 4 — Push to GitHub (triggers Dokploy)
-```bash
-git push github fresh-main:main
-```
-- Remote name: **`github`** (not `origin`)
-- Local branch: **`fresh-main`**
-- Target branch on GitHub: **`main`**
+This endpoint returns a `buildTime` timestamp. **If the timestamp changed, the new code is live.** If it still shows an old timestamp, the deploy failed — check Dokploy logs.
 
-### If the push says "Authentication failed"
-The PAT token expired. Refresh it first, then push:
+---
+
+### Troubleshooting
+
+**"Authentication failed" / push rejected:**
 ```bash
 git remote set-url github https://$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/LordEnki7/carenwebapp.git
 git push github fresh-main:main
 ```
 
-### If the push says "could not lock config file"
-A stale lock file is blocking git. Remove it then retry:
+**"could not lock config file":**
 ```bash
 rm -f .git/config.lock
+git push github fresh-main:main
 ```
 
-### After pushing
-Go to **Dokploy dashboard** and either wait for auto-deploy or click **Deploy** manually.
+**"refusing to allow a OAuth App to create or update workflow":**
+```bash
+git rm --cached .github/workflows/*.yml
+git push github fresh-main:main
+```
+
+**Dokploy deploys but site still shows old version:**
+- Hard refresh the browser (Ctrl+Shift+R / Cmd+Shift+R)
+- Check `https://carenalert.com/api/version` — if timestamp is old, Dokploy got the push but didn't rebuild. Click **Deploy** manually in Dokploy dashboard.
 
 ---
 
-## Pre-Push / Pre-Commit Policy
+### Key Git Facts (Never Forget)
 
-**Before any GitHub push or major save, always run the full validation checklist:**
+| Thing | Value |
+|-------|-------|
+| GitHub remote name | `github` (NOT `origin`) |
+| Local branch to push | `fresh-main` |
+| GitHub target branch | `main` |
+| Dokploy watches | `github/main` |
+| Replit checkpoints | Commit to Replit only — do NOT push to GitHub |
+
+---
+
+## Pre-Push Validation
+
+Before pushing, run the full validation checklist (optional but recommended):
 
 ```bash
 bash scripts/pre-push-check.sh
 ```
 
-This runs 10 checks automatically:
+This runs 13 checks automatically:
 1. TypeScript — no type errors
 2. Server health — `/api/auth/user` and `/api/subscription-plans` respond
 3. Video streaming — `caren-hero.mp4` and `caren-short.mp4` return HTTP 206 on Range requests
@@ -73,9 +97,12 @@ This runs 10 checks automatically:
 5. Attorney drip email route is registered
 6. Frontend root `/` renders
 7. `.github/workflows/` is in `.gitignore` (prevents GitHub push errors due to PAT scope)
-8. Production video files (`caren-hero.mp4`, `caren-short.mp4`, `caren-attorney.mp4`) are present — they must be committed and deployed to Dokploy or the sign-in page will show "Video unavailable"
-
-The script is also installed as a **git pre-push hook** at `.git/hooks/pre-push`, so it runs automatically on every `git push`. A push is blocked if any check fails.
+8. Production video files (`caren-hero.mp4`, `caren-short.mp4`, `caren-attorney.mp4`) are present
+9. Database connection reachable
+10. Stripe keys are live keys (not test keys)
+11. All public assets tracked by git
+12. `/api/version` endpoint responds
+13. No `.github/workflows/` files staged
 
 Named validation commands (for in-session use): `typecheck`, `server-health`, `video-stream`, `check-deployment`
 

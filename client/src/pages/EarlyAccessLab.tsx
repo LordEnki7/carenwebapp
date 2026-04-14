@@ -60,7 +60,7 @@ function LandingPage({ onApply }: { onApply: () => void }) {
           <div className="text-6xl mb-4">🚨</div>
           <h1 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
             Welcome to the<br />
-            <span className="text-cyan-400">C.A.R.E.N.</span> Early Access<br />
+            <span className="text-cyan-400">C.A.R.E.N Alert</span> Early Access<br />
             Program
           </h1>
 
@@ -214,7 +214,7 @@ function ApplyForm({ onSuccess, onBack }: { onSuccess: () => void; onBack: () =>
 
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-1.5 mb-4">
-            <span className="text-cyan-400 text-xs font-semibold tracking-wider uppercase">C.A.R.E.N. Early Access Application</span>
+            <span className="text-cyan-400 text-xs font-semibold tracking-wider uppercase">C.A.R.E.N Alert Early Access Application</span>
           </div>
           <h1 className="text-3xl font-black text-white mb-2">Apply for Early Access</h1>
           <p className="text-gray-400 text-sm">Only accepting a limited number of testers. Spots go fast.</p>
@@ -532,7 +532,7 @@ function TesterDashboard({ code }: { code: string }) {
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-2 mb-1">
             <Zap className="w-4 h-4 text-cyan-400" />
-            <span className="text-cyan-400 text-xs font-bold tracking-wider uppercase">C.A.R.E.N. Early Access Program</span>
+            <span className="text-cyan-400 text-xs font-bold tracking-wider uppercase">C.A.R.E.N Alert Early Access Program</span>
           </div>
           <h1 className="text-2xl font-black text-white">Welcome, {tester.name.split(" ")[0]} 👋</h1>
           <p className="text-gray-400 text-sm mt-1">
@@ -639,7 +639,7 @@ function ConfirmationScreen() {
         <div className="bg-cyan-500/5 border border-cyan-500/20 rounded-xl p-4">
           <p className="text-cyan-400 text-sm font-semibold">We're building something that could actually protect people — and you're part of that mission.</p>
         </div>
-        <p className="text-gray-600 text-xs mt-4">C.A.R.E.N. Early Access Program · carenalert.com</p>
+        <p className="text-gray-600 text-xs mt-4">C.A.R.E.N Alert Early Access Program · carenalert.com</p>
       </div>
     </div>
   );

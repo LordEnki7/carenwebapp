@@ -87,7 +87,7 @@ class ErrorBoundary extends Component<Props, State> {
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle className="text-red-200">Application Error</AlertTitle>
               <AlertDescription className="text-red-300 mb-4">
-                Something went wrong in C.A.R.E.N.™ Don't worry - your emergency features are still available.
+                Something went wrong in C.A.R.E.N Alert™ Don't worry - your emergency features are still available.
                 <br />
                 <br />
                 <span className="text-xs font-mono text-red-400">

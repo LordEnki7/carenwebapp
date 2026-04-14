@@ -524,7 +524,7 @@ export default function AgentDashboard() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Agent Dashboard</h1>
-              <p className="text-slate-400 text-sm">AI-powered marketing & growth for C.A.R.E.N.™</p>
+              <p className="text-slate-400 text-sm">AI-powered marketing & growth for C.A.R.E.N Alert™</p>
             </div>
           </div>
         </div>
@@ -1455,7 +1455,7 @@ export default function AgentDashboard() {
                     </div>
                   </div>
                   <div className="bg-slate-800/50 rounded-lg p-4">
-                    <p className="text-slate-300 text-sm mb-2 font-medium">Subject: Welcome to C.A.R.E.N.™ ALERT — You're Protected</p>
+                    <p className="text-slate-300 text-sm mb-2 font-medium">Subject: Welcome to C.A.R.E.N Alert™ — You're Protected</p>
                     <p className="text-slate-400 text-sm">Includes: feature overview, app link, all subscription benefits. Sent automatically via SendGrid within seconds of form submission.</p>
                   </div>
                 </CardContent>

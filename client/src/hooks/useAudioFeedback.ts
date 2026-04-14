@@ -184,7 +184,7 @@ export const useAudioFeedback = () => {
   }, [playAudioFeedback]);
 
   const testAudioFeedback = useCallback(() => {
-    return playAudioFeedback('Audio feedback test - C.A.R.E.N.™ voice confirmation system is working', {
+    return playAudioFeedback('Audio feedback test - C.A.R.E.N Alert™ voice confirmation system is working', {
       type: 'action',
       forcePlay: true
     });

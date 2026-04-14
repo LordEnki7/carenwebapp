@@ -58,7 +58,7 @@ async function downloadIncidentPDF(result: AnalysisResult, transcript: string, s
   doc.setTextColor(255, 255, 255);
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
-  doc.text('C.A.R.E.N.\u2122 INCIDENT REPORT', margin, 16);
+  doc.text('C.A.R.E.N Alert\u2122 INCIDENT REPORT', margin, 16);
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
   doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 24);

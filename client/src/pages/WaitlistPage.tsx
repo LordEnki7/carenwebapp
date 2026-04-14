@@ -79,7 +79,7 @@ const REFERRAL_TIERS = [
 
 const FAQS = [
   {
-    q: "When will C.A.R.E.N.™ be available?",
+    q: "When will C.A.R.E.N Alert™ be available?",
     a: "We're targeting a launch on both iOS and Android app stores in early 2026. Waitlist members will get early access before the public launch.",
   },
   {
@@ -87,8 +87,8 @@ const FAQS = [
     a: "Absolutely! Joining the waitlist is completely free and doesn't obligate you to purchase anything. You'll simply be the first to know when we launch.",
   },
   {
-    q: "What does C.A.R.E.N.™ stand for?",
-    a: "C.A.R.E.N.™ stands for Citizen Assistance for Roadside Emergencies and Navigation — your AI-powered legal protection companion.",
+    q: "What does C.A.R.E.N Alert™ stand for?",
+    a: "C.A.R.E.N Alert™ stands for Citizen Assistance for Roadside Emergencies and Navigation — your AI-powered legal protection companion.",
   },
   {
     q: "Will my data be secure?",
@@ -211,7 +211,7 @@ export default function WaitlistPage() {
               Launching Soon.
             </p>
             <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-              20 million Americans are stopped by police every year. Most don't know their rights. C.A.R.E.N.™ gives you voice-activated, AI-powered legal protection — right when you need it most.
+              20 million Americans are stopped by police every year. Most don't know their rights. C.A.R.E.N Alert™ gives you voice-activated, AI-powered legal protection — right when you need it most.
             </p>
 
             {countData && countData.count > 0 && (
@@ -279,7 +279,7 @@ export default function WaitlistPage() {
                   )}
 
                   <p className="text-gray-400 text-center text-sm">
-                    We'll notify you as soon as C.A.R.E.N.™ is ready for download.
+                    We'll notify you as soon as C.A.R.E.N Alert™ is ready for download.
                   </p>
                 </CardContent>
               </Card>
@@ -439,7 +439,7 @@ export default function WaitlistPage() {
 
           <div className="space-y-8">
             <div className="text-center space-y-3">
-              <h3 className="text-3xl font-bold text-white">Why C.A.R.E.N.™?</h3>
+              <h3 className="text-3xl font-bold text-white">Why C.A.R.E.N Alert™?</h3>
               <p className="text-gray-400 max-w-xl mx-auto">
                 Powerful features designed to protect your rights and keep you safe.
               </p>
@@ -465,7 +465,7 @@ export default function WaitlistPage() {
           <div className="space-y-8">
             <div className="text-center space-y-3">
               <h3 className="text-3xl font-bold text-white">Frequently Asked Questions</h3>
-              <p className="text-gray-400">Everything you need to know about C.A.R.E.N.™</p>
+              <p className="text-gray-400">Everything you need to know about C.A.R.E.N Alert™</p>
             </div>
             <div className="max-w-2xl mx-auto space-y-3">
               {FAQS.map((faq) => (
@@ -480,7 +480,7 @@ export default function WaitlistPage() {
               <span className="text-sm">Available worldwide at launch</span>
             </div>
             <p className="text-xs text-gray-600">
-              &copy; {new Date().getFullYear()} C.A.R.E.N.™ — Citizen Assistance for Roadside Emergencies &amp; Navigation. All rights reserved.
+              &copy; {new Date().getFullYear()} C.A.R.E.N Alert™ — Citizen Assistance for Roadside Emergencies &amp; Navigation. All rights reserved.
             </p>
           </div>
         </div>

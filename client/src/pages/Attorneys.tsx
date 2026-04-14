@@ -184,7 +184,7 @@ export default function Attorneys() {
                     <Shield className="w-6 h-6 text-cyan-400" />
                   </div>
                   <h3 className="font-semibold text-white mb-2">2. Document Incident</h3>
-                  <p className="text-gray-300 text-sm">Use C.A.R.E.N.™ to record and document any legal encounters</p>
+                  <p className="text-gray-300 text-sm">Use C.A.R.E.N Alert™ to record and document any legal encounters</p>
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-cyan-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -413,7 +413,7 @@ export default function Attorneys() {
                 </h3>
                 <div className="text-sm text-gray-300 space-y-2">
                   <p>
-                    C.A.R.E.N.™ provides technology to connect users with independent attorneys. We do not provide legal advice.
+                    C.A.R.E.N Alert™ provides technology to connect users with independent attorneys. We do not provide legal advice.
                   </p>
                   <p>
                     All attorneys in our network are independently licensed professionals. Communication through our platform 

@@ -149,6 +149,47 @@ else
   fi
 fi
 
+# ── 6. Version endpoint reachable ────────────────────────────────────────────
+# /api/version shows build time — use this after every Dokploy deploy to
+# confirm the NEW code is live: https://carenalert.com/api/version
+header "Version endpoint"
+
+VERSION_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://localhost:5000/api/version 2>/dev/null)
+if [ "$VERSION_STATUS" = "200" ]; then
+  BUILD_TIME=$(curl -s http://localhost:5000/api/version 2>/dev/null | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d).buildTime)}catch{console.log('?')}})" 2>/dev/null)
+  ok "/api/version responding — server started at $BUILD_TIME"
+  echo ""
+  echo -e "  ${YELLOW}After every Dokploy deploy, open this URL to confirm new code is live:${RESET}"
+  echo -e "  ${BOLD}  https://carenalert.com/api/version${RESET}"
+else
+  warn "/api/version not reachable (HTTP $VERSION_STATUS) — start the server first"
+fi
+
+# ── 7. Workflow files not staged for push ────────────────────────────────────
+# The GitHub PAT does not have `workflow` scope. Any .github/workflows/ file
+# staged in git will cause the push to be rejected by GitHub.
+header "GitHub push safety"
+
+WORKFLOW_STAGED=$(git ls-files --cached .github/workflows/ 2>/dev/null)
+if [ -n "$WORKFLOW_STAGED" ]; then
+  fail ".github/workflows/ files are staged — push will be REJECTED by GitHub"
+  hint "Fix: git rm --cached .github/workflows/*.yml"
+  hint "The PAT token does not have 'workflow' scope"
+else
+  ok "No .github/workflows/ files staged — push will succeed"
+fi
+
+# Confirm correct remote + branch
+REMOTE_URL=$(git remote get-url github 2>/dev/null || echo "")
+if [ -n "$REMOTE_URL" ]; then
+  ok "GitHub remote 'github' → LordEnki7/carenwebapp"
+  echo ""
+  echo -e "  ${YELLOW}Push command:${RESET} git push github fresh-main:main"
+else
+  warn "GitHub remote 'github' not configured"
+  hint "Run: git remote add github https://\$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/LordEnki7/carenwebapp.git"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"

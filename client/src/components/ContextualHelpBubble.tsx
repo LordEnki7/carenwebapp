@@ -90,7 +90,7 @@ export function ContextualHelpBubble({ page, context }: ContextualHelpProps) {
       default:
         return [
           "What are my constitutional rights?",
-          "How do I use C.A.R.E.N.™ effectively?",
+          "How do I use C.A.R.E.N Alert™ effectively?",
           "What should I do in an emergency?",
           "How do I contact an attorney?"
         ];
@@ -103,7 +103,7 @@ export function ContextualHelpBubble({ page, context }: ContextualHelpProps) {
       const welcomeMessage: AIMessage = {
         id: 'welcome-' + Date.now(),
         type: 'ai',
-        content: `Hello! I'm your AI legal assistant. I can help you understand your rights, navigate legal situations, and use C.A.R.E.N.™ effectively. I have access to comprehensive legal information and can provide guidance based on your current location and situation.
+        content: `Hello! I'm your AI legal assistant. I can help you understand your rights, navigate legal situations, and use C.A.R.E.N Alert™ effectively. I have access to comprehensive legal information and can provide guidance based on your current location and situation.
 
 How can I assist you today?`,
         timestamp: new Date(),
@@ -352,7 +352,7 @@ How can I assist you today?`,
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything about your rights or using C.A.R.E.N.™.."
+                  placeholder="Ask me anything about your rights or using C.A.R.E.N Alert™.."
                   className="flex-1 text-sm"
                   disabled={isLoading}
                 />

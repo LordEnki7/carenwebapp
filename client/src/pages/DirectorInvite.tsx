@@ -12,13 +12,13 @@ import { Loader2, Shield, CheckCircle, AlertTriangle } from "lucide-react";
 
 const CONTRACT_TEXT = `REGIONAL DIRECTOR INDEPENDENT CONTRACTOR AGREEMENT
 
-This Agreement is entered into between C.A.R.E.N.™ ALERT ("Company") and the individual identified as Regional Director ("Director"), effective upon the date of electronic signature below.
+This Agreement is entered into between C.A.R.E.N Alert™ ("Company") and the individual identified as Regional Director ("Director"), effective upon the date of electronic signature below.
 
 1. INDEPENDENT CONTRACTOR STATUS
-Director is an independent contractor, not an employee, agent, or partner of C.A.R.E.N.™ ALERT. Director has no authority to bind the Company to any contract, obligation, or liability.
+Director is an independent contractor, not an employee, agent, or partner of C.A.R.E.N Alert™. Director has no authority to bind the Company to any contract, obligation, or liability.
 
 2. SCOPE OF DUTIES
-Director agrees to promote C.A.R.E.N.™ ALERT subscriptions and services within their assigned territory, recruit new subscribers using their unique Director Code, and maintain professional conduct representing the brand.
+Director agrees to promote C.A.R.E.N Alert™ subscriptions and services within their assigned territory, recruit new subscribers using their unique Director Code, and maintain professional conduct representing the brand.
 
 3. COMPENSATION
 Director earns commission on paid subscriptions generated through their Director Code, at the rate corresponding to their Director level:
@@ -29,13 +29,13 @@ Commissions are paid monthly for the prior month's verified subscriptions. Minim
 Director agrees to keep all proprietary business information, pricing, internal systems, and subscriber data strictly confidential during and after this Agreement.
 
 5. TERM & TERMINATION
-This Agreement is at-will and may be terminated by either party with 14 days written notice. C.A.R.E.N.™ ALERT reserves the right to immediately terminate for cause, including fraud, misrepresentation, or breach of this Agreement.
+This Agreement is at-will and may be terminated by either party with 14 days written notice. C.A.R.E.N Alert™ reserves the right to immediately terminate for cause, including fraud, misrepresentation, or breach of this Agreement.
 
 6. NO GUARANTEE OF EARNINGS
 Director acknowledges that commission income depends on individual effort and market conditions. No income guarantees are made or implied.
 
 7. INTELLECTUAL PROPERTY
-All C.A.R.E.N.™ ALERT branding, materials, and systems remain the sole property of the Company. Director may not create unauthorized branded materials.
+All C.A.R.E.N Alert™ branding, materials, and systems remain the sole property of the Company. Director may not create unauthorized branded materials.
 
 8. GOVERNING LAW
 This Agreement is governed by the laws of the State of Texas.
@@ -99,7 +99,7 @@ export default function DirectorInvite() {
         <CardContent className="p-8 text-center space-y-4">
           <AlertTriangle className="w-12 h-12 text-red-400 mx-auto" />
           <h2 className="text-white font-bold text-xl">Invalid or Expired Link</h2>
-          <p className="text-gray-400 text-sm">{(error as any)?.message || "This invite link is invalid or has expired. Please contact your C.A.R.E.N.™ administrator to request a new invite."}</p>
+          <p className="text-gray-400 text-sm">{(error as any)?.message || "This invite link is invalid or has expired. Please contact your C.A.R.E.N Alert™ administrator to request a new invite."}</p>
         </CardContent>
       </Card>
     </div>
@@ -111,7 +111,7 @@ export default function DirectorInvite() {
         <CardContent className="p-8 text-center space-y-4">
           <CheckCircle className="w-14 h-14 text-green-400 mx-auto" />
           <h2 className="text-white font-bold text-2xl">You're All Set!</h2>
-          <p className="text-gray-300 text-sm">Welcome to the C.A.R.E.N.™ Regional Director Network, {invite.name}!</p>
+          <p className="text-gray-300 text-sm">Welcome to the C.A.R.E.N Alert™ Regional Director Network, {invite.name}!</p>
           <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-left space-y-1">
             <p className="text-gray-500 text-xs">Your Director Code</p>
             <p className="text-cyan-400 font-bold text-xl tracking-widest">{invite.directorCode}</p>
@@ -132,7 +132,7 @@ export default function DirectorInvite() {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-2 mb-2">
           <Shield className="w-7 h-7 text-cyan-400" />
-          <h1 className="text-2xl font-black text-white tracking-tight">C.A.R.E.N.™ ALERT</h1>
+          <h1 className="text-2xl font-black text-white tracking-tight">C.A.R.E.N Alert™</h1>
         </div>
         <p className="text-cyan-400 text-sm font-semibold">Regional Director Onboarding</p>
       </div>

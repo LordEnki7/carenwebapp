@@ -22,10 +22,10 @@ async function sendEarlyAccessEmail(to: string, name: string, labLink: string, i
       }
     });
     const subject = isInvite
-      ? "You've Been Selected — C.A.R.E.N. Early Access"
-      : "You're In — C.A.R.E.N. Early Access Approved";
+      ? "You've Been Selected — C.A.R.E.N Alert Early Access"
+      : "You're In — C.A.R.E.N Alert Early Access Approved";
     await transporter.sendMail({
-      from: '"C.A.R.E.N. Team" <info@carenalert.com>',
+      from: '"C.A.R.E.N Alert Team" <info@carenalert.com>',
       to,
       subject,
       html: `
@@ -36,10 +36,10 @@ async function sendEarlyAccessEmail(to: string, name: string, labLink: string, i
             <tr>
               <td bgcolor="#0d1b2a" style="background-color:#0d1b2a;padding:40px 32px;text-align:center;border-radius:12px 12px 0 0">
                 <div style="display:inline-block;background-color:#0a3050;border:1px solid #0077b6;border-radius:20px;padding:6px 18px;margin-bottom:18px">
-                  <span style="color:#00d2ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif">C.A.R.E.N. Early Access Program</span>
+                  <span style="color:#00d2ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;font-family:Arial,sans-serif">C.A.R.E.N Alert Early Access Program</span>
                 </div>
                 <h1 style="color:#ffffff;font-size:28px;margin:0 0 8px 0;line-height:1.3;font-weight:800;font-family:Arial,sans-serif">You've Been Selected</h1>
-                <p style="color:#90b4ce;margin:0;font-size:14px;font-family:Arial,sans-serif">Personal invitation from the C.A.R.E.N. team</p>
+                <p style="color:#90b4ce;margin:0;font-size:14px;font-family:Arial,sans-serif">Personal invitation from the C.A.R.E.N Alert team</p>
               </td>
             </tr>
           </table>
@@ -54,7 +54,7 @@ async function sendEarlyAccessEmail(to: string, name: string, labLink: string, i
 
             <!-- Features box -->
             <div style="background:#f0f7ff;border-left:4px solid #0077b6;border-radius:0 10px 10px 0;padding:18px 22px;margin:0 0 28px 0">
-              <p style="color:#1a2e4a;margin:0 0 10px 0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px">What C.A.R.E.N. does for you:</p>
+              <p style="color:#1a2e4a;margin:0 0 10px 0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px">What C.A.R.E.N Alert does for you:</p>
               <p style="color:#444;margin:0;font-size:14px;line-height:1.9">
                 ✅ &nbsp;Detects your state and shows your legal rights in real time<br/>
                 ✅ &nbsp;Records video and audio evidence during any encounter<br/>
@@ -101,7 +101,7 @@ async function sendEarlyAccessEmail(to: string, name: string, labLink: string, i
 
           <!-- Footer -->
           <div style="background:#f4f6f9;padding:24px 32px;text-align:center;border-radius:0 0 12px 12px;border-top:1px solid #e2e8f0">
-            <p style="color:#888;font-size:12px;margin:0;line-height:1.8">This invitation was sent personally by the C.A.R.E.N. team.<br/>C.A.R.E.N. Early Access Program &nbsp;|&nbsp; <a href="https://carenalert.com" style="color:#0077b6;text-decoration:none">carenalert.com</a></p>
+            <p style="color:#888;font-size:12px;margin:0;line-height:1.8">This invitation was sent personally by the C.A.R.E.N Alert team.<br/>C.A.R.E.N Alert Early Access Program &nbsp;|&nbsp; <a href="https://carenalert.com" style="color:#0077b6;text-decoration:none">carenalert.com</a></p>
           </div>
 
         </div>
@@ -419,7 +419,7 @@ export function registerEarlyAccessRoutes(app: Express) {
               <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;padding:40px 32px;color:#1a1a1a;line-height:1.8;font-size:15px">
                 <p>Hey,</p>
                 <p>I wanted to personally reach out and share something with you that I'm involved in.</p>
-                <p>I've been working closely with a project called <strong>C.A.R.E.N.</strong>, and it's something I believe can really make a difference — especially in situations involving traffic stops and roadside interactions.</p>
+                <p>I've been working closely with a project called <strong>C.A.R.E.N Alert</strong>, and it's something I believe can really make a difference — especially in situations involving traffic stops and roadside interactions.</p>
                 <p>This isn't just another app. It's built around real-world safety, giving drivers the ability to record, track, and have a layer of protection when it matters most.</p>
                 <p>I don't send things out unless I truly stand behind them, and this is one of those.</p>
                 <p>Right now, we're opening up a small early access group to test it out, and I thought of you.</p>
@@ -463,16 +463,16 @@ export function registerEarlyAccessRoutes(app: Express) {
       for (const t of testers) {
         try {
           await transporter.sendMail({
-            from: '"C.A.R.E.N. Team" <info@carenalert.com>',
+            from: '"C.A.R.E.N Alert Team" <info@carenalert.com>',
             to: t.email,
-            subject: "Your C.A.R.E.N. spot is still waiting — activate in 2 taps",
+            subject: "Your C.A.R.E.N Alert spot is still waiting — activate in 2 taps",
             html: `
               <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#f4f6f9">
                 <table width="100%" cellpadding="0" cellspacing="0">
                   <tr>
                     <td bgcolor="#0d1b2a" style="background-color:#0d1b2a;padding:36px 32px;text-align:center;border-radius:12px 12px 0 0">
                       <div style="display:inline-block;background-color:#0a3050;border:1px solid #0077b6;border-radius:20px;padding:6px 18px;margin-bottom:16px">
-                        <span style="color:#00d2ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">C.A.R.E.N. Early Access</span>
+                        <span style="color:#00d2ff;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase">C.A.R.E.N Alert Early Access</span>
                       </div>
                       <h1 style="color:#ffffff;font-size:26px;margin:0 0 8px 0;font-weight:800">Your spot is still waiting, ${t.name.split(' ')[0]}</h1>
                       <p style="color:#90b4ce;margin:0;font-size:14px">Don't miss your chance to be a founding member</p>
@@ -482,10 +482,10 @@ export function registerEarlyAccessRoutes(app: Express) {
                 <div style="background:#ffffff;padding:36px 32px">
                   <p style="color:#1a1a2e;font-size:16px;line-height:1.7;margin:0 0 16px 0">Hi <strong>${t.name}</strong>,</p>
                   <p style="color:#333;font-size:15px;line-height:1.7;margin:0 0 16px 0">
-                    We noticed you haven't activated your C.A.R.E.N. Early Access spot yet. <strong>Your invitation is still open</strong> — but we're filling seats fast and can't hold it indefinitely.
+                    We noticed you haven't activated your C.A.R.E.N Alert Early Access spot yet. <strong>Your invitation is still open</strong> — but we're filling seats fast and can't hold it indefinitely.
                   </p>
                   <p style="color:#333;font-size:15px;line-height:1.7;margin:0 0 24px 0">
-                    C.A.R.E.N. protects you during traffic stops — showing your legal rights in real time, recording evidence, and alerting your family. <strong>This is free access while we're in testing.</strong>
+                    C.A.R.E.N Alert protects you during traffic stops — showing your legal rights in real time, recording evidence, and alerting your family. <strong>This is free access while we're in testing.</strong>
                   </p>
 
                   <div style="background:#fff8e1;border-left:4px solid #f59e0b;border-radius:0 10px 10px 0;padding:16px 20px;margin:0 0 28px 0">
@@ -525,10 +525,10 @@ export function registerEarlyAccessRoutes(app: Express) {
                     <a href="https://testflight.apple.com/join/1ahkrNU5" style="display:block;background:#1a1a2e;color:#ffffff;padding:13px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;text-align:center;margin-top:16px">Join on TestFlight →</a>
                   </div>
 
-                  <p style="color:#888;font-size:13px;line-height:1.6;margin:0">Questions? Reply to this email — we read every message.<br/>Thank you for being part of C.A.R.E.N.</p>
+                  <p style="color:#888;font-size:13px;line-height:1.6;margin:0">Questions? Reply to this email — we read every message.<br/>Thank you for being part of C.A.R.E.N Alert</p>
                 </div>
                 <div style="background:#0d1b2a;padding:20px 32px;text-align:center;border-radius:0 0 12px 12px">
-                  <p style="color:#90b4ce;margin:0;font-size:12px">C.A.R.E.N.™ — Citizen Assistance for Roadside Emergencies and Navigation<br/>carenalert.com</p>
+                  <p style="color:#90b4ce;margin:0;font-size:12px">C.A.R.E.N Alert™ — Citizen Assistance for Roadside Emergencies and Navigation<br/>carenalert.com</p>
                 </div>
               </div>
             `

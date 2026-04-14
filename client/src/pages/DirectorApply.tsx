@@ -22,20 +22,20 @@ const US_STATES = [
   "Wisconsin","Wyoming","Washington D.C."
 ];
 
-const CONTRACT_TEXT = `C.A.R.E.N. REGIONAL DIRECTOR INDEPENDENT CONTRACTOR AGREEMENT
+const CONTRACT_TEXT = `C.A.R.E.N Alert REGIONAL DIRECTOR INDEPENDENT CONTRACTOR AGREEMENT
 Version 1.0 — 2025
 
-This Independent Contractor Agreement ("Agreement") is entered into between C.A.R.E.N. LLC ("Company") and the undersigned applicant ("Regional Director").
+This Independent Contractor Agreement ("Agreement") is entered into between C.A.R.E.N Alert LLC ("Company") and the undersigned applicant ("Regional Director").
 
 1. INDEPENDENT CONTRACTOR STATUS
 The Regional Director is an independent contractor, not an employee. Nothing in this Agreement creates a partnership, joint venture, employment, or agency relationship. The Regional Director is solely responsible for their own taxes, insurance, and business expenses.
 
 2. SCOPE OF SERVICES
 The Regional Director agrees to:
-  a) Promote the C.A.R.E.N. platform within their assigned territory
+  a) Promote the C.A.R.E.N Alert platform within their assigned territory
   b) Recruit and assist with onboarding of new subscribers
   c) Build relationships with local attorneys, community organizations, and civic groups
-  d) Represent C.A.R.E.N. professionally and in accordance with Company guidelines
+  d) Represent C.A.R.E.N Alert professionally and in accordance with Company guidelines
   e) Attend virtual team meetings and training sessions as scheduled
 
 3. COMMISSION STRUCTURE
@@ -46,27 +46,27 @@ The Regional Director agrees to:
 Commissions are paid monthly for active, paying subscribers referred by the Director's unique code. Commissions are not paid for cancelled or refunded subscriptions.
 
 4. ATTORNEY NETWORK (CLAN)
-The Regional Director may assist in recruiting attorneys to the C.A.R.E.N. Legal Access Network (CLAN). C.A.R.E.N. is NOT a law firm. Directors may NOT promise legal representation, recommend specific attorneys, or engage in fee-sharing arrangements. The CLAN is a directory service only. Attorneys keep 100% of their fees.
+The Regional Director may assist in recruiting attorneys to the C.A.R.E.N Alert Legal Access Network (CLAN). C.A.R.E.N Alert is NOT a law firm. Directors may NOT promise legal representation, recommend specific attorneys, or engage in fee-sharing arrangements. The CLAN is a directory service only. Attorneys keep 100% of their fees.
 
 5. CODE OF CONDUCT
 The Regional Director agrees to:
-  a) NOT make false or misleading claims about C.A.R.E.N.'s services
+  a) NOT make false or misleading claims about C.A.R.E.N Alert's services
   b) NOT engage in discriminatory, harassing, or unethical conduct
   c) NOT share confidential Company information with third parties
   d) Comply with all applicable federal, state, and local laws
   e) Immediately notify the Company of any conflicts of interest
 
 6. CONFIDENTIALITY
-All proprietary information, pricing, business strategy, user data, and internal processes shared with the Regional Director are strictly confidential and may not be disclosed to any third party without prior written consent from C.A.R.E.N. LLC.
+All proprietary information, pricing, business strategy, user data, and internal processes shared with the Regional Director are strictly confidential and may not be disclosed to any third party without prior written consent from C.A.R.E.N Alert LLC.
 
 7. TERMINATION
 Either party may terminate this Agreement with 14 days written notice. The Company may terminate immediately for cause, including but not limited to: fraud, misconduct, breach of this Agreement, or failure to perform duties. Upon termination, the Director's access to the portal and unique referral code will be deactivated.
 
 8. NO GUARANTEE OF INCOME
-C.A.R.E.N. makes no guarantee of income or earnings. Commission income depends entirely on the Director's effort, market conditions, and subscriber retention.
+C.A.R.E.N Alert makes no guarantee of income or earnings. Commission income depends entirely on the Director's effort, market conditions, and subscriber retention.
 
 9. INTELLECTUAL PROPERTY
-All C.A.R.E.N. branding, logos, marketing materials, and content remain the sole property of C.A.R.E.N. LLC. Directors may use approved materials only. Unauthorized use of Company trademarks is prohibited.
+All C.A.R.E.N Alert branding, logos, marketing materials, and content remain the sole property of C.A.R.E.N Alert LLC. Directors may use approved materials only. Unauthorized use of Company trademarks is prohibited.
 
 10. GOVERNING LAW
 This Agreement is governed by the laws of the State of Georgia. Any disputes shall be resolved through binding arbitration in Atlanta, Georgia.
@@ -164,7 +164,7 @@ export default function DirectorApply() {
             <p className="text-gray-300 text-sm">📧 You'll receive your Director PIN via email</p>
             <p className="text-gray-300 text-sm">🚀 Access your Director Portal to start earning</p>
           </div>
-          <p className="text-cyan-400 font-semibold text-sm">— Shawn Williams, Founder, C.A.R.E.N.</p>
+          <p className="text-cyan-400 font-semibold text-sm">— Shawn Williams, Founder, C.A.R.E.N Alert</p>
           <Link href="/">
             <Button className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold">
               Return to App
@@ -286,7 +286,7 @@ export default function DirectorApply() {
                   </h2>
                   <FormField control={form.control} name="background" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-gray-300">Why do you want to represent C.A.R.E.N. in your city?</FormLabel>
+                      <FormLabel className="text-gray-300">Why do you want to represent C.A.R.E.N Alert in your city?</FormLabel>
                       <FormControl>
                         <Textarea {...field} rows={5} placeholder="Tell us about yourself, your community connections, and why this mission matters to you…"
                           className="bg-white/5 border-white/20 text-white placeholder:text-gray-500 resize-none" />
@@ -333,7 +333,7 @@ export default function DirectorApply() {
                       {contractAgreed && <CheckCircle className="w-3 h-3 text-black" />}
                     </div>
                     <span className="text-gray-300 text-sm leading-snug">
-                      I have read, understood, and agree to the C.A.R.E.N. Regional Director Independent Contractor Agreement (v1.0-2025). I understand I am an independent contractor and not an employee.
+                      I have read, understood, and agree to the C.A.R.E.N Alert Regional Director Independent Contractor Agreement (v1.0-2025). I understand I am an independent contractor and not an employee.
                     </span>
                   </label>
 
@@ -384,7 +384,7 @@ export default function DirectorApply() {
         </div>
 
         <p className="text-center text-gray-600 text-xs pb-8">
-          Your application and electronic signature are stored securely. C.A.R.E.N. LLC · Atlanta, GA
+          Your application and electronic signature are stored securely. C.A.R.E.N Alert LLC · Atlanta, GA
         </p>
       </div>
     </div>

@@ -12,13 +12,13 @@ export async function sendWelcomeEmail({ email, firstName, lastName }: WelcomeEm
   return sendEmail({
     to: email,
     from: 'info@carenalert.com',
-    fromName: 'C.A.R.E.N.™ Support Team',
-    subject: 'Welcome to C.A.R.E.N.™ - Your Legal Protection is Active',
-    text: `Welcome to C.A.R.E.N.™, ${userName}!
+    fromName: 'C.A.R.E.N Alert™ Support Team',
+    subject: 'Welcome to C.A.R.E.N Alert™ - Your Legal Protection is Active',
+    text: `Welcome to C.A.R.E.N Alert™, ${userName}!
 
 Your account has been successfully created and your legal protection is now active.
 
-C.A.R.E.N.™ (Citizen Assistance for Roadside Emergencies and Navigation) is here to protect you during traffic stops and emergency situations with:
+C.A.R.E.N Alert™ (Citizen Assistance for Roadside Emergencies and Navigation) is here to protect you during traffic stops and emergency situations with:
 
 ✓ GPS-enabled legal rights information for your location
 ✓ Voice-controlled emergency recording
@@ -35,14 +35,14 @@ Get started:
 Questions? Contact us at support@carenalert.com
 
 Stay safe and protected,
-The C.A.R.E.N.™ Team
+The C.A.R.E.N Alert™ Team
 
 ---
 This email was sent to ${email}. If you didn't create this account, please contact support@carenalert.com`,
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 40px 20px;">
       <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0; text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);">C.A.R.E.N.™</h1>
+        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0; text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);">C.A.R.E.N Alert™</h1>
         <p style="color: #94a3b8; font-size: 1.1rem; margin: 5px 0 0 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
       </div>
       <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
@@ -70,7 +70,7 @@ This email was sent to ${email}. If you didn't create this account, please conta
       </div>
       <div style="text-align: center; margin-top: 30px;">
         <p style="color: #00d4ff; font-weight: bold; margin: 0;">Stay Safe and Protected,</p>
-        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N.™ Team</p>
+        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N Alert™ Team</p>
       </div>
     </div>
     `,
@@ -83,22 +83,22 @@ export async function sendGoogleWelcomeEmail({ email, firstName }: WelcomeEmailP
   return sendEmail({
     to: email,
     from: 'info@carenalert.com',
-    fromName: 'C.A.R.E.N.™ Support Team',
-    subject: 'Welcome to C.A.R.E.N.™ - Google Account Connected Successfully',
-    text: `Welcome to C.A.R.E.N.™, ${userName}!
+    fromName: 'C.A.R.E.N Alert™ Support Team',
+    subject: 'Welcome to C.A.R.E.N Alert™ - Google Account Connected Successfully',
+    text: `Welcome to C.A.R.E.N Alert™, ${userName}!
 
 Your Google account has been successfully connected and your legal protection is now active.
 
-You can now sign in quickly using your Google account while enjoying all the protection features C.A.R.E.N.™ offers.
+You can now sign in quickly using your Google account while enjoying all the protection features C.A.R.E.N Alert™ offers.
 
 Access your dashboard: https://carenalert.com/dashboard
 
 Stay safe and protected,
-The C.A.R.E.N.™ Team`,
+The C.A.R.E.N Alert™ Team`,
     html: `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #ffffff; padding: 40px 20px;">
       <div style="text-align: center; margin-bottom: 40px;">
-        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0;">C.A.R.E.N.™</h1>
+        <h1 style="color: #00d4ff; font-size: 2.5rem; margin: 0;">C.A.R.E.N Alert™</h1>
         <p style="color: #94a3b8; font-size: 1.1rem; margin: 5px 0 0 0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
       </div>
       <div style="background: rgba(0, 212, 255, 0.1); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 12px; padding: 30px; margin-bottom: 30px;">
@@ -110,7 +110,7 @@ The C.A.R.E.N.™ Team`,
       </div>
       <div style="text-align: center; margin-top: 30px;">
         <p style="color: #00d4ff; font-weight: bold; margin: 0;">Stay Safe and Protected,</p>
-        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N.™ Team</p>
+        <p style="color: #94a3b8; margin: 5px 0 0 0;">The C.A.R.E.N Alert™ Team</p>
       </div>
     </div>
     `,
