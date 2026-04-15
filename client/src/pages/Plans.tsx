@@ -9,7 +9,7 @@ import iapService, { type PlanId } from "@/lib/iapService";
 const PLANS = [
   {
     id: "community_guardian" as PlanId,
-    productId: "com.caren.safetyapp.community_guardian",
+    productId: "com.caren.safetyapp.community_guardian_v2",
     name: "Community Guardian",
     price: "$0.99",
     period: "one-time",
@@ -32,7 +32,7 @@ const PLANS = [
   },
   {
     id: "standard_plan" as PlanId,
-    productId: "com.caren.safetyapp.standard_plan_monthly",
+    productId: "com.caren.safetyapp.standard_plan_monthly_v2",
     name: "Standard Plan",
     price: "$4.99",
     period: "/month",
@@ -56,7 +56,7 @@ const PLANS = [
   },
   {
     id: "legal_shield" as PlanId,
-    productId: "com.caren.safetyapp.legal_shield_monthly",
+    productId: "com.caren.safetyapp.legal_shield_monthly_v2",
     name: "Legal Shield",
     price: "$9.99",
     period: "/month",
@@ -81,7 +81,7 @@ const PLANS = [
   },
   {
     id: "family_plan" as PlanId,
-    productId: "com.caren.safetyapp.family_plan_monthly",
+    productId: "com.caren.safetyapp.family_plan_monthly_v2",
     name: "Family Plan",
     price: "$29.99",
     period: "/month",
@@ -106,7 +106,7 @@ const PLANS = [
   },
   {
     id: "fleet_enterprise" as PlanId,
-    productId: "com.caren.safetyapp.fleet_enterprise_monthly",
+    productId: "com.caren.safetyapp.fleet_enterprise_monthly_v2",
     name: "Fleet & Enterprise",
     price: "$49.99",
     period: "/month",

@@ -15,7 +15,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "com.caren.safetyapp.community_guardian",
+      "productID" : "com.caren.safetyapp.community_guardian_v2",
       "referenceName" : "Community Guardian",
       "type" : "NonConsumable"
     }
@@ -52,7 +52,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.standard_plan_monthly",
+          "productID" : "com.caren.safetyapp.standard_plan_monthly_v2",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Standard Plan Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
@@ -77,7 +77,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.legal_shield_monthly",
+          "productID" : "com.caren.safetyapp.legal_shield_monthly_v2",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Legal Shield Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
@@ -102,7 +102,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.family_plan_monthly",
+          "productID" : "com.caren.safetyapp.family_plan_monthly_v2",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Family Plan Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",
@@ -127,7 +127,7 @@
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.caren.safetyapp.fleet_enterprise_monthly",
+          "productID" : "com.caren.safetyapp.fleet_enterprise_monthly_v2",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Enterprise Fleet Monthly",
           "subscriptionGroupID" : "CAREN_LEGAL_PROTECTION",

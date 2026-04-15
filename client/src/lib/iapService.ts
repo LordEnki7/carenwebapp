@@ -25,12 +25,14 @@ export interface IAPTransaction {
 }
 
 // Map plan IDs to App Store product identifiers
+// NOTE: _v2 IDs used because original IDs were deleted in App Store Connect.
+// If Apple restores the originals, remove _v2 from all IDs here and in Plans.tsx + Products.storekit
 export const PRODUCT_IDS: Record<PlanId, string> = {
-  community_guardian:  "com.caren.safetyapp.community_guardian",
-  standard_plan:       "com.caren.safetyapp.standard_plan_monthly",
-  legal_shield:        "com.caren.safetyapp.legal_shield_monthly",
-  family_plan:         "com.caren.safetyapp.family_plan_monthly",
-  fleet_enterprise:    "com.caren.safetyapp.fleet_enterprise_monthly",
+  community_guardian:  "com.caren.safetyapp.community_guardian_v2",
+  standard_plan:       "com.caren.safetyapp.standard_plan_monthly_v2",
+  legal_shield:        "com.caren.safetyapp.legal_shield_monthly_v2",
+  family_plan:         "com.caren.safetyapp.family_plan_monthly_v2",
+  fleet_enterprise:    "com.caren.safetyapp.fleet_enterprise_monthly_v2",
 };
 
 // RevenueCat iOS public API key — set this once you have it from app.revenuecat.com
