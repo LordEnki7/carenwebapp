@@ -1,4 +1,4 @@
-import { Capacitor } from '@capacitor/core';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 
 export interface AppleSignInResult {
   identityToken: string;
@@ -9,10 +9,21 @@ export interface AppleSignInResult {
   user: string;
 }
 
-export async function signInWithApple(): Promise<AppleSignInResult> {
-  throw new Error('Sign in with Apple is only available on the iOS app. This feature will be enabled in a future iOS release.');
+interface AppleSignInPlugin {
+  signIn(): Promise<AppleSignInResult>;
 }
+
+const AppleSignIn = registerPlugin<AppleSignInPlugin>('AppleSignIn');
 
 export function isAppleSignInAvailable(): boolean {
   return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+}
+
+export async function signInWithApple(): Promise<AppleSignInResult> {
+  if (!isAppleSignInAvailable()) {
+    throw new Error('Sign in with Apple is only available on the iOS app.');
+  }
+
+  const result = await AppleSignIn.signIn();
+  return result;
 }
