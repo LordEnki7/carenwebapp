@@ -53,8 +53,8 @@ class InAppPurchaseService {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore — types resolved at runtime on native iOS
       const { Purchases, LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
-      await Purchases.setLogLevel({ level: LOG_LEVEL.ERROR });
-      await Purchases.configureWith({ apiKey: RC_IOS_API_KEY! });
+      await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
+      await Purchases.configure({ apiKey: RC_IOS_API_KEY! });
       this.rcModule = Purchases;
       this.initialized = true;
       console.log("[IAP] RevenueCat initialized");
