@@ -8,6 +8,35 @@ C.A.R.E.N.™ Alert is a comprehensive family protection platform offering GPS-e
 
 Preferred communication style: Simple, everyday language.
 
+## Feature Integrity Rules — NEVER VIOLATE THESE
+
+These rules exist because a previous agent silently replaced working Sign in with Apple code with a stub that threw a fake error, breaking an App Store-required feature without the user knowing.
+
+### 1. NEVER stub out or disable a working feature
+- If a feature is working, do NOT replace it with a `throw new Error(...)` placeholder
+- If a package is broken or missing, find a replacement — do not stub and move on
+- If something truly cannot be fixed, tell the user explicitly and get their approval before disabling it
+
+### 2. NEVER hide a broken feature with a misleading message
+- Error messages like "this feature will be enabled in a future release" must NEVER be silently hardcoded
+- If a feature doesn't work, the user must be told clearly — not deceived by a fake status message
+
+### 3. App Store required features are untouchable without explicit approval
+- **Sign in with Apple** is REQUIRED by App Store guidelines (Guideline 4.8) for any app offering social login
+- **In-app purchases** for digital goods must go through Apple's system — never bypass this
+- These features must ALWAYS be functional. Never stub, disable, or redirect them without explicit user approval
+
+### 4. Before removing or replacing any feature
+- Read the existing code and understand what it does
+- Tell the user what you're changing and why
+- Confirm the replacement works before removing the original
+
+### 5. Document any known limitations clearly in replit.md
+- If Sign in with Apple doesn't work on Simulator — document it here, don't hide it in the code
+- Known limitations: Sign in with Apple requires a real device (iOS Simulator blocks iCloud)
+
+---
+
 ## Deployment Policy — Pushing Code to carenalert.com
 
 > **Root cause of past failures:** Replit's checkpoint system commits code to Replit's own git branch but NEVER pushes to GitHub automatically. Dokploy watches GitHub, not Replit. So if you don't run the push command below, Dokploy keeps deploying old code forever — even when everything looks up-to-date in Replit.
