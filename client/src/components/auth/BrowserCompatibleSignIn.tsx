@@ -65,10 +65,21 @@ export default function BrowserCompatibleSignIn() {
     // browsers (including Firefox) detect the format without a <source> tag.
     // Calling play() on the same tick as setting src is valid; the browser
     // handles buffering internally and the promise resolves once playback starts.
+    // Pause any in-progress playback before switching src
+    if (!video.paused) video.pause();
+
     video.src = '/caren-hero.mp4';
     video.play()
       .then(() => setVideoState('playing'))
-      .catch(() => setVideoState('error'));
+      .catch((err) => {
+        // AbortError = play was interrupted by a rapid stop/start — not a real
+        // failure. Reset to idle so the user can click play again cleanly.
+        if (err?.name === 'AbortError') {
+          setVideoState('idle');
+        } else {
+          setVideoState('error');
+        }
+      });
   }, []);
 
   // New user onboarding state
