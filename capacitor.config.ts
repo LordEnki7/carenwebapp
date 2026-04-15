@@ -39,6 +39,7 @@ const config: CapacitorConfig = {
     }
   },
   ios: {
+    bundleIdentifier: 'com.caren.safetyapp',
     contentInset: 'automatic',
     backgroundColor: '#0a0a0f',
     allowsLinkPreview: false,
