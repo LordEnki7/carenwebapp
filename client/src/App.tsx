@@ -57,6 +57,8 @@ const RedirectToDashboard = () => {
   return null;
 };
 
+const Plans = lazy(() => import("@/pages/Plans"));
+const Payment = lazy(() => import("@/pages/Payment"));
 const Attorneys = lazy(() => import("@/pages/Attorneys"));
 const Messages = lazy(() => import("@/pages/Messages"));
 const Settings = lazy(() => import("@/pages/Settings"));
@@ -226,9 +228,9 @@ function Router() {
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/about" component={Landing} />
-            <Route path="/pricing" component={RedirectToDashboard} />
-            <Route path="/payment" component={RedirectToDashboard} />
-            <Route path="/plans" component={RedirectToDashboard} />
+            <Route path="/pricing" component={Plans} />
+            <Route path="/payment" component={Payment} />
+            <Route path="/plans" component={Plans} />
             <Route path="/help" component={Help} />
             <Route path="/rights" component={() => <Rights />} />
             <Route path="/admin" component={SimpleAdminDashboard} />
@@ -300,8 +302,8 @@ function Router() {
             <Route path="/attorney-matching" component={AttorneyMatching} />
             <Route path="/evidence-catalog" component={EvidenceCatalog} />
             <Route path="/accessibility" component={AccessibilityEnhancer} />
-            <Route path="/payment" component={RedirectToDashboard} />
-            <Route path="/plans" component={RedirectToDashboard} />
+            <Route path="/payment" component={Payment} />
+            <Route path="/plans" component={Plans} />
             <Route path="/admin" component={SimpleAdminDashboard} />
             <Route path="/load-test" component={LoadTestDashboard} />
             <Route path="/n8n-test" component={N8NTestDashboard} />
@@ -325,7 +327,7 @@ function Router() {
             <Route path="/social-agent" component={SocialMediaAgent} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
-            <Route path="/pricing" component={RedirectToDashboard} />
+            <Route path="/pricing" component={Plans} />
             <Route path="/help" component={Help} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />

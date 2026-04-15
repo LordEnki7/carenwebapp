@@ -1,11 +1,14 @@
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import { Shield, Zap, Users, Building, Star, Check, ArrowLeft, ExternalLink } from "lucide-react";
+import { Shield, Zap, Users, Building, Star, Check, ArrowLeft, ExternalLink, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Capacitor } from "@capacitor/core";
+import { useToast } from "@/hooks/use-toast";
+import iapService, { type PlanId } from "@/lib/iapService";
 
 const PLANS = [
   {
-    id: "community_guardian",
+    id: "community_guardian" as PlanId,
     productId: "com.caren.safetyapp.community_guardian",
     name: "Community Guardian",
     price: "$0.99",
@@ -28,7 +31,7 @@ const PLANS = [
     ctaClass: "bg-emerald-500 hover:bg-emerald-400 text-black",
   },
   {
-    id: "standard_plan",
+    id: "standard_plan" as PlanId,
     productId: "com.caren.safetyapp.standard_plan_monthly",
     name: "Standard Plan",
     price: "$4.99",
@@ -52,7 +55,7 @@ const PLANS = [
     ctaClass: "bg-cyan-500 hover:bg-cyan-400 text-black",
   },
   {
-    id: "legal_shield",
+    id: "legal_shield" as PlanId,
     productId: "com.caren.safetyapp.legal_shield_monthly",
     name: "Legal Shield",
     price: "$9.99",
@@ -77,7 +80,7 @@ const PLANS = [
     ctaClass: "bg-violet-500 hover:bg-violet-400 text-white",
   },
   {
-    id: "family_plan",
+    id: "family_plan" as PlanId,
     productId: "com.caren.safetyapp.family_plan_monthly",
     name: "Family Plan",
     price: "$29.99",
@@ -102,7 +105,7 @@ const PLANS = [
     ctaClass: "bg-orange-500 hover:bg-orange-400 text-black",
   },
   {
-    id: "fleet_enterprise",
+    id: "fleet_enterprise" as PlanId,
     productId: "com.caren.safetyapp.fleet_enterprise_monthly",
     name: "Fleet & Enterprise",
     price: "$49.99",
@@ -131,16 +134,71 @@ const PLANS = [
 
 export default function Plans() {
   const [, setLocation] = useLocation();
-  const isNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+  const { toast } = useToast();
+  const isIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+  const iapAvailable = iapService.isAvailable();
 
-  // iOS — no payment/subscriptions in this build. Redirect silently.
-  if (isNative) {
-    setLocation("/dashboard");
-    return null;
-  }
+  const [purchasing, setPurchasing] = useState<PlanId | null>(null);
+  const [restoring, setRestoring] = useState(false);
 
-  const handleSelect = async (planId: string) => {
-    setLocation(`/payment?plan=${planId}`);
+  useEffect(() => {
+    if (isIOS && iapAvailable) {
+      iapService.initialize().catch(console.error);
+    }
+  }, [isIOS, iapAvailable]);
+
+  const handleSelect = async (planId: PlanId) => {
+    if (!isIOS) {
+      // Web — use Stripe checkout
+      setLocation(`/payment?plan=${planId}`);
+      return;
+    }
+
+    if (!iapAvailable) {
+      // iOS but no RevenueCat key yet — show coming soon
+      toast({
+        title: "Subscriptions Coming Soon",
+        description: "In-app purchases will be available in the next update. Visit carenalert.com to subscribe.",
+      });
+      return;
+    }
+
+    setPurchasing(planId);
+    try {
+      const result = await iapService.purchase(planId);
+      if (result.success) {
+        toast({
+          title: "Welcome to C.A.R.E.N.™ Alert!",
+          description: "Your subscription is now active.",
+        });
+        setLocation("/dashboard");
+      } else if (result.error !== "cancelled") {
+        toast({
+          title: "Purchase Failed",
+          description: result.error || "Please try again.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setPurchasing(null);
+    }
+  };
+
+  const handleRestore = async () => {
+    if (!isIOS || !iapAvailable) return;
+    setRestoring(true);
+    try {
+      const restored = await iapService.restorePurchases();
+      toast({
+        title: restored ? "Purchases Restored" : "Nothing to Restore",
+        description: restored
+          ? "Your subscription has been restored."
+          : "No previous purchases found for your Apple ID.",
+      });
+      if (restored) setLocation("/dashboard");
+    } finally {
+      setRestoring(false);
+    }
   };
 
   return (
@@ -155,10 +213,22 @@ export default function Plans() {
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div>
+        <div className="flex-1">
           <h1 className="font-bold text-white text-base">Choose Your Plan</h1>
           <p className="text-xs text-gray-400">C.A.R.E.N.™ Alert Legal Protection</p>
         </div>
+        {isIOS && iapAvailable && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRestore}
+            disabled={restoring}
+            className="text-cyan-400 hover:text-cyan-300 text-xs gap-1.5"
+          >
+            {restoring ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
+            Restore
+          </Button>
+        )}
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
@@ -169,12 +239,17 @@ export default function Plans() {
             GPS-Enabled Legal Protection
           </div>
           <h2 className="text-2xl font-bold text-white">Know Your Rights.<br />Every Stop. Every State.</h2>
-          <p className="text-gray-400 text-sm">Cancel auto-renewable plans anytime from your Apple ID settings.</p>
+          <p className="text-gray-400 text-sm">
+            {isIOS
+              ? "Subscriptions managed through your Apple ID. Cancel anytime."
+              : "Cancel auto-renewable plans anytime from your account settings."}
+          </p>
         </div>
 
         {/* Plan Cards */}
         {PLANS.map((plan) => {
           const Icon = plan.icon;
+          const isPurchasing = purchasing === plan.id;
 
           return (
             <div
@@ -190,7 +265,7 @@ export default function Plans() {
               <div className="p-5 space-y-4">
                 {/* Plan header */}
                 <div className="flex items-start gap-3">
-                  <div className={`w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0`}>
+                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
                     <Icon className={`w-5 h-5 ${plan.iconColor}`} />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -213,17 +288,20 @@ export default function Plans() {
                   ))}
                 </ul>
 
-                {/* Product ID (for App Store reference) */}
-                <div className="flex items-center gap-1.5 bg-black/30 rounded-lg px-3 py-1.5">
-                  <span className="text-gray-500 text-xs font-mono">{plan.productId}</span>
-                </div>
-
                 {/* CTA */}
                 <Button
                   className={`w-full font-bold py-3 rounded-xl ${plan.ctaClass}`}
                   onClick={() => handleSelect(plan.id)}
+                  disabled={isPurchasing || !!purchasing}
                 >
-                  {isNative ? "Subscribe at carenalert.com" : plan.cta}
+                  {isPurchasing ? (
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Processing…
+                    </span>
+                  ) : (
+                    plan.cta
+                  )}
                 </Button>
               </div>
             </div>
@@ -238,7 +316,9 @@ export default function Plans() {
             {" "}and{" "}
             <a href="/privacy-policy" className="text-cyan-400 underline">Privacy Policy</a>.
           </p>
-          <p>Auto-renewable subscriptions are charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID Account Settings.</p>
+          {isIOS && (
+            <p>Auto-renewable subscriptions are charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID Account Settings.</p>
+          )}
           <a
             href="https://carenalert.com/terms-of-service"
             className="inline-flex items-center gap-1 text-cyan-400 underline"

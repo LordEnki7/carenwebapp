@@ -1,4 +1,11 @@
-export type PlanId = string;
+import { Capacitor } from "@capacitor/core";
+
+export type PlanId =
+  | "community_guardian"
+  | "standard_plan"
+  | "legal_shield"
+  | "family_plan"
+  | "fleet_enterprise";
 
 export interface IAPProduct {
   productId: string;
@@ -15,17 +22,104 @@ export interface IAPTransaction {
   originalTransactionId?: string;
   purchaseDate: string;
   expiresDate?: string;
-  jwsRepresentation?: string;
 }
 
+// Map plan IDs to App Store product identifiers
+export const PRODUCT_IDS: Record<PlanId, string> = {
+  community_guardian:  "com.caren.safetyapp.community_guardian",
+  standard_plan:       "com.caren.safetyapp.standard_plan_monthly",
+  legal_shield:        "com.caren.safetyapp.legal_shield_monthly",
+  family_plan:         "com.caren.safetyapp.family_plan_monthly",
+  fleet_enterprise:    "com.caren.safetyapp.fleet_enterprise_monthly",
+};
+
+// RevenueCat iOS public API key — set this once you have it from app.revenuecat.com
+// It looks like: appl_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+const RC_IOS_API_KEY = import.meta.env.VITE_REVENUECAT_IOS_API_KEY as string | undefined;
+
+const isIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
+
 class InAppPurchaseService {
-  isAvailable(): boolean { return false; }
-  getWebProducts(): IAPProduct[] { return []; }
-  async getProducts(): Promise<IAPProduct[]> { return []; }
-  async purchase(): Promise<IAPTransaction | null> { return null; }
-  async validateReceipt(): Promise<boolean> { return false; }
-  async restorePurchases(): Promise<IAPTransaction[]> { return []; }
-  async getCurrentSubscription(): Promise<IAPTransaction | null> { return null; }
+  private rcModule: any = null;
+  private initialized = false;
+
+  isAvailable(): boolean {
+    return isIOS && !!RC_IOS_API_KEY;
+  }
+
+  async initialize(): Promise<void> {
+    if (!this.isAvailable() || this.initialized) return;
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore — types resolved at runtime on native iOS
+      const { Purchases, LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
+      await Purchases.setLogLevel({ level: LOG_LEVEL.ERROR });
+      await Purchases.configureWith({ apiKey: RC_IOS_API_KEY! });
+      this.rcModule = Purchases;
+      this.initialized = true;
+      console.log("[IAP] RevenueCat initialized");
+    } catch (err) {
+      console.error("[IAP] RevenueCat initialization failed:", err);
+    }
+  }
+
+  async getOfferings(): Promise<any> {
+    if (!this.rcModule) await this.initialize();
+    if (!this.rcModule) return null;
+    const { current } = await this.rcModule.getOfferings();
+    return current;
+  }
+
+  async purchase(planId: PlanId): Promise<{ success: boolean; error?: string }> {
+    if (!this.rcModule) await this.initialize();
+    if (!this.rcModule) {
+      return { success: false, error: "Purchases not available on this device" };
+    }
+
+    try {
+      const offerings = await this.getOfferings();
+      if (!offerings) return { success: false, error: "Could not load products" };
+
+      const productId = PRODUCT_IDS[planId];
+      const pkg = offerings.availablePackages?.find(
+        (p: any) => p.product?.identifier === productId
+      );
+
+      if (!pkg) return { success: false, error: "Product not found" };
+
+      await this.rcModule.purchasePackage({ aPackage: pkg });
+      return { success: true };
+    } catch (err: any) {
+      if (err?.code === "1" || err?.userCancelled) {
+        return { success: false, error: "cancelled" };
+      }
+      return { success: false, error: err?.message || "Purchase failed" };
+    }
+  }
+
+  async isSubscribed(): Promise<boolean> {
+    if (!this.rcModule) await this.initialize();
+    if (!this.rcModule) return false;
+    try {
+      const { customerInfo } = await this.rcModule.getCustomerInfo();
+      const entitlements = customerInfo?.entitlements?.active ?? {};
+      return Object.keys(entitlements).length > 0;
+    } catch {
+      return false;
+    }
+  }
+
+  async restorePurchases(): Promise<boolean> {
+    if (!this.rcModule) await this.initialize();
+    if (!this.rcModule) return false;
+    try {
+      const { customerInfo } = await this.rcModule.restorePurchases();
+      const entitlements = customerInfo?.entitlements?.active ?? {};
+      return Object.keys(entitlements).length > 0;
+    } catch {
+      return false;
+    }
+  }
 }
 
 export const iapService = new InAppPurchaseService();
