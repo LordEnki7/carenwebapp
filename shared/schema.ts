@@ -42,6 +42,8 @@ export const users = pgTable("users", {
   agreedToTerms: boolean("agreed_to_terms").default(false),
   termsAgreedAt: timestamp("terms_agreed_at"),
   directorRef: varchar("director_ref", { length: 20 }), // director referral code used at signup
+  passwordResetToken: varchar("password_reset_token"),
+  passwordResetExpiry: timestamp("password_reset_expiry"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -58,6 +58,7 @@ const RedirectToDashboard = () => {
 };
 
 const Plans = lazy(() => import("@/pages/Plans"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Payment = lazy(() => import("@/pages/Payment"));
 const Attorneys = lazy(() => import("@/pages/Attorneys"));
 const Messages = lazy(() => import("@/pages/Messages"));
@@ -243,6 +244,7 @@ function Router() {
             <Route path="/director-invite/:token" component={DirectorInvite} />
             <Route path="/director-playbook" component={DirectorPlaybook} />
             <Route path="/find-attorney" component={AttorneyDirectory} />
+            <Route path="/reset-password" component={ResetPassword} />
 
             {/* Catch-all route - redirect all other routes to sign in for unauthenticated users */}
             <Route path="*" component={() => {

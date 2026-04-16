@@ -1074,39 +1074,107 @@ GUIDELINES:
   app.post('/api/auth/forgot-password', async (req: any, res) => {
     try {
       const { email } = req.body;
-      
       if (!email) {
-        return res.status(400).json({ 
-          success: false, 
-          message: "Email is required" 
-        });
+        return res.status(400).json({ success: false, message: "Email is required" });
       }
 
-      // Check if user exists
-      const storedUser = findUserByEmail(email);
-      
-      if (!storedUser) {
-        // For security, don't reveal if email exists
-        return res.json({ 
-          success: true, 
-          message: "If an account with this email exists, you will receive password reset instructions." 
-        });
+      const user = await storage.getUserByEmail(email.toLowerCase().trim());
+
+      // Always return success to prevent email enumeration
+      const successMsg = "If an account with that email exists, you will receive a password reset link shortly.";
+
+      if (!user || !user.password) {
+        // No account found, or account uses Google/Apple sign-in (no password to reset)
+        console.log(`[FORGOT_PW] No password account for ${email}`);
+        return res.json({ success: true, message: successMsg });
       }
 
-      // In production, generate secure reset token and send email
-      // For demo purposes, we'll return the current password
-      console.log(`Password reset requested for ${email}. Current password: ${storedUser.password}`);
-      
-      res.json({ 
-        success: true, 
-        message: "Password reset instructions have been sent to your email.",
-        // For demo only - remove in production
-        demoPassword: storedUser.password
+      // Generate a secure 64-char hex token
+      const crypto = await import('crypto');
+      const token = crypto.randomBytes(32).toString('hex');
+      const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      // Save token to database
+      await db.execute(
+        sql`UPDATE users SET password_reset_token = ${token}, password_reset_expiry = ${expiry} WHERE id = ${user.id}`
+      );
+
+      // Build reset link — works for both local dev and production
+      const baseUrl = process.env.NODE_ENV === 'production'
+        ? 'https://carenalert.com'
+        : `http://localhost:${process.env.PORT || 5000}`;
+      const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
+      // Send email
+      const { sendEmail } = await import('./mailer');
+      const name = user.firstName || 'there';
+      await sendEmail({
+        to: user.email!,
+        subject: 'Reset Your C.A.R.E.N.™ Alert Password',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #0a0f1e; color: #e2e8f0; padding: 40px; border-radius: 12px;">
+            <div style="text-align: center; margin-bottom: 32px;">
+              <h1 style="color: #00d4ff; font-size: 24px; margin: 0;">C.A.R.E.N.™ Alert</h1>
+              <p style="color: #94a3b8; margin: 8px 0 0;">Your Roadside Guardian</p>
+            </div>
+            <h2 style="color: #ffffff; margin-bottom: 16px;">Password Reset Request</h2>
+            <p style="color: #cbd5e1; line-height: 1.6;">Hi ${name},</p>
+            <p style="color: #cbd5e1; line-height: 1.6;">We received a request to reset the password for your C.A.R.E.N.™ Alert account. Click the button below to choose a new password:</p>
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${resetLink}" style="background: #00d4ff; color: #000000; font-weight: bold; font-size: 16px; padding: 14px 32px; border-radius: 8px; text-decoration: none; display: inline-block;">Reset My Password</a>
+            </div>
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.6;">This link expires in <strong style="color: #ffffff;">1 hour</strong>. If you didn't request a password reset, you can safely ignore this email — your password will not be changed.</p>
+            <hr style="border: none; border-top: 1px solid #1e293b; margin: 32px 0;" />
+            <p style="color: #64748b; font-size: 12px; text-align: center;">C.A.R.E.N.™ Alert &mdash; Constitutional Rights & Emergency Network<br/>carenalert.com</p>
+          </div>
+        `,
       });
-      
+
+      console.log(`[FORGOT_PW] Reset email sent to ${email}`);
+      res.json({ success: true, message: successMsg });
+
     } catch (error) {
       console.error("Error during password reset:", error);
-      res.status(500).json({ message: "Password reset failed" });
+      res.status(500).json({ message: "Password reset failed. Please try again." });
+    }
+  });
+
+  app.post('/api/auth/reset-password', async (req: any, res) => {
+    try {
+      const { token, password } = req.body;
+      if (!token || !password) {
+        return res.status(400).json({ success: false, message: "Token and new password are required" });
+      }
+      if (password.length < 8) {
+        return res.status(400).json({ success: false, message: "Password must be at least 8 characters" });
+      }
+
+      // Look up token in database
+      const rows = await db.execute(
+        sql`SELECT id, password_reset_expiry FROM users WHERE password_reset_token = ${token} LIMIT 1`
+      );
+      const user = (rows as any).rows?.[0];
+
+      if (!user) {
+        return res.status(400).json({ success: false, message: "Invalid or expired reset link. Please request a new one." });
+      }
+      if (new Date(user.password_reset_expiry) < new Date()) {
+        return res.status(400).json({ success: false, message: "This reset link has expired. Please request a new one." });
+      }
+
+      // Hash the new password and clear the token
+      const bcrypt = await import('bcryptjs');
+      const hashedPassword = await bcrypt.hash(password, 12);
+      await db.execute(
+        sql`UPDATE users SET password = ${hashedPassword}, password_reset_token = NULL, password_reset_expiry = NULL WHERE id = ${user.id}`
+      );
+
+      console.log(`[RESET_PW] Password updated for user ${user.id}`);
+      res.json({ success: true, message: "Your password has been reset. You can now sign in with your new password." });
+
+    } catch (error) {
+      console.error("Error resetting password:", error);
+      res.status(500).json({ message: "Failed to reset password. Please try again." });
     }
   });
 
