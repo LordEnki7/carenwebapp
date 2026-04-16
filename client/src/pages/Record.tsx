@@ -42,6 +42,9 @@ export default function Record() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
+  const [isInIframe] = useState(() => {
+    try { return window.self !== window.top; } catch { return true; }
+  });
   const [isEmergencyMode, setIsEmergencyMode] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingType, setRecordingType] = useState<'audio' | 'video'>('audio');
@@ -330,9 +333,17 @@ export default function Record() {
       setRecordingDuration(0);
       setIsRecording(false);
       
-      // Check if browser supports getUserMedia
+      // Check if browser supports getUserMedia.
+      // Common cause of failure: page is inside an iframe (e.g. Replit preview panel).
+      // Browsers block camera/mic in iframes by default for security.
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error('Your browser does not support media recording. Please use a modern browser like Chrome, Firefox, or Safari.');
+        const isInIframe = window.self !== window.top;
+        if (isInIframe) {
+          throw new Error(
+            'IFRAME_BLOCK: Recording requires camera/microphone access, which browsers block inside preview panels. Open the app directly in a browser tab to record.'
+          );
+        }
+        throw new Error('Your browser does not support media recording. Please use Chrome, Firefox, or Safari.');
       }
       
       // Detect iOS native app — WKWebView has strict MediaRecorder limitations
@@ -474,8 +485,16 @@ export default function Record() {
       
       let errorMessage = "Failed to start recording";
       if (error instanceof Error) {
-        if (error.name === 'NotAllowedError') {
-          errorMessage = "Camera/microphone access denied. Please allow permissions and try again.";
+        if (error.message.startsWith('IFRAME_BLOCK:')) {
+          // Special case: page is in an iframe (e.g. Replit preview) — browsers block media access
+          toast({
+            title: "Open in Browser Tab to Record",
+            description: "Camera and microphone are blocked in preview panels. Click the ↗ icon to open C.A.R.E.N. in a full browser tab, then try recording.",
+            variant: "destructive",
+          });
+          return;
+        } else if (error.name === 'NotAllowedError') {
+          errorMessage = "Camera/microphone access denied. Please allow permissions in your browser and try again.";
         } else if (error.name === 'NotFoundError') {
           errorMessage = "No camera or microphone found. Please connect a device and try again.";
         } else if (error.name === 'NotReadableError') {
@@ -837,6 +856,25 @@ export default function Record() {
         <div className="p-6">
           <div className="container mx-auto px-6 py-8">
             <div className="max-w-4xl mx-auto space-y-6">
+            {/* Iframe warning — shown when camera/mic access is blocked */}
+            {isInIframe && (
+              <div className="flex items-center gap-3 bg-amber-500/15 border border-amber-500/40 rounded-xl px-4 py-3 text-amber-200 text-sm">
+                <span className="text-xl flex-shrink-0">⚠️</span>
+                <div className="flex-1">
+                  <p className="font-semibold text-amber-100">Camera & microphone blocked in this preview</p>
+                  <p className="text-amber-300 text-xs mt-0.5">
+                    Browsers block recording access inside preview panels. Open the app in a full browser tab to record.
+                  </p>
+                </div>
+                <button
+                  onClick={() => window.open(window.location.href, '_blank')}
+                  className="flex-shrink-0 bg-amber-500/30 hover:bg-amber-500/50 border border-amber-400/50 text-amber-100 text-xs font-semibold px-3 py-1.5 rounded-lg transition-all"
+                >
+                  Open in Tab ↗
+                </button>
+              </div>
+            )}
+
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>

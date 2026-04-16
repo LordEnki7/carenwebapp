@@ -148,6 +148,19 @@ export default function MobileNavigation() {
               <p className="text-white/50 text-xs font-medium uppercase tracking-widest">Navigation</p>
             </div>
 
+            {/* Plans & Pricing — always pinned at the top of the drawer */}
+            <div className="px-4 pt-3">
+              <Link href="/plans" onClick={() => setIsOpen(false)}>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/40 hover:border-cyan-400/70 transition-all cursor-pointer">
+                  <CreditCard size={18} className="text-cyan-400 flex-shrink-0" />
+                  <div>
+                    <p className="text-sm font-bold text-cyan-300">Plans & Pricing</p>
+                    <p className="text-xs text-gray-400">View & upgrade your plan</p>
+                  </div>
+                </div>
+              </Link>
+            </div>
+
             <div className="p-4 space-y-2 pb-36">
               {navGroups.map(group => (
                 <div key={group.id}>

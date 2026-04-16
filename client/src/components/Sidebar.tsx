@@ -336,6 +336,19 @@ export default function Sidebar() {
         })}
       </nav>
 
+      {/* Plans & Pricing — always visible above user footer */}
+      <div className="px-3 pb-2 flex-shrink-0">
+        <Link href="/plans">
+          <div className="flex items-center space-x-2 px-3 py-2.5 rounded-lg bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/40 hover:border-cyan-400/70 transition-all cursor-pointer group">
+            <CreditCard className="w-4 h-4 text-cyan-400 group-hover:text-cyan-300 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-cyan-300 group-hover:text-cyan-200">Plans & Pricing</p>
+              <p className="text-xs text-gray-400">Upgrade your plan</p>
+            </div>
+          </div>
+        </Link>
+      </div>
+
       <div className="border-t border-cyan-500/20 p-4 flex-shrink-0 bg-gradient-to-r from-slate-900/90 to-slate-800/90">
         <div className="flex items-center space-x-3">
           <Avatar className="w-11 h-11 border-2 border-cyan-400 shadow-lg">
@@ -359,21 +372,16 @@ export default function Sidebar() {
               {(user as any)?.email}
             </p>
           </div>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowLogoutConfirm(true)}
-                className="text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/20 p-2 rounded-lg transition-all"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Logout</p>
-            </TooltipContent>
-          </Tooltip>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setShowLogoutConfirm(true)}
+            className="flex items-center gap-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/20 px-2 py-1.5 rounded-lg transition-all border border-red-500/30 hover:border-red-400/50"
+            title="Sign Out"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="text-xs font-medium">Sign Out</span>
+          </Button>
         </div>
       </div>
 
