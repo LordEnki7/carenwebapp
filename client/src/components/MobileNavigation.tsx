@@ -4,7 +4,7 @@ import {
   Car, VideoIcon, VolumeX, Zap, Map, FileText, UserCheck, Scale,
   MessageCircle, Wrench, Brain, Cloud, Sliders, MessageSquarePlus,
   ClipboardList, HelpCircle, Monitor, LifeBuoy, ChevronDown, ChevronRight,
-  Lock, Search
+  Lock, Search, CreditCard
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useAuth, performLogout } from '@/hooks/useAuth';
@@ -73,6 +73,7 @@ const navGroups = [
     borderColor: 'border-green-500/30',
     bgColor: 'bg-green-500/10',
     items: [
+      { name: 'Plans & Pricing', href: '/plans', icon: CreditCard },
       { name: 'Settings', href: '/settings', icon: Settings },
       { name: 'Account Security', href: '/account-security', icon: Lock },
       { name: 'Help', href: '/help', icon: HelpCircle },
@@ -143,7 +144,7 @@ export default function MobileNavigation() {
               <p className="text-white/50 text-xs font-medium uppercase tracking-widest">Navigation</p>
             </div>
 
-            <div className="p-4 space-y-2 pb-24">
+            <div className="p-4 space-y-2 pb-36">
               {navGroups.map(group => (
                 <div key={group.id}>
                   {/* Group header */}
