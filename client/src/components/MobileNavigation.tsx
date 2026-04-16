@@ -74,7 +74,6 @@ const navGroups = [
     borderColor: 'border-green-500/30',
     bgColor: 'bg-green-500/10',
     items: [
-      { name: 'Plans & Pricing', href: '/plans', icon: CreditCard },
       { name: 'Settings', href: '/settings', icon: Settings },
       { name: 'Account Security', href: '/account-security', icon: Lock },
       { name: 'Help', href: '/help', icon: HelpCircle },
@@ -83,11 +82,11 @@ const navGroups = [
 ];
 
 const bottomNavItems = [
-  { icon: Home, label: 'Home', path: '/' },
+  { icon: Home,          label: 'Home',      path: '/' },
   { icon: AlertTriangle, label: 'Emergency', path: '/emergency-pullover' },
-  { icon: Shield, label: 'Rights', path: '/rights' },
-  { icon: UserCheck, label: 'Attorneys', path: '/attorneys' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: Shield,        label: 'Rights',    path: '/rights' },
+  { icon: UserCheck,     label: 'Attorneys', path: '/attorneys' },
+  { icon: CreditCard,    label: 'Plans',     path: '/plans' },
 ];
 
 export default function MobileNavigation() {
@@ -133,38 +132,26 @@ export default function MobileNavigation() {
         </div>
       </div>
 
-      {/* Full slide-out menu — z-50 so it sits ABOVE the bottom nav bar (z-40) */}
+      {/* Full slide-out menu */}
       {isOpen && (
         <div
           className="md:hidden fixed inset-0 z-50 bg-black/60"
           onClick={() => setIsOpen(false)}
         >
+          {/* Drawer — uses flex column so Sign Out sticks to the bottom */}
           <div
-            className="fixed left-0 top-0 bottom-0 w-80 bg-gray-900/98 backdrop-blur-lg border-r border-cyan-500/30 overflow-y-auto z-50"
+            className="fixed left-0 top-0 bottom-0 w-80 bg-gray-900/98 backdrop-blur-lg border-r border-cyan-500/30 flex flex-col z-50"
             onClick={e => e.stopPropagation()}
           >
-            {/* Logo area */}
-            <div className="p-5 mt-16 border-b border-white/10">
+            {/* Drawer header */}
+            <div className="p-5 mt-16 border-b border-white/10 flex-shrink-0">
               <p className="text-white/50 text-xs font-medium uppercase tracking-widest">Navigation</p>
             </div>
 
-            {/* Plans & Pricing — always pinned at the top of the drawer */}
-            <div className="px-4 pt-3">
-              <Link href="/plans" onClick={() => setIsOpen(false)}>
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/40 hover:border-cyan-400/70 transition-all cursor-pointer">
-                  <CreditCard size={18} className="text-cyan-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-sm font-bold text-cyan-300">Plans & Pricing</p>
-                    <p className="text-xs text-gray-400">View & upgrade your plan</p>
-                  </div>
-                </div>
-              </Link>
-            </div>
-
-            <div className="p-4 space-y-2 pb-36">
+            {/* Scrollable nav groups */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {navGroups.map(group => (
                 <div key={group.id}>
-                  {/* Group header */}
                   <button
                     onClick={() => toggleGroup(group.id)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-lg mb-1 ${group.bgColor} border ${group.borderColor}`}
@@ -178,7 +165,6 @@ export default function MobileNavigation() {
                     }
                   </button>
 
-                  {/* Group items */}
                   {openGroups[group.id] && (
                     <div className="space-y-0.5 mb-2">
                       {group.items.map(item => {
@@ -191,7 +177,7 @@ export default function MobileNavigation() {
                             onClick={() => setIsOpen(false)}
                             className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all touch-friendly ${
                               active
-                                ? `bg-cyan-500/20 text-cyan-300 border border-cyan-500/30`
+                                ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
                                 : 'text-gray-300 hover:text-white hover:bg-gray-800/50'
                             }`}
                           >
@@ -204,15 +190,29 @@ export default function MobileNavigation() {
                   )}
                 </div>
               ))}
+            </div>
+
+            {/* ── STICKY FOOTER — always visible, no scrolling needed ── */}
+            <div className="flex-shrink-0 border-t border-white/10 p-3 space-y-2 bg-gray-900/98">
+              {/* Plans & Pricing */}
+              <Link href="/plans" onClick={() => setIsOpen(false)}>
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/50 hover:border-cyan-400 transition-all cursor-pointer">
+                  <CreditCard size={20} className="text-cyan-400 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-sm font-bold text-cyan-300">Plans &amp; Pricing</p>
+                    <p className="text-xs text-gray-400">View &amp; upgrade your plan</p>
+                  </div>
+                </div>
+              </Link>
 
               {/* Sign Out */}
               {isAuthenticated && (
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-red-300 hover:text-red-200 hover:bg-red-500/10 border border-red-500/30 mt-4 transition-all touch-friendly"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-300 hover:text-red-200 bg-red-500/10 hover:bg-red-500/20 border border-red-500/40 hover:border-red-400 transition-all touch-friendly"
                 >
-                  <LogOut size={18} />
-                  <span className="font-medium text-sm">Sign Out</span>
+                  <LogOut size={20} className="flex-shrink-0" />
+                  <span className="font-bold text-sm">Sign Out</span>
                 </button>
               )}
             </div>
@@ -220,7 +220,7 @@ export default function MobileNavigation() {
         </div>
       )}
 
-      {/* Bottom tab bar — 5 quick-access items */}
+      {/* Bottom tab bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-900/95 backdrop-blur-lg border-t border-cyan-500/30 mobile-nav">
         <div className="flex justify-around items-center py-1 px-1 ios-safe-area">
           {bottomNavItems.map(item => {
@@ -230,11 +230,12 @@ export default function MobileNavigation() {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`flex flex-col items-center px-4 py-1.5 rounded-lg transition-all touch-friendly ${
+                className={`flex flex-col items-center px-3 py-1.5 rounded-lg transition-all touch-friendly ${
                   active ? 'text-cyan-400' : 'text-gray-400 hover:text-white'
                 }`}
               >
                 <Icon size={18} />
+                <span className="text-[10px] mt-0.5 font-medium">{item.label}</span>
               </Link>
             );
           })}
