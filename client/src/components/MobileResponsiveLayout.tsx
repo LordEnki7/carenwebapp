@@ -32,7 +32,7 @@ function MobileResponsiveLayout({ children, disableTransitions = false }: Mobile
       <div className={`
         ${!disableTransitions ? 'transition-all duration-300' : ''}
         ${isMobile 
-          ? 'pt-16 pb-20 px-4 mobile-responsive' 
+          ? 'pt-16 pb-10 px-4 mobile-responsive' 
           : 'pl-72 p-8'
         }
         ${isMobile ? 'mobile-text-adjust' : ''}
