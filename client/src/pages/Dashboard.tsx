@@ -252,7 +252,7 @@ export default function Dashboard() {
 
 
         {/* EMERGENCY PRIORITY SECTION - Always at Top */}
-            <div className={`cyber-card p-6 border-4 animate-fade-in-up ${
+            <div className={`cyber-card p-3 sm:p-6 border-4 animate-fade-in-up ${
               systemStatus.emergency ? 
               'border-red-500 bg-red-900/50 shadow-red-500/30 shadow-lg' : 
               'border-red-400 bg-red-900/20'
@@ -261,111 +261,98 @@ export default function Dashboard() {
               {/* BIG HERO BUTTON — PRIMARY CTA */}
               <button
                 onClick={() => window.location.href = '/emergency-pullover'}
-                className="w-full mb-5 py-6 px-4 rounded-2xl font-black text-2xl md:text-3xl tracking-widest uppercase text-white bg-red-600 hover:bg-red-500 active:bg-red-700 border-4 border-white shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:shadow-[0_0_50px_rgba(239,68,68,0.9)] transition-all duration-200 animate-emergency-pulse flex items-center justify-center gap-4"
+                className="w-full mb-4 py-7 px-2 rounded-2xl font-black text-xl sm:text-3xl tracking-widest uppercase text-white bg-red-600 hover:bg-red-500 active:bg-red-700 border-4 border-white shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:shadow-[0_0_50px_rgba(239,68,68,0.9)] transition-all duration-200 animate-emergency-pulse text-center leading-tight"
               >
-                <span className="text-3xl">🚔</span>
-                I'M BEING PULLED OVER
-                <span className="text-3xl">🚔</span>
+                <div className="flex items-center justify-center gap-2 sm:gap-4">
+                  <span className="text-2xl sm:text-3xl">🚔</span>
+                  <span>I'M BEING<br className="sm:hidden" /> PULLED OVER</span>
+                  <span className="text-2xl sm:text-3xl">🚔</span>
+                </div>
               </button>
 
-              {/* Emergency Quick Actions */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+              {/* Emergency Quick Actions — 2 columns on mobile, 4 on desktop */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-3">
                 <button 
                   onClick={() => window.location.href = '/record'}
-                  className={`p-4 rounded-lg font-bold transition-all duration-200 ${
-                    systemStatus.emergency ?
-                    'bg-red-600 text-white border-2 border-white hover:bg-red-500 text-lg shadow-lg' :
-                    'bg-red-600 text-white hover:bg-red-700'
-                  } hover:scale-105`}
+                  className="p-3 sm:p-4 rounded-xl font-bold text-sm sm:text-base bg-red-600 text-white hover:bg-red-700 active:bg-red-800 transition-all duration-200 flex flex-col items-center gap-1"
                 >
-                  📹 START RECORDING
+                  <span className="text-xl">📹</span>
+                  <span>START RECORDING</span>
                 </button>
                 <button 
                   onClick={() => window.location.href = '/attorneys'}
-                  className={`p-4 rounded-lg font-bold transition-all duration-200 ${
-                    systemStatus.emergency ?
-                    'bg-red-600 text-white border-2 border-white hover:bg-red-500 text-lg shadow-lg' :
-                    'bg-red-600 text-white hover:bg-red-700'
-                  } hover:scale-105`}
+                  className="p-3 sm:p-4 rounded-xl font-bold text-sm sm:text-base bg-red-600 text-white hover:bg-red-700 active:bg-red-800 transition-all duration-200 flex flex-col items-center gap-1"
                 >
-                  👨‍💼 CONTACT ATTORNEY
+                  <span className="text-xl">👨‍💼</span>
+                  <span>ATTORNEY</span>
                 </button>
                 <button 
                   onClick={() => window.location.href = '/legal-rights'}
-                  className={`p-4 rounded-lg font-bold transition-all duration-200 ${
-                    systemStatus.emergency ?
-                    'bg-red-600 text-white border-2 border-white hover:bg-red-500 text-lg shadow-lg' :
-                    'bg-red-600 text-white hover:bg-red-700'
-                  } hover:scale-105`}
+                  className="p-3 sm:p-4 rounded-xl font-bold text-sm sm:text-base bg-red-600 text-white hover:bg-red-700 active:bg-red-800 transition-all duration-200 flex flex-col items-center gap-1"
                 >
-                  ⚖️ MY LEGAL RIGHTS
+                  <span className="text-xl">⚖️</span>
+                  <span>MY RIGHTS</span>
                 </button>
                 <button
                   onClick={handleTestEmergencyMode}
-                  className={`p-4 rounded-lg font-bold transition-all duration-200 ${
+                  className={`p-3 sm:p-4 rounded-xl font-bold text-sm sm:text-base transition-all duration-200 flex flex-col items-center gap-1 ${
                     systemStatus.emergency ?
-                    'bg-blue-600 text-white hover:bg-blue-700 border-2 border-white' :
-                    'bg-orange-600 text-white hover:bg-orange-700 animate-pulse'
+                    'bg-blue-600 text-white hover:bg-blue-700' :
+                    'bg-orange-600 text-white hover:bg-orange-700'
                   }`}
                 >
-                  {systemStatus.emergency ? '✓ EXIT EMERGENCY' : '🚨 EMERGENCY MODE'}
+                  <span className="text-xl">{systemStatus.emergency ? '✓' : '🚨'}</span>
+                  <span>{systemStatus.emergency ? 'EXIT MODE' : 'EMERGENCY'}</span>
                 </button>
               </div>
 
               {/* Emergency Contact Info */}
               {systemStatus.emergency && (
                 <div className="bg-red-800 p-3 rounded-lg border border-red-500">
-                  <p className="text-white text-center text-sm font-bold">
-                    📞 Emergency contacts notified • 📍 GPS location shared • 🎥 Auto-recording enabled
+                  <p className="text-white text-center text-xs font-bold">
+                    📞 Contacts notified • 📍 GPS shared • 🎥 Recording enabled
                   </p>
                 </div>
               )}
 
-              {/* Push Alerts Toggle */}
-              <div className="mt-2 flex items-center justify-center">
+              {/* Push Alerts Toggle + Voice hint row */}
+              <div className="mt-2 flex items-center justify-between gap-2">
                 <button
                   onClick={() => enablePushNotifications()}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium border transition-all ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${
                     isPushEnabled
                       ? 'bg-green-900/40 border-green-600/40 text-green-300'
                       : 'bg-slate-800/60 border-slate-600/40 text-slate-400 hover:border-cyan-500/50 hover:text-cyan-300'
                   }`}
                 >
-                  {isPushEnabled ? <Bell className="w-3.5 h-3.5" /> : <BellOff className="w-3.5 h-3.5" />}
-                  {isPushEnabled ? 'Push Alerts Active' : 'Enable Push Alerts'}
+                  {isPushEnabled ? <Bell className="w-3 h-3" /> : <BellOff className="w-3 h-3" />}
+                  {isPushEnabled ? 'Alerts On' : 'Enable Alerts'}
                 </button>
-              </div>
-
-              {/* Voice Activation Instructions */}
-              <div className="mt-3 p-3 rounded-lg bg-red-950/50 border border-red-600/30">
-                <p className="text-red-300 text-center text-xs">
-                  🎤 <strong>VOICE COMMANDS:</strong> Say "EMERGENCY ACTIVATION" or "START RECORDING" for hands-free protection
+                <p className="text-red-300/70 text-xs text-right">
+                  🎤 Say "EMERGENCY ACTIVATION"
                 </p>
               </div>
             </div>
 
             {/* Dashboard Header */}
-            <div className="cyber-card p-6 animate-fade-in-up">
-              <div className="flex items-center justify-between">
-                <div className="space-y-4">
-                  <h1 className={`cyber-title text-4xl ${
+            <div className="cyber-card p-4 sm:p-6 animate-fade-in-up">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h1 className={`cyber-title text-2xl sm:text-4xl ${
                     systemStatus.emergency ? 'text-red-400' : ''
                   }`}>
-                    {systemStatus.emergency ? 'EMERGENCY PROTECTION' : 'WELCOME TO C.A.R.E.N.™ Alert'}
+                    {systemStatus.emergency ? 'EMERGENCY PROTECTION' : 'WELCOME TO C.A.R.E.N.™'}
                   </h1>
-                  <p className="text-cyan-300 text-lg font-medium">
-                    {systemStatus.emergency ? 'Emergency mode active - All systems ready' : 'Citizen Assistance for Roadside Emergencies and Navigation'}
+                  <p className="text-cyan-300 text-sm sm:text-lg font-medium mt-1">
+                    {systemStatus.emergency ? 'Emergency mode active — All systems ready' : 'Citizen Assistance for Roadside Emergencies'}
                   </p>
                 </div>
-                <div className="flex items-center gap-4">
-                  {/* Language Selector */}
-                  <div className="min-w-[200px]">
-                    <LanguageSelector 
-                      currentLanguage={user?.preferredLanguage || 'en'} 
-                      compact={false}
-                      showLabel={false}
-                    />
-                  </div>
+                <div className="flex-shrink-0">
+                  <LanguageSelector 
+                    currentLanguage={user?.preferredLanguage || 'en'} 
+                    compact={true}
+                    showLabel={false}
+                  />
                 </div>
               </div>
             </div>
@@ -373,81 +360,51 @@ export default function Dashboard() {
             {/* Smart Contextual Intelligence */}
             <SmartContextualUI className="animate-fade-in-up" />
 
-            {/* Smart Visual Feedback Status Bar */}
-            <div className="cyber-card p-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-6">
-                  {/* GPS Status with Visual Feedback */}
-                  <div className="flex items-center space-x-2">
-                    <div className={`gps-indicator ${systemStatus.gps}`}>
-                      <Satellite className={`w-4 h-4 gps-icon ${systemStatus.gps === 'searching' ? 'text-yellow-400' : systemStatus.gps === 'connected' ? 'text-cyan-400' : 'text-red-400'}`} />
-                    </div>
-                    <span className="text-sm text-cyan-300">
-                      GPS {systemStatus.gps === 'connected' ? 'Connected' : systemStatus.gps === 'searching' ? 'Searching...' : 'Disconnected'}
-                    </span>
-                  </div>
-
-                  {/* Bluetooth Hands-Free Status */}
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${handsFreeStatus.isConnected ? 'bg-cyan-400 animate-pulse-custom' : 'bg-gray-400'}`}></div>
-                    {handsFreeStatus.isConnected ? (
-                      <BluetoothConnected className={`w-4 h-4 text-cyan-400`} />
-                    ) : (
-                      <Bluetooth className={`w-4 h-4 text-cyan-400`} />
-                    )}
-                    <span className="text-sm text-cyan-300 font-medium">
-                      {isBluetoothAvailable ? (
-                        handsFreeStatus.isConnected 
-                          ? `${connectedDevice?.name?.substring(0, 10) || 'Connected'}` 
-                          : 'Bluetooth Ready'
-                      ) : 'Bluetooth Off'}
-                    </span>
-                  </div>
-
-                  {/* Connection Strength Indicator */}
-                  <div className="flex items-center space-x-2">
-                    <div className="connection-strength">
-                      <div className={`connection-bar ${systemStatus.gps === 'connected' ? 'active' : ''}`}></div>
-                      <div className={`connection-bar ${systemStatus.gps === 'connected' ? 'active' : ''}`}></div>
-                      <div className={`connection-bar ${systemStatus.gps === 'connected' ? 'active' : ''}`}></div>
-                      <div className={`connection-bar ${systemStatus.gps === 'connected' ? 'active' : ''}`}></div>
-                    </div>
-                    <span className="text-sm text-cyan-300">Signal Strong</span>
-                  </div>
-
-                  {/* Attorney Availability */}
-                  <div className="flex items-center space-x-2">
-                    <div className="attorney-status available">
-                      <Users className="w-4 h-4 text-cyan-400" />
-                    </div>
-                    <span className="text-sm text-cyan-300">{systemStatus.attorneys} Attorneys Online</span>
-                  </div>
-
-                  {/* Voice Command Status */}
-                  <div className="flex items-center space-x-2">
-                    <div className={`w-3 h-3 rounded-full ${systemStatus.voiceActive ? 'bg-cyan-400 animate-pulse-custom' : 'bg-gray-500'}`}></div>
-                    <Mic className={`w-4 h-4 ${systemStatus.voiceActive ? 'text-cyan-400' : 'text-gray-400'}`} />
-                    <span className="text-sm text-cyan-300">Voice {systemStatus.voiceActive ? 'Active' : 'Ready'}</span>
-                  </div>
+            {/* Smart Visual Feedback Status Bar — wraps on mobile */}
+            <div className="cyber-card p-3 sm:p-4 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                {/* GPS */}
+                <div className="flex items-center gap-1.5">
+                  <Satellite className={`w-4 h-4 ${systemStatus.gps === 'connected' ? 'text-cyan-400' : systemStatus.gps === 'searching' ? 'text-yellow-400' : 'text-red-400'}`} />
+                  <span className="text-xs text-cyan-300">
+                    GPS {systemStatus.gps === 'connected' ? 'On' : systemStatus.gps === 'searching' ? 'Searching' : 'Off'}
+                  </span>
                 </div>
-                
-                {/* Recording Indicator */}
-                <div className="flex items-center space-x-3">
-                  {systemStatus.recording && (
-                    <div className="recording-indicator text-sm text-red-400 font-medium">
-                      <span>RECORDING</span>
-                      <div className="waveform-bars ml-2">
-                        <div className="waveform-bar"></div>
-                        <div className="waveform-bar"></div>
-                        <div className="waveform-bar"></div>
-                        <div className="waveform-bar"></div>
-                        <div className="waveform-bar"></div>
-                      </div>
-                    </div>
-                  )}
-                  <div className="text-sm text-cyan-300">
-                    Legal Protection Active
+
+                {/* Bluetooth */}
+                <div className="flex items-center gap-1.5">
+                  {handsFreeStatus.isConnected
+                    ? <BluetoothConnected className="w-4 h-4 text-cyan-400" />
+                    : <Bluetooth className="w-4 h-4 text-cyan-400" />}
+                  <span className="text-xs text-cyan-300">
+                    {handsFreeStatus.isConnected ? 'BT Connected' : 'Bluetooth'}
+                  </span>
+                </div>
+
+                {/* Attorneys */}
+                <div className="flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-cyan-400" />
+                  <span className="text-xs text-cyan-300">{systemStatus.attorneys} Attorneys</span>
+                </div>
+
+                {/* Voice */}
+                <div className="flex items-center gap-1.5">
+                  <Mic className={`w-4 h-4 ${systemStatus.voiceActive ? 'text-cyan-400' : 'text-gray-400'}`} />
+                  <span className="text-xs text-cyan-300">Voice {systemStatus.voiceActive ? 'Active' : 'Ready'}</span>
+                </div>
+
+                {/* Recording live indicator */}
+                {systemStatus.recording && (
+                  <div className="flex items-center gap-1.5 ml-auto">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-xs text-red-400 font-bold">RECORDING</span>
                   </div>
+                )}
+
+                {/* Legal protection badge */}
+                <div className="flex items-center gap-1.5 ml-auto">
+                  <div className="w-2 h-2 rounded-full bg-green-400" />
+                  <span className="text-xs text-green-300">Protection Active</span>
                 </div>
               </div>
             </div>
