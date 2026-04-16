@@ -126,6 +126,7 @@ const DirectorInvite = lazy(() => import("@/pages/DirectorInvite"));
 const DirectorPlaybook = lazy(() => import("@/pages/DirectorPlaybook"));
 const AttorneyDirectory = lazy(() => import("@/pages/AttorneyDirectory"));
 const SocialMediaAgent = lazy(() => import("@/pages/SocialMediaAgent"));
+const MobilePreview = lazy(() => import("@/pages/MobilePreview"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -245,6 +246,7 @@ function Router() {
             <Route path="/director-playbook" component={DirectorPlaybook} />
             <Route path="/find-attorney" component={AttorneyDirectory} />
             <Route path="/reset-password" component={ResetPassword} />
+            <Route path="/mobile-preview" component={MobilePreview} />
 
             {/* Catch-all route - redirect all other routes to sign in for unauthenticated users */}
             <Route path="*" component={() => {
@@ -331,6 +333,7 @@ function Router() {
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={Plans} />
             <Route path="/help" component={Help} />
+            <Route path="/mobile-preview" component={MobilePreview} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/tutorial" component={InteractiveTutorial} />
