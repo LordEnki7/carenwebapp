@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useEmergencyAlerts } from "@/hooks/useEmergencyAlerts";
-import { Car, MessageSquare, Video, Satellite, Signal, Mic, Users, MapPin, Wrench, Bluetooth, BluetoothConnected, VolumeX, Shield, Play, Copy, Gift, Bell, BellOff, AlertTriangle, X } from "lucide-react";
+import { Car, MessageSquare, Video, Satellite, Signal, Mic, Users, MapPin, Wrench, Bluetooth, BluetoothConnected, VolumeX, Shield, Play, Copy, Gift, Bell, BellOff, AlertTriangle, X, CreditCard, ChevronRight } from "lucide-react";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import SmartContextualUI from "@/components/SmartContextualUI";
 import { useBluetoothHandsFree } from "@/hooks/useBluetoothHandsFree";
@@ -201,6 +201,23 @@ export default function Dashboard() {
         
         {/* Demo Status Banner */}
         <DemoStatusBanner />
+
+        {/* Plans & Pricing — always visible */}
+        <button
+          onClick={() => setLocation('/plans')}
+          className="w-full flex items-center justify-between px-4 py-3 rounded-xl border border-cyan-500/40 bg-gradient-to-r from-cyan-900/30 to-purple-900/30 hover:from-cyan-900/50 hover:to-purple-900/50 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+              <CreditCard className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div className="text-left">
+              <p className="text-sm font-semibold text-white">Plans &amp; Pricing</p>
+              <p className="text-xs text-slate-400">View or upgrade your subscription</p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+        </button>
 
         {/* No Emergency Contacts Banner */}
         {hasNoContacts && (

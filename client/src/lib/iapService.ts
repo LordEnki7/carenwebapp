@@ -52,9 +52,10 @@ class InAppPurchaseService {
   async initialize(): Promise<void> {
     if (!this.isAvailable() || this.initialized) return;
     try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore — types resolved at runtime on native iOS
-      const { Purchases, LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
+      // Native-only import — hidden from Vite's static scanner via Function wrapper
+      // This ONLY executes on native iOS where RevenueCat is bundled by Capacitor
+      // eslint-disable-next-line no-new-func
+      const { Purchases, LOG_LEVEL } = await new Function('m', 'return import(m)')("@revenuecat/purchases-capacitor");
       await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
       await Purchases.configure({ apiKey: RC_IOS_API_KEY! });
       this.rcModule = Purchases;

@@ -46,6 +46,7 @@ import {
   Megaphone,
   Building2,
   Star,
+  CreditCard,
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
@@ -143,6 +144,7 @@ const navGroups: NavGroup[] = [
     activeColor: "text-green-300",
     headerColor: "text-green-300",
     items: [
+      { name: "Plans & Pricing", href: "/plans", icon: CreditCard, description: "Upgrade Your Plan" },
       { name: "Settings", href: "/settings", icon: Settings, description: "Account & Pricing" },
       { name: "Account Security", href: "/account-security", icon: Shield, description: "Session & Security Management" },
       { name: "Social Media Agent", href: "/social-agent", icon: Zap, description: "AI-Powered Campaign Manager" },

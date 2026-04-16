@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Car, ChevronDown, Shield, Video, Scale, MapPin, FileText, Wrench } from "lucide-react";
+import { Car, ChevronDown, Shield, Video, Scale, MapPin, FileText, Wrench, CreditCard } from "lucide-react";
 import { useLocation } from "wouter";
 import { useGeolocation } from "@/hooks/useGeolocation";
 import { useToast } from "@/hooks/use-toast";
@@ -15,7 +15,7 @@ const shortcuts = [
   { label: "De-Escalation", icon: Shield, href: "/de-escalation-guide", color: "#f59e0b" },
   { label: "Record", icon: Video, href: "/record", color: "#3b82f6" },
   { label: "Know Rights", icon: Scale, href: "/rights", color: "#8b5cf6" },
-  { label: "Attorneys", icon: Scale, href: "/attorneys", color: "#06b6d4" },
+  { label: "Plans", icon: CreditCard, href: "/plans", color: "#06b6d4" },
   { label: "Legal Map", icon: MapPin, href: "/legal-rights-map", color: "#10b981" },
   { label: "Complaint", icon: FileText, href: "/file-complaint", color: "#f97316" },
   { label: "Roadside", icon: Wrench, href: "/roadside-assistance", color: "#6366f1" },
