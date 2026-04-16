@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { Capacitor } from "@capacitor/core";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -334,29 +335,35 @@ export default function Record() {
         throw new Error('Your browser does not support media recording. Please use a modern browser like Chrome, Firefox, or Safari.');
       }
       
-      // Get enhanced media constraints for noise filtering
-      const baseConstraints = effectiveRecordingType === 'video' 
-        ? { 
-            video: { 
-              width: { ideal: 1280 }, 
-              height: { ideal: 720 },
-              frameRate: { ideal: 30 }
-            }, 
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              sampleRate: 44100
-            }
-          }
-        : { 
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              sampleRate: 44100
-            }
-          };
+      // Detect iOS native app — WKWebView has strict MediaRecorder limitations
+      const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
-      // Temporarily disable enhanced constraints for audio to fix recording
+      // iOS WKWebView: sampleRate and advanced video constraints fail; keep it simple
+      const baseConstraints = isIOSNative
+        ? effectiveRecordingType === 'video'
+          ? { video: { facingMode: 'environment' }, audio: true }
+          : { audio: true }
+        : effectiveRecordingType === 'video'
+          ? {
+              video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30 }
+              },
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                sampleRate: 44100
+              }
+            }
+          : {
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                sampleRate: 44100
+              }
+            };
+
       const constraints = baseConstraints;
       
       console.log('Media constraints:', constraints);
@@ -411,6 +418,21 @@ export default function Record() {
       
       const recorder = new RobustRecorder(effectiveRecordingType);
       recorderRef.current = recorder;
+
+      // Listen for unexpected track failures (common on iOS when mic/camera access interrupted)
+      recorder.onError = (err: Error) => {
+        console.error('Recorder error callback:', err.message);
+        setIsRecording(false);
+        if (recordingTimerRef.current) {
+          clearInterval(recordingTimerRef.current);
+          recordingTimerRef.current = null;
+        }
+        toast({
+          title: "Recording Stopped",
+          description: err.message,
+          variant: "destructive",
+        });
+      };
       
       console.log(`Starting ${effectiveRecordingType} recorder with stream tracks:`, finalStream.getTracks().map(t => `${t.kind}: ${t.readyState} (enabled: ${t.enabled})`));
       
