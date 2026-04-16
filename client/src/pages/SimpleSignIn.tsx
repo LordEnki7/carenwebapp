@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import carenLogo from "@assets/caren-logo.png";
+import carenLogo from "@assets/caren-icon-square.png";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 
 export default function SimpleSignIn() {

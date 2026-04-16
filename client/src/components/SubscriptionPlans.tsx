@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import communityImg from "@assets/caren-logo.png";
-import standardImg from "@assets/caren_webapp_logo_1750345968202.png";
+import standardImg from "@assets/caren-icon-square.png";
 import legalShieldImg from "@assets/Gemini_Generated_Image_ghbsjghbsjghbsjg_1751079553418.png";
 import familyImg from "@assets/Caren_backsplash_1750345968199.png";
 import enterpriseImg from "@assets/Gemini_Generated_Image_daljtddaljtddalj_1751075708889.png";

@@ -71,3 +71,9 @@ id = "tjz0Awta_zYxz1P1aDlLQ"
 uri = "file://client/public/caren-30sec.mp4"
 type = "video"
 title = "C.A.R.E.N. Commercial — 30 Seconds (Short Cut)"
+
+[[outputs]]
+id = "U1w9or72LF9uW8bwS2_yt"
+uri = "file://client/src/assets/caren-icon-square.png"
+type = "image"
+title = "CAREN App Icon (your logo, square — used for all iOS sizes)"

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Shield, Video, Scale, UserCheck, Globe, Cloud, Mic, Camera, FileAudio, FileVideo, CheckCircle2, Loader2 } from "lucide-react";
-import carenLogo from "@assets/caren-logo.png";
+import carenLogo from "@assets/caren-icon-square.png";
 import LegalAgreementModal from "@/components/LegalAgreementModal";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import ChatAgent from "@/components/ChatAgent";

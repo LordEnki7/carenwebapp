@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import carenLogo from "@assets/caren-icon-square.png";
 import {
   Menu, X, Home, Shield, MessageSquare, Settings, AlertTriangle, LogOut,
   Car, VideoIcon, VolumeX, Zap, Map, FileText, UserCheck, Scale,
@@ -118,7 +119,10 @@ export default function MobileNavigation() {
       {/* Top header bar */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-gray-900/95 backdrop-blur-lg border-b border-cyan-500/30">
         <div className="flex items-center justify-between p-4 ios-safe-area">
-          <div className="text-xl font-bold text-cyan-400">C.A.R.E.N.™ Alert</div>
+          <div className="flex items-center space-x-2">
+            <img src={carenLogo} alt="CAREN" className="w-8 h-8 rounded-lg object-cover" />
+            <div className="text-xl font-bold text-cyan-400">C.A.R.E.N.™ Alert</div>
+          </div>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="p-2 text-cyan-400 hover:text-cyan-300 transition-colors touch-friendly"
@@ -129,14 +133,14 @@ export default function MobileNavigation() {
         </div>
       </div>
 
-      {/* Full slide-out menu */}
+      {/* Full slide-out menu — z-50 so it sits ABOVE the bottom nav bar (z-40) */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 z-40 bg-black/60"
+          className="md:hidden fixed inset-0 z-50 bg-black/60"
           onClick={() => setIsOpen(false)}
         >
           <div
-            className="fixed left-0 top-0 bottom-0 w-80 bg-gray-900/98 backdrop-blur-lg border-r border-cyan-500/30 overflow-y-auto"
+            className="fixed left-0 top-0 bottom-0 w-80 bg-gray-900/98 backdrop-blur-lg border-r border-cyan-500/30 overflow-y-auto z-50"
             onClick={e => e.stopPropagation()}
           >
             {/* Logo area */}

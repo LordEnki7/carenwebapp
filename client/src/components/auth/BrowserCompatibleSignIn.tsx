@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Play, Loader2, AlertCircle } from "lucide-react";
-import carenLogo from "@assets/caren-logo.png";
+import carenLogo from "@assets/caren-icon-square.png";
 
 // SimpleSignInForm stays eager — it is shown immediately on first render
 import SimpleSignInForm from "./SimpleSignInForm";
