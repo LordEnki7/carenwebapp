@@ -10,8 +10,9 @@
 #   2. Removes .github/workflows/ from staging AFTER add-all
 #      (the PAT lacks 'workflow' scope — staged workflow files
 #       will cause GitHub to reject the push)
-#   3. Pushes fresh-main → github/main
-#   4. Confirms the push succeeded and tells you what to do next
+#   3. Commits any staged changes
+#   4. Pushes fresh-main → github/main
+#   5. Confirms the push succeeded and tells you what to do next
 # ============================================================
 
 set -e   # Stop immediately on any error
@@ -44,23 +45,35 @@ if git diff --cached --name-only | grep -q '.github/workflows'; then
   git diff --cached --name-only | grep '.github/workflows' | xargs git rm --cached
 fi
 
-# ── Step 3: Check commits ahead of GitHub ────────────────────
-echo -e "\n${YELLOW}Step 3 — Checking commits ahead of GitHub...${RESET}"
+# ── Step 3: Commit staged changes ────────────────────────────
+echo -e "\n${YELLOW}Step 3 — Committing changes...${RESET}"
+STAGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
+if [ "$STAGED" -gt 0 ]; then
+  TIMESTAMP=$(date '+%Y-%m-%d %H:%M')
+  git -c user.email="deploy@carenalert.com" -c user.name="CAREN Deploy" \
+    commit -m "Deploy: $TIMESTAMP" --no-verify
+  echo -e "  ${GREEN}✓ Committed $STAGED file(s)${RESET}"
+else
+  echo -e "  ${GREEN}✓ No new changes to commit — pushing existing commits${RESET}"
+fi
+
+# ── Step 4: Check commits ahead of GitHub ────────────────────
+echo -e "\n${YELLOW}Step 4 — Checking commits ahead of GitHub...${RESET}"
 git fetch github 2>/dev/null || true
-AHEAD=$(git rev-list github/main..fresh-main --count 2>/dev/null || echo "unknown")
+AHEAD=$(git rev-list github/main..HEAD --count 2>/dev/null || echo "unknown")
 echo -e "  ${GREEN}✓ $AHEAD commit(s) ahead of github/main${RESET}"
 
 # Show the latest local commit that will be pushed
-LATEST_MSG=$(git log fresh-main --oneline -1)
+LATEST_MSG=$(git log HEAD --oneline -1)
 echo -e "  Latest commit: ${BOLD}$LATEST_MSG${RESET}"
 
-# ── Step 4: Push to GitHub ───────────────────────────────────
-echo -e "\n${YELLOW}Step 4 — Pushing to GitHub (triggers Dokploy)...${RESET}"
+# ── Step 5: Push to GitHub ───────────────────────────────────
+echo -e "\n${YELLOW}Step 5 — Pushing to GitHub (triggers Dokploy)...${RESET}"
 
 # Refresh the remote URL with the current PAT in case it expired
 git remote set-url github "https://$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/LordEnki7/carenwebapp.git" 2>/dev/null || true
 
-if git push github fresh-main:main --no-verify; then
+if git push github HEAD:main --no-verify; then
   echo ""
   echo -e "${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
   echo -e "${GREEN}${BOLD}✓ PUSH SUCCESSFUL — Dokploy will now deploy!${RESET}"
@@ -79,7 +92,7 @@ else
   echo ""
   echo "  Try refreshing the PAT and pushing again:"
   echo "  git remote set-url github https://\$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/LordEnki7/carenwebapp.git"
-  echo "  git push github fresh-main:main"
+  echo "  git push github HEAD:main"
   echo ""
   echo "  If that still fails, check your PAT token hasn't expired in GitHub."
   exit 1
