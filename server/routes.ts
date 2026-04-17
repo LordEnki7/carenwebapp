@@ -307,6 +307,128 @@ GUIDELINES:
       ok: true,
     });
   });
+
+  // ── GET /api/deploy-health ──────────────────────────────────────────────────
+  // Compares the commit currently running on this server to the latest commit
+  // on GitHub `main`. Returns plain JSON with a clear status flag so anyone
+  // (including the iPhone in a browser) can instantly see if a deploy is stuck.
+  app.get("/api/deploy-health", async (_req, res) => {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    try {
+      const ghRes = await fetch(
+        "https://api.github.com/repos/LordEnki7/carenwebapp/commits/main",
+        {
+          headers: {
+            Accept: "application/vnd.github+json",
+            "User-Agent": "caren-deploy-health",
+            ...(process.env.GITHUB_PERSONAL_ACCESS_TOKEN2
+              ? { Authorization: `Bearer ${process.env.GITHUB_PERSONAL_ACCESS_TOKEN2}` }
+              : {}),
+          },
+        }
+      );
+      if (!ghRes.ok) {
+        return res.status(502).json({
+          ok: false,
+          status: "GITHUB_ERROR",
+          httpCode: ghRes.status,
+          deployedCommit: BUILD_INFO.shortCommit,
+        });
+      }
+      const gh: any = await ghRes.json();
+      const latestSha: string = gh.sha || "";
+      const latestShort = latestSha.slice(0, 7);
+      const deployedCommit = BUILD_INFO.commit;
+      const deployedShort = BUILD_INFO.shortCommit;
+      const inSync =
+        deployedCommit && latestSha && deployedCommit === latestSha;
+      const status = inSync ? "IN_SYNC" : "STALE_DEPLOY";
+      res.json({
+        ok: true,
+        status,
+        inSync,
+        deployedCommit: deployedShort,
+        latestGithubCommit: latestShort,
+        latestCommitMessage: gh?.commit?.message?.split("\n")[0] || "",
+        latestCommitDate: gh?.commit?.author?.date || "",
+        deployedBuildTime: BUILD_INFO.buildTime,
+        howToFix: inSync
+          ? null
+          : "Open Dokploy dashboard and click Redeploy on the carenwebapp project.",
+      });
+    } catch (err: any) {
+      res.status(500).json({
+        ok: false,
+        status: "ERROR",
+        error: err?.message || String(err),
+        deployedCommit: BUILD_INFO.shortCommit,
+      });
+    }
+  });
+
+  // ── GET /deploy-status ──────────────────────────────────────────────────────
+  // Visual page (mobile-friendly) showing deploy health. Bookmark this on your
+  // phone — green = live code is up to date, red = Dokploy needs to redeploy.
+  app.get("/deploy-status", async (_req, res) => {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    res.type("html").send(`<!doctype html>
+<html><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>CAREN Deploy Status</title>
+<style>
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#0b1220;color:#e6edf7;padding:24px;min-height:100vh}
+  h1{font-size:18px;letter-spacing:1px;color:#7dd3fc;margin:0 0 24px}
+  .card{background:#111a2e;border:1px solid #1f2a44;border-radius:14px;padding:20px;margin-bottom:16px}
+  .badge{display:inline-block;font-size:14px;font-weight:700;padding:8px 14px;border-radius:999px;margin-bottom:12px}
+  .ok{background:#053b1f;color:#34d399;border:1px solid #14532d}
+  .bad{background:#3b0a0f;color:#fca5a5;border:1px solid #7f1d1d}
+  .row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1f2a44;font-size:14px}
+  .row:last-child{border-bottom:none}
+  .label{color:#94a3b8}
+  .val{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:#e6edf7}
+  .fix{margin-top:12px;padding:12px;background:#1a1305;border:1px solid #92400e;border-radius:8px;color:#fcd34d;font-size:13px;line-height:1.5}
+  button{background:#0ea5e9;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer}
+  .muted{color:#64748b;font-size:12px;margin-top:16px;text-align:center}
+</style></head>
+<body>
+  <h1>C.A.R.E.N. — DEPLOY STATUS</h1>
+  <div id="card" class="card">Loading…</div>
+  <div style="text-align:center"><button onclick="load()">Refresh</button></div>
+  <p class="muted">Auto-refreshes every 15 seconds.</p>
+<script>
+async function load(){
+  try{
+    const r = await fetch('/api/deploy-health',{cache:'no-store'});
+    const d = await r.json();
+    const card = document.getElementById('card');
+    if(d.inSync){
+      card.innerHTML = \`
+        <div class="badge ok">✓ IN SYNC — Live code is up to date</div>
+        <div class="row"><span class="label">Live commit</span><span class="val">\${d.deployedCommit}</span></div>
+        <div class="row"><span class="label">GitHub main</span><span class="val">\${d.latestGithubCommit}</span></div>
+        <div class="row"><span class="label">Built at</span><span class="val">\${new Date(d.deployedBuildTime).toLocaleString()}</span></div>
+      \`;
+    } else if(d.status === 'STALE_DEPLOY'){
+      card.innerHTML = \`
+        <div class="badge bad">✗ STALE DEPLOY — Dokploy did not rebuild</div>
+        <div class="row"><span class="label">Live commit</span><span class="val">\${d.deployedCommit}</span></div>
+        <div class="row"><span class="label">GitHub main</span><span class="val">\${d.latestGithubCommit}</span></div>
+        <div class="row"><span class="label">Latest message</span><span class="val">\${(d.latestCommitMessage||'').slice(0,50)}</span></div>
+        <div class="row"><span class="label">Pushed at</span><span class="val">\${new Date(d.latestCommitDate).toLocaleString()}</span></div>
+        <div class="fix">⚠ \${d.howToFix}</div>
+      \`;
+    } else {
+      card.innerHTML = '<div class="badge bad">⚠ '+d.status+'</div><pre>'+JSON.stringify(d,null,2)+'</pre>';
+    }
+  }catch(e){
+    document.getElementById('card').innerHTML = '<div class="badge bad">Network error</div>';
+  }
+}
+load();
+setInterval(load, 15000);
+</script>
+</body></html>`);
+  });
   console.log("[ROUTES] Announcement & Giveaway routes registered");
 
   // NIG Command Center — division health & metrics endpoint
