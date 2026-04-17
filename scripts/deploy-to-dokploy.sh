@@ -23,6 +23,23 @@ echo ""
 echo -e "${BOLD}C.A.R.E.N Alert — Deploy to carenalert.com${RESET}"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
+# ── Step 0: Clean stale git lock files ───────────────────────
+# A leftover .git/index.lock or refs/heads/*.lock blocks ALL git
+# operations — every previous failed deploy left this lurking.
+echo -e "\n${YELLOW}Step 0 — Cleaning stale git locks...${RESET}"
+LOCKS_REMOVED=0
+for lock in .git/index.lock .git/config.lock .git/HEAD.lock .git/refs/heads/*.lock .git/refs/remotes/github/*.lock; do
+  if [ -f "$lock" ]; then
+    rm -f "$lock"
+    LOCKS_REMOVED=$((LOCKS_REMOVED+1))
+  fi
+done
+if [ "$LOCKS_REMOVED" -gt 0 ]; then
+  echo -e "  ${YELLOW}⚠ Removed $LOCKS_REMOVED stale lock file(s) — git is now unblocked${RESET}"
+else
+  echo -e "  ${GREEN}✓ No stale locks — git is clean${RESET}"
+fi
+
 # ── Step 1: Stage everything FIRST ───────────────────────────
 echo -e "\n${YELLOW}Step 1 — Staging all changes...${RESET}"
 git add -A
