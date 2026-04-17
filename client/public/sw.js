@@ -1,8 +1,19 @@
 // CAREN Service Worker for Offline Emergency Features
-// IMPORTANT: bump CACHE_NAME on every deploy to invalidate stale caches.
-// Stale caches caused old HTML to reference non-existent JS chunk filenames after deploys.
-const CACHE_NAME = 'caren-v1.0.4';
+// CACHE_NAME includes the deployed git commit (fetched from /build-info.json on activate),
+// so every deploy automatically invalidates the previous cache. No manual version bumps.
+let CACHE_NAME = 'caren-bootstrap';
 const OFFLINE_URL = '/offline';
+
+async function resolveCacheName() {
+  try {
+    const r = await fetch('/build-info.json', { cache: 'no-store' });
+    if (r.ok) {
+      const info = await r.json();
+      if (info && info.commit) return 'caren-' + info.commit;
+    }
+  } catch {}
+  return 'caren-bootstrap';
+}
 
 // Only cache resources that don't change between deploys.
 // We deliberately do NOT cache '/' (HTML) here — HTML must always be fetched
@@ -24,40 +35,32 @@ const EMERGENCY_COMMANDS = [
   'fire department'
 ];
 
-// Install event - cache critical resources
+// Install event - resolve cache name from build-info.json then cache critical resources
 self.addEventListener('install', (event) => {
   console.log('CAREN Service Worker installing...');
-  
-  event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        console.log('Caching critical resources');
-        return cache.addAll(CRITICAL_RESOURCES);
-      })
-      .then(() => {
-        return self.skipWaiting();
-      })
-  );
+  event.waitUntil((async () => {
+    CACHE_NAME = await resolveCacheName();
+    console.log('CAREN SW using cache:', CACHE_NAME);
+    const cache = await caches.open(CACHE_NAME);
+    await cache.addAll(CRITICAL_RESOURCES).catch(() => {});
+    await self.skipWaiting();
+  })());
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up ALL old caches (anything not matching current commit)
 self.addEventListener('activate', (event) => {
   console.log('CAREN Service Worker activating...');
-  
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => {
-      return self.clients.claim();
-    })
-  );
+  event.waitUntil((async () => {
+    CACHE_NAME = await resolveCacheName();
+    const cacheNames = await caches.keys();
+    await Promise.all(cacheNames.map((name) => {
+      if (name !== CACHE_NAME) {
+        console.log('Deleting old cache:', name);
+        return caches.delete(name);
+      }
+    }));
+    await self.clients.claim();
+  })());
 });
 
 // Fetch event - serve from cache when offline

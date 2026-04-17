@@ -40,8 +40,12 @@ else
   echo -e "  ${GREEN}✓ No stale locks — git is clean${RESET}"
 fi
 
-# ── Step 1: Stage everything FIRST ───────────────────────────
-echo -e "\n${YELLOW}Step 1 — Staging all changes...${RESET}"
+# ── Step 1: Write build-info.json with current git SHA, then stage ───
+# build-info.json is the source of truth for "what commit is deployed".
+# It gets committed, copied into the Docker image, served at /build-info.json,
+# and exposed via /api/version. Step 6 below verifies prod is running this exact SHA.
+echo -e "\n${YELLOW}Step 1 — Writing build-info.json + staging all changes...${RESET}"
+node scripts/write-build-info.cjs
 git add -A
 CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')
 echo -e "  ${GREEN}✓ $CHANGED file(s) staged${RESET}"
@@ -92,17 +96,62 @@ git remote set-url github "https://$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/Lor
 
 if git push github HEAD:main --no-verify; then
   echo ""
-  echo -e "${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
-  echo -e "${GREEN}${BOLD}✓ PUSH SUCCESSFUL — Dokploy will now deploy!${RESET}"
-  echo -e "${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo -e "${GREEN}✓ PUSH SUCCESSFUL — waiting for Dokploy to build & deploy...${RESET}"
   echo ""
-  echo "  Next steps:"
-  echo "  1. Go to Dokploy dashboard → check build status"
-  echo "  2. Once deployed, visit:"
-  echo -e "     ${BOLD}https://carenalert.com/api/version${RESET}"
-  echo "     to confirm the new code is live (timestamp will change)"
-  echo "  3. Check the site at https://carenalert.com"
+
+  # ── Step 6: Verify deployment by polling /api/version ──────
+  # This is the critical step that makes the pipeline trustworthy:
+  # we DO NOT declare success until production reports running our exact commit.
+  EXPECTED_COMMIT=$(git rev-parse HEAD)
+  EXPECTED_SHORT="${EXPECTED_COMMIT:0:7}"
+  echo -e "${YELLOW}Step 6 — Verifying production runs commit ${BOLD}$EXPECTED_SHORT${RESET}${YELLOW}...${RESET}"
+  echo "  (polling https://carenalert.com/api/version every 15s, max 8 minutes)"
   echo ""
+
+  MAX_ATTEMPTS=32   # 32 * 15s = 8 minutes
+  ATTEMPT=0
+  DEPLOYED_COMMIT=""
+  while [ "$ATTEMPT" -lt "$MAX_ATTEMPTS" ]; do
+    ATTEMPT=$((ATTEMPT+1))
+    RESPONSE=$(curl -s --max-time 8 "https://carenalert.com/api/version?t=$RANDOM" 2>/dev/null || echo '')
+    DEPLOYED_COMMIT=$(echo "$RESPONSE" | grep -oE '"commit":"[^"]+"' | head -1 | sed 's/"commit":"//;s/"//')
+    DEPLOYED_SHORT="${DEPLOYED_COMMIT:0:7}"
+
+    if [ "$DEPLOYED_COMMIT" = "$EXPECTED_COMMIT" ]; then
+      echo ""
+      echo -e "${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+      echo -e "${GREEN}${BOLD}✓ DEPLOY VERIFIED — production is running $EXPECTED_SHORT${RESET}"
+      echo -e "${GREEN}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+      echo ""
+      echo "  Site is live: https://carenalert.com"
+      echo "  Verify:       https://carenalert.com/api/version"
+      echo ""
+      exit 0
+    fi
+
+    if [ -z "$DEPLOYED_COMMIT" ]; then
+      printf "  [%2d/%d] no response yet from /api/version...\n" "$ATTEMPT" "$MAX_ATTEMPTS"
+    else
+      printf "  [%2d/%d] prod still on %s (waiting for %s)\n" "$ATTEMPT" "$MAX_ATTEMPTS" "$DEPLOYED_SHORT" "$EXPECTED_SHORT"
+    fi
+    sleep 15
+  done
+
+  echo ""
+  echo -e "${RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo -e "${RED}${BOLD}✗ DEPLOY VERIFICATION FAILED${RESET}"
+  echo -e "${RED}${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+  echo ""
+  echo -e "  Push reached GitHub, but after 8 minutes production is still on:"
+  echo -e "    ${BOLD}$DEPLOYED_SHORT${RESET} (expected ${BOLD}$EXPECTED_SHORT${RESET})"
+  echo ""
+  echo "  Likely causes:"
+  echo "    1. Dokploy didn't auto-trigger — open the dashboard and click Redeploy"
+  echo "    2. The build failed — check Dokploy → Deployments → latest log"
+  echo "    3. Container started but crashed — check Dokploy → Logs"
+  echo "    4. CDN/proxy cache — wait a few more minutes and curl /api/version manually"
+  echo ""
+  exit 2
 else
   echo ""
   echo -e "${RED}${BOLD}✗ PUSH FAILED${RESET}"
