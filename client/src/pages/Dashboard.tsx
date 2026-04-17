@@ -738,6 +738,12 @@ export default function Dashboard() {
                 >
                   Know Your Rights
                 </span>
+                <span
+                  className="px-3 py-1 bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 rounded-full text-sm font-bold hover-lift cursor-pointer hover:bg-cyan-500/30"
+                  onClick={() => setLocation('/plans')}
+                >
+                  💳 Plans &amp; Pricing
+                </span>
               </div>
             </div>
 
