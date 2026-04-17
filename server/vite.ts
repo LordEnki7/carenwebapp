@@ -76,10 +76,32 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static assets. The index.html and build-info.json must NEVER be cached
+  // by browsers/CDNs/WebViews — they are the entry points that tell the client
+  // which hashed JS/CSS bundles to load and what commit is current.
+  app.use(
+    express.static(distPath, {
+      etag: true,
+      lastModified: true,
+      setHeaders: (res, filePath) => {
+        const base = path.basename(filePath);
+        if (base === "index.html" || base === "build-info.json" || base === "sw.js") {
+          res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+          res.setHeader("Pragma", "no-cache");
+          res.setHeader("Expires", "0");
+        } else if (filePath.includes(`${path.sep}assets${path.sep}`)) {
+          // Vite-hashed assets are immutable
+          res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        }
+      },
+    })
+  );
 
   // fall through to index.html if the file doesn't exist
   app.use("*", (_req, res) => {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
