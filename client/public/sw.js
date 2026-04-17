@@ -1,14 +1,14 @@
 // CAREN Service Worker for Offline Emergency Features
-const CACHE_NAME = 'caren-v1.0.0';
+// IMPORTANT: bump CACHE_NAME on every deploy to invalidate stale caches.
+// Stale caches caused old HTML to reference non-existent JS chunk filenames after deploys.
+const CACHE_NAME = 'caren-v1.0.4';
 const OFFLINE_URL = '/offline';
 
-// Critical resources that must be cached for offline emergency functionality
+// Only cache resources that don't change between deploys.
+// We deliberately do NOT cache '/' (HTML) here — HTML must always be fetched
+// fresh so it points to the current hashed JS/CSS asset filenames.
 const CRITICAL_RESOURCES = [
-  '/',
   '/offline',
-  '/record',
-  '/ai-assistant',
-  '/emergency-contacts',
   '/manifest.json'
 ];
 
@@ -65,50 +65,46 @@ self.addEventListener('fetch', (event) => {
   const request = event.request;
   const url = new URL(request.url);
 
+  // Only handle GET — never intercept POST/PUT/etc (login, mutations, etc).
+  if (request.method !== 'GET') return;
+
   // Handle emergency API calls offline
   if (url.pathname.includes('/api/emergency') && !navigator.onLine) {
     event.respondWith(handleOfflineEmergency(request));
     return;
   }
 
-  // Handle navigation requests
+  // NEVER touch API requests — always go to network so auth/sessions work correctly.
+  if (url.pathname.startsWith('/api/')) return;
+
+  // NEVER cache Vite-hashed asset bundles. Their filenames already include a content hash,
+  // so the browser HTTP cache handles versioning. Caching them in the SW caused stale chunks
+  // (e.g. Plans-OLDHASH.js) to be served after deploys, breaking lazy-loaded routes.
+  if (url.pathname.startsWith('/assets/')) return;
+
+  // Network-first for navigation requests (HTML). This guarantees that after a deploy,
+  // users get HTML pointing at the current asset hashes.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request)
-        .catch(() => {
-          return caches.match(OFFLINE_URL);
-        })
+      fetch(request).catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }
 
-  // Cache-first strategy for resources
+  // Cache-first for everything else (icons, manifest, fonts, etc.)
   event.respondWith(
-    caches.match(request)
-      .then((response) => {
-        if (response) {
+    caches.match(request).then((response) => {
+      if (response) return response;
+      return fetch(request)
+        .then((response) => {
+          if (response && response.status === 200 && response.type === 'basic') {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+          }
           return response;
-        }
-        
-        return fetch(request)
-          .then((response) => {
-            // Cache successful responses
-            if (response.status === 200) {
-              const responseClone = response.clone();
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(request, responseClone);
-                });
-            }
-            return response;
-          })
-          .catch(() => {
-            // Return offline page for navigation requests
-            if (request.mode === 'navigate') {
-              return caches.match(OFFLINE_URL);
-            }
-          });
-      })
+        })
+        .catch(() => undefined);
+    })
   );
 });
 
