@@ -155,10 +155,12 @@ export default function Plans() {
     }
 
     if (!iapAvailable) {
-      // iOS but no RevenueCat key yet — show coming soon
+      // iOS but RevenueCat key not bundled into this build.
+      // Be honest about the cause — do NOT pretend it's "coming in a future update".
       toast({
-        title: "Subscriptions Coming Soon",
-        description: "In-app purchases will be available in the next update. Visit carenalert.com to subscribe.",
+        title: "In-App Subscriptions Not Available",
+        description: "This build does not have the in-app purchase key configured. Please subscribe at carenalert.com or update the app to the latest version.",
+        variant: "destructive",
       });
       return;
     }
