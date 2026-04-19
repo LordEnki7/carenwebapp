@@ -53,10 +53,9 @@ class InAppPurchaseService {
   async initialize(): Promise<void> {
     if (!this.isAvailable() || this.initialized) return;
     try {
-      // Native-only import — hidden from Vite's static scanner via Function wrapper
-      // This ONLY executes on native iOS where RevenueCat is bundled by Capacitor
-      // eslint-disable-next-line no-new-func
-      const { Purchases, LOG_LEVEL } = await new Function('m', 'return import(m)')("@revenuecat/purchases-capacitor");
+      // Dynamic import — Vite bundles this into the deployed JS at carenalert.com.
+      // isAvailable() already guards that this only runs on native iOS.
+      const { Purchases, LOG_LEVEL } = await import("@revenuecat/purchases-capacitor");
       await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG });
       await Purchases.configure({ apiKey: RC_IOS_API_KEY! });
       this.rcModule = Purchases;
