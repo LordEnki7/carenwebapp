@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useCloudSyncIntegration } from "@/hooks/useCloudSyncIntegration";
 import { useEmergencyRecording } from "@/hooks/useEmergencyRecording";
-import { Mic, MicOff, Video, VideoOff, Play, Pause, Download, Trash2, Send, AlertCircle, Cloud, CloudOff, Settings } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Play, Pause, Download, Trash2, Send, AlertCircle, Cloud, CloudOff, Settings, FlipHorizontal2 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import { RobustRecorder } from "@/lib/robustRecorder";
@@ -64,6 +64,8 @@ export default function Record() {
   const [originalStream, setOriginalStream] = useState<MediaStream | null>(null);
   const [processedStream, setProcessedStream] = useState<MediaStream | null>(null);
   const [showAudioSettings, setShowAudioSettings] = useState(false);
+  const [facingMode, setFacingMode] = useState<'environment' | 'user'>('environment');
+  const [isFlipping, setIsFlipping] = useState(false);
   
   // Refs - all at the top, same order every time
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -76,6 +78,38 @@ export default function Record() {
   const chunksRef = useRef<Blob[]>([]);
   const videoPlayerRef = useRef<HTMLVideoElement>(null);
   const effectiveRecordingTypeRef = useRef<'audio' | 'video'>('audio');
+
+  // Flip between front and rear camera while a video stream is active
+  const flipCamera = async () => {
+    if (isFlipping) return;
+    const newFacing: 'environment' | 'user' = facingMode === 'environment' ? 'user' : 'environment';
+    setIsFlipping(true);
+    try {
+      // Stop existing video track only
+      if (streamRef.current) {
+        streamRef.current.getVideoTracks().forEach(t => t.stop());
+      }
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: newFacing },
+        audio: false,
+      });
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      if (streamRef.current && newVideoTrack) {
+        // Replace video track in the existing stream so audio continues
+        const sender = streamRef.current.getVideoTracks();
+        sender.forEach(t => streamRef.current!.removeTrack(t));
+        streamRef.current.addTrack(newVideoTrack);
+        if (videoPreviewRef.current) {
+          videoPreviewRef.current.srcObject = streamRef.current;
+        }
+      }
+      setFacingMode(newFacing);
+    } catch {
+      toast({ title: "Camera flip failed", description: "Your device may not support switching cameras.", variant: "destructive" });
+    } finally {
+      setIsFlipping(false);
+    }
+  };
 
   // Auto-start recording when voice command triggers
   useEffect(() => {
@@ -364,11 +398,12 @@ export default function Record() {
       // iOS WKWebView: sampleRate and advanced video constraints fail; keep it simple
       const baseConstraints = isIOSNative
         ? effectiveRecordingType === 'video'
-          ? { video: { facingMode: 'environment' }, audio: true }
+          ? { video: { facingMode }, audio: true }
           : { audio: true }
         : effectiveRecordingType === 'video'
           ? {
               video: {
+                facingMode,
                 width: { ideal: 1280 },
                 height: { ideal: 720 },
                 frameRate: { ideal: 30 }
@@ -888,36 +923,27 @@ export default function Record() {
             )}
 
             {/* Header */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className={`cyber-title text-3xl ${isEmergencyMode ? 'text-red-300' : ''}`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div className="min-w-0">
+                <h1 className={`cyber-title text-2xl sm:text-3xl truncate ${isEmergencyMode ? 'text-red-300' : ''}`}>
                   {isEmergencyMode ? '🚨 Emergency Recording' : 'Record Evidence'}
                 </h1>
-                <p className={`text-lg ${isEmergencyMode ? 'text-red-300' : 'text-cyan-300'}`}>
-                  {isEmergencyMode ? 'Emergency incident documentation in progress' : 'Document incidents with audio or video recording'}
+                <p className={`text-sm sm:text-lg ${isEmergencyMode ? 'text-red-300' : 'text-cyan-300'}`}>
+                  {isEmergencyMode ? 'Emergency incident documentation' : 'Document incidents with audio or video'}
                 </p>
               </div>
               
               {/* Cloud Sync Status */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 {isCloudSyncEnabled ? (
-                  <div className="flex items-center gap-2 text-sm text-green-300 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
-                    {isSyncing ? (
-                      <>
-                        <Cloud className="h-4 w-4 animate-pulse" />
-                        <span>Syncing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Cloud className="h-4 w-4" />
-                        <span>Cloud Sync Active</span>
-                      </>
-                    )}
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-green-300 bg-green-500/20 px-3 py-1 rounded-full border border-green-400/30">
+                    <Cloud className={`h-3.5 w-3.5 ${isSyncing ? 'animate-pulse' : ''}`} />
+                    <span>{isSyncing ? 'Syncing...' : 'Cloud Sync'}</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-sm text-gray-400 bg-gray-500/20 px-3 py-1 rounded-full border border-gray-500/30">
-                    <CloudOff className="h-4 w-4" />
-                    <span>Offline Mode</span>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-400 bg-gray-500/20 px-3 py-1 rounded-full border border-gray-500/30">
+                    <CloudOff className="h-3.5 w-3.5" />
+                    <span>Offline</span>
                   </div>
                 )}
               </div>
@@ -1026,23 +1052,35 @@ export default function Record() {
                 {recordingType === 'video' && (
                   <div className="space-y-2">
                     <Label className="text-cyan-300">Video Preview</Label>
-                    <video
-                      ref={videoPreviewRef}
-                      className="w-full max-w-md h-48 bg-black rounded-lg border border-cyan-500/30"
-                      autoPlay
-                      muted
-                      playsInline
-                    />
+                    <div className="relative w-full max-w-md">
+                      <video
+                        ref={videoPreviewRef}
+                        className="w-full h-48 bg-black rounded-lg border border-cyan-500/30 object-cover"
+                        autoPlay
+                        muted
+                        playsInline
+                      />
+                      {/* Camera flip button — overlaid bottom-right of preview */}
+                      <button
+                        type="button"
+                        onClick={flipCamera}
+                        disabled={isFlipping}
+                        aria-label="Flip camera"
+                        className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white hover:bg-black/80 active:scale-95 transition-all disabled:opacity-50"
+                      >
+                        <FlipHorizontal2 className={`w-5 h-5 ${isFlipping ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
                   </div>
                 )}
 
                 {/* Recording Button */}
-                <div className="flex gap-4">
+                <div className="flex gap-3 items-center flex-wrap">
                   {!isRecording ? (
                     <Button 
                       onClick={startRecording}
                       size="lg"
-                      className={`cyber-button-primary ${isEmergencyMode ? 'cyber-button-danger' : ''}`}
+                      className={`cyber-button-primary flex-1 sm:flex-none ${isEmergencyMode ? 'cyber-button-danger' : ''}`}
                     >
                       {recordingType === 'video' ? <Video className="h-4 w-4 mr-2" /> : <Mic className="h-4 w-4 mr-2" />}
                       Start Recording
@@ -1051,21 +1089,22 @@ export default function Record() {
                     <Button 
                       onClick={stopRecording}
                       size="lg"
-                      className="cyber-button-danger"
+                      className="cyber-button-danger flex-1 sm:flex-none"
                     >
                       {recordingType === 'video' ? <VideoOff className="h-4 w-4 mr-2" /> : <MicOff className="h-4 w-4 mr-2" />}
                       Stop Recording
                     </Button>
                   )}
                   
-                  {/* Production Diagnostics Button */}
+                  {/* Production Diagnostics Button — icon only on mobile, full label on desktop */}
                   <Button
                     onClick={runProductionDiagnostics}
                     variant="outline"
-                    className="bg-purple-600/20 border-purple-500/30 text-purple-300 hover:bg-purple-600/30"
+                    title="Media Diagnostics"
+                    className="bg-purple-600/20 border-purple-500/30 text-purple-300 hover:bg-purple-600/30 shrink-0"
                   >
-                    <Settings className="h-4 w-4 mr-2" />
-                    Media Diagnostics
+                    <Settings className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Media Diagnostics</span>
                   </Button>
                 </div>
               </div>
