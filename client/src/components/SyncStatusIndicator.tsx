@@ -12,19 +12,19 @@ export default function SyncStatusIndicator() {
     switch (status) {
       case 'connected': return 'bg-cyan-500';
       case 'connecting': return 'bg-purple-500';
-      case 'disconnected': 
-      case 'closed': return 'bg-red-500';
+      case 'disconnected':
+      case 'closed': return 'bg-gray-500';
       default: return 'bg-gray-500';
     }
   };
 
   const getStatusText = () => {
     switch (status) {
-      case 'connected': return 'Synced';
+      case 'connected': return 'Live';
       case 'connecting': return 'Connecting';
-      case 'disconnected': 
-      case 'closed': return 'Offline';
-      default: return 'Unknown';
+      case 'disconnected':
+      case 'closed': return 'Live updates off';
+      default: return 'Idle';
     }
   };
 
