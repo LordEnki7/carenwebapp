@@ -62,13 +62,14 @@ This single script handles everything:
 
 ### After the Push — Verify Deployment
 
-Once Dokploy finishes building (check the Dokploy dashboard), open:
+Once the script prints **✓ PUSH SUCCESSFUL**:
 
-```
-https://carenalert.com/api/version
-```
+1. Open the Dokploy dashboard
+2. Click **Deploy → Rebuild without cache**
+3. Wait ~2 minutes for the build
+4. Open `https://carenalert.com/api/version` — if `serverStartTime` changed, the new code is live
 
-This endpoint returns a `buildTime` timestamp. **If the timestamp changed, the new code is live.** If it still shows an old timestamp, the deploy failed — check Dokploy logs.
+> **Note:** The script no longer polls production automatically. Dokploy requires a manual deploy click — the old auto-poll always timed out and was removed.
 
 ---
 
