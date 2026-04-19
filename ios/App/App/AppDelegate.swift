@@ -1,6 +1,5 @@
 import UIKit
 import Capacitor
-import RevenueCat
 import WebKit
 
 @UIApplicationMain
@@ -9,7 +8,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        Purchases.configure(withAPIKey: "test_amFSEvhmEODIzuKIQISRzcBfDtm")
+        // RevenueCat is initialized from JavaScript via @revenuecat/purchases-capacitor plugin.
+        // Do NOT call Purchases.configure here — iapService.ts handles it through the Capacitor bridge.
 
         #if DEBUG && targetEnvironment(simulator)
         // Simulator-only cache hardening.
