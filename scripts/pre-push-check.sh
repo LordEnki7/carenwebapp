@@ -141,6 +141,28 @@ if [ "$MISSING_VIDEOS" -eq 0 ]; then
   ok "Production video files present and committed (Dokploy deploy will serve them)"
 fi
 
+# ── iOS Info.plist privacy strings ───────────────────────────
+header "iOS Info.plist privacy strings"
+INFOPLIST="ios/App/App/Info.plist"
+if [ ! -f "$INFOPLIST" ]; then
+  fail "ios/App/App/Info.plist not found in git — Apple will reject the build (privacy strings missing)"
+else
+  PLIST_OK=1
+  for KEY in \
+    "NSCameraUsageDescription" \
+    "NSMicrophoneUsageDescription" \
+    "NSPhotoLibraryUsageDescription" \
+    "NSLocationWhenInUseUsageDescription" \
+    "NSLocationAlwaysAndWhenInUseUsageDescription"; do
+    if grep -q "$KEY" "$INFOPLIST"; then
+      ok "$KEY present"
+    else
+      fail "$KEY MISSING — Apple will reject the upload (ITMS-90683)"
+      PLIST_OK=0
+    fi
+  done
+fi
+
 # ── Summary ──────────────────────────────────────────────────
 echo -e "\n${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 echo -e "  ${GREEN}${PASS} passed${RESET}  ${YELLOW}${WARN} warnings${RESET}  ${RED}${FAIL} failed${RESET}"
