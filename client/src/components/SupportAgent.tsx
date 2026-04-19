@@ -33,6 +33,13 @@ export default function SupportAgent() {
     return () => clearTimeout(t);
   }, []);
 
+  // Allow the hamburger drawer (mobile) to open this chat via a custom event
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener('open-support', handler);
+    return () => window.removeEventListener('open-support', handler);
+  }, []);
+
   useEffect(() => {
     if (open) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -103,21 +110,23 @@ export default function SupportAgent() {
 
   return (
     <>
-      {/* Floating button — bottom-left, distinct from AI chat (bottom-right) */}
+      {/* Floating button — desktop only; on mobile, the button lives in the hamburger drawer */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
           aria-label="Open support chat"
-          className={`fixed bottom-24 left-6 z-50 w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-full shadow-lg shadow-violet-500/40 flex items-center justify-center hover:scale-110 transition-transform duration-200 group ${pulse ? "animate-pulse" : ""}`}
+          className={`hidden md:flex fixed bottom-24 left-6 z-50 w-14 h-14 bg-gradient-to-br from-violet-600 to-purple-700 rounded-full shadow-lg shadow-violet-500/40 items-center justify-center hover:scale-110 transition-transform duration-200 group ${pulse ? "animate-pulse" : ""}`}
         >
           <MessageCircleHeart className="w-6 h-6 text-white" />
           <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-gray-900" />
         </button>
       )}
 
-      {/* Chat window */}
+      {/* Chat window — full-width on mobile, fixed panel on desktop */}
       {open && (
-        <div className="fixed bottom-24 left-6 z-50 w-[340px] sm:w-[380px] h-[520px] flex flex-col bg-gray-900/97 backdrop-blur-xl border border-violet-500/20 rounded-2xl shadow-2xl shadow-violet-500/10 overflow-hidden">
+        <div className="fixed z-50 flex flex-col bg-gray-900/97 backdrop-blur-xl border border-violet-500/20 shadow-2xl shadow-violet-500/10 overflow-hidden
+          bottom-0 left-0 right-0 h-[85vh] rounded-t-2xl
+          md:bottom-24 md:left-6 md:right-auto md:w-[380px] md:h-[520px] md:rounded-2xl">
           {/* Header */}
           <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-violet-900/80 to-purple-900/80 border-b border-violet-500/20 flex-shrink-0">
             <div className="relative">

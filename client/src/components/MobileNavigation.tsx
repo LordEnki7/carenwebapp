@@ -5,7 +5,7 @@ import {
   Car, VideoIcon, VolumeX, Zap, Map, FileText, UserCheck, Scale,
   MessageCircle, Wrench, Brain, Cloud, Sliders, MessageSquarePlus,
   ClipboardList, HelpCircle, Monitor, LifeBuoy, ChevronDown, ChevronRight,
-  Lock, Search, CreditCard
+  Lock, Search, CreditCard, MessageCircleHeart
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useAuth, performLogout } from '@/hooks/useAuth';
@@ -207,6 +207,22 @@ export default function MobileNavigation() {
                   </div>
                 </div>
               </Link>
+
+              {/* Support Chat */}
+              <button
+                onClick={() => {
+                  setIsOpen(false);
+                  window.dispatchEvent(new CustomEvent('open-support'));
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/40 hover:border-violet-400 transition-all"
+              >
+                <MessageCircleHeart size={20} className="text-violet-400 flex-shrink-0" />
+                <div className="flex-1 text-left">
+                  <p className="text-sm font-bold text-violet-300">Support Chat</p>
+                  <p className="text-xs text-gray-400">Get help from our AI agent</p>
+                </div>
+                <span className="w-2 h-2 bg-green-400 rounded-full" />
+              </button>
 
               {/* Sign Out */}
               {isAuthenticated && (
