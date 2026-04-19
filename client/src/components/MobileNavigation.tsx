@@ -225,7 +225,13 @@ export default function MobileNavigation() {
 
       {/* Bottom tab bar */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-gray-900/95 backdrop-blur-lg border-t border-cyan-500/30 mobile-nav">
-        <div className="flex justify-around items-center py-1 px-1 ios-safe-area">
+        <div
+          className="flex justify-around items-center px-1"
+          style={{
+            paddingTop: '2px',
+            paddingBottom: 'calc(2px + env(safe-area-inset-bottom))',
+          }}
+        >
           {bottomNavItems.map(item => {
             const Icon = item.icon;
             const active = isActive(item.path);
@@ -233,12 +239,12 @@ export default function MobileNavigation() {
               <Link
                 key={item.path}
                 href={item.path}
-                className={`flex flex-col items-center px-3 py-1.5 rounded-lg transition-all touch-friendly ${
+                className={`flex flex-col items-center px-2 py-0.5 rounded-md transition-all ${
                   active ? 'text-cyan-400' : 'text-gray-400 hover:text-white'
                 }`}
               >
-                <Icon size={18} />
-                <span className="text-[10px] mt-0.5 font-medium">{item.label}</span>
+                <Icon size={16} />
+                <span className="text-[9px] leading-tight mt-0.5 font-medium">{item.label}</span>
               </Link>
             );
           })}
