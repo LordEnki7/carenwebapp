@@ -25,14 +25,15 @@ export interface IAPTransaction {
 }
 
 // Map plan IDs to App Store product identifiers
-// NOTE: _v2 IDs used because original IDs were deleted in App Store Connect.
-// If Apple restores the originals, remove _v2 from all IDs here and in Plans.tsx + Products.storekit
+// NOTE: community_guardian stays _v2 (Non-Consumable in In-App Purchases section).
+// Monthly subscriptions use _v3 because the _v2 IDs were created as Consumables by mistake
+// and had to be recreated as Auto-Renewable Subscriptions in the Subscriptions section.
 export const PRODUCT_IDS: Record<PlanId, string> = {
   community_guardian:  "com.caren.safetyapp.community_guardian_v2",
-  standard_plan:       "com.caren.safetyapp.standard_plan_monthly_v2",
-  legal_shield:        "com.caren.safetyapp.legal_shield_monthly_v2",
-  family_plan:         "com.caren.safetyapp.family_plan_monthly_v2",
-  fleet_enterprise:    "com.caren.safetyapp.fleet_enterprise_monthly_v2",
+  standard_plan:       "com.caren.safetyapp.standard_plan_monthly_v3",
+  legal_shield:        "com.caren.safetyapp.legal_shield_monthly_v3",
+  family_plan:         "com.caren.safetyapp.family_plan_monthly_v3",
+  fleet_enterprise:    "com.caren.safetyapp.fleet_enterprise_monthly_v3",
 };
 
 // RevenueCat iOS public API key — set this once you have it from app.revenuecat.com
