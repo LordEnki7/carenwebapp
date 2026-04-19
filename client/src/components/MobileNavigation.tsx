@@ -193,7 +193,10 @@ export default function MobileNavigation() {
             </div>
 
             {/* ── STICKY FOOTER — always visible, no scrolling needed ── */}
-            <div className="flex-shrink-0 border-t border-white/10 p-3 space-y-2 bg-gray-900/98">
+            <div
+              className="flex-shrink-0 border-t border-white/10 p-3 space-y-2 bg-gray-900/98"
+              style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+            >
               {/* Plans & Pricing */}
               <Link href="/plans" onClick={() => setIsOpen(false)}>
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500/20 to-purple-500/20 border border-cyan-500/50 hover:border-cyan-400 transition-all cursor-pointer">

@@ -333,10 +333,25 @@ export default function Record() {
       setRecordingDuration(0);
       setIsRecording(false);
       
+      // Detect iOS native app — WKWebView has strict MediaRecorder limitations
+      const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
+      const isAndroidNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
+      const isNative = isIOSNative || isAndroidNative;
+
       // Check if browser supports getUserMedia.
       // Common cause of failure: page is inside an iframe (e.g. Replit preview panel).
       // Browsers block camera/mic in iframes by default for security.
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        if (isIOSNative) {
+          throw new Error(
+            'Camera/microphone access is blocked. Open iPhone Settings → CAREN Alert → enable Camera and Microphone, then try again.'
+          );
+        }
+        if (isAndroidNative) {
+          throw new Error(
+            'Camera/microphone access is blocked. Open Android Settings → Apps → CAREN Alert → Permissions → enable Camera and Microphone.'
+          );
+        }
         const isInIframe = window.self !== window.top;
         if (isInIframe) {
           throw new Error(
@@ -345,9 +360,6 @@ export default function Record() {
         }
         throw new Error('Your browser does not support media recording. Please use Chrome, Firefox, or Safari.');
       }
-      
-      // Detect iOS native app — WKWebView has strict MediaRecorder limitations
-      const isIOSNative = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
 
       // iOS WKWebView: sampleRate and advanced video constraints fail; keep it simple
       const baseConstraints = isIOSNative
