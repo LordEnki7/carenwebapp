@@ -1,6 +1,8 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
+import { DEPLOY_TIMESTAMP } from "./buildTimestamp";
+console.log("[BUILD] Deploy timestamp:", DEPLOY_TIMESTAMP);
 import { initializeLanguage } from "@/lib/i18n";
 import CrashlyticsService from "@/services/crashlytics";
 import ErrorBoundary from "@/components/ErrorBoundary";

@@ -26,8 +26,10 @@ RUN echo "BUILD_TIMESTAMP: 2026-04-20T13:00:44Z"
 
 COPY . .
 
-# dist/public/ is pre-built in Replit and committed to git.
-# Only build the server-side bundle here — no vite in Docker.
+# dist/public/ is pre-built in Replit (where VITE_* secrets are available) and committed to git.
+# client/src/buildTimestamp.ts is written with a unique timestamp by deploy-to-dokploy.sh on
+# every deploy, guaranteeing Docker's COPY layer is always a content-hash cache MISS.
+# Only build the server-side bundle here — Vite MUST NOT run in Docker (no VITE_* env vars).
 RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 EXPOSE 5000
