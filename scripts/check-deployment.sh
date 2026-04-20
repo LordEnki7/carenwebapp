@@ -190,6 +190,40 @@ else
   hint "Run: git remote add github https://\$GITHUB_PERSONAL_ACCESS_TOKEN2@github.com/LordEnki7/carenwebapp.git"
 fi
 
+# ── 8. Production API health (carenalert.com) ────────────────────────────────
+# Catches: broken Docker container, API routes returning HTML, server not running.
+# This would have caught today's issue where /api/version returned HTML.
+header "Production API health (carenalert.com)"
+
+PROD_CONTENT_TYPE=$(curl -s -o /dev/null -w "%{content_type}" --max-time 8 https://carenalert.com/api/version 2>/dev/null || echo "")
+PROD_HTTP=$(curl -s -o /dev/null -w "%{http_code}" --max-time 8 https://carenalert.com/api/version 2>/dev/null || echo "000")
+
+if [ "$PROD_HTTP" = "000" ]; then
+  fail "carenalert.com is not reachable — server may be down"
+elif echo "$PROD_CONTENT_TYPE" | grep -q "text/html"; then
+  fail "carenalert.com/api/version returned HTML instead of JSON (HTTP $PROD_HTTP)"
+  hint "The Express server is not handling API routes — Docker container may be broken"
+  hint "Fix: re-deploy from Shell → bash scripts/deploy-to-dokploy.sh"
+elif echo "$PROD_CONTENT_TYPE" | grep -q "application/json"; then
+  PROD_COMMIT=$(curl -s --max-time 8 https://carenalert.com/api/version 2>/dev/null | node -e "process.stdin.resume();let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>{try{console.log(JSON.parse(d).commit||'?')}catch{console.log('?')}})" 2>/dev/null)
+  ok "carenalert.com API is healthy — responding with JSON"
+
+  # ── 9. Production commit matches local HEAD ───────────────────────────────
+  # Catches: deploying then forgetting to push, or pushing but Dokploy not deploying.
+  LOCAL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+  if [ "$PROD_COMMIT" = "$LOCAL_COMMIT" ]; then
+    ok "Production is up to date — commit matches local HEAD ($PROD_COMMIT)"
+  else
+    PROD_SHORT="${PROD_COMMIT:0:7}"
+    LOCAL_SHORT="${LOCAL_COMMIT:0:7}"
+    warn "Production commit ($PROD_SHORT) does not match local HEAD ($LOCAL_SHORT)"
+    hint "This means local changes have NOT been deployed yet"
+    hint "Fix: bash scripts/deploy-to-dokploy.sh  then wait ~2 min for Dokploy"
+  fi
+else
+  warn "carenalert.com/api/version returned unexpected content-type: $PROD_CONTENT_TYPE (HTTP $PROD_HTTP)"
+fi
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo ""
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
