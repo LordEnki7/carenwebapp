@@ -20,8 +20,10 @@ RUN npm install --legacy-peer-deps
 
 COPY . .
 
-RUN npx vite build && \
-    npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+# dist/public/ is pre-built in Replit and committed to git — do NOT re-run vite build here.
+# Re-running vite in Docker caused stale Docker layer cache to serve old bundles (missing features).
+# Only build the server-side bundle which is fast and has no caching issues.
+RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 EXPOSE 5000
 

@@ -40,11 +40,23 @@ else
   echo -e "  ${GREEN}✓ No stale locks — git is clean${RESET}"
 fi
 
-# ── Step 1: Write build-info.json with current git SHA, then stage ───
+# ── Step 1: Build the frontend (Vite) — commit the result so Docker never re-builds it ──
+# Vite runs HERE in Replit where the source is known-good.
+# The Dockerfile only runs esbuild (server) now — no vite in Docker.
+# This permanently eliminates the "stale Docker cache served old bundle" bug.
+echo -e "\n${YELLOW}Step 1 — Building frontend with Vite...${RESET}"
+if npx vite build 2>&1 | tail -3; then
+  echo -e "  ${GREEN}✓ Frontend built — dist/public/ is up to date${RESET}"
+else
+  echo -e "  ${RED}✗ Vite build failed — aborting deploy${RESET}"
+  exit 1
+fi
+
+# ── Step 1b: Write build-info.json with current git SHA, then stage ───
 # build-info.json is the source of truth for "what commit is deployed".
 # It gets committed, copied into the Docker image, served at /build-info.json,
-# and exposed via /api/version. Step 6 below verifies prod is running this exact SHA.
-echo -e "\n${YELLOW}Step 1 — Writing build-info.json + staging all changes...${RESET}"
+# and exposed via /api/version.
+echo -e "\n${YELLOW}Step 1b — Writing build-info.json + staging all changes...${RESET}"
 node scripts/write-build-info.cjs
 git add -A
 CHANGED=$(git diff --cached --name-only | wc -l | tr -d ' ')

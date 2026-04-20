@@ -50,11 +50,14 @@ bash scripts/deploy-to-dokploy.sh
 ```
 
 This single script handles everything:
-1. Removes `.github/workflows/` from staging (PAT lacks workflow scope — staged workflow files cause push rejection)
-2. Stages all current changes (`git add -A`)
-3. Refreshes the GitHub remote URL with the current PAT token
-4. Pushes `fresh-main` → `github/main` (what Dokploy watches)
-5. Prints confirmation and next steps
+1. **Runs `npx vite build`** to produce a fresh `dist/public/` bundle in Replit (where code is known-good)
+2. Writes `build-info.json` with the current commit SHA
+3. Stages all changes including the new `dist/public/` bundle
+4. Removes `.github/workflows/` from staging (PAT lacks workflow scope)
+5. Commits and pushes to `github/main` (what Dokploy watches)
+6. Prints confirmation and next steps
+
+**WHY THE FRONTEND IS PRE-BUILT:** Docker layer caching caused Dokploy to serve old JS bundles (missing features like Plans in footer) even after `git push`. The fix: build in Replit, commit `dist/public/` to git, and have the Dockerfile skip vite build entirely. The Dockerfile now only runs the fast server-side esbuild step.
 
 **IMPORTANT:** This script MUST be run from the **Shell tab** — not a workflow, not the AI agent. Only the Shell tab can run `git push`.
 
@@ -64,12 +67,9 @@ This single script handles everything:
 
 Once the script prints **✓ PUSH SUCCESSFUL**:
 
-1. Open the Dokploy dashboard
-2. Click **Deploy → Rebuild without cache**
-3. Wait ~2 minutes for the build
-4. Open `https://carenalert.com/api/version` — if `serverStartTime` changed, the new code is live
+Dokploy auto-deploys on every push. Wait ~2 minutes and the new code is live. You can verify at `https://carenalert.com` — check the footer for Plans tab.
 
-> **Note:** The script no longer polls production automatically. Dokploy requires a manual deploy click — the old auto-poll always timed out and was removed.
+> **No more "Rebuild without cache" needed.** Since the frontend bundle is pre-built and committed to git, Docker layer caching cannot serve stale JS. A regular Dokploy auto-deploy is always sufficient.
 
 ---
 
