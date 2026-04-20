@@ -1,7 +1,8 @@
 node_modules
 .git
 .github
-dist
+dist/index.js
+dist/index.js.map
 .env
 .env.local
 .env.*.local
