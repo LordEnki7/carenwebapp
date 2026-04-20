@@ -68,21 +68,32 @@ export default function BrowserCompatibleSignIn() {
     const isNative = (() => { try { return Capacitor.isNativePlatform(); } catch { return false; } })();
     video.src = isNative ? 'https://carenalert.com/caren-hero.mp4' : '/caren-hero.mp4';
     video.muted = false;
-    video.load();
 
-    video.play()
-      .then(() => setVideoState('playing'))
-      .catch((err) => {
-        if (err?.name === 'AbortError') {
-          setVideoState('idle');
-        } else {
-          // On iOS, try muted autoplay as fallback
-          video.muted = true;
-          video.play()
-            .then(() => setVideoState('playing'))
-            .catch(() => setVideoState('error'));
-        }
-      });
+    const doPlay = () => {
+      video.play()
+        .then(() => setVideoState('playing'))
+        .catch((err) => {
+          if (err?.name === 'AbortError') {
+            setVideoState('idle');
+          } else {
+            // iOS blocks unmuted play — retry muted as fallback
+            video.muted = true;
+            video.play()
+              .then(() => setVideoState('playing'))
+              .catch(() => setVideoState('error'));
+          }
+        });
+    };
+
+    // Wait for canplay before calling play() — avoids AbortError
+    // when play() is called before the browser has buffered enough data.
+    if (video.readyState >= 3) {
+      doPlay();
+    } else {
+      video.addEventListener('canplay', doPlay, { once: true });
+      video.addEventListener('error', () => setVideoState('error'), { once: true });
+      video.load();
+    }
   }, []);
 
   // New user onboarding state
