@@ -28,6 +28,17 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
   },
+  define: {
+    // Explicitly inject secrets that Vite's env loader may not pick up from
+    // the process environment (e.g. Replit secrets during shell-based builds).
+    // JSON.stringify wraps the value in quotes so it becomes a string literal in the bundle.
+    "import.meta.env.VITE_REVENUECAT_IOS_API_KEY": JSON.stringify(
+      process.env.VITE_REVENUECAT_IOS_API_KEY ?? ""
+    ),
+    "import.meta.env.VITE_STRIPE_PUBLIC_KEY": JSON.stringify(
+      process.env.VITE_STRIPE_PUBLIC_KEY ?? ""
+    ),
+  },
   server: {
     fs: {
       strict: true,
