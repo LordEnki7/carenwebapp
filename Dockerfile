@@ -18,7 +18,7 @@ COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
-# BUILD_TIMESTAMP: 2026-04-20T00:00:00Z
+# BUILD_TIMESTAMP: 2026-04-20T12:24:30Z
 # This line is updated by deploy-to-dokploy.sh on every deploy.
 # Changing it forces Docker to invalidate the COPY cache below,
 # guaranteeing the fresh dist/public/ bundle is always copied in.
