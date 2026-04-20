@@ -163,6 +163,25 @@ else
   done
 fi
 
+# ── RevenueCat key validation ────────────────────────────────
+header "RevenueCat iOS key"
+RC_KEY="${VITE_REVENUECAT_IOS_API_KEY:-}"
+if [ -z "$RC_KEY" ]; then
+  fail "VITE_REVENUECAT_IOS_API_KEY is not set — Plans page will silently fail on iOS"
+elif [[ "$RC_KEY" == test_* ]]; then
+  fail "VITE_REVENUECAT_IOS_API_KEY is a TEST key ($RC_KEY) — real purchases will be rejected. Update it to the production 'appl_...' key in Replit Secrets."
+elif [[ "$RC_KEY" == appl_* ]]; then
+  ok "VITE_REVENUECAT_IOS_API_KEY is a production key (appl_...)"
+  # Also verify it's actually embedded in the built bundle
+  if grep -rl "appl_" dist/public/assets/*.js > /dev/null 2>&1; then
+    ok "Production key is embedded in the built bundle (dist/public/assets/)"
+  else
+    fail "Production key is NOT in the built bundle — run: npx vite build  before deploying"
+  fi
+else
+  warn "VITE_REVENUECAT_IOS_API_KEY format unrecognized ($RC_KEY) — expected 'appl_...' for iOS"
+fi
+
 # ── Summary ──────────────────────────────────────────────────
 echo -e "\n${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 echo -e "  ${GREEN}${PASS} passed${RESET}  ${YELLOW}${WARN} warnings${RESET}  ${RED}${FAIL} failed${RESET}"
