@@ -73,6 +73,26 @@ class InAppPurchaseService {
     return current;
   }
 
+  // Search all offerings (not just current) for a specific product ID.
+  // This handles the case where community_guardian lives in v2 while
+  // subscriptions live in the v3 current offering.
+  private async findPackageAcrossOfferings(productId: string): Promise<any> {
+    const allOfferings = await this.rcModule.getOfferings();
+    // Check current offering first
+    const currentPkgs = allOfferings?.current?.availablePackages ?? [];
+    const inCurrent = currentPkgs.find((p: any) => p.product?.identifier === productId);
+    if (inCurrent) return inCurrent;
+    // Fall back to all other offerings
+    const all: Record<string, any> = allOfferings?.all ?? {};
+    for (const offering of Object.values(all)) {
+      const pkg = (offering as any).availablePackages?.find(
+        (p: any) => p.product?.identifier === productId
+      );
+      if (pkg) return pkg;
+    }
+    return null;
+  }
+
   async purchase(planId: PlanId): Promise<{ success: boolean; error?: string }> {
     if (!this.rcModule) await this.initialize();
     if (!this.rcModule) {
@@ -80,13 +100,8 @@ class InAppPurchaseService {
     }
 
     try {
-      const offerings = await this.getOfferings();
-      if (!offerings) return { success: false, error: "Could not load products" };
-
       const productId = PRODUCT_IDS[planId];
-      const pkg = offerings.availablePackages?.find(
-        (p: any) => p.product?.identifier === productId
-      );
+      const pkg = await this.findPackageAcrossOfferings(productId);
 
       if (!pkg) return { success: false, error: "Product not found" };
 
