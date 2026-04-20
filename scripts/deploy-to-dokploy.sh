@@ -64,12 +64,40 @@ echo -e "  ${GREEN}✓ Dockerfile RUN echo stamped: $BUILD_TS${RESET}"
 # Vite MUST run here, not in Docker — Docker build has no access to VITE_STRIPE_PUBLIC_KEY etc.
 # The fresh dist/public/ is committed to git and copied into Docker via the fresh COPY layer
 # (which is guaranteed to be a cache miss because buildTimestamp.ts changed above).
+echo -e "\n${YELLOW}Step 1d — Checking VITE_* secrets before build...${RESET}"
+
+RC_KEY="${VITE_REVENUECAT_IOS_API_KEY:-}"
+if [ -z "$RC_KEY" ]; then
+  echo -e "  ${RED}✗ VITE_REVENUECAT_IOS_API_KEY is not set in this shell session${RESET}"
+  echo -e "  ${YELLOW}→ Close this Shell tab, open a NEW Shell tab, and re-run the deploy script${RESET}"
+  echo -e "  ${YELLOW}→ Replit secrets only appear in shell sessions opened AFTER the secret was saved${RESET}"
+  exit 1
+elif echo "$RC_KEY" | grep -q "^test_"; then
+  echo -e "  ${RED}✗ VITE_REVENUECAT_IOS_API_KEY starts with 'test_' — this will break iOS in-app purchases${RESET}"
+  echo -e "  ${YELLOW}→ Set the correct 'appl_...' key in Replit Secrets and open a new Shell tab${RESET}"
+  exit 1
+else
+  echo -e "  ${GREEN}✓ VITE_REVENUECAT_IOS_API_KEY is set (${RC_KEY:0:8}...)${RESET}"
+fi
+
 echo -e "\n${YELLOW}Step 1d — Building frontend with Vite (in Replit)...${RESET}"
 if npx vite build 2>&1 | tail -3; then
   echo -e "  ${GREEN}✓ Frontend built — dist/public/ ready for deployment${RESET}"
 else
   echo -e "  ${RED}✗ Vite build failed — aborting deploy${RESET}"
   exit 1
+fi
+
+# Verify the RC key actually made it into the bundle (catches env var / vite issues)
+PLANS_BUNDLE=$(ls dist/public/assets/Plans-*.js 2>/dev/null | head -1)
+if [ -n "$PLANS_BUNDLE" ]; then
+  if grep -q "appl_" "$PLANS_BUNDLE"; then
+    echo -e "  ${GREEN}✓ RevenueCat appl_ key confirmed in bundle${RESET}"
+  else
+    echo -e "  ${RED}✗ RevenueCat key is MISSING from the bundle — aborting deploy${RESET}"
+    echo -e "  ${YELLOW}→ Close this Shell tab, open a NEW Shell tab, and re-run the deploy script${RESET}"
+    exit 1
+  fi
 fi
 
 # ── Step 1b: Write build-info.json with current git SHA, then stage ───
