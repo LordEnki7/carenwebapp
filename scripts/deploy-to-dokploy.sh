@@ -52,6 +52,14 @@ else
   exit 1
 fi
 
+# ── Step 1c: Stamp current timestamp into Dockerfile to bust Docker's COPY cache ──
+# Docker caches the COPY layer. Changing any line in the Dockerfile itself
+# forces Docker to invalidate ALL cached layers from that line forward,
+# guaranteeing the fresh dist/public/ bundle is always copied in.
+BUILD_TS=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+sed -i "s|# BUILD_TIMESTAMP: .*|# BUILD_TIMESTAMP: $BUILD_TS|" Dockerfile
+echo -e "  ${GREEN}✓ Dockerfile stamped with build timestamp: $BUILD_TS${RESET}"
+
 # ── Step 1b: Write build-info.json with current git SHA, then stage ───
 # build-info.json is the source of truth for "what commit is deployed".
 # It gets committed, copied into the Docker image, served at /build-info.json,

@@ -18,11 +18,14 @@ COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
+# BUILD_TIMESTAMP: 2026-04-20T00:00:00Z
+# This line is updated by deploy-to-dokploy.sh on every deploy.
+# Changing it forces Docker to invalidate the COPY cache below,
+# guaranteeing the fresh dist/public/ bundle is always copied in.
 COPY . .
 
-# dist/public/ is pre-built in Replit and committed to git — do NOT re-run vite build here.
-# Re-running vite in Docker caused stale Docker layer cache to serve old bundles (missing features).
-# Only build the server-side bundle which is fast and has no caching issues.
+# dist/public/ is pre-built in Replit and committed to git.
+# Only build the server-side bundle here — no vite in Docker.
 RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 EXPOSE 5000
