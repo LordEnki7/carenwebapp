@@ -18,10 +18,12 @@ COPY package*.json ./
 
 RUN npm install --legacy-peer-deps
 
-# BUILD_TIMESTAMP: 2026-04-20T12:24:30Z
-# This line is updated by deploy-to-dokploy.sh on every deploy.
-# Changing it forces Docker to invalidate the COPY cache below,
-# guaranteeing the fresh dist/public/ bundle is always copied in.
+# BUILD_CACHE_BUST — updated by deploy-to-dokploy.sh on every deploy.
+# RUN echo creates a real Docker layer whose cache key includes the timestamp string.
+# When the timestamp changes, this layer and ALL subsequent layers (COPY, esbuild) are
+# invalidated, guaranteeing Docker always copies the fresh dist/public/ bundle from git.
+RUN echo "BUILD_TIMESTAMP: 2026-04-20T00:00:00Z"
+
 COPY . .
 
 # dist/public/ is pre-built in Replit and committed to git.
