@@ -27,7 +27,23 @@ public class AppleSignInPlugin: CAPPlugin, CAPBridgedPlugin, ASAuthorizationCont
     }
 
     public func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
-        return self.bridge?.viewController?.view.window ?? UIWindow()
+        // Prefer the bridge's own window — works on iPhone and most iPad cases
+        if let window = self.bridge?.viewController?.view.window {
+            return window
+        }
+        // iPad fallback: find the foreground active scene's key window.
+        // On iPadOS the bridge window can be nil if the scene isn't fully active yet.
+        if let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }) {
+            if let keyWindow = scene.windows.first(where: { $0.isKeyWindow }) {
+                return keyWindow
+            }
+            if let anyWindow = scene.windows.first {
+                return anyWindow
+            }
+        }
+        return UIWindow()
     }
 
     public func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
