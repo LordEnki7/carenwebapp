@@ -831,9 +831,10 @@ export default function Settings() {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-4 mt-4">
+                <div className="flex gap-4 mt-4 flex-wrap">
                   <a href="/privacy" className="text-cyan-400 hover:text-cyan-300 text-sm underline">Privacy Policy</a>
                   <a href="/terms" className="text-cyan-400 hover:text-cyan-300 text-sm underline">Terms of Service</a>
+                  <a href="/eula" className="text-cyan-400 hover:text-cyan-300 text-sm underline">EULA</a>
                 </div>
 
                 {/* Account Deletion — required by App Store Guideline 5.1.1(v) */}

@@ -58,6 +58,7 @@ const RedirectToDashboard = () => {
 };
 
 const Plans = lazy(() => import("@/pages/Plans"));
+const EULA = lazy(() => import("@/pages/EULA"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Payment = lazy(() => import("@/pages/Payment"));
 const Attorneys = lazy(() => import("@/pages/Attorneys"));
@@ -229,6 +230,7 @@ function Router() {
             <Route path="/signin" component={BrowserCompatibleSignIn} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
+            <Route path="/eula" component={EULA} />
             <Route path="/about" component={Landing} />
             <Route path="/pricing" component={Plans} />
             <Route path="/payment" component={Payment} />
@@ -333,6 +335,9 @@ function Router() {
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={Plans} />
             <Route path="/help" component={Help} />
+            <Route path="/eula" component={EULA} />
+            <Route path="/terms" component={TermsOfService} />
+            <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/mobile-preview" component={MobilePreview} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
