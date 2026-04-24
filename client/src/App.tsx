@@ -61,6 +61,7 @@ const Plans = lazy(() => import("@/pages/Plans"));
 const EULA = lazy(() => import("@/pages/EULA"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Payment = lazy(() => import("@/pages/Payment"));
+const PaymentSuccess = lazy(() => import("@/pages/PaymentSuccess"));
 const Attorneys = lazy(() => import("@/pages/Attorneys"));
 const Messages = lazy(() => import("@/pages/Messages"));
 const Settings = lazy(() => import("@/pages/Settings"));
@@ -234,6 +235,7 @@ function Router() {
             <Route path="/about" component={Landing} />
             <Route path="/pricing" component={Plans} />
             <Route path="/payment" component={Payment} />
+            <Route path="/payment-success" component={PaymentSuccess} />
             <Route path="/plans" component={Plans} />
             <Route path="/help" component={Help} />
             <Route path="/rights" component={() => <Rights />} />
@@ -309,6 +311,7 @@ function Router() {
             <Route path="/evidence-catalog" component={EvidenceCatalog} />
             <Route path="/accessibility" component={AccessibilityEnhancer} />
             <Route path="/payment" component={Payment} />
+            <Route path="/payment-success" component={PaymentSuccess} />
             <Route path="/plans" component={Plans} />
             <Route path="/admin" component={SimpleAdminDashboard} />
             <Route path="/load-test" component={LoadTestDashboard} />

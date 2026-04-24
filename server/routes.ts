@@ -2684,7 +2684,7 @@ setInterval(load, 15000);
 
       // Get the correct domain for Replit environment
       const domain = process.env.REPLIT_DEV_DOMAIN || req.get('host');
-      const successUrl = `https://${domain}/dashboard?session_id={CHECKOUT_SESSION_ID}`;
+      const successUrl = `https://${domain}/payment-success?session_id={CHECKOUT_SESSION_ID}&plan=${planId}`;
       const cancelUrl = `https://${domain}/payment?plan=${planId}`;
       
       console.log("Creating Stripe session with URLs:", { successUrl, cancelUrl });
@@ -2729,6 +2729,66 @@ setInterval(load, 15000);
     } catch (error: any) {
       console.error("Error creating checkout session:", error);
       res.status(500).json({ message: "Error creating checkout session: " + error.message });
+    }
+  });
+
+  // Activate a paid Stripe checkout session — links payment to user account
+  app.post("/api/subscription/activate", isAuthenticated, async (req: any, res) => {
+    try {
+      const { sessionId } = req.body;
+      if (!sessionId) return res.status(400).json({ message: "Missing sessionId" });
+
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+
+      if (session.payment_status !== 'paid' && session.status !== 'complete') {
+        return res.status(402).json({ message: "Payment not completed" });
+      }
+
+      const planId = (session.metadata?.planId || '').toLowerCase();
+
+      // Map plan ID to internal subscription tier
+      const TIER_MAP: Record<string, string> = {
+        community_guardian: 'basic_guard',
+        standard_plan:      'safety_pro',
+        legal_shield:       'constitutional_pro',
+        family_plan:        'family_protection',
+        fleet_enterprise:   'enterprise_fleet',
+      };
+      const subscriptionTier = TIER_MAP[planId] || 'safety_pro';
+
+      const userId = (req.session as any).userId;
+      await storage.updateUserProfile(userId, { subscriptionTier } as any);
+
+      console.log(`[ACTIVATE] User ${userId} activated plan ${planId} → tier ${subscriptionTier}`);
+
+      res.json({
+        success: true,
+        planId,
+        subscriptionTier,
+        planName: session.line_items?.data?.[0]?.description || planId,
+      });
+    } catch (error: any) {
+      console.error("[ACTIVATE] Error activating subscription:", error);
+      res.status(500).json({ message: "Could not activate subscription: " + error.message });
+    }
+  });
+
+  // Public: verify a Stripe session status (used on payment-success page before login)
+  app.get("/api/subscription/session-status", async (req: any, res) => {
+    try {
+      const { session_id } = req.query;
+      if (!session_id) return res.status(400).json({ message: "Missing session_id" });
+
+      const session = await stripe.checkout.sessions.retrieve(session_id as string);
+
+      res.json({
+        paid: session.payment_status === 'paid' || session.status === 'complete',
+        planId: session.metadata?.planId || '',
+        customerEmail: session.customer_details?.email || '',
+        amountTotal: session.amount_total,
+      });
+    } catch (error: any) {
+      res.status(500).json({ message: "Could not verify session: " + error.message });
     }
   });
 
