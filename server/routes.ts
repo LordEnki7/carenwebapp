@@ -2759,6 +2759,18 @@ setInterval(load, 15000);
       const userId = (req.session as any).userId;
       await storage.updateUserProfile(userId, { subscriptionTier } as any);
 
+      // Store stripe customer ID & subscription ID on the user for portal access
+      const stripeCustomerId = typeof session.customer === 'string' ? session.customer : session.customer?.id;
+      const stripeSubscriptionId = typeof session.subscription === 'string' ? session.subscription : session.subscription?.id;
+      if (stripeCustomerId || stripeSubscriptionId) {
+        try {
+          await storage.updateUserProfile(userId, {
+            stripeCustomerId,
+            stripeSubscriptionId,
+          } as any);
+        } catch { /* non-fatal */ }
+      }
+
       console.log(`[ACTIVATE] User ${userId} activated plan ${planId} → tier ${subscriptionTier}`);
 
       res.json({
@@ -2789,6 +2801,44 @@ setInterval(load, 15000);
       });
     } catch (error: any) {
       res.status(500).json({ message: "Could not verify session: " + error.message });
+    }
+  });
+
+  // Open Stripe Customer Portal for subscription management (upgrade, downgrade, cancel)
+  app.post("/api/subscription/portal", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = (req.session as any).userId;
+      const user = await storage.getUser(userId);
+
+      if (!user?.email) {
+        return res.status(400).json({ message: "No email address on your account." });
+      }
+
+      // Find this user's Stripe customer by email
+      const customers = await stripe.customers.search({
+        query: `email:'${user.email}'`,
+        limit: 1,
+      });
+
+      if (customers.data.length === 0) {
+        return res.status(404).json({
+          noCustomer: true,
+          message: "No billing account found for your email. If you paid via Apple Pay or another method, please contact support@carenalert.com to manage your subscription.",
+        });
+      }
+
+      const customerId = customers.data[0].id;
+      const domain = process.env.REPLIT_DEV_DOMAIN || req.get('host');
+
+      const portalSession = await stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: `https://${domain}/settings`,
+      });
+
+      res.json({ url: portalSession.url });
+    } catch (error: any) {
+      console.error("[PORTAL] Error creating portal session:", error);
+      res.status(500).json({ message: "Could not open billing portal: " + error.message });
     }
   });
 

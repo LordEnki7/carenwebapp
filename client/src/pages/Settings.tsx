@@ -68,6 +68,7 @@ export default function Settings() {
   
   // Notification settings
   const [emailNotifications, setEmailNotifications] = useState(true);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [emergencyAlerts, setEmergencyAlerts] = useState(true);
   const [recordingReminders, setRecordingReminders] = useState(false);
 
@@ -149,6 +150,25 @@ export default function Settings() {
       </MobileResponsiveLayout>
     );
   }
+
+  const openBillingPortal = async () => {
+    setPortalLoading(true);
+    try {
+      const res = await apiRequest("POST", "/api/subscription/portal", {});
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else if (data.noCustomer) {
+        toast({ title: "No billing account found", description: data.message, variant: "destructive" });
+      } else {
+        toast({ title: "Error", description: data.message || "Could not open billing portal.", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "Error", description: "Could not connect to billing portal. Please try again.", variant: "destructive" });
+    } finally {
+      setPortalLoading(false);
+    }
+  };
 
   const loadSecurityData = async () => {
     try {
@@ -595,6 +615,97 @@ export default function Settings() {
                 </div>
               </div>
             </div>
+
+            {/* Subscription Management */}
+            {!Capacitor.isNativePlatform() && (
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-purple-500/30 p-6">
+                <div className="border-b border-purple-500/20 pb-4 mb-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-500/30">
+                      <Shield className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-white">Subscription</h2>
+                      <p className="text-sm text-gray-400">Manage your plan, billing, and cancellation</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Current Plan */}
+                  <div className="flex items-center justify-between p-4 bg-gray-900/50 rounded-lg border border-gray-700/40">
+                    <div>
+                      <p className="text-sm text-gray-400 mb-1">Current Plan</p>
+                      <div className="flex items-center gap-2">
+                        <span className="text-white font-semibold capitalize">
+                          {(() => {
+                            const tier = (user as any)?.subscriptionTier;
+                            if (tier === 'basic_guard') return 'Community Guardian';
+                            if (tier === 'safety_pro') return 'Standard Plan';
+                            if (tier === 'constitutional_pro') return 'Legal Shield';
+                            if (tier === 'family_protection') return 'Family Plan';
+                            if (tier === 'enterprise_fleet') return 'Fleet & Enterprise';
+                            return 'Free';
+                          })()}
+                        </span>
+                        <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-xs">Active</Badge>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10"
+                      onClick={() => window.location.href = '/plans'}
+                    >
+                      Change Plan
+                    </Button>
+                  </div>
+
+                  {/* Billing Portal */}
+                  <div className="p-4 bg-gray-900/30 rounded-lg border border-gray-700/30 space-y-3">
+                    <p className="text-sm text-gray-300 font-medium">Billing Management</p>
+                    <p className="text-xs text-gray-400">
+                      Access your billing portal to update payment method, view invoices, upgrade, downgrade, or cancel your subscription.
+                    </p>
+                    <Button
+                      onClick={openBillingPortal}
+                      disabled={portalLoading}
+                      className="bg-purple-600 hover:bg-purple-700 text-white"
+                    >
+                      {portalLoading ? "Opening Portal..." : "Manage Billing & Cancel"}
+                    </Button>
+                  </div>
+
+                  <p className="text-xs text-gray-500 italic">
+                    Cancellations take effect at the end of your current billing period — you keep access until then.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* iOS Subscription Note */}
+            {Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios' && (
+              <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg border border-purple-500/30 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-500/30">
+                    <Shield className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-white">Subscription</h2>
+                    <p className="text-sm text-gray-400">Manage your Apple subscription</p>
+                  </div>
+                </div>
+                <div className="p-4 bg-gray-900/30 rounded-lg border border-gray-700/30 space-y-2">
+                  <p className="text-sm text-gray-300">To upgrade, downgrade, or cancel your iOS subscription:</p>
+                  <ol className="text-xs text-gray-400 space-y-1 list-decimal list-inside">
+                    <li>Open iPhone Settings</li>
+                    <li>Tap your name at the top</li>
+                    <li>Tap Subscriptions</li>
+                    <li>Select C.A.R.E.N. Alert</li>
+                  </ol>
+                </div>
+              </div>
+            )}
 
             {/* Account Security */}
             <div className="p-6 rounded-lg bg-gray-800/50 border border-cyan-500/30">
