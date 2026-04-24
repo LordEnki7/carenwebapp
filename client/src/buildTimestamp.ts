@@ -2,4 +2,4 @@
 // This file's content changes on every deploy to bust Docker's layer cache.
 // Docker's COPY layer is content-addressed; a changed file guarantees a cache miss,
 // forcing a fresh COPY + Vite rebuild inside Docker on every deployment.
-export const DEPLOY_TIMESTAMP = "2026-04-24T11:35:41Z";
+export const DEPLOY_TIMESTAMP = "2026-04-24T18:54:40Z";
