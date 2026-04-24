@@ -1,4 +1,5 @@
-import { Capacitor, registerPlugin } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import { SignInWithApple } from '@capacitor-community/apple-sign-in';
 
 export interface AppleSignInResult {
   identityToken: string;
@@ -8,12 +9,6 @@ export interface AppleSignInResult {
   familyName?: string | null;
   user: string;
 }
-
-interface AppleSignInPlugin {
-  signIn(): Promise<AppleSignInResult>;
-}
-
-const AppleSignIn = registerPlugin<AppleSignInPlugin>('AppleSignIn');
 
 export function isAppleSignInAvailable(): boolean {
   return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios';
@@ -25,22 +20,27 @@ export async function signInWithApple(): Promise<AppleSignInResult> {
   }
 
   try {
-    const result = await AppleSignIn.signIn();
-    return result;
+    const result = await SignInWithApple.authorize({
+      clientId: 'com.caren.safetyapp',
+      redirectURI: 'https://carenalert.com',
+      scopes: 'email name',
+    });
+
+    const r = result.response;
+    return {
+      identityToken: r.identityToken,
+      authorizationCode: r.authorizationCode,
+      email: r.email,
+      givenName: r.givenName,
+      familyName: r.familyName,
+      user: r.user ?? '',
+    };
   } catch (error: any) {
-    // "not implemented" means the native Swift plugin isn't compiled into this build.
-    // This happens when the app was built without running `npx cap sync ios` first.
     if (
-      error?.message?.toLowerCase().includes('not implemented') ||
-      error?.message?.toLowerCase().includes('plugin') ||
-      error?.code === 'UNIMPLEMENTED'
+      error?.message === 'cancelled' ||
+      error?.message?.toLowerCase().includes('cancel') ||
+      error?.code === 1001
     ) {
-      throw new Error(
-        'Sign in with Apple requires a fresh Xcode build.\n\nOn your Mac, run:\n  npx cap sync ios\nThen press ⌘R in Xcode to rebuild.'
-      );
-    }
-    // User cancelled — don't treat that as an error
-    if (error?.message === 'cancelled' || error?.message?.toLowerCase().includes('cancel')) {
       throw new Error('cancelled');
     }
     throw error;
