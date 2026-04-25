@@ -1,1 +1,0 @@
-import{r as a}from"./index-Cv4aUM7d.js";function t(){return a.useState(null),a.useState(null),a.useState(!1),{location:null,error:null,isLoading:!1,getCurrentLocation:async()=>null,watchLocation:()=>{},clearWatch:()=>{},geocodeAddress:async()=>({}),setManualLocation:()=>{},calibrateGPS:async()=>null,calculateDistance:()=>0,refetch:async()=>null}}export{t as u};
