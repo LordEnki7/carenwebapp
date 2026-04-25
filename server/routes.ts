@@ -2842,6 +2842,66 @@ setInterval(load, 15000);
     }
   });
 
+  // ── Admin User Management ──────────────────────────────────────────────────
+
+  const VALID_TIERS = ['free', 'basic_guard', 'safety_pro', 'constitutional_pro', 'family_protection', 'enterprise_fleet'];
+
+  // List all users (admin only)
+  app.get('/api/admin/users', async (req: any, res) => {
+    const token = req.headers['x-admin-key'] || req.query.adminKey;
+    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    try {
+      const users = await storage.getAllUsers();
+      const safe = users.map(u => ({
+        id: u.id,
+        email: u.email,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        subscriptionTier: (u as any).subscriptionTier || 'free',
+        role: u.role,
+        createdAt: u.createdAt,
+      }));
+      res.json(safe);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Update a user's subscription tier (admin only)
+  app.patch('/api/admin/users/:userId/tier', async (req: any, res) => {
+    const token = req.headers['x-admin-key'] || req.query.adminKey;
+    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    const { tier } = req.body;
+    if (!tier || !VALID_TIERS.includes(tier)) {
+      return res.status(400).json({ message: `Invalid tier. Must be one of: ${VALID_TIERS.join(', ')}` });
+    }
+    try {
+      await storage.updateUserProfile(req.params.userId, { subscriptionTier: tier } as any);
+      console.log(`[ADMIN] Tier updated: user=${req.params.userId} → ${tier}`);
+      res.json({ success: true, userId: req.params.userId, tier });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
+  // Update a user's role (admin only)
+  app.patch('/api/admin/users/:userId/role', async (req: any, res) => {
+    const token = req.headers['x-admin-key'] || req.query.adminKey;
+    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    const { role } = req.body;
+    const validRoles = ['user', 'attorney', 'admin'];
+    if (!role || !validRoles.includes(role)) {
+      return res.status(400).json({ message: `Invalid role. Must be one of: ${validRoles.join(', ')}` });
+    }
+    try {
+      await storage.updateUserProfile(req.params.userId, { role } as any);
+      console.log(`[ADMIN] Role updated: user=${req.params.userId} → ${role}`);
+      res.json({ success: true, userId: req.params.userId, role });
+    } catch (err: any) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // Admin Dashboard Routes - Live Data Integration
   app.get('/api/admin/stats', async (req: any, res) => {
     try {

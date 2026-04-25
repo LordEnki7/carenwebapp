@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2 } from 'lucide-react';
+import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2, Search, Shield, CheckCircle } from 'lucide-react';
 
 const ADMIN_PANELS = [
   { label: "Director Admin", description: "Manage directors, issue PINs, track commissions", href: "/director-admin", icon: Building2, color: "border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10", badge: "Manage" },
@@ -61,13 +63,72 @@ export default function SimpleAdminDashboard() {
   const [loading, setLoading] = useState(false);
   const [learningInsights, setLearningInsights] = useState<any>(null);
 
+  // User management state
+  const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [userSearch, setUserSearch] = useState('');
+  const [pendingTiers, setPendingTiers] = useState<Record<string, string>>({});
+  const [savingUser, setSavingUser] = useState<string | null>(null);
+  const [savedUser, setSavedUser] = useState<string | null>(null);
+
   const authenticateAdmin = () => {
     if (adminKey === 'CAREN_ADMIN_2025_PRODUCTION') {
       setIsAuthenticated(true);
       loadDashboardData();
+      loadUsers();
     } else {
       alert('Invalid admin key');
     }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const res = await fetch('/api/admin/users', {
+        headers: { 'x-admin-key': 'CAREN_ADMIN_2025_PRODUCTION' }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAllUsers(data);
+      }
+    } catch {}
+  };
+
+  const saveTier = async (userId: string) => {
+    const tier = pendingTiers[userId];
+    if (!tier) return;
+    setSavingUser(userId);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/tier`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': 'CAREN_ADMIN_2025_PRODUCTION' },
+        body: JSON.stringify({ tier }),
+      });
+      if (res.ok) {
+        setAllUsers(prev => prev.map(u => u.id === userId ? { ...u, subscriptionTier: tier } : u));
+        setSavedUser(userId);
+        setTimeout(() => setSavedUser(null), 2000);
+        setPendingTiers(prev => { const n = { ...prev }; delete n[userId]; return n; });
+      }
+    } finally {
+      setSavingUser(null);
+    }
+  };
+
+  const TIER_LABELS: Record<string, string> = {
+    free: 'Free',
+    basic_guard: 'Community Guardian ($0.99)',
+    safety_pro: 'Standard Plan ($4.99/mo)',
+    constitutional_pro: 'Legal Shield ($9.99/mo)',
+    family_protection: 'Family Plan ($29.99/mo)',
+    enterprise_fleet: 'Fleet & Enterprise ($49.99/mo)',
+  };
+
+  const TIER_COLORS: Record<string, string> = {
+    free: 'bg-gray-500/20 text-gray-400',
+    basic_guard: 'bg-emerald-500/20 text-emerald-400',
+    safety_pro: 'bg-cyan-500/20 text-cyan-400',
+    constitutional_pro: 'bg-violet-500/20 text-violet-400',
+    family_protection: 'bg-orange-500/20 text-orange-400',
+    enterprise_fleet: 'bg-blue-500/20 text-blue-400',
   };
 
   const loadDashboardData = async () => {
@@ -353,12 +414,13 @@ export default function SimpleAdminDashboard() {
         {/* Dashboard Tabs */}
         <Card className="bg-gray-800 border-gray-700">
           <Tabs defaultValue="analytics" className="w-full">
-            <TabsList className="grid w-full grid-cols-5 bg-gray-700">
+            <TabsList className="grid w-full grid-cols-6 bg-gray-700">
               <TabsTrigger value="analytics" className="text-white">User Analytics</TabsTrigger>
               <TabsTrigger value="sessions" className="text-white">Live Sessions</TabsTrigger>
               <TabsTrigger value="payments" className="text-white">Payment Tracking</TabsTrigger>
               <TabsTrigger value="learning" className="text-white">Learning Analytics</TabsTrigger>
               <TabsTrigger value="platform" className="text-white">Platform Metrics</TabsTrigger>
+              <TabsTrigger value="users" className="text-white font-semibold">👥 Manage Users</TabsTrigger>
             </TabsList>
             
             <TabsContent value="analytics" className="p-6">
@@ -762,6 +824,121 @@ export default function SimpleAdminDashboard() {
                 </Card>
               </div>
             </TabsContent>
+
+            {/* ── User Management Tab ── */}
+            <TabsContent value="users" className="p-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-xl font-semibold text-white">User Management</h3>
+                    <p className="text-sm text-gray-400 mt-1">Upgrade, downgrade, or revoke access for any account</p>
+                  </div>
+                  <Button onClick={loadUsers} variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
+                    Refresh List
+                  </Button>
+                </div>
+
+                {/* Search */}
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    value={userSearch}
+                    onChange={e => setUserSearch(e.target.value)}
+                    placeholder="Search by name or email..."
+                    className="w-full bg-gray-900/60 border border-gray-700 rounded-lg pl-10 pr-4 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cyan-500"
+                  />
+                </div>
+
+                {/* Tier legend */}
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {Object.entries(TIER_LABELS).map(([k, v]) => (
+                    <span key={k} className={`px-2 py-0.5 rounded-full ${TIER_COLORS[k] || 'bg-gray-500/20 text-gray-400'}`}>{v}</span>
+                  ))}
+                </div>
+
+                {/* User table */}
+                <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+                  {allUsers.length === 0 && (
+                    <div className="text-center py-12 text-gray-500">No users loaded yet. Click Refresh List.</div>
+                  )}
+                  {allUsers
+                    .filter(u => {
+                      const q = userSearch.toLowerCase();
+                      return !q || (u.email || '').toLowerCase().includes(q) ||
+                        (u.firstName || '').toLowerCase().includes(q) ||
+                        (u.lastName || '').toLowerCase().includes(q);
+                    })
+                    .map(u => {
+                      const currentTier = u.subscriptionTier || 'free';
+                      const pendingTier = pendingTiers[u.id];
+                      const hasChange = !!pendingTier && pendingTier !== currentTier;
+                      const isSaving = savingUser === u.id;
+                      const justSaved = savedUser === u.id;
+
+                      return (
+                        <div key={u.id} className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/40 hover:border-gray-600/60 transition-colors">
+                          {/* Avatar */}
+                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border border-gray-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                            {(u.firstName?.[0] || u.email?.[0] || '?').toUpperCase()}
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-white text-sm font-medium truncate">
+                              {u.firstName} {u.lastName}
+                            </p>
+                            <p className="text-gray-400 text-xs truncate">{u.email || u.id}</p>
+                          </div>
+
+                          {/* Current tier badge */}
+                          <Badge className={`text-xs flex-shrink-0 ${TIER_COLORS[currentTier] || 'bg-gray-500/20 text-gray-400'}`}>
+                            {TIER_LABELS[currentTier] || currentTier}
+                          </Badge>
+
+                          {/* Tier selector */}
+                          <Select
+                            value={pendingTier || currentTier}
+                            onValueChange={val => setPendingTiers(prev => ({ ...prev, [u.id]: val }))}
+                          >
+                            <SelectTrigger className="w-48 bg-gray-800 border-gray-600 text-white text-xs h-8">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-gray-800 border-gray-600">
+                              {Object.entries(TIER_LABELS).map(([k, v]) => (
+                                <SelectItem key={k} value={k} className="text-white text-xs hover:bg-gray-700">
+                                  {v}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          {/* Save button */}
+                          <Button
+                            size="sm"
+                            disabled={!hasChange || isSaving}
+                            onClick={() => saveTier(u.id)}
+                            className={`h-8 px-3 text-xs flex-shrink-0 transition-all ${
+                              justSaved
+                                ? 'bg-green-600 hover:bg-green-600 text-white'
+                                : hasChange
+                                ? 'bg-cyan-600 hover:bg-cyan-700 text-white'
+                                : 'bg-gray-700 text-gray-500 cursor-not-allowed'
+                            }`}
+                          >
+                            {isSaving ? '...' : justSaved ? <><CheckCircle className="w-3 h-3 mr-1" />Saved</> : 'Save'}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                <p className="text-xs text-gray-500">
+                  Changes take effect immediately. The user will see their new plan when they next open the app.
+                </p>
+              </div>
+            </TabsContent>
+
           </Tabs>
         </Card>
 
