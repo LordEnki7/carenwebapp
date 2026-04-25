@@ -22,7 +22,7 @@ RUN npm install --legacy-peer-deps
 # RUN echo creates a real Docker layer whose cache key includes the timestamp string.
 # When the timestamp changes, this layer and ALL subsequent layers (COPY, esbuild) are
 # invalidated, guaranteeing Docker always copies the fresh dist/public/ bundle from git.
-RUN echo "BUILD_TIMESTAMP: 2026-04-24T19:20:29Z"
+RUN echo "BUILD_TIMESTAMP: 2026-04-25T00:48:06Z"
 
 COPY . .
 
