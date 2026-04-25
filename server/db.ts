@@ -705,6 +705,21 @@ export async function runAutoMigrations(): Promise<void> {
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )`,
+    `CREATE TABLE IF NOT EXISTS device_fingerprints (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR REFERENCES users(id) ON DELETE SET NULL,
+      device_fingerprint VARCHAR(64) NOT NULL,
+      user_agent TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      last_seen_at TIMESTAMP DEFAULT NOW()
+    )`,
+    `CREATE TABLE IF NOT EXISTS banned_fingerprints (
+      id SERIAL PRIMARY KEY,
+      device_fingerprint VARCHAR(64) NOT NULL UNIQUE,
+      original_user_id VARCHAR,
+      ban_reason TEXT,
+      banned_at TIMESTAMP DEFAULT NOW()
+    )`,
   ];
 
   // Additional ALTER TABLE statements for columns that may be missing on existing deployments
@@ -722,6 +737,11 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS emergency_contacts JSONB`,
+    // users — director referral and abuse/security columns
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS director_ref VARCHAR(20)`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR DEFAULT 'active'`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS ban_reason TEXT`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS banned_at TIMESTAMP`,
     // regional_directors — columns added after initial table creation
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS director_code VARCHAR(20) UNIQUE`,
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS portal_pin VARCHAR(10)`,
