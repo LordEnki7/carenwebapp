@@ -310,25 +310,35 @@ export default function Plans() {
           );
         })}
 
-        {/* Footer legal text */}
+        {/* Footer legal text — required by App Store Guideline 3.1.2(c) */}
         <div className="text-center text-xs text-gray-500 space-y-2 pt-2 pb-8">
-          <p>
-            By subscribing you agree to our{" "}
-            <a href="/terms-of-service" className="text-cyan-400 underline">Terms of Service</a>
-            {" "}and{" "}
-            <a href="/privacy-policy" className="text-cyan-400 underline">Privacy Policy</a>.
-          </p>
           {isIOS && (
             <p>Auto-renewable subscriptions are charged to your Apple ID account at confirmation of purchase. Subscriptions automatically renew unless cancelled at least 24 hours before the end of the current period. You can manage and cancel your subscription in your Apple ID Account Settings.</p>
           )}
-          <a
-            href="https://carenalert.com/terms-of-service"
-            className="inline-flex items-center gap-1 text-cyan-400 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Full Terms of Service <ExternalLink className="w-3 h-3" />
-          </a>
+          <p>
+            By subscribing you agree to our{" "}
+            <a href="/terms" className="text-cyan-400 underline">Terms of Service (EULA)</a>
+            {" "}and{" "}
+            <a href="/privacy" className="text-cyan-400 underline">Privacy Policy</a>.
+          </p>
+          <div className="flex justify-center gap-4 pt-1">
+            <a
+              href="https://carenalert.com/terms"
+              className="inline-flex items-center gap-1 text-cyan-400 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Terms of Service (EULA) <ExternalLink className="w-3 h-3" />
+            </a>
+            <a
+              href="https://carenalert.com/privacy"
+              className="inline-flex items-center gap-1 text-cyan-400 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Privacy Policy <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
         </div>
       </div>
     </div>

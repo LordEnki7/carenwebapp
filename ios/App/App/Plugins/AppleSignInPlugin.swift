@@ -9,11 +9,22 @@ public class AppleSignInPlugin: CAPPlugin, CAPBridgedPlugin, ASAuthorizationCont
     public let jsName = "AppleSignIn"
     public let pluginMethods: [CAPPluginMethod] = [
         CAPPluginMethod(name: "signIn", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "authorize", returnType: CAPPluginReturnPromise),
     ]
 
     private var signInCall: CAPPluginCall?
 
+    // "authorize" is called by @capacitor-community/apple-sign-in JS layer
+    @objc func authorize(_ call: CAPPluginCall) {
+        performSignIn(call)
+    }
+
+    // "signIn" kept for backward compatibility
     @objc func signIn(_ call: CAPPluginCall) {
+        performSignIn(call)
+    }
+
+    private func performSignIn(_ call: CAPPluginCall) {
         self.signInCall = call
 
         let provider = ASAuthorizationAppleIDProvider()
@@ -67,7 +78,10 @@ public class AppleSignInPlugin: CAPPlugin, CAPBridgedPlugin, ASAuthorizationCont
             result["givenName"] = credential.fullName?.givenName ?? ""
             result["familyName"] = credential.fullName?.familyName ?? ""
 
-            call.resolve(result)
+            // Wrap in "response" key to match @capacitor-community/apple-sign-in format
+            var response = JSObject()
+            response["response"] = result
+            call.resolve(response)
         } else {
             call.reject("Apple Sign In credential not available")
         }

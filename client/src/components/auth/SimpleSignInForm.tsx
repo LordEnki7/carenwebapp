@@ -374,6 +374,13 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
         </p>
       </div>
 
+      {/* Legal links — required by App Store Guideline 3.1.2(c) */}
+      <p className="text-center text-xs text-gray-500 pt-2">
+        <a href="/terms" className="text-cyan-500 underline hover:text-cyan-400">Terms of Service</a>
+        {" · "}
+        <a href="/privacy" className="text-cyan-500 underline hover:text-cyan-400">Privacy Policy</a>
+      </p>
+
       {/* Welcome Animation */}
       <WelcomeAnimation
         isVisible={showWelcomeAnimation}
