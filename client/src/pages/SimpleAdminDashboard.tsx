@@ -70,11 +70,34 @@ export default function SimpleAdminDashboard() {
   const [savingUser, setSavingUser] = useState<string | null>(null);
   const [savedUser, setSavedUser] = useState<string | null>(null);
 
+  // Abuse monitoring state
+  const [abuseReport, setAbuseReport] = useState<any>(null);
+  const [abuseScanLoading, setAbuseScanLoading] = useState(false);
+  const [abuseBannerDismissed, setAbuseBannerDismissed] = useState(false);
+
+  const runAbuseScan = async (key?: string) => {
+    const k = key || adminKey;
+    setAbuseScanLoading(true);
+    try {
+      const res = await fetch('/api/admin/abuse-scan', {
+        method: 'POST',
+        headers: { 'x-admin-key': k, 'Content-Type': 'application/json' },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAbuseReport(data);
+        setAbuseBannerDismissed(false);
+      }
+    } catch (e) { console.error('Abuse scan failed:', e); }
+    finally { setAbuseScanLoading(false); }
+  };
+
   const authenticateAdmin = () => {
     if (adminKey === 'CAREN_ADMIN_2025_PRODUCTION') {
       setIsAuthenticated(true);
       loadDashboardData();
       loadUsers();
+      runAbuseScan(adminKey);
     } else {
       alert('Invalid admin key');
     }
@@ -223,6 +246,82 @@ export default function SimpleAdminDashboard() {
           <h1 className="text-4xl font-bold mb-4">CAREN Admin Dashboard</h1>
           <p className="text-gray-300">User Login Tracking & Session Analytics</p>
         </div>
+
+        {/* ── Abuse Monitor Banner ─────────────────────────────────────── */}
+        {abuseScanLoading && (
+          <div className="mb-6 p-4 rounded-xl bg-gray-700/60 border border-gray-600 flex items-center gap-3 animate-pulse">
+            <div className="w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin flex-shrink-0" />
+            <p className="text-gray-300 text-sm">Running abuse pattern scan across all accounts…</p>
+          </div>
+        )}
+
+        {abuseReport && !abuseScanLoading && !abuseBannerDismissed && (
+          abuseReport.hasAlerts ? (
+            <div className="mb-6 rounded-2xl border-2 border-red-500 bg-red-950/60 shadow-[0_0_40px_rgba(239,68,68,0.35)] overflow-hidden">
+              {/* Header bar */}
+              <div className="flex items-center justify-between px-5 py-4 bg-red-900/60">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl animate-bounce">🚨</span>
+                  <div>
+                    <p className="text-red-100 font-extrabold text-lg tracking-wide">ABUSE MONITOR ALERT</p>
+                    <p className="text-red-300 text-xs mt-0.5">Scanned {abuseReport.totalUsers} accounts · {new Date(abuseReport.scannedAt).toLocaleTimeString()}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {/* Severity pills */}
+                  {abuseReport.counts.high > 0 && (
+                    <span className="px-3 py-1 rounded-full bg-red-600 text-white text-xs font-bold">{abuseReport.counts.high} HIGH</span>
+                  )}
+                  {abuseReport.counts.medium > 0 && (
+                    <span className="px-3 py-1 rounded-full bg-orange-500 text-white text-xs font-bold">{abuseReport.counts.medium} MEDIUM</span>
+                  )}
+                  <button onClick={() => setAbuseBannerDismissed(true)} className="text-red-300 hover:text-white text-xl ml-2 font-bold" title="Dismiss">✕</button>
+                </div>
+              </div>
+              {/* AI summary */}
+              <div className="px-5 py-3 border-b border-red-800/50">
+                <p className="text-red-100 text-sm leading-relaxed">{abuseReport.aiSummary}</p>
+              </div>
+              {/* Findings list — show HIGH + MEDIUM only */}
+              <div className="px-5 py-4 space-y-3">
+                {abuseReport.findings.filter((f: any) => f.severity !== 'LOW').map((f: any, i: number) => (
+                  <div key={i} className={`rounded-lg p-3 border-l-4 ${f.severity === 'HIGH' ? 'bg-red-900/40 border-red-500' : 'bg-orange-900/30 border-orange-500'}`}>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className={`font-bold text-sm ${f.severity === 'HIGH' ? 'text-red-300' : 'text-orange-300'}`}>[{f.severity}] {f.type} — {f.summary}</p>
+                        <p className="text-gray-300 text-xs mt-1">{f.detail}</p>
+                        {f.affectedUsers.length > 0 && (
+                          <p className="text-gray-400 text-xs mt-1">Affected: {f.affectedUsers.slice(0, 3).join(', ')}{f.affectedUsers.length > 3 ? ` +${f.affectedUsers.length - 3} more` : ''}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Footer CTA */}
+              <div className="px-5 py-3 bg-red-900/30 flex items-center justify-between">
+                <p className="text-red-300 text-xs">
+                  {abuseReport.counts.low > 0 && `+ ${abuseReport.counts.low} low-severity findings in`} <span className="font-semibold">👥 Manage Users → Abuse Monitor</span> tab
+                </p>
+                <Button size="sm" onClick={() => runAbuseScan()} disabled={abuseScanLoading} className="bg-red-700 hover:bg-red-600 text-white text-xs h-7">
+                  Re-scan Now
+                </Button>
+              </div>
+            </div>
+          ) : (
+            /* All clear */
+            <div className="mb-6 rounded-xl border border-green-700/60 bg-green-950/30 flex items-center justify-between px-5 py-3">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">✅</span>
+                <div>
+                  <p className="text-green-300 font-semibold text-sm">All Clear — No Abuse Patterns Detected</p>
+                  <p className="text-green-600 text-xs">{abuseReport.totalUsers} accounts scanned · {new Date(abuseReport.scannedAt).toLocaleTimeString()}</p>
+                </div>
+              </div>
+              <button onClick={() => setAbuseBannerDismissed(true)} className="text-green-600 hover:text-green-300 text-lg font-bold">✕</button>
+            </div>
+          )
+        )}
 
         {/* ── Admin Control Panels ─────────────────────────────────────── */}
         <div className="mb-8">
@@ -833,10 +932,63 @@ export default function SimpleAdminDashboard() {
                     <h3 className="text-xl font-semibold text-white">User Management</h3>
                     <p className="text-sm text-gray-400 mt-1">Upgrade, downgrade, or revoke access for any account</p>
                   </div>
-                  <Button onClick={loadUsers} variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
-                    Refresh List
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={() => runAbuseScan()} disabled={abuseScanLoading} variant="outline" className="border-red-500/40 text-red-400 hover:bg-red-500/10">
+                      {abuseScanLoading ? (
+                        <><span className="w-3 h-3 border border-red-400 border-t-transparent rounded-full animate-spin mr-2" />Scanning…</>
+                      ) : '🔍 Abuse Scan'}
+                    </Button>
+                    <Button onClick={loadUsers} variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
+                      Refresh List
+                    </Button>
+                  </div>
                 </div>
+
+                {/* ── Abuse Monitor Panel ── */}
+                {abuseReport && (
+                  <div className={`rounded-xl border ${abuseReport.hasAlerts ? 'border-red-700/60 bg-red-950/30' : 'border-green-700/40 bg-green-950/20'} p-4`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Shield className={`w-4 h-4 ${abuseReport.hasAlerts ? 'text-red-400' : 'text-green-400'}`} />
+                        <span className="font-semibold text-sm text-white">Abuse Monitor</span>
+                        <span className="text-xs text-gray-500">· {new Date(abuseReport.scannedAt).toLocaleString()}</span>
+                      </div>
+                      <div className="flex gap-1.5">
+                        {abuseReport.counts.high > 0 && <span className="text-xs px-2 py-0.5 rounded-full bg-red-700/70 text-red-200">{abuseReport.counts.high} HIGH</span>}
+                        {abuseReport.counts.medium > 0 && <span className="text-xs px-2 py-0.5 rounded-full bg-orange-700/70 text-orange-200">{abuseReport.counts.medium} MED</span>}
+                        {abuseReport.counts.low > 0 && <span className="text-xs px-2 py-0.5 rounded-full bg-gray-700 text-gray-300">{abuseReport.counts.low} LOW</span>}
+                      </div>
+                    </div>
+                    {abuseReport.aiSummary && (
+                      <p className="text-sm text-gray-300 mb-3 leading-relaxed">{abuseReport.aiSummary}</p>
+                    )}
+                    {abuseReport.findings.length === 0 ? (
+                      <p className="text-green-400 text-sm">✅ No patterns detected — all {abuseReport.totalUsers} accounts look clean.</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {abuseReport.findings.map((f: any, i: number) => (
+                          <div key={i} className={`rounded-lg px-3 py-2.5 text-xs border-l-4 ${
+                            f.severity === 'HIGH' ? 'bg-red-900/30 border-red-500' :
+                            f.severity === 'MEDIUM' ? 'bg-orange-900/20 border-orange-500' :
+                            'bg-gray-800/50 border-gray-600'
+                          }`}>
+                            <p className={`font-bold mb-0.5 ${f.severity === 'HIGH' ? 'text-red-300' : f.severity === 'MEDIUM' ? 'text-orange-300' : 'text-gray-400'}`}>
+                              [{f.severity}] {f.type} — {f.summary}
+                            </p>
+                            <p className="text-gray-400">{f.detail}</p>
+                            {f.affectedUsers.length > 0 && (
+                              <p className="text-gray-500 mt-1">
+                                Affected: {f.affectedUsers.slice(0, 5).join(', ')}
+                                {f.affectedUsers.length > 5 ? ` +${f.affectedUsers.length - 5} more` : ''}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
 
                 {/* Search */}
                 <div className="relative">

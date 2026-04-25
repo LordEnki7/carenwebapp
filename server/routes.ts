@@ -2902,6 +2902,206 @@ setInterval(load, 15000);
     }
   });
 
+  // ── Abuse Monitoring Agent ─────────────────────────────────────────────────
+  app.post('/api/admin/abuse-scan', async (req: any, res) => {
+    const token = req.headers['x-admin-key'] || req.query.adminKey;
+    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+
+    try {
+      const users = await storage.getAllUsers();
+
+      // ── Heuristic pattern detection ──────────────────────────────────────
+      const findings: Array<{
+        severity: 'HIGH' | 'MEDIUM' | 'LOW';
+        type: string;
+        summary: string;
+        detail: string;
+        affectedUsers: string[];
+      }> = [];
+
+      // 1. Multiple accounts with identical full name
+      const nameGroups: Record<string, string[]> = {};
+      for (const u of users) {
+        const name = `${(u.firstName || '').trim()} ${(u.lastName || '').trim()}`.toLowerCase().trim();
+        if (name.length > 2 && name !== 'test user' && name !== 'demo user' && name !== 'face user') {
+          if (!nameGroups[name]) nameGroups[name] = [];
+          nameGroups[name].push(u.email || u.id);
+        }
+      }
+      for (const [name, emails] of Object.entries(nameGroups)) {
+        if (emails.length >= 3) {
+          findings.push({
+            severity: 'HIGH',
+            type: 'Duplicate Identity',
+            summary: `"${name}" has ${emails.length} accounts`,
+            detail: `Same full name across ${emails.length} accounts may indicate a single user evading limits or a test account not cleaned up.`,
+            affectedUsers: emails,
+          });
+        } else if (emails.length === 2) {
+          findings.push({
+            severity: 'LOW',
+            type: 'Duplicate Identity',
+            summary: `"${name}" has 2 accounts`,
+            detail: `Possible duplicate account or legitimate second device.`,
+            affectedUsers: emails,
+          });
+        }
+      }
+
+      // 2. Email address variations (likely same person)
+      const gmailVariants: Record<string, string[]> = {};
+      for (const u of users) {
+        if (!u.email) continue;
+        // Normalize: remove dots, strip +aliases, lowercase
+        const norm = u.email.toLowerCase().split('@')[0].replace(/\./g, '').replace(/\+.*$/, '');
+        const domain = u.email.split('@')[1] || '';
+        const key = `${norm}@${domain}`;
+        if (!gmailVariants[key]) gmailVariants[key] = [];
+        gmailVariants[key].push(u.email);
+      }
+      for (const [, emails] of Object.entries(gmailVariants)) {
+        if (emails.length >= 2) {
+          findings.push({
+            severity: 'MEDIUM',
+            type: 'Email Variant Accounts',
+            summary: `${emails.length} accounts with nearly identical email`,
+            detail: `These emails normalize to the same address — likely the same person with multiple accounts.`,
+            affectedUsers: emails,
+          });
+        }
+      }
+
+      // 3. Signup burst — many accounts on same day
+      const dayGroups: Record<string, number> = {};
+      for (const u of users) {
+        if (!u.createdAt) continue;
+        const day = new Date(u.createdAt).toISOString().split('T')[0];
+        dayGroups[day] = (dayGroups[day] || 0) + 1;
+      }
+      for (const [day, count] of Object.entries(dayGroups)) {
+        if (count >= 5) {
+          findings.push({
+            severity: count >= 10 ? 'HIGH' : 'MEDIUM',
+            type: 'Signup Burst',
+            summary: `${count} accounts created on ${day}`,
+            detail: `A spike of ${count} signups in one day may indicate bot registration, a shared link being shared broadly, or a test run.`,
+            affectedUsers: [],
+          });
+        }
+      }
+
+      // 4. Long-term free accounts (over 60 days, never upgraded)
+      const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+      const staleFree = users.filter(u => {
+        const tier = (u as any).subscriptionTier || 'free';
+        const isTestOrDemo = (u.email || '').includes('example.com') || (u.email || '').includes('carentest.com') || u.id.startsWith('demo');
+        return tier === 'free' && u.createdAt && new Date(u.createdAt) < sixtyDaysAgo && !isTestOrDemo;
+      });
+      if (staleFree.length >= 5) {
+        findings.push({
+          severity: 'LOW',
+          type: 'Unconverted Free Accounts',
+          summary: `${staleFree.length} free accounts older than 60 days`,
+          detail: `These users signed up but never upgraded. Consider a re-engagement email campaign or review for dormant/bot accounts.`,
+          affectedUsers: staleFree.map(u => u.email || u.id).slice(0, 10),
+        });
+      }
+
+      // 5. Suspicious test/seed accounts still in production
+      const seedAccounts = users.filter(u => {
+        const e = (u.email || '').toLowerCase();
+        return e.includes('carentest.com') || e.includes('@example.com') || e.includes('@demo.com') || u.id.startsWith('demo-user-1');
+      });
+      if (seedAccounts.length > 0) {
+        findings.push({
+          severity: 'MEDIUM',
+          type: 'Test/Seed Accounts in Production',
+          summary: `${seedAccounts.length} test accounts detected in live database`,
+          detail: `Test accounts (carentest.com, example.com, demo.com) are still present in the production database. These should be cleaned up.`,
+          affectedUsers: seedAccounts.map(u => u.email || u.id),
+        });
+      }
+
+      // 6. Apple privaterelay emails — can't contact these users
+      const appleRelay = users.filter(u => (u.email || '').includes('@privaterelay.appleid.com'));
+      if (appleRelay.length > 0) {
+        findings.push({
+          severity: 'LOW',
+          type: 'Anonymized Apple Emails',
+          summary: `${appleRelay.length} users signed in via Apple with hidden email`,
+          detail: `These users used Apple's private relay. You cannot email them directly. If they have issues, they must contact support through the app.`,
+          affectedUsers: appleRelay.map(u => `${u.firstName} ${u.lastName} (${u.email})`),
+        });
+      }
+
+      const highCount = findings.filter(f => f.severity === 'HIGH').length;
+      const medCount  = findings.filter(f => f.severity === 'MEDIUM').length;
+      const hasAlerts = highCount > 0 || medCount > 0;
+
+      // ── AI summary of findings ────────────────────────────────────────────
+      let aiSummary = '';
+      try {
+        const openai = (await import('./aiService')).getOpenAIClient();
+        const prompt = `You are a security analyst reviewing user account data for a SaaS app called C.A.R.E.N. Alert.
+
+Here are the automated findings from a scan:
+
+${findings.map((f, i) => `${i + 1}. [${f.severity}] ${f.type}: ${f.summary}
+   Detail: ${f.detail}
+   Affected: ${f.affectedUsers.slice(0, 3).join(', ')}${f.affectedUsers.length > 3 ? ` +${f.affectedUsers.length - 3} more` : ''}`).join('\n\n')}
+
+Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell them what needs immediate action and what they can ignore for now. No fluff.`;
+
+        const completion = await openai.chat.completions.create({
+          model: 'gpt-4o',
+          messages: [{ role: 'user', content: prompt }],
+          max_tokens: 200,
+        });
+        aiSummary = completion.choices[0]?.message?.content || '';
+      } catch (aiErr) {
+        aiSummary = `Found ${findings.length} patterns: ${highCount} high, ${medCount} medium severity issues requiring review.`;
+      }
+
+      // ── Email alert to admin if HIGH severity findings ────────────────────
+      if (hasAlerts) {
+        try {
+          const { sendEmail } = await import('./mailer');
+          await sendEmail({
+            to: 'carenwebapp@gmail.com',
+            subject: `⚠️ C.A.R.E.N. Admin Alert: ${highCount} HIGH + ${medCount} MEDIUM anomalies detected`,
+            html: `
+              <div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
+                <h2 style="color:#f87171;margin-top:0;">🚨 Abuse Monitor Alert</h2>
+                <p style="color:#94a3b8;">${aiSummary}</p>
+                <div style="background:#1e293b;border-radius:8px;padding:16px;margin:16px 0;">
+                  <p style="margin:0;font-size:14px;"><strong style="color:#f87171;">HIGH:</strong> ${highCount} &nbsp; <strong style="color:#fb923c;">MEDIUM:</strong> ${medCount} &nbsp; <strong style="color:#4ade80;">LOW:</strong> ${findings.filter(f=>f.severity==='LOW').length}</p>
+                </div>
+                ${findings.filter(f => f.severity !== 'LOW').map(f => `
+                  <div style="border-left:3px solid ${f.severity==='HIGH'?'#f87171':'#fb923c'};padding:12px;margin:8px 0;background:#1e293b;border-radius:0 8px 8px 0;">
+                    <p style="margin:0 0 4px;font-weight:bold;color:${f.severity==='HIGH'?'#f87171':'#fb923c'};">[${f.severity}] ${f.type}</p>
+                    <p style="margin:0 0 4px;font-size:14px;">${f.summary}</p>
+                    <p style="margin:0;font-size:12px;color:#94a3b8;">${f.detail}</p>
+                  </div>`).join('')}
+                <p style="margin-top:24px;font-size:12px;color:#64748b;">Go to <a href="https://carenalert.com/admin" style="color:#38bdf8;">carenalert.com/admin</a> → Manage Users to take action.</p>
+              </div>`,
+          });
+        } catch { /* non-fatal */ }
+      }
+
+      res.json({
+        scannedAt: new Date().toISOString(),
+        totalUsers: users.length,
+        findings,
+        aiSummary,
+        counts: { high: highCount, medium: medCount, low: findings.filter(f=>f.severity==='LOW').length },
+        hasAlerts,
+      });
+    } catch (err: any) {
+      console.error('[ABUSE-SCAN] Error:', err);
+      res.status(500).json({ message: err.message });
+    }
+  });
+
   // Admin Dashboard Routes - Live Data Integration
   app.get('/api/admin/stats', async (req: any, res) => {
     try {
