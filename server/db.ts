@@ -707,18 +707,23 @@ export async function runAutoMigrations(): Promise<void> {
     )`,
     `CREATE TABLE IF NOT EXISTS device_fingerprints (
       id SERIAL PRIMARY KEY,
-      user_id VARCHAR REFERENCES users(id) ON DELETE SET NULL,
-      device_fingerprint VARCHAR(64) NOT NULL,
+      user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE,
+      fingerprint VARCHAR NOT NULL,
       user_agent TEXT,
-      created_at TIMESTAMP DEFAULT NOW(),
-      last_seen_at TIMESTAMP DEFAULT NOW()
+      first_seen_at TIMESTAMP DEFAULT NOW(),
+      last_seen_at TIMESTAMP DEFAULT NOW(),
+      seen_count INTEGER DEFAULT 1
     )`,
     `CREATE TABLE IF NOT EXISTS banned_fingerprints (
       id SERIAL PRIMARY KEY,
-      device_fingerprint VARCHAR(64) NOT NULL UNIQUE,
       original_user_id VARCHAR,
-      ban_reason TEXT,
-      banned_at TIMESTAMP DEFAULT NOW()
+      normalized_name VARCHAR,
+      normalized_email VARCHAR,
+      email_domain VARCHAR,
+      reason TEXT,
+      severity VARCHAR DEFAULT 'HIGH',
+      banned_at TIMESTAMP DEFAULT NOW(),
+      banned_by VARCHAR DEFAULT 'admin'
     )`,
   ];
 
@@ -737,11 +742,15 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS google_id VARCHAR`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS emergency_contacts JSONB`,
-    // users — director referral and abuse/security columns
+    // users — director referral, password reset, abuse/security, timestamps
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS director_ref VARCHAR(20)`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_token VARCHAR`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS password_reset_expiry TIMESTAMP`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS account_status VARCHAR DEFAULT 'active'`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS ban_reason TEXT`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS banned_at TIMESTAMP`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
     // regional_directors — columns added after initial table creation
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS director_code VARCHAR(20) UNIQUE`,
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS portal_pin VARCHAR(10)`,
@@ -757,6 +766,17 @@ export async function runAutoMigrations(): Promise<void> {
     // attorney_outreach — drip email tracking columns
     `ALTER TABLE attorney_outreach ADD COLUMN IF NOT EXISTS drip_step INTEGER DEFAULT 0`,
     `ALTER TABLE attorney_outreach ADD COLUMN IF NOT EXISTS drip_last_sent_at TIMESTAMP`,
+    // device_fingerprints — correct column names (table may exist with old column names)
+    `ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS fingerprint VARCHAR`,
+    `ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS first_seen_at TIMESTAMP DEFAULT NOW()`,
+    `ALTER TABLE device_fingerprints ADD COLUMN IF NOT EXISTS seen_count INTEGER DEFAULT 1`,
+    // banned_fingerprints — correct column names matching schema
+    `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS normalized_name VARCHAR`,
+    `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS normalized_email VARCHAR`,
+    `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS email_domain VARCHAR`,
+    `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS reason TEXT`,
+    `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS severity VARCHAR DEFAULT 'HIGH'`,
+    `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS banned_by VARCHAR DEFAULT 'admin'`,
   ];
 
   const allMigrations = [...createTables, ...addMissingColumns];
