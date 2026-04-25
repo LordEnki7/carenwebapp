@@ -1153,6 +1153,14 @@ setInterval(load, 15000);
             (req.session as any).isAuthenticated = true;
             (req.session as any).authMethod = 'password';
             
+            // Store + check device fingerprint
+            const loginFP = req.body?.deviceFingerprint || '';
+            const loginUA = req.body?.userAgent || req.headers['user-agent'] || '';
+            if (loginFP) {
+              recordDeviceFingerprint(dbUser.id, loginFP, loginUA).catch(() => {});
+              checkDeviceFingerprintAgainstBanned(loginFP, dbUser.email || '', `${dbUser.firstName} ${dbUser.lastName}`).catch(() => {});
+            }
+
             // Track login activity
             try {
               await storage.createLoginActivity({
@@ -1431,6 +1439,14 @@ setInterval(load, 15000);
             termsAgreedAt: new Date()
           });
           console.log('[ACCOUNT_CREATION] User created in database successfully:', dbUser.id);
+
+          // ── Device fingerprint: record + check against banned ────────────────
+          const regFP = req.body?.deviceFingerprint || '';
+          const regUA = req.body?.userAgent || req.headers['user-agent'] || '';
+          if (regFP) {
+            recordDeviceFingerprint(userId, regFP, regUA).catch(() => {});
+            checkDeviceFingerprintAgainstBanned(regFP, email, `${firstName} ${lastName}`).catch(() => {});
+          }
 
           // ── Return detection: check if new user matches a banned fingerprint ──
           (async () => {
@@ -3148,6 +3164,71 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     }
   });
 
+  // ── Device Fingerprint: store + check ─────────────────────────────────────
+
+  async function recordDeviceFingerprint(userId: string, fingerprint: string, userAgent = '') {
+    if (!fingerprint) return;
+    try {
+      const { db: _db } = await import('./db');
+      const { deviceFingerprints } = await import('../shared/schema');
+      const { eq, and } = await import('drizzle-orm');
+
+      const [existing] = await _db.select()
+        .from(deviceFingerprints)
+        .where(and(eq(deviceFingerprints.userId, userId), eq(deviceFingerprints.fingerprint, fingerprint)));
+
+      if (existing) {
+        await _db.update(deviceFingerprints)
+          .set({ lastSeenAt: new Date(), seenCount: (existing.seenCount || 0) + 1 } as any)
+          .where(eq(deviceFingerprints.id, existing.id));
+      } else {
+        await _db.insert(deviceFingerprints)
+          .values({ userId, fingerprint, userAgent } as any);
+      }
+    } catch (err) {
+      console.error('[FP] recordDeviceFingerprint error:', err);
+    }
+  }
+
+  async function checkDeviceFingerprintAgainstBanned(fingerprint: string, newEmail: string, newName: string): Promise<boolean> {
+    if (!fingerprint) return false;
+    try {
+      const { db: _db } = await import('./db');
+      const { bannedFingerprints } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const allBanned = await _db.select().from(bannedFingerprints)
+        .where(eq(bannedFingerprints.deviceFingerprint as any, fingerprint));
+
+      if (allBanned.length > 0) {
+        const match = allBanned[0];
+        console.warn(`[FP] ⚠️ Banned device fingerprint detected for new user: ${newEmail}`);
+        try {
+          const { sendEmail } = await import('./mailer');
+          await sendEmail({
+            to: 'carenwebapp@gmail.com',
+            subject: `🚨 BANNED DEVICE DETECTED: ${newEmail} is using a banned device`,
+            html: `<div style="font-family:sans-serif;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
+              <h2 style="color:#f87171;margin-top:0;">⚠️ Banned Device Fingerprint Detected</h2>
+              <p>A user just logged in or registered using a device that was previously banned.</p>
+              <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                <tr><td style="padding:4px 8px;color:#94a3b8;">New Account</td><td style="padding:4px 8px;">${newEmail}</td></tr>
+                <tr><td style="padding:4px 8px;color:#94a3b8;">New Name</td><td style="padding:4px 8px;">${newName}</td></tr>
+                <tr><td style="padding:4px 8px;color:#94a3b8;">Device Fingerprint</td><td style="padding:4px 8px;font-family:monospace;font-size:11px;">${fingerprint}</td></tr>
+                <tr><td style="padding:4px 8px;color:#94a3b8;">Original Ban Reason</td><td style="padding:4px 8px;">${match.reason}</td></tr>
+              </table>
+              <p style="margin-top:16px;"><a href="https://carenalert.com/admin" style="color:#38bdf8;">Open Admin → Manage Users</a></p>
+            </div>`,
+          });
+        } catch { /* non-fatal */ }
+        return true;
+      }
+    } catch (err) {
+      console.error('[FP] checkDeviceFingerprintAgainstBanned error:', err);
+    }
+    return false;
+  }
+
   // ── Admin: Quarantine / Ban / Delete / Fingerprint ─────────────────────────
 
   // Helper: build a fingerprint from a user record
@@ -3191,13 +3272,21 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       const [user] = await db.select().from(users).where(eq(users.id, id));
       if (!user) return res.status(404).json({ message: 'User not found' });
 
-      // Store fingerprint for return detection
+      // Fetch device fingerprints for this user
+      const { deviceFingerprints: dfTable } = await import('../shared/schema');
+      const deviceFPs = await db.select().from(dfTable).where(eq(dfTable.userId, id));
+      const latestDeviceFP = deviceFPs.sort((a, b) =>
+        new Date(b.lastSeenAt || 0).getTime() - new Date(a.lastSeenAt || 0).getTime()
+      )[0]?.fingerprint || null;
+
+      // Store identity + device fingerprint for return detection
       const fp = buildFingerprint(user);
       await db.insert(bannedFingerprints).values({
         originalUserId: id,
         ...fp,
         reason: reason || 'Banned by admin',
         severity: 'HIGH',
+        deviceFingerprint: latestDeviceFP,
       } as any);
 
       // Mark the account banned
@@ -3225,16 +3314,29 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       const [user] = await db.select().from(users).where(eq(users.id, id));
       if (!user) return res.status(404).json({ message: 'User not found' });
 
-      // Store fingerprint before deletion
+      // Fetch device fingerprints before deletion
+      const { deviceFingerprints: _dfTable2 } = await import('../shared/schema');
+      const _deviceFPs2 = await db.select().from(_dfTable2).where(eq(_dfTable2.userId, id));
+      const latestDeviceFP2 = _deviceFPs2.sort((a, b) =>
+        new Date(b.lastSeenAt || 0).getTime() - new Date(a.lastSeenAt || 0).getTime()
+      )[0]?.fingerprint || null;
+
+      // Store identity + device fingerprint before deletion
       const fp = buildFingerprint(user);
       await db.insert(bannedFingerprints).values({
         originalUserId: id,
         ...fp,
         reason: reason || 'Account deleted by admin',
         severity: 'HIGH',
+        deviceFingerprint: latestDeviceFP2,
       } as any);
 
-      // Delete the user
+      // Nullify foreign key references that aren't CASCADE before deleting
+      await db.execute(
+        sql`UPDATE login_activity SET user_id = NULL WHERE user_id = ${id}`
+      );
+
+      // Delete the user (cascade handles the rest)
       await db.delete(users).where(eq(users.id, id));
       res.json({ success: true, deleted: true, fingerprintStored: true });
     } catch (err: any) { res.status(500).json({ message: err.message }); }

@@ -64,6 +64,17 @@ export const loginActivity = pgTable("login_activity", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Device fingerprints — stored on every login, checked on new signups
+export const deviceFingerprints = pgTable("device_fingerprints", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  fingerprint: varchar("fingerprint").notNull(),
+  userAgent: text("user_agent"),
+  firstSeenAt: timestamp("first_seen_at").defaultNow(),
+  lastSeenAt: timestamp("last_seen_at").defaultNow(),
+  seenCount: integer("seen_count").default(1),
+});
+
 // Banned user fingerprints — used for return detection
 export const bannedFingerprints = pgTable("banned_fingerprints", {
   id: serial("id").primaryKey(),

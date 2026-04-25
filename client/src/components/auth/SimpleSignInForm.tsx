@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { signInWithApple } from "@/lib/appleSignIn";
+import { getDeviceFingerprint } from "@/lib/deviceFingerprint";
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -71,7 +72,12 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
 
   const signInMutation = useMutation({
     mutationFn: async (data: SignInFormData) => {
-      const response = await apiRequest("POST", "/api/auth/login", data);
+      const deviceFingerprint = await getDeviceFingerprint().catch(() => '');
+      const response = await apiRequest("POST", "/api/auth/login", {
+        ...data,
+        deviceFingerprint,
+        userAgent: navigator.userAgent,
+      });
       return response.json();
     },
     onSuccess: (data) => {
