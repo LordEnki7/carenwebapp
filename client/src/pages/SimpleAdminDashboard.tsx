@@ -75,6 +75,36 @@ export default function SimpleAdminDashboard() {
   const [abuseScanLoading, setAbuseScanLoading] = useState(false);
   const [abuseBannerDismissed, setAbuseBannerDismissed] = useState(false);
 
+  // Quarantine / ban / delete state
+  const [actionLoading, setActionLoading] = useState<string | null>(null); // "userId:action"
+  const [confirmDialog, setConfirmDialog] = useState<{ userId: string; action: 'quarantine'|'ban'|'delete'; userName: string } | null>(null);
+  const [actionReason, setActionReason] = useState('');
+
+  const takeAction = async (userId: string, action: 'quarantine' | 'ban' | 'delete') => {
+    const key = `${userId}:${action}`;
+    setActionLoading(key);
+    try {
+      const method = action === 'delete' ? 'DELETE' : 'PATCH';
+      const url = action === 'delete'
+        ? `/api/admin/users/${userId}`
+        : `/api/admin/users/${userId}/${action}`;
+      const res = await fetch(url, {
+        method,
+        headers: { 'x-admin-key': 'CAREN_ADMIN_2025_PRODUCTION', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: actionReason || undefined }),
+      });
+      if (res.ok) {
+        await loadUsers();
+        setConfirmDialog(null);
+        setActionReason('');
+      } else {
+        const err = await res.json();
+        alert(`Action failed: ${err.message}`);
+      }
+    } catch (e) { alert('Network error — try again'); }
+    finally { setActionLoading(null); }
+  };
+
   const runAbuseScan = async (key?: string) => {
     const k = key || adminKey;
     setAbuseScanLoading(true);
@@ -1028,10 +1058,13 @@ export default function SimpleAdminDashboard() {
                       const isSaving = savingUser === u.id;
                       const justSaved = savedUser === u.id;
 
+                      const acctStatus = (u as any).accountStatus || 'active';
+                      const statusColor = acctStatus === 'banned' ? 'text-red-400 bg-red-900/30 border-red-700' : acctStatus === 'suspended' ? 'text-yellow-400 bg-yellow-900/20 border-yellow-700' : '';
+
                       return (
-                        <div key={u.id} className="flex items-center gap-3 p-3 bg-gray-900/50 rounded-lg border border-gray-700/40 hover:border-gray-600/60 transition-colors">
+                        <div key={u.id} className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${acctStatus === 'banned' ? 'bg-red-950/30 border-red-800/50' : acctStatus === 'suspended' ? 'bg-yellow-950/20 border-yellow-800/40' : 'bg-gray-900/50 border-gray-700/40 hover:border-gray-600/60'}`}>
                           {/* Avatar */}
-                          <div className="w-9 h-9 rounded-full bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border border-gray-600 flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                          <div className={`w-9 h-9 rounded-full border flex items-center justify-center text-white font-semibold text-sm flex-shrink-0 ${acctStatus !== 'active' ? 'bg-gray-800 border-gray-600 opacity-60' : 'bg-gradient-to-br from-cyan-500/30 to-purple-500/30 border-gray-600'}`}>
                             {(u.firstName?.[0] || u.email?.[0] || '?').toUpperCase()}
                           </div>
 
@@ -1039,6 +1072,11 @@ export default function SimpleAdminDashboard() {
                           <div className="flex-1 min-w-0">
                             <p className="text-white text-sm font-medium truncate">
                               {u.firstName} {u.lastName}
+                              {acctStatus !== 'active' && (
+                                <span className={`ml-2 text-xs px-1.5 py-0.5 rounded border font-semibold ${statusColor}`}>
+                                  {acctStatus.toUpperCase()}
+                                </span>
+                              )}
                             </p>
                             <p className="text-gray-400 text-xs truncate">{u.email || u.id}</p>
                           </div>
@@ -1080,13 +1118,77 @@ export default function SimpleAdminDashboard() {
                           >
                             {isSaving ? '...' : justSaved ? <><CheckCircle className="w-3 h-3 mr-1" />Saved</> : 'Save'}
                           </Button>
+
+                          {/* ── Action buttons ── */}
+                          <div className="flex gap-1 flex-shrink-0">
+                            {acctStatus === 'active' && (
+                              <button
+                                title="Quarantine — suspend account pending review"
+                                onClick={() => setConfirmDialog({ userId: u.id, action: 'quarantine', userName: `${u.firstName} ${u.lastName}` })}
+                                className="w-7 h-7 rounded text-yellow-400 bg-yellow-900/20 hover:bg-yellow-900/40 border border-yellow-800/40 text-xs flex items-center justify-center transition-colors"
+                              >⏸</button>
+                            )}
+                            {acctStatus !== 'banned' && (
+                              <button
+                                title="Ban — permanent ban with fingerprint stored"
+                                onClick={() => setConfirmDialog({ userId: u.id, action: 'ban', userName: `${u.firstName} ${u.lastName}` })}
+                                className="w-7 h-7 rounded text-red-400 bg-red-900/20 hover:bg-red-900/40 border border-red-800/40 text-xs flex items-center justify-center transition-colors"
+                              >🚫</button>
+                            )}
+                            <button
+                              title="Delete account permanently (fingerprint saved)"
+                              onClick={() => setConfirmDialog({ userId: u.id, action: 'delete', userName: `${u.firstName} ${u.lastName}` })}
+                              className="w-7 h-7 rounded text-red-500 bg-red-950/30 hover:bg-red-900/50 border border-red-900/50 text-xs flex items-center justify-center transition-colors"
+                            >🗑</button>
+                          </div>
                         </div>
                       );
                     })}
                 </div>
 
+                {/* ── Confirm Dialog ── */}
+                {confirmDialog && (
+                  <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                      <h3 className="text-white font-bold text-lg mb-1">
+                        {confirmDialog.action === 'quarantine' && '⏸ Quarantine Account'}
+                        {confirmDialog.action === 'ban' && '🚫 Ban Account'}
+                        {confirmDialog.action === 'delete' && '🗑 Delete Account'}
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-4">
+                        {confirmDialog.action === 'quarantine' && `Suspend "${confirmDialog.userName}" — they can still log in but lose all features. Reversible.`}
+                        {confirmDialog.action === 'ban' && `Permanently ban "${confirmDialog.userName}" and store their name/email fingerprint so they can't come back as a new account.`}
+                        {confirmDialog.action === 'delete' && `Delete "${confirmDialog.userName}" from the database. Their fingerprint is saved for return detection. This cannot be undone.`}
+                      </p>
+                      <input
+                        type="text"
+                        value={actionReason}
+                        onChange={e => setActionReason(e.target.value)}
+                        placeholder="Reason (optional — shown in alert email)"
+                        className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm placeholder-gray-500 focus:outline-none focus:border-cyan-500 mb-4"
+                      />
+                      <div className="flex gap-3 justify-end">
+                        <Button variant="outline" onClick={() => { setConfirmDialog(null); setActionReason(''); }} className="border-gray-600 text-gray-300">
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={() => takeAction(confirmDialog.userId, confirmDialog.action)}
+                          disabled={!!actionLoading}
+                          className={`text-white font-semibold ${
+                            confirmDialog.action === 'quarantine' ? 'bg-yellow-600 hover:bg-yellow-700' :
+                            confirmDialog.action === 'ban' ? 'bg-red-600 hover:bg-red-700' :
+                            'bg-red-800 hover:bg-red-900'
+                          }`}
+                        >
+                          {actionLoading ? 'Working…' : `Confirm ${confirmDialog.action.charAt(0).toUpperCase() + confirmDialog.action.slice(1)}`}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <p className="text-xs text-gray-500">
-                  Changes take effect immediately. The user will see their new plan when they next open the app.
+                  ⏸ Quarantine = suspend (reversible) &nbsp;·&nbsp; 🚫 Ban = permanent + fingerprint stored &nbsp;·&nbsp; 🗑 Delete = removes account but saves fingerprint for return detection.
                 </p>
               </div>
             </TabsContent>

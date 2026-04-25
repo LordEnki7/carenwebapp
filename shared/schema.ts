@@ -44,6 +44,9 @@ export const users = pgTable("users", {
   directorRef: varchar("director_ref", { length: 20 }), // director referral code used at signup
   passwordResetToken: varchar("password_reset_token"),
   passwordResetExpiry: timestamp("password_reset_expiry"),
+  accountStatus: varchar("account_status").default("active").notNull(), // active | suspended | banned
+  banReason: text("ban_reason"),
+  bannedAt: timestamp("banned_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -59,6 +62,19 @@ export const loginActivity = pgTable("login_activity", {
   subscriptionTier: varchar("subscription_tier"),
   success: boolean("success").default(true),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Banned user fingerprints — used for return detection
+export const bannedFingerprints = pgTable("banned_fingerprints", {
+  id: serial("id").primaryKey(),
+  originalUserId: varchar("original_user_id"), // the user ID that was banned/deleted
+  normalizedName: varchar("normalized_name"),   // lowercased full name
+  normalizedEmail: varchar("normalized_email"), // email with dots removed, alias stripped
+  emailDomain: varchar("email_domain"),
+  reason: text("reason"),
+  severity: varchar("severity").default("HIGH"), // HIGH | MEDIUM
+  bannedAt: timestamp("banned_at").defaultNow(),
+  bannedBy: varchar("banned_by").default("admin"),
 });
 
 // Facial recognition data table

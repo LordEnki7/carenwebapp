@@ -1135,6 +1135,15 @@ setInterval(load, 15000);
           console.log('[LOGIN] Password valid:', isValidPassword);
           
           if (isValidPassword) {
+            // Block banned / suspended accounts
+            const acctStatus = (dbUser as any).accountStatus;
+            if (acctStatus === 'banned') {
+              return res.status(403).json({ success: false, message: 'This account has been permanently banned. Contact support@carenalert.com if you believe this is an error.' });
+            }
+            if (acctStatus === 'suspended') {
+              return res.status(403).json({ success: false, message: 'This account is currently suspended pending review. Contact support@carenalert.com for assistance.' });
+            }
+
             // Generate session token
             const sessionToken = `session_${dbUser.id}_${Date.now()}`;
             
@@ -1422,6 +1431,40 @@ setInterval(load, 15000);
             termsAgreedAt: new Date()
           });
           console.log('[ACCOUNT_CREATION] User created in database successfully:', dbUser.id);
+
+          // ── Return detection: check if new user matches a banned fingerprint ──
+          (async () => {
+            try {
+              const { db: _db } = await import('./db');
+              const { bannedFingerprints: _bf } = await import('../shared/schema');
+              const fps = await _db.select().from(_bf);
+              const normName = `${(firstName || '').trim()} ${(lastName || '').trim()}`.toLowerCase().trim();
+              const normEmail = email.toLowerCase().split('@')[0].replace(/\./g, '').replace(/\+.*$/, '') + '@' + email.split('@')[1];
+              const match = fps.find(fp =>
+                (fp.normalizedName && fp.normalizedName === normName) ||
+                (fp.normalizedEmail && fp.normalizedEmail === normEmail)
+              );
+              if (match) {
+                console.warn(`[ABUSE] ⚠️ Returning banned user detected: ${email} matches fingerprint from ${match.originalUserId} (reason: ${match.reason})`);
+                const { sendEmail: _sendEmail } = await import('./mailer');
+                await _sendEmail({
+                  to: 'carenwebapp@gmail.com',
+                  subject: `🚨 RETURNING BANNED USER: ${email} just re-registered`,
+                  html: `<div style="font-family:sans-serif;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
+                    <h2 style="color:#f87171;margin-top:0;">⚠️ Banned User Returned</h2>
+                    <p>A new account was just created that matches a banned fingerprint.</p>
+                    <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                      <tr><td style="padding:4px 8px;color:#94a3b8;">New Email</td><td style="padding:4px 8px;">${email}</td></tr>
+                      <tr><td style="padding:4px 8px;color:#94a3b8;">New Name</td><td style="padding:4px 8px;">${firstName} ${lastName}</td></tr>
+                      <tr><td style="padding:4px 8px;color:#94a3b8;">Matched Fingerprint</td><td style="padding:4px 8px;">${match.normalizedName} / ${match.normalizedEmail}</td></tr>
+                      <tr><td style="padding:4px 8px;color:#94a3b8;">Original Ban Reason</td><td style="padding:4px 8px;">${match.reason}</td></tr>
+                    </table>
+                    <p style="margin-top:16px;"><a href="https://carenalert.com/admin" style="color:#38bdf8;">Go to Admin → Manage Users</a> to take action immediately.</p>
+                  </div>`,
+                });
+              }
+            } catch { /* non-fatal */ }
+          })();
         }
       } catch (dbError: any) {
         console.error('[ACCOUNT_CREATION] Database user creation failed:', dbError.message || dbError);
@@ -2859,6 +2902,9 @@ setInterval(load, 15000);
         lastName: u.lastName,
         subscriptionTier: (u as any).subscriptionTier || 'free',
         role: u.role,
+        accountStatus: (u as any).accountStatus || 'active',
+        banReason: (u as any).banReason || null,
+        bannedAt: (u as any).bannedAt || null,
         createdAt: u.createdAt,
       }));
       res.json(safe);
@@ -3100,6 +3146,110 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       console.error('[ABUSE-SCAN] Error:', err);
       res.status(500).json({ message: err.message });
     }
+  });
+
+  // ── Admin: Quarantine / Ban / Delete / Fingerprint ─────────────────────────
+
+  // Helper: build a fingerprint from a user record
+  function buildFingerprint(u: any) {
+    const name = `${(u.firstName || '').trim()} ${(u.lastName || '').trim()}`.toLowerCase().trim();
+    const email = (u.email || '').toLowerCase();
+    const normalized = email.split('@')[0].replace(/\./g, '').replace(/\+.*$/, '');
+    const domain = email.split('@')[1] || '';
+    return { normalizedName: name, normalizedEmail: `${normalized}@${domain}`, emailDomain: domain };
+  }
+
+  // PATCH /api/admin/users/:id/quarantine  — suspend (can still log in, no features)
+  app.patch('/api/admin/users/:id/quarantine', async (req: any, res) => {
+    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    const { id } = req.params;
+    const { reason } = req.body;
+    try {
+      const { db } = await import('./db');
+      const { users } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+      await db.update(users).set({
+        accountStatus: 'suspended',
+        banReason: reason || 'Suspended by admin — under review',
+        bannedAt: new Date(),
+        subscriptionTier: 'free',
+      } as any).where(eq(users.id, id));
+      res.json({ success: true, status: 'suspended' });
+    } catch (err: any) { res.status(500).json({ message: err.message }); }
+  });
+
+  // PATCH /api/admin/users/:id/ban  — hard ban + fingerprint
+  app.patch('/api/admin/users/:id/ban', async (req: any, res) => {
+    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    const { id } = req.params;
+    const { reason } = req.body;
+    try {
+      const { db } = await import('./db');
+      const { users, bannedFingerprints } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      // Store fingerprint for return detection
+      const fp = buildFingerprint(user);
+      await db.insert(bannedFingerprints).values({
+        originalUserId: id,
+        ...fp,
+        reason: reason || 'Banned by admin',
+        severity: 'HIGH',
+      } as any);
+
+      // Mark the account banned
+      await db.update(users).set({
+        accountStatus: 'banned',
+        banReason: reason || 'Account banned by admin',
+        bannedAt: new Date(),
+        subscriptionTier: 'free',
+      } as any).where(eq(users.id, id));
+
+      res.json({ success: true, status: 'banned', fingerprintStored: true });
+    } catch (err: any) { res.status(500).json({ message: err.message }); }
+  });
+
+  // DELETE /api/admin/users/:id  — hard delete + fingerprint
+  app.delete('/api/admin/users/:id', async (req: any, res) => {
+    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    const { id } = req.params;
+    const { reason } = req.body;
+    try {
+      const { db } = await import('./db');
+      const { users, bannedFingerprints } = await import('../shared/schema');
+      const { eq } = await import('drizzle-orm');
+
+      const [user] = await db.select().from(users).where(eq(users.id, id));
+      if (!user) return res.status(404).json({ message: 'User not found' });
+
+      // Store fingerprint before deletion
+      const fp = buildFingerprint(user);
+      await db.insert(bannedFingerprints).values({
+        originalUserId: id,
+        ...fp,
+        reason: reason || 'Account deleted by admin',
+        severity: 'HIGH',
+      } as any);
+
+      // Delete the user
+      await db.delete(users).where(eq(users.id, id));
+      res.json({ success: true, deleted: true, fingerprintStored: true });
+    } catch (err: any) { res.status(500).json({ message: err.message }); }
+  });
+
+  // GET /api/admin/banned-fingerprints  — list all stored fingerprints
+  app.get('/api/admin/banned-fingerprints', async (req: any, res) => {
+    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    try {
+      const { db } = await import('./db');
+      const { bannedFingerprints } = await import('../shared/schema');
+      const { desc } = await import('drizzle-orm');
+      const fps = await db.select().from(bannedFingerprints).orderBy(desc(bannedFingerprints.bannedAt));
+      res.json(fps);
+    } catch (err: any) { res.status(500).json({ message: err.message }); }
   });
 
   // Admin Dashboard Routes - Live Data Integration
@@ -5764,6 +5914,69 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
   
   // Store reference globally for use in API endpoints
   (global as any).wsManager = wsManager;
-  
+
+  // ── Daily Abuse Auto-Scan ─────────────────────────────────────────────────
+  // Runs automatically every 24 hours. First run 60s after server starts.
+  const runScheduledAbuseScan = async () => {
+    try {
+      const users = await storage.getAllUsers();
+      const findings: any[] = [];
+
+      // Duplicate names
+      const nameGroups: Record<string, string[]> = {};
+      for (const u of users) {
+        const name = `${(u.firstName || '').trim()} ${(u.lastName || '').trim()}`.toLowerCase().trim();
+        if (name.length > 2 && !['test user','demo user','face user'].includes(name)) {
+          if (!nameGroups[name]) nameGroups[name] = [];
+          nameGroups[name].push(u.email || u.id);
+        }
+      }
+      for (const [name, emails] of Object.entries(nameGroups)) {
+        if (emails.length >= 3) findings.push({ severity: 'HIGH', type: 'Duplicate Identity', summary: `"${name}" has ${emails.length} accounts`, affectedUsers: emails });
+      }
+
+      // Signup bursts
+      const dayGroups: Record<string, number> = {};
+      for (const u of users) {
+        if (!u.createdAt) continue;
+        const day = new Date(u.createdAt).toISOString().split('T')[0];
+        dayGroups[day] = (dayGroups[day] || 0) + 1;
+      }
+      for (const [day, count] of Object.entries(dayGroups)) {
+        if (count >= 5) findings.push({ severity: count >= 10 ? 'HIGH' : 'MEDIUM', type: 'Signup Burst', summary: `${count} accounts on ${day}`, affectedUsers: [] });
+      }
+
+      const high = findings.filter(f => f.severity === 'HIGH').length;
+      const med  = findings.filter(f => f.severity === 'MEDIUM').length;
+
+      if (high > 0 || med > 0) {
+        const { sendEmail } = await import('./mailer');
+        await sendEmail({
+          to: 'carenwebapp@gmail.com',
+          subject: `📅 Daily Scan: ${high} HIGH + ${med} MEDIUM abuse patterns detected`,
+          html: `<div style="font-family:sans-serif;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
+            <h2 style="color:#f87171;">🤖 Daily Abuse Scan — ${new Date().toLocaleDateString()}</h2>
+            <p style="color:#94a3b8;">Scanned ${users.length} accounts. Found ${findings.length} total patterns.</p>
+            ${findings.filter(f => f.severity !== 'LOW').map(f =>
+              `<div style="border-left:3px solid ${f.severity==='HIGH'?'#f87171':'#fb923c'};padding:10px;margin:8px 0;background:#1e293b;">
+                <b style="color:${f.severity==='HIGH'?'#f87171':'#fb923c'}">[${f.severity}]</b> ${f.type} — ${f.summary}
+              </div>`
+            ).join('')}
+            <p><a href="https://carenalert.com/admin" style="color:#38bdf8;">Open Admin Dashboard</a></p>
+          </div>`,
+        });
+        console.log(`[ABUSE-SCHEDULER] Daily scan complete — emailed admin (${high} HIGH, ${med} MEDIUM)`);
+      } else {
+        console.log('[ABUSE-SCHEDULER] Daily scan complete — all clear, no email sent');
+      }
+    } catch (err) {
+      console.error('[ABUSE-SCHEDULER] Scan error:', err);
+    }
+  };
+
+  // First scan 60 seconds after server start, then every 24 hours
+  setTimeout(runScheduledAbuseScan, 60_000);
+  setInterval(runScheduledAbuseScan, 24 * 60 * 60 * 1000);
+
   return httpServer;
 }
