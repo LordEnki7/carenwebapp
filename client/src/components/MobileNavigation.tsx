@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import carenLogo from "@assets/caren-icon-square.png";
+import carenLogo from "@assets/caren-icon-brand.png";
 import {
   Menu, X, Home, Shield, MessageSquare, Settings, AlertTriangle, LogOut,
   Car, VideoIcon, VolumeX, Zap, Map, FileText, UserCheck, Scale,

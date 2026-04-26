@@ -4,7 +4,7 @@ import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Play, Loader2, AlertCircle } from "lucide-react";
-import carenLogo from "@assets/caren-icon-square.png";
+import carenLogo from "@assets/caren-logo-full.png";
 
 // SimpleSignInForm stays eager — it is shown immediately on first render
 import SimpleSignInForm from "./SimpleSignInForm";
@@ -283,7 +283,7 @@ export default function BrowserCompatibleSignIn() {
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 flex items-center justify-center p-4">
         <div className="w-full max-w-md bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-8 space-y-6">
           <div className="text-center">
-            <img src={carenLogo} alt="C.A.R.E.N.™ Alert" className="w-16 h-16 rounded-full border-4 border-cyan-400/30 mx-auto mb-4" />
+            <img src={carenLogo} alt="C.A.R.E.N.™ Alert" className="w-40 h-auto object-contain mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-white">One Last Step</h2>
             <p className="text-gray-300 text-sm mt-1">Your Google account is ready. Please agree to our terms to complete sign-up.</p>
           </div>
@@ -324,7 +324,7 @@ export default function BrowserCompatibleSignIn() {
 
           {/* Brand */}
           <div className="flex items-center gap-3">
-            <img src={carenLogo} alt="C.A.R.E.N.™ Alert" className="w-12 h-12 rounded-full border-2 border-cyan-400/40" />
+            <img src={carenLogo} alt="C.A.R.E.N.™ Alert" className="w-28 h-auto object-contain" />
             <div>
               <h1 className="text-2xl font-black text-white tracking-tight leading-none">C.A.R.E.N.™ Alert</h1>
               <p className="text-cyan-400 text-xs font-medium">Your Roadside Guardian</p>

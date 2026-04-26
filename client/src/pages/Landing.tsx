@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Shield, Video, Scale, UserCheck, Globe, Cloud, Mic, Camera, FileAudio, FileVideo, CheckCircle2, Loader2 } from "lucide-react";
-import carenLogo from "@assets/caren-icon-square.png";
+import carenLogo from "@assets/caren-logo-full.png";
 import LegalAgreementModal from "@/components/LegalAgreementModal";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import ChatAgent from "@/components/ChatAgent";
@@ -51,7 +51,7 @@ export default function Landing() {
             <img 
               src={carenLogo} 
               alt="C.A.R.E.N.™ Alert - Citizen Assistance for Roadside Emergencies and Navigation" 
-              className="w-32 h-32 caren-logo"
+              className="w-48 h-48 object-contain caren-logo"
             />
           </div>
           <h1 className="text-5xl font-bold text-white mb-6 drop-shadow-lg">

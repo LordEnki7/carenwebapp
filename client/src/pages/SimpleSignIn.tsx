@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import carenLogo from "@assets/caren-icon-square.png";
+import carenLogo from "@assets/caren-logo-full.png";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 
 export default function SimpleSignIn() {
@@ -50,7 +50,7 @@ export default function SimpleSignIn() {
           <img 
             src={carenLogo} 
             alt="CAREN Logo" 
-            className="mx-auto h-16 w-auto mb-4"
+            className="mx-auto h-28 w-auto object-contain mb-4"
           />
           <h1 className="text-4xl font-bold text-cyan-400 mb-2">CAREN</h1>
           <p className="text-gray-300 text-lg">Constitutional Rights & Emergency Network</p>

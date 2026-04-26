@@ -50,7 +50,7 @@ import {
 } from "lucide-react";
 import { useTranslation } from "@/hooks/useTranslation";
 import { cn } from "@/lib/utils";
-import carenLogo from "@assets/caren-icon-square.png";
+import carenLogo from "@assets/caren-icon-brand.png";
 
 interface NavItem {
   name: string;

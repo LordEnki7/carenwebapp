@@ -20,7 +20,7 @@ import { apiRequest } from "@/lib/queryClient";
 import firstLineImg from "@assets/Gemini_Generated_Image_daljtddaljtddalj_1751075708889.png";
 import firstRespondersImg from "@assets/Gemini_Generated_Image_ghbsjghbsjghbsjg_1751079553418.png";
 import guardianWeekImg from "@assets/Caren_backsplash_1750345968199.png";
-import referProtectImg from "@assets/caren-icon-square.png";
+import referProtectImg from "@assets/caren-icon-brand.png";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
