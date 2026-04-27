@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>CAREN Legal Rights</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 390px; min-height: 844px; background: linear-gradient(160deg, #050d1a 0%, #0a1628 50%, #060e1c 100%); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; color: #fff; overflow-x: hidden; }
+  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; font-size: 12px; font-weight: 600; }
+  .status-time { font-size: 15px; font-weight: 700; }
+  .page-header { padding: 8px 20px 16px; border-bottom: 1px solid rgba(34,211,238,0.1); }
+  .back-row { display: flex; align-items: center; gap: 6px; color: #22d3ee; font-size: 13px; margin-bottom: 10px; }
+  .page-title { font-size: 22px; font-weight: 900; color: #fff; }
+  .page-sub { font-size: 12px; color: #67e8f9; margin-top: 3px; }
+  .location-bar { margin: 14px 16px; background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.2); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; }
+  .loc-icon { font-size: 18px; }
+  .loc-text { flex: 1; }
+  .loc-state { font-size: 15px; font-weight: 800; color: #22d3ee; }
+  .loc-sub { font-size: 10px; color: #64748b; }
+  .loc-count { background: rgba(34,211,238,0.15); color: #22d3ee; font-size: 10px; font-weight: 800; padding: 4px 9px; border-radius: 10px; }
+  .tabs { display: flex; margin: 0 16px 14px; background: rgba(15,25,55,0.6); border-radius: 12px; padding: 3px; gap: 2px; }
+  .tab { flex: 1; padding: 8px 4px; border-radius: 10px; font-size: 10px; font-weight: 700; text-align: center; color: #64748b; }
+  .tab.active { background: rgba(34,211,238,0.15); color: #22d3ee; }
+  .rights-list { padding: 0 16px; }
+  .right-card { background: linear-gradient(135deg, rgba(15,25,55,0.9), rgba(10,18,45,0.95)); border: 1px solid rgba(34,211,238,0.12); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .right-card.important { border-color: rgba(239,68,68,0.25); }
+  .right-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+  .right-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .right-title { font-size: 13px; font-weight: 800; color: #e2e8f0; flex: 1; }
+  .right-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 8px; flex-shrink: 0; }
+  .right-badge.critical { background: rgba(239,68,68,0.15); color: #ef4444; }
+  .right-badge.know { background: rgba(34,211,238,0.12); color: #22d3ee; }
+  .right-badge.advisory { background: rgba(234,179,8,0.12); color: #eab308; }
+  .right-text { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+  .right-cite { margin-top: 6px; font-size: 9px; color: #475569; font-style: italic; }
+  .right-action { margin-top: 8px; display: flex; gap: 6px; }
+  .action-btn { font-size: 10px; font-weight: 700; padding: 5px 10px; border-radius: 8px; }
+  .action-btn.primary { background: rgba(34,211,238,0.15); color: #22d3ee; }
+  .action-btn.secondary { background: rgba(255,255,255,0.05); color: #94a3b8; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; width: 390px; background: rgba(8,16,36,0.97); border-top: 1px solid rgba(34,211,238,0.15); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 10px 0 24px; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 14px; }
+  .nav-item.active .nav-icon, .nav-item.active .nav-label { color: #22d3ee; }
+  .nav-icon { font-size: 20px; color: #475569; }
+  .nav-label { font-size: 9px; color: #475569; font-weight: 600; }
+  .spacer { height: 88px; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+  <span class="status-time">9:41</span>
+  <div style="display:flex;gap:6px;align-items:center;font-size:12px">●●● WiFi 🔋</div>
+</div>
+
+<div class="page-header">
+  <div class="back-row">← Home</div>
+  <div class="page-title">⚖️ Your Legal Rights</div>
+  <div class="page-sub">State-specific protections · Updated 2026</div>
+</div>
+
+<div class="location-bar">
+  <div class="loc-icon">📍</div>
+  <div class="loc-text">
+    <div class="loc-state">Texas</div>
+    <div class="loc-sub">Auto-detected · Harris County</div>
+  </div>
+  <div class="loc-count">467 rights</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active">Traffic Stops</div>
+  <div class="tab">Recording</div>
+  <div class="tab">Search/Seizure</div>
+  <div class="tab">Accountability</div>
+</div>
+
+<div class="rights-list">
+  <div class="right-card important">
+    <div class="right-header">
+      <div class="right-icon">🛑</div>
+      <div class="right-title">Right to Remain Silent</div>
+      <div class="right-badge critical">CRITICAL</div>
+    </div>
+    <div class="right-text">You have the absolute right to remain silent. Clearly state "I am invoking my right to remain silent" — you do not need to answer questions beyond identifying yourself (name, ID in TX).</div>
+    <div class="right-cite">5th Amendment · Texas Transportation Code §521.049</div>
+    <div class="right-action">
+      <div class="action-btn primary">📋 Script</div>
+      <div class="action-btn secondary">Learn More</div>
+    </div>
+  </div>
+
+  <div class="right-card">
+    <div class="right-header">
+      <div class="right-icon">📹</div>
+      <div class="right-title">Right to Record Police</div>
+      <div class="right-badge know">KNOW THIS</div>
+    </div>
+    <div class="right-text">Texas law permits recording police officers performing their duties in public. Do not interfere with their actions. You may record openly and do not need permission.</div>
+    <div class="right-cite">1st Amendment · TX Penal Code §38.15</div>
+    <div class="right-action">
+      <div class="action-btn primary">🎥 Start Recording</div>
+    </div>
+  </div>
+
+  <div class="right-card">
+    <div class="right-header">
+      <div class="right-icon">🚗</div>
+      <div class="right-title">Vehicle Search Rights</div>
+      <div class="right-badge advisory">ADVISORY</div>
+    </div>
+    <div class="right-text">Police need probable cause or your consent to search your vehicle. You may calmly say "I do not consent to a search." Refusing consent cannot be used against you.</div>
+    <div class="right-cite">4th Amendment · Texas v. Brown</div>
+    <div class="right-action">
+      <div class="action-btn primary">📋 Script</div>
+      <div class="action-btn secondary">Case Law</div>
+    </div>
+  </div>
+
+  <div class="right-card">
+    <div class="right-header">
+      <div class="right-icon">👨‍⚖️</div>
+      <div class="right-title">Right to an Attorney</div>
+      <div class="right-badge critical">CRITICAL</div>
+    </div>
+    <div class="right-text">If detained or arrested, clearly state "I want an attorney." All questioning must stop immediately. Do not answer any questions until your attorney is present.</div>
+    <div class="right-cite">6th Amendment · Miranda v. Arizona</div>
+    <div class="right-action">
+      <div class="action-btn primary">👨‍⚖️ Find Attorney</div>
+    </div>
+  </div>
+</div>
+
+<div class="spacer"></div>
+<div class="bottom-nav">
+  <div class="nav-item"><div class="nav-icon">🏠</div><div class="nav-label">Home</div></div>
+  <div class="nav-item active"><div class="nav-icon">⚖️</div><div class="nav-label">Rights</div></div>
+  <div class="nav-item"><div class="nav-icon">🚨</div><div class="nav-label">SOS</div></div>
+  <div class="nav-item"><div class="nav-icon">👨‍⚖️</div><div class="nav-label">Attorneys</div></div>
+  <div class="nav-item"><div class="nav-icon">⚙️</div><div class="nav-label">More</div></div>
+</div>
+</body>
+</html>

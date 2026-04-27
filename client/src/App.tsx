@@ -129,6 +129,7 @@ const DirectorPlaybook = lazy(() => import("@/pages/DirectorPlaybook"));
 const AttorneyDirectory = lazy(() => import("@/pages/AttorneyDirectory"));
 const SocialMediaAgent = lazy(() => import("@/pages/SocialMediaAgent"));
 const MobilePreview = lazy(() => import("@/pages/MobilePreview"));
+const AutoScreenshot = lazy(() => import("@/pages/AutoScreenshot"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -342,6 +343,7 @@ function Router() {
             <Route path="/terms" component={TermsOfService} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/mobile-preview" component={MobilePreview} />
+            <Route path="/auto-screenshot" component={AutoScreenshot} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/tutorial" component={InteractiveTutorial} />

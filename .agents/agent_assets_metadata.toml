@@ -77,3 +77,33 @@ id = "U1w9or72LF9uW8bwS2_yt"
 uri = "file://client/src/assets/caren-icon-square.png"
 type = "image"
 title = "CAREN App Icon (your logo, square — used for all iOS sizes)"
+
+[[outputs]]
+id = "WBj5-iblzB8XqcMje7Tap"
+uri = "file://screenshots/screen-1-dashboard.jpg"
+type = "image"
+title = "Screen 1 — Dashboard"
+
+[[outputs]]
+id = "G3dBkslaEx0Ecuo7koOw7"
+uri = "file://screenshots/screen-2-rights.jpg"
+type = "image"
+title = "Screen 2 — Legal Rights"
+
+[[outputs]]
+id = "Z7HKtn-G59moMJIi8GDiM"
+uri = "file://screenshots/screen-3-emergency.jpg"
+type = "image"
+title = "Screen 3 — Emergency SOS"
+
+[[outputs]]
+id = "XpW8BiVsN7wmu0y6kEyL-"
+uri = "file://screenshots/screen-4-ai-assistant.jpg"
+type = "image"
+title = "Screen 4 — AI Legal Assistant"
+
+[[outputs]]
+id = "H7Ros28rpAS-OxjeSQwIA"
+uri = "file://screenshots/screen-5-attorneys.jpg"
+type = "image"
+title = "Screen 5 — Attorney Network"
