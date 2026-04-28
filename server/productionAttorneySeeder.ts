@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { attorneys, type InsertAttorney } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { assertSeederSafeEnvironment } from "./dbSafety";
 
 /**
  * Production Attorney Database Seeder
@@ -345,6 +346,9 @@ export class ProductionAttorneySeeder {
     ];
 
     try {
+      // Safety guard — this will throw if run against production
+      assertSeederSafeEnvironment('productionAttorneySeeder');
+
       // Clear existing demo attorneys (optional - only if transitioning from demo)
       console.log("⚠️ Clearing existing demo attorney data...");
       await db.delete(attorneys);

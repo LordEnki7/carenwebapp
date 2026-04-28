@@ -3331,13 +3331,15 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         deviceFingerprint: latestDeviceFP2,
       } as any);
 
-      // Nullify foreign key references that aren't CASCADE before deleting
+      // Nullify foreign key references that aren't CASCADE before soft-deleting
       await db.execute(
         sql`UPDATE login_activity SET user_id = NULL WHERE user_id = ${id}`
       );
 
-      // Delete the user (cascade handles the rest)
-      await db.delete(users).where(eq(users.id, id));
+      // Soft-delete the user — row is preserved for audit trail (never hard-delete)
+      const { softDeleteUser } = await import('./dbSafety');
+      const adminId = (req.session as any)?.userId || 'admin';
+      await softDeleteUser(id, adminId, 'Admin-initiated account removal');
       res.json({ success: true, deleted: true, fingerprintStored: true });
     } catch (err: any) { res.status(500).json({ message: err.message }); }
   });
@@ -4306,8 +4308,9 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
       await DataPrivacyManager.deleteUserData(userId);
 
-      // Delete the user row itself
-      await db.execute(sql`DELETE FROM users WHERE id = ${userId}`);
+      // GDPR hard delete — user-initiated only, logged by gdprHardDeleteUser
+      const { gdprHardDeleteUser } = await import('./dbSafety');
+      await gdprHardDeleteUser(userId);
 
       // Destroy the session
       req.session.destroy(() => {});

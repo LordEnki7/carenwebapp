@@ -751,6 +751,7 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS banned_at TIMESTAMP`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP`,
     // regional_directors — columns added after initial table creation
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS director_code VARCHAR(20) UNIQUE`,
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS portal_pin VARCHAR(10)`,

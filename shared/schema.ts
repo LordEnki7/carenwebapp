@@ -44,9 +44,10 @@ export const users = pgTable("users", {
   directorRef: varchar("director_ref", { length: 20 }), // director referral code used at signup
   passwordResetToken: varchar("password_reset_token"),
   passwordResetExpiry: timestamp("password_reset_expiry"),
-  accountStatus: varchar("account_status").default("active").notNull(), // active | suspended | banned
+  accountStatus: varchar("account_status").default("active").notNull(), // active | suspended | banned | deleted
   banReason: text("ban_reason"),
   bannedAt: timestamp("banned_at"),
+  deletedAt: timestamp("deleted_at"), // soft delete — row is kept for audit trail
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

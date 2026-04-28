@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { sql } from "drizzle-orm";
+import { assertSeederSafeEnvironment } from "./dbSafety";
 
 /**
  * Simple Attorney Seeder for Existing Database Schema
@@ -86,6 +87,9 @@ export class SimpleAttorneySeeder {
     ];
 
     try {
+      // Safety guard — this will throw if run against production
+      assertSeederSafeEnvironment('simpleAttorneySeeder');
+
       // Clear existing data
       await db.execute(sql`DELETE FROM attorneys`);
       console.log("🗑️ Cleared existing attorney data");
