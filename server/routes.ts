@@ -6055,9 +6055,9 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         const { sendEmail } = await import('./mailer');
         await sendEmail({
           to: 'carenwebapp@gmail.com',
-          subject: `📅 Daily Scan: ${high} HIGH + ${med} MEDIUM abuse patterns detected`,
+          subject: `📅 Weekly Scan: ${high} HIGH + ${med} MEDIUM abuse patterns detected`,
           html: `<div style="font-family:sans-serif;background:#0f172a;color:#e2e8f0;padding:24px;border-radius:12px;">
-            <h2 style="color:#f87171;">🤖 Daily Abuse Scan — ${new Date().toLocaleDateString()}</h2>
+            <h2 style="color:#f87171;">🤖 Weekly Abuse Scan — ${new Date().toLocaleDateString()}</h2>
             <p style="color:#94a3b8;">Scanned ${users.length} accounts. Found ${findings.length} total patterns.</p>
             ${findings.filter(f => f.severity !== 'LOW').map(f =>
               `<div style="border-left:3px solid ${f.severity==='HIGH'?'#f87171':'#fb923c'};padding:10px;margin:8px 0;background:#1e293b;">
@@ -6067,18 +6067,18 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
             <p><a href="https://carenalert.com/admin" style="color:#38bdf8;">Open Admin Dashboard</a></p>
           </div>`,
         });
-        console.log(`[ABUSE-SCHEDULER] Daily scan complete — emailed admin (${high} HIGH, ${med} MEDIUM)`);
+        console.log(`[ABUSE-SCHEDULER] Weekly scan complete — emailed admin (${high} HIGH, ${med} MEDIUM)`);
       } else {
-        console.log('[ABUSE-SCHEDULER] Daily scan complete — all clear, no email sent');
+        console.log('[ABUSE-SCHEDULER] Weekly scan complete — all clear, no email sent');
       }
     } catch (err) {
       console.error('[ABUSE-SCHEDULER] Scan error:', err);
     }
   };
 
-  // First scan 60 seconds after server start, then every 24 hours
+  // First scan 60 seconds after server start, then every 7 days
   setTimeout(runScheduledAbuseScan, 60_000);
-  setInterval(runScheduledAbuseScan, 24 * 60 * 60 * 1000);
+  setInterval(runScheduledAbuseScan, 7 * 24 * 60 * 60 * 1000);
 
   return httpServer;
 }
