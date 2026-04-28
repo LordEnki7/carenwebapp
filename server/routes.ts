@@ -6076,8 +6076,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     }
   };
 
-  // First scan 60 seconds after server start, then every 7 days
-  setTimeout(runScheduledAbuseScan, 60_000);
+  // Run once per week — no startup scan (avoids spam on server restarts)
   setInterval(runScheduledAbuseScan, 7 * 24 * 60 * 60 * 1000);
 
   return httpServer;
