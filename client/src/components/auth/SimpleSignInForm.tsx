@@ -77,6 +77,7 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
         ...data,
         deviceFingerprint,
         userAgent: navigator.userAgent,
+        _hp: "",
       });
       return response.json();
     },
@@ -242,6 +243,12 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
       </div>
 
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Honeypot — hidden from humans, filled by bots. Server rejects any submission where _hp is non-empty. */}
+        <div style={{ position: "absolute", left: "-9999px", top: "-9999px", width: 0, height: 0, overflow: "hidden" }} aria-hidden="true" tabIndex={-1}>
+          <label htmlFor="hp-field">Leave this blank</label>
+          <input id="hp-field" name="_hp" type="text" autoComplete="off" tabIndex={-1} />
+        </div>
+
         <div>
           <Label htmlFor="signin-email" className="text-gray-200 font-medium">Email Address</Label>
           <Input

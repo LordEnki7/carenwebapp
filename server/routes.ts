@@ -21,6 +21,7 @@ import { ComplaintService } from "./complaintService";
 import { demoSecurityMiddleware } from "./demoSecurity";
 import { BluetoothEarpieceService } from "./bluetoothEarpieceService";
 import { generateCustomDomainToken } from "./customDomainAuth";
+import { checkBotProtection, recordLoginSuccess, recordLoginFailure } from "./botProtection";
 import { setupGoogleAuth } from "./googleAuth";
 import { 
   insertLegalDocumentTemplateSchema,
@@ -1013,6 +1014,9 @@ setInterval(load, 15000);
         });
       }
 
+      // Bot protection — honeypot, lockout, anomaly detection
+      if (checkBotProtection(req, res, email)) return;
+
       // Route reviewer credentials to reviewer session
       if (email === 'googlereview@caren.app' && password === 'CarenGooglePlay2025!') {
         const reviewerUser = {
@@ -1206,6 +1210,7 @@ setInterval(load, 15000);
               // Return success with user data and session token
               const { password: _, ...userWithoutPassword } = dbUser;
               
+              recordLoginSuccess(req, email);
               return res.json({ 
                 success: true, 
                 user: userWithoutPassword,
@@ -1216,7 +1221,13 @@ setInterval(load, 15000);
             
             // Early return to prevent falling through to invalid credentials
             return;
+          } else {
+            // Wrong password for a real account
+            recordLoginFailure(req, email, "wrong password");
           }
+        } else if (!dbUser) {
+          // No account found at all
+          recordLoginFailure(req, email, "account not found");
         }
       } catch (dbError) {
         console.log('[LOGIN] Database error:', dbError);
