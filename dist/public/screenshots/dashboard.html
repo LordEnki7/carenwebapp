@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=390, initial-scale=1">
+<title>CAREN Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 390px; min-height: 844px; background: linear-gradient(160deg, #050d1a 0%, #0a1628 50%, #060e1c 100%); font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif; color: #fff; overflow-x: hidden; }
+  .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 14px 20px 8px; font-size: 12px; font-weight: 600; }
+  .status-time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 6px; align-items: center; }
+  .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 20px 12px; border-bottom: 1px solid rgba(34,211,238,0.1); }
+  .header-logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #1e3a6e, #0f2040); border: 2px solid #22d3ee40; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; color: #22d3ee; position: relative; }
+  .logo-dot { position: absolute; top: -3px; right: -3px; width: 8px; height: 8px; background: #22c55e; border-radius: 50%; border: 1.5px solid #0a1628; }
+  .header-title { font-size: 14px; font-weight: 800; color: #22d3ee; letter-spacing: 0.5px; }
+  .header-sub { font-size: 10px; color: #67e8f9; font-weight: 500; }
+  .header-right { display: flex; align-items: center; gap: 8px; }
+  .badge { background: rgba(34,211,238,0.15); border: 1px solid rgba(34,211,238,0.3); color: #22d3ee; padding: 4px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+  .hero { margin: 16px; background: linear-gradient(135deg, rgba(15,32,70,0.9), rgba(10,20,50,0.95)); border: 1px solid rgba(34,211,238,0.2); border-radius: 18px; padding: 20px; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: -30px; right: -30px; width: 120px; height: 120px; background: radial-gradient(circle, rgba(34,211,238,0.08), transparent); border-radius: 50%; }
+  .hero-label { font-size: 10px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 6px; }
+  .hero-state { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+  .hero-sub { font-size: 11px; color: #67e8f9; margin-bottom: 16px; }
+  .protection-bar { background: rgba(34,211,238,0.1); border-radius: 8px; height: 6px; margin-bottom: 6px; overflow: hidden; }
+  .protection-fill { height: 100%; width: 82%; background: linear-gradient(90deg, #22d3ee, #0ea5e9); border-radius: 8px; }
+  .protection-label { display: flex; justify-content: space-between; font-size: 10px; color: #94a3b8; }
+  .protection-pct { color: #22d3ee; font-weight: 700; }
+  .sos-btn { margin: 0 16px 16px; background: linear-gradient(135deg, #dc2626, #b91c1c); border-radius: 16px; padding: 20px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(239,68,68,0.4); box-shadow: 0 0 30px rgba(220,38,38,0.25); }
+  .sos-icon { width: 52px; height: 52px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+  .sos-text h3 { font-size: 17px; font-weight: 800; margin-bottom: 3px; }
+  .sos-text p { font-size: 11px; color: rgba(255,255,255,0.75); line-height: 1.4; }
+  .section-title { padding: 4px 20px 10px; font-size: 12px; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 16px 16px; }
+  .quick-card { background: linear-gradient(135deg, rgba(15,25,55,0.9), rgba(10,18,45,0.95)); border: 1px solid rgba(34,211,238,0.15); border-radius: 14px; padding: 14px; }
+  .quick-icon { font-size: 20px; margin-bottom: 6px; }
+  .quick-title { font-size: 12px; font-weight: 700; color: #e2e8f0; margin-bottom: 2px; }
+  .quick-sub { font-size: 10px; color: #64748b; }
+  .quick-badge { display: inline-block; margin-top: 6px; background: rgba(34,211,238,0.12); color: #22d3ee; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 10px; }
+  .quick-badge.green { background: rgba(34,197,94,0.12); color: #22c55e; }
+  .quick-badge.purple { background: rgba(168,85,247,0.12); color: #a855f7; }
+  .quick-badge.red { background: rgba(239,68,68,0.12); color: #ef4444; }
+  .activity { margin: 0 16px 16px; background: rgba(15,25,55,0.7); border: 1px solid rgba(34,211,238,0.1); border-radius: 14px; padding: 14px; }
+  .activity-title { font-size: 12px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .activity-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .activity-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .activity-dot.green { background: #22c55e; }
+  .activity-dot.cyan { background: #22d3ee; }
+  .activity-dot.purple { background: #a855f7; }
+  .activity-info { flex: 1; }
+  .activity-name { font-size: 11px; font-weight: 600; color: #e2e8f0; }
+  .activity-time { font-size: 10px; color: #64748b; }
+  .activity-status { font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 700; }
+  .activity-status.active { background: rgba(34,197,94,0.15); color: #22c55e; }
+  .activity-status.complete { background: rgba(34,211,238,0.15); color: #22d3ee; }
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; width: 390px; background: rgba(8,16,36,0.97); border-top: 1px solid rgba(34,211,238,0.15); backdrop-filter: blur(20px); display: flex; justify-content: space-around; padding: 10px 0 24px; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 4px 14px; border-radius: 10px; }
+  .nav-item.active .nav-icon { color: #22d3ee; }
+  .nav-item.active .nav-label { color: #22d3ee; }
+  .nav-icon { font-size: 20px; color: #475569; }
+  .nav-label { font-size: 9px; color: #475569; font-weight: 600; }
+  .spacer { height: 80px; }
+</style>
+</head>
+<body>
+<div class="status-bar">
+  <span class="status-time">9:41</span>
+  <div class="status-icons">
+    <span>●●●</span>
+    <span>WiFi</span>
+    <span>🔋</span>
+  </div>
+</div>
+
+<div class="header">
+  <div class="header-logo">
+    <div class="logo-icon">CA<div class="logo-dot"></div></div>
+    <div>
+      <div class="header-title">C.A.R.E.N.™ Alert</div>
+      <div class="header-sub">Your Roadside Guardian</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="badge">● LIVE</div>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-label">Current Protection Zone</div>
+  <div class="hero-state">📍 Texas</div>
+  <div class="hero-sub">467 legal protections active · GPS confirmed</div>
+  <div class="protection-bar"><div class="protection-fill"></div></div>
+  <div class="protection-label">
+    <span>Constitutional Coverage</span>
+    <span class="protection-pct">82%</span>
+  </div>
+</div>
+
+<div class="sos-btn">
+  <div class="sos-icon">🚨</div>
+  <div class="sos-text">
+    <h3>Emergency SOS</h3>
+    <p>Voice-activated · Records & alerts emergency contacts · Notifies attorneys</p>
+  </div>
+</div>
+
+<div class="section-title">Quick Access</div>
+<div class="quick-grid">
+  <div class="quick-card">
+    <div class="quick-icon">⚖️</div>
+    <div class="quick-title">Legal Rights</div>
+    <div class="quick-sub">TX — 467 protections</div>
+    <div class="quick-badge">View Rights</div>
+  </div>
+  <div class="quick-card">
+    <div class="quick-icon">🎥</div>
+    <div class="quick-title">Record</div>
+    <div class="quick-sub">Multi-angle · Encrypted</div>
+    <div class="quick-badge red">Start Now</div>
+  </div>
+  <div class="quick-card">
+    <div class="quick-icon">👨‍⚖️</div>
+    <div class="quick-title">Find Attorney</div>
+    <div class="quick-sub">12 available near you</div>
+    <div class="quick-badge green">Connect</div>
+  </div>
+  <div class="quick-card">
+    <div class="quick-icon">🤖</div>
+    <div class="quick-title">AI Assistant</div>
+    <div class="quick-sub">Legal coaching · Live</div>
+    <div class="quick-badge purple">Ask Now</div>
+  </div>
+</div>
+
+<div class="section-title">Recent Activity</div>
+<div class="activity">
+  <div class="activity-item">
+    <div class="activity-dot green"></div>
+    <div class="activity-info">
+      <div class="activity-name">Rights briefing — Traffic stop</div>
+      <div class="activity-time">Today, 8:32 AM</div>
+    </div>
+    <div class="activity-status complete">Done</div>
+  </div>
+  <div class="activity-item">
+    <div class="activity-dot cyan"></div>
+    <div class="activity-info">
+      <div class="activity-name">Attorney match found</div>
+      <div class="activity-time">Yesterday, 6:15 PM</div>
+    </div>
+    <div class="activity-status active">Active</div>
+  </div>
+  <div class="activity-item">
+    <div class="activity-dot purple"></div>
+    <div class="activity-info">
+      <div class="activity-name">AI coaching session</div>
+      <div class="activity-time">Apr 24, 2:10 PM</div>
+    </div>
+    <div class="activity-status complete">Done</div>
+  </div>
+</div>
+
+<div class="spacer"></div>
+
+<div class="bottom-nav">
+  <div class="nav-item active">
+    <div class="nav-icon">🏠</div>
+    <div class="nav-label">Home</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">⚖️</div>
+    <div class="nav-label">Rights</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">🚨</div>
+    <div class="nav-label">SOS</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">👨‍⚖️</div>
+    <div class="nav-label">Attorneys</div>
+  </div>
+  <div class="nav-item">
+    <div class="nav-icon">⚙️</div>
+    <div class="nav-label">More</div>
+  </div>
+</div>
+</body>
+</html>
