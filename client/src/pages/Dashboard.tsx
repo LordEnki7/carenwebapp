@@ -32,6 +32,11 @@ export default function Dashboard() {
     enabled: isAuthenticated,
   });
 
+  const { data: founderStatus } = useQuery<{ isFoundingMember: boolean; claimed: boolean; expiresAt?: string }>({
+    queryKey: ["/api/founders/my-status"],
+    enabled: isAuthenticated,
+  });
+
   const generateReferralCode = async () => {
     try {
       await apiRequest("POST", "/api/referrals/generate", {});
@@ -679,6 +684,32 @@ export default function Dashboard() {
                 compact={true}
               />
             </div>
+
+            {/* Founding Member Badge */}
+            {founderStatus?.isFoundingMember && (
+              <div className="cyber-card rounded-xl card-depth-1 p-5 animate-fade-in-up border border-yellow-500/40 bg-yellow-500/5" style={{ animationDelay: '0.72s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">🏆</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-yellow-300 font-bold text-sm">Founding Member</span>
+                      <span className="px-2 py-0.5 bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 rounded-full text-xs font-bold">EXCLUSIVE</span>
+                    </div>
+                    <p className="text-yellow-200/60 text-xs mt-0.5">
+                      Premium access {founderStatus.expiresAt ? `until ${new Date(founderStatus.expiresAt).toLocaleDateString()}` : "active"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setLocation("/founders")}
+                    className="text-yellow-400/60 hover:text-yellow-300 text-xs shrink-0"
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
 
             {/* Refer a Friend */}
             {referralData?.referralCode && (

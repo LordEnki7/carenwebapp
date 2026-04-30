@@ -705,6 +705,34 @@ export async function runAutoMigrations(): Promise<void> {
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )`,
+    // 39. Founders claims (first 100 who claim the offer)
+    `CREATE TABLE IF NOT EXISTS founders_claims (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR NOT NULL UNIQUE,
+      email VARCHAR,
+      claimed_at TIMESTAMP DEFAULT NOW(),
+      expires_at TIMESTAMP NOT NULL,
+      granted_by VARCHAR DEFAULT 'system'
+    )`,
+
+    // 40. Story submissions (UGC / spotlight)
+    `CREATE TABLE IF NOT EXISTS story_submissions (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR NOT NULL,
+      name VARCHAR NOT NULL,
+      email VARCHAR,
+      title VARCHAR NOT NULL,
+      story TEXT NOT NULL,
+      video_url VARCHAR,
+      consent_given BOOLEAN NOT NULL DEFAULT FALSE,
+      status VARCHAR NOT NULL DEFAULT 'pending',
+      admin_notes TEXT,
+      featured_month VARCHAR,
+      reward_granted BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )`,
+
     `CREATE TABLE IF NOT EXISTS device_fingerprints (
       id SERIAL PRIMARY KEY,
       user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE,
@@ -752,6 +780,9 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP`,
+    // users — founders / incentive system
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS is_founding_member BOOLEAN DEFAULT FALSE`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP`,
     // regional_directors — columns added after initial table creation
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS director_code VARCHAR(20) UNIQUE`,
     `ALTER TABLE regional_directors ADD COLUMN IF NOT EXISTS portal_pin VARCHAR(10)`,

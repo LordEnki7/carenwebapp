@@ -27,6 +27,29 @@ Key features include:
 -   **C.A.R.E.N. Legal Access Network (CLAN)**: A comprehensive attorney network system including an Attorney Application Form (public, multi-step with AI scoring), an Admin Approval Panel, an Attorney Portal for profile management, an Upgraded Matching Algorithm, and an Outreach CRM.
 -   **Regional Director Program**: Full director recruitment system with a public application form, Director Portal (Dashboard/Commissions/Leaderboard), and Director Admin Panel. Includes a commission system with tier-based rates (20%–35% by level) and a performance scoring formula.
 
+## Launch Incentive System
+
+### Phase 1 — Founders Access (LIVE)
+- Public page at `/founders` — accessible without login
+- Live counter: tracks how many of the first 100 spots have been claimed
+- Authenticated users can click "Claim Your Spot Now" to get 3 months premium access
+- Founding Member badge appears in dashboard for claimed users
+- Backend: `server/routes/founders.routes.ts` — mounted at `/api/founders`
+- DB: `founders_claims` table, `is_founding_member` + `premium_expires_at` columns on users
+
+### Phase 2 — Refer & Earn (PLANNED)
+- Tiered rewards on top of existing referral system
+- 1 ref = 1 week, 3 refs = 1 month, 10 refs = Safety Ambassador badge + extended access
+- `premium_expires_at` stacks when rewards are granted
+
+### Phase 3 — Story Spotlight / UGC (PLANNED)
+- Submission form in-app with consent checkbox
+- Admin approval workflow
+- Monthly winner auto-credited premium
+- DB: `story_submissions` table (already created)
+
+---
+
 ## Social Media Posting System
 
 Built into the AI Agent Dashboard at `/social-agent`. Handles AI caption generation, queue management, and one-click posting to all platforms.
