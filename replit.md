@@ -37,16 +37,24 @@ Key features include:
 - Backend: `server/routes/founders.routes.ts` — mounted at `/api/founders`
 - DB: `founders_claims` table, `is_founding_member` + `premium_expires_at` columns on users
 
-### Phase 2 — Refer & Earn (PLANNED)
+### Phase 2 — Refer & Earn (LIVE)
 - Tiered rewards on top of existing referral system
-- 1 ref = 1 week, 3 refs = 1 month, 10 refs = Safety Ambassador badge + extended access
-- `premium_expires_at` stacks when rewards are granted
+- 1 ref = 1 week, 3 refs = 1 month, 10 refs = 3 months + Safety Ambassador badge
+- `premium_expires_at` stacks when rewards are granted (GREATEST pattern)
+- Backend: `server/routes/referral.routes.ts` — `grantReferralRewards()` function
+- Dashboard: tier progress bar, tier ladder (3 steps), Safety Ambassador badge card
+- DB: `referral_count`, `referral_reward_tier`, `is_safety_ambassador` columns on users
 
-### Phase 3 — Story Spotlight / UGC (PLANNED)
-- Submission form in-app with consent checkbox
-- Admin approval workflow
-- Monthly winner auto-credited premium
-- DB: `story_submissions` table (already created)
+### Phase 3 — Story Spotlight / UGC (LIVE)
+- User submission form at `/share-story` with consent checkbox
+- Tracks existing submissions, prevents duplicates, shows review status
+- Admin approval panel at `/admin/stories` — approve / feature / reject + grant reward
+- Monthly winner gets 1 free month premium — auto-credited to account
+- Featured stories available at public endpoint `GET /api/stories/featured`
+- Backend: `server/routes/story-submissions.routes.ts` — mounted at `/api/stories`
+- Admin panel card added to `/admin` dashboard
+- Story Spotlight CTA section added to `/founders` page
+- DB: `story_submissions` table (id, user_id, name, email, title, story, video_url, consent_given, status, admin_notes, featured_month, reward_granted)
 
 ---
 

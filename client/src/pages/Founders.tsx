@@ -355,6 +355,29 @@ export default function Founders() {
         </div>
       </section>
 
+      {/* ── STORY SPOTLIGHT CTA ── */}
+      <section className="py-16 px-6 bg-gray-950 border-t border-white/5">
+        <div className="max-w-2xl mx-auto text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-green-500/20 border border-purple-500/30 flex items-center justify-center mx-auto">
+            <Star className="w-7 h-7 text-purple-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-white">Story Spotlight — Phase 3</h2>
+          <p className="text-gray-400 leading-relaxed">
+            Share how C.A.R.E.N. helped you in a real situation. Every month, one story is featured
+            on our website and social media — and the author wins <span className="text-white font-semibold">1 free month of premium</span>.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+            <Button
+              size="lg"
+              onClick={() => setLocation("/share-story")}
+              className="bg-gradient-to-r from-purple-600 to-green-600 hover:from-purple-500 hover:to-green-500 text-white font-bold px-8"
+            >
+              <Video className="w-4 h-4 mr-2" /> Submit My Story
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ── TRUST ── */}
       <section className="py-12 px-6 bg-black border-t border-white/5">
         <div className="max-w-2xl mx-auto text-center space-y-3">

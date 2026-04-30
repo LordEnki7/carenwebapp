@@ -5,13 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2, Search, Shield, CheckCircle } from 'lucide-react';
+import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2, Search, Shield, CheckCircle, Star } from 'lucide-react';
 
 const ADMIN_PANELS = [
   { label: "Director Admin", description: "Manage directors, issue PINs, track commissions", href: "/director-admin", icon: Building2, color: "border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10", badge: "Manage" },
   { label: "Social Media Agent", description: "AI captions, post queue, LinkedIn publishing", href: "/social-agent", icon: Share2, color: "border-purple-500/40 hover:border-purple-400 hover:bg-purple-500/10", badge: "AI" },
   { label: "Support Admin", description: "Customer support tickets and escalations", href: "/support-admin", icon: LifeBuoy, color: "border-green-500/40 hover:border-green-400 hover:bg-green-500/10", badge: "Tickets" },
   { label: "Announcements Admin", description: "Manage posts, giveaways and announcements", href: "/announcements-admin", icon: Megaphone, color: "border-orange-500/40 hover:border-orange-400 hover:bg-orange-500/10", badge: "Posts" },
+  { label: "Story Spotlight Admin", description: "Review, approve and feature user story submissions", href: "/admin/stories", icon: Star, color: "border-green-500/40 hover:border-green-400 hover:bg-green-500/10", badge: "Stories" },
 ];
 
 interface UserStats {

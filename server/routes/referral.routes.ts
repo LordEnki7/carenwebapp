@@ -174,6 +174,7 @@ export function registerReferralRoutes(app: Express) {
         premiumExpiresAt: userRow.premium_expires_at ?? null,
       });
     } catch (err: any) {
+      console.error("[REFERRAL_MY] Error:", err?.message || err);
       res.status(500).json({ error: "Failed to fetch referral stats" });
     }
   });

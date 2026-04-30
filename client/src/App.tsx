@@ -129,6 +129,8 @@ const DirectorPlaybook = lazy(() => import("@/pages/DirectorPlaybook"));
 const AttorneyDirectory = lazy(() => import("@/pages/AttorneyDirectory"));
 const SocialMediaAgent = lazy(() => import("@/pages/SocialMediaAgent"));
 const Founders = lazy(() => import("@/pages/Founders"));
+const ShareStory = lazy(() => import("@/pages/ShareStory"));
+const AdminStories = lazy(() => import("@/pages/AdminStories"));
 const MobilePreview = lazy(() => import("@/pages/MobilePreview"));
 const AutoScreenshot = lazy(() => import("@/pages/AutoScreenshot"));
 
@@ -254,6 +256,7 @@ function Router() {
             <Route path="/reset-password" component={ResetPassword} />
             <Route path="/mobile-preview" component={MobilePreview} />
             <Route path="/founders" component={Founders} />
+            <Route path="/share-story" component={ShareStory} />
 
             {/* Catch-all route - redirect all other routes to sign in for unauthenticated users */}
             <Route path="*" component={() => {
@@ -338,6 +341,8 @@ function Router() {
             <Route path="/find-attorney" component={AttorneyDirectory} />
             <Route path="/social-agent" component={SocialMediaAgent} />
             <Route path="/founders" component={Founders} />
+            <Route path="/share-story" component={ShareStory} />
+            <Route path="/admin/stories" component={AdminStories} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={Plans} />

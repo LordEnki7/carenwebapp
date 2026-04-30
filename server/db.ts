@@ -783,6 +783,8 @@ export async function runAutoMigrations(): Promise<void> {
     // users — founders / incentive system
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS is_founding_member BOOLEAN DEFAULT FALSE`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP`,
+    // users — referral system
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_count INTEGER DEFAULT 0`,
     // users — referral reward tiers
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_reward_tier INTEGER DEFAULT 0`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS is_safety_ambassador BOOLEAN DEFAULT FALSE`,

@@ -62,6 +62,7 @@ import { registerCommunityRoutes } from "./routes/community.routes";
 import { registerDirectorRoutes } from "./routes/director.routes";
 import { registerSocialMediaRoutes } from "./routes/social-media.routes";
 import foundersRouter from "./routes/founders.routes";
+import storySubmissionsRouter from "./routes/story-submissions.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 import { db } from "./db";
@@ -271,6 +272,8 @@ GUIDELINES:
   registerSocialMediaRoutes(app);
   app.use("/api/founders", foundersRouter);
   console.log("[ROUTES] Founders incentive routes registered");
+  app.use("/api/stories", storySubmissionsRouter);
+  console.log("[ROUTES] Story Spotlight routes registered");
 
   // ── GET /api/version ────────────────────────────────────────────────────────
   // Shows the EXACT git commit deployed so the deploy script can verify

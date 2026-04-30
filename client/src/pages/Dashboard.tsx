@@ -722,6 +722,23 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* Story Spotlight — Phase 3 */}
+            <div className="cyber-card rounded-xl card-depth-1 p-5 animate-fade-in-up border border-green-500/20 bg-green-500/5" style={{ animationDelay: '0.72s' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center flex-shrink-0 text-xl">🎥</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-green-300 font-semibold text-sm">Story Spotlight</p>
+                  <p className="text-green-200/60 text-xs mt-0.5">Share your story — win 1 month premium</p>
+                </div>
+                <button
+                  onClick={() => setLocation('/share-story')}
+                  className="px-3 py-1.5 bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 rounded-lg text-green-300 text-xs font-semibold transition-colors flex-shrink-0"
+                >
+                  Submit →
+                </button>
+              </div>
+            </div>
+
             {/* Safety Ambassador Badge */}
             {referralData?.isSafetyAmbassador && (
               <div className="cyber-card rounded-xl card-depth-1 p-5 animate-fade-in-up border border-purple-500/40 bg-purple-500/5" style={{ animationDelay: '0.73s' }}>
