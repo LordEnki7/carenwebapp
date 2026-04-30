@@ -733,6 +733,26 @@ export async function runAutoMigrations(): Promise<void> {
       updated_at TIMESTAMP DEFAULT NOW()
     )`,
 
+    `CREATE TABLE IF NOT EXISTS cloud_incidents (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE,
+      status VARCHAR DEFAULT 'recording',
+      trigger_type VARCHAR DEFAULT 'manual',
+      latitude DOUBLE PRECISION,
+      longitude DOUBLE PRECISION,
+      state VARCHAR,
+      address TEXT,
+      chunk_count INTEGER DEFAULT 0,
+      duration_seconds INTEGER,
+      notes TEXT,
+      share_token UUID,
+      share_expires_at TIMESTAMP,
+      started_at TIMESTAMP DEFAULT NOW(),
+      ended_at TIMESTAMP,
+      deleted_at TIMESTAMP,
+      updated_at TIMESTAMP DEFAULT NOW()
+    )`,
+
     `CREATE TABLE IF NOT EXISTS device_fingerprints (
       id SERIAL PRIMARY KEY,
       user_id VARCHAR REFERENCES users(id) ON DELETE CASCADE,

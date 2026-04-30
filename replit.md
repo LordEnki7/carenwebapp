@@ -105,3 +105,39 @@ Built into the AI Agent Dashboard at `/social-agent`. Handles AI caption generat
 -   **passport-google-oauth20**: Google OAuth integration.
 -   **SendGrid**: Email service.
 -   **Replit AI Integrations**: AI-powered features (gpt-5 and gpt-4o models).
+-   **Cloudflare R2**: Cloud incident recording storage (`carenincidents` bucket). Credentials: `CLOUDFLARE_R2_ACCOUNT_ID`, `CLOUDFLARE_R2_ACCESS_KEY_ID`, `CLOUDFLARE_R2_SECRET_ACCESS_KEY`, `CLOUDFLARE_R2_BUCKET_NAME`, `CLOUDFLARE_R2_ENDPOINT`.
+
+---
+
+## Cloud Incident Recording System
+
+Footage is preserved in Cloudflare R2 even if the user's device is destroyed.
+
+### Architecture
+- **R2 Service**: `server/services/r2-storage.ts` — presigned URLs, chunk keys, metadata upload
+- **Backend Routes**: `server/routes/cloud-incidents.routes.ts` — mounted at `/api/incidents`
+- **Frontend Hook**: `client/src/hooks/useCloudRecorder.ts` — MediaRecorder + 15s chunked upload
+- **Library Page**: `client/src/pages/Incidents.tsx` — at `/incidents`
+- **DB Table**: `cloud_incidents` — id, user_id, status, trigger_type, lat/lng, state, chunk_count, duration_seconds, share_token, share_expires_at
+
+### Key Routes
+- `POST /api/incidents/start` — create incident, upload meta.json to R2
+- `POST /api/incidents/chunk-url` — return presigned PUT URL for direct browser→R2 upload
+- `POST /api/incidents/end` — mark complete with duration
+- `GET /api/incidents/my` — list user's incidents
+- `GET /api/incidents/:id/playback` — presigned GET URLs for all chunks
+- `POST /api/incidents/:id/share` — 24hr attorney share token
+- `GET /api/incidents/shared/:token` — public view (no auth needed)
+- `DELETE /api/incidents/:id` — soft-delete
+
+### Storage Layout in R2
+```
+incidents/{incidentId}/chunks/0000.webm
+incidents/{incidentId}/chunks/0001.webm
+...
+incidents/{incidentId}/meta.json
+```
+
+### Tier Limits
+- Free: 3 incidents max
+- Premium: Unlimited

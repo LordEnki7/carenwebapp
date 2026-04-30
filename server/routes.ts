@@ -63,6 +63,7 @@ import { registerDirectorRoutes } from "./routes/director.routes";
 import { registerSocialMediaRoutes } from "./routes/social-media.routes";
 import foundersRouter from "./routes/founders.routes";
 import storySubmissionsRouter from "./routes/story-submissions.routes";
+import cloudIncidentsRouter from "./routes/cloud-incidents.routes";
 import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 import { db } from "./db";
@@ -274,6 +275,8 @@ GUIDELINES:
   console.log("[ROUTES] Founders incentive routes registered");
   app.use("/api/stories", storySubmissionsRouter);
   console.log("[ROUTES] Story Spotlight routes registered");
+  app.use("/api/incidents", cloudIncidentsRouter);
+  console.log("[ROUTES] Cloud Incidents routes registered");
 
   // ── GET /api/version ────────────────────────────────────────────────────────
   // Shows the EXACT git commit deployed so the deploy script can verify
