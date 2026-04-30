@@ -23,7 +23,7 @@ const PLATFORM_META = [
   { id: "linkedin",  label: "LinkedIn",  Icon: SiLinkedin,  color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/30",  note: "Add LINKEDIN_ACCESS_TOKEN + LINKEDIN_AUTHOR_URN to Secrets" },
   { id: "instagram", label: "Instagram", Icon: SiInstagram, color: "text-pink-400", bg: "bg-pink-500/10 border-pink-500/30",  note: "Needs Meta App review" },
   { id: "tiktok",    label: "TikTok",    Icon: SiTiktok,    color: "text-white",    bg: "bg-white/5 border-white/20",         note: "Needs TikTok API whitelist" },
-  { id: "twitter",   label: "Twitter/X", Icon: SiX,         color: "text-white",    bg: "bg-white/5 border-white/20",         note: "Needs paid API access ($100/mo)" },
+  { id: "twitter",   label: "Twitter/X", Icon: SiX,         color: "text-white",    bg: "bg-white/5 border-white/20",         note: "Add TWITTER_API_KEY + 3 other secrets" },
   { id: "facebook",  label: "Facebook",  Icon: SiFacebook,  color: "text-blue-500", bg: "bg-blue-600/10 border-blue-600/30", note: "Needs Meta App review" },
 ];
 
@@ -53,12 +53,24 @@ export default function SocialMediaAgent() {
   const [markPostedUrl, setMarkPostedUrl] = useState<Record<number, string>>({});
   const [activeTab, setActiveTab] = useState<"create" | "queue" | "connect">("create");
 
-  const { data: linkedInStatus } = useQuery<{ connected: boolean; hasToken: boolean; hasAuthor: boolean }>({
+  const { data: linkedInStatus } = useQuery<{ connected: boolean }>({
     queryKey: ["/api/social/linkedin/status"],
-    queryFn: async () => {
-      const res = await fetch("/api/social/linkedin/status");
-      return res.json();
-    },
+    queryFn: async () => { const res = await fetch("/api/social/linkedin/status"); return res.json(); },
+    refetchInterval: 30000,
+  });
+  const { data: twitterStatus } = useQuery<{ connected: boolean }>({
+    queryKey: ["/api/social/twitter/status"],
+    queryFn: async () => { const res = await fetch("/api/social/twitter/status"); return res.json(); },
+    refetchInterval: 30000,
+  });
+  const { data: facebookStatus } = useQuery<{ connected: boolean }>({
+    queryKey: ["/api/social/facebook/status"],
+    queryFn: async () => { const res = await fetch("/api/social/facebook/status"); return res.json(); },
+    refetchInterval: 30000,
+  });
+  const { data: instagramStatus } = useQuery<{ connected: boolean }>({
+    queryKey: ["/api/social/instagram/status"],
+    queryFn: async () => { const res = await fetch("/api/social/instagram/status"); return res.json(); },
     refetchInterval: 30000,
   });
 
@@ -71,11 +83,16 @@ export default function SocialMediaAgent() {
     },
   });
 
-  const linkedInConnected = linkedInStatus?.connected ?? false;
+  const platformConnected: Record<string, boolean> = {
+    linkedin:  linkedInStatus?.connected  ?? false,
+    twitter:   twitterStatus?.connected   ?? false,
+    facebook:  facebookStatus?.connected  ?? false,
+    instagram: instagramStatus?.connected ?? false,
+    youtube:   false,
+    tiktok:    false,
+  };
 
-  const platforms = PLATFORM_META.map(p =>
-    p.id === "linkedin" ? { ...p, connected: linkedInConnected } : { ...p, connected: false }
-  );
+  const platforms = PLATFORM_META.map(p => ({ ...p, connected: platformConnected[p.id] ?? false }));
 
   const generateMutation = useMutation({
     mutationFn: async () => {
@@ -149,21 +166,26 @@ export default function SocialMediaAgent() {
     },
   });
 
-  const linkedInPostMutation = useMutation({
+  const makePostMutation = (platform: string) => ({
     mutationFn: async (id: number) => {
-      const res = await fetch(`/api/social/linkedin/post/${id}`, { method: "POST" });
+      const res = await fetch(`/api/social/${platform}/post/${id}`, { method: "POST" });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "LinkedIn post failed");
+      if (!res.ok) throw new Error(data.error || `${platform} post failed`);
       return data;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/social/posts"] });
-      toast({ title: "Posted to LinkedIn!", description: "Your post is now live." });
+      toast({ title: `Posted to ${platform.charAt(0).toUpperCase() + platform.slice(1)}!`, description: "Your post is now live." });
     },
     onError: (err: any) => {
-      toast({ title: "LinkedIn post failed", description: err.message, variant: "destructive" });
+      toast({ title: `${platform} post failed`, description: err.message, variant: "destructive" });
     },
   });
+
+  const linkedInPostMutation  = useMutation(makePostMutation("linkedin"));
+  const twitterPostMutation   = useMutation(makePostMutation("twitter"));
+  const facebookPostMutation  = useMutation(makePostMutation("facebook"));
+  const instagramPostMutation = useMutation(makePostMutation("instagram"));
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -426,8 +448,15 @@ export default function SocialMediaAgent() {
               const statusCfg = STATUS_CONFIG[post.status] || STATUS_CONFIG.draft;
               const StatusIcon = statusCfg.icon;
               const pMeta = platforms.find(p => p.id === post.platform);
-              const isLinkedIn = post.platform === "linkedin";
-              const canAutoPost = isLinkedIn && linkedInConnected && post.status !== "posted";
+              const notYetPosted = post.status !== "posted";
+              const canAutoPost = notYetPosted && !!platformConnected[post.platform];
+              const postMutationMap: Record<string, any> = {
+                linkedin:  linkedInPostMutation,
+                twitter:   twitterPostMutation,
+                facebook:  facebookPostMutation,
+                instagram: instagramPostMutation,
+              };
+              const activeMutation = postMutationMap[post.platform];
 
               return (
                 <Card key={post.id} className="bg-white/5 border-white/10">
@@ -474,24 +503,24 @@ export default function SocialMediaAgent() {
                         <Copy className="w-3 h-3" /> Copy
                       </Button>
 
-                      {/* LinkedIn one-click post button */}
-                      {canAutoPost && (
+                      {/* One-click post button — shown when platform is connected */}
+                      {canAutoPost && activeMutation && (
                         <Button
                           size="sm"
-                          onClick={() => linkedInPostMutation.mutate(post.id)}
-                          disabled={linkedInPostMutation.isPending}
-                          className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 text-xs h-7 gap-1 border border-blue-500/30"
+                          onClick={() => activeMutation.mutate(post.id)}
+                          disabled={activeMutation.isPending}
+                          className={`text-xs h-7 gap-1 border ${pMeta?.bg || "bg-white/5 border-white/10"}`}
                         >
-                          {linkedInPostMutation.isPending
+                          {activeMutation.isPending
                             ? <RefreshCw className="w-3 h-3 animate-spin" />
-                            : <SiLinkedin className="w-3 h-3" />
+                            : pMeta ? <pMeta.Icon className={`w-3 h-3 ${pMeta.color}`} /> : <Send className="w-3 h-3" />
                           }
-                          Post to LinkedIn Now
+                          Post to {pMeta?.label || post.platform} Now
                         </Button>
                       )}
 
-                      {/* Manual mark-posted for non-LinkedIn or unconnected platforms */}
-                      {post.status !== "posted" && !canAutoPost && (
+                      {/* Manual mark-posted for unconnected platforms */}
+                      {notYetPosted && !canAutoPost && (
                         <div className="flex items-center gap-2 flex-1">
                           <Input
                             placeholder="Paste post URL after posting..."
@@ -603,21 +632,114 @@ export default function SocialMediaAgent() {
               </CardContent>
             </Card>
 
-            {/* Other platforms — roadmap */}
-            <Card className="bg-white/5 border-white/10">
+            {/* X / Twitter */}
+            <Card className={`border ${platformConnected.twitter ? "bg-white/10 border-white/30" : "bg-white/5 border-white/10"}`}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-gray-400 text-sm font-bold">Other Platforms — Roadmap</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-white text-sm font-bold"><SiX className="w-4 h-4" /> X / Twitter</span>
+                  {platformConnected.twitter ? <Badge className="bg-green-500/20 text-green-300">Connected</Badge> : <Badge className="bg-gray-700 text-gray-400">Not Connected</Badge>}
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
-                {platforms.filter(p => p.id !== "linkedin").map(p => (
-                  <div key={p.id} className="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-                    <div className="flex items-center gap-2">
-                      <p.Icon className={`w-4 h-4 ${p.color}`} />
-                      <span className="text-gray-300 text-sm">{p.label}</span>
-                    </div>
-                    <span className="text-gray-500 text-xs">{p.note}</span>
+              <CardContent className="space-y-3">
+                {platformConnected.twitter ? (
+                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <p className="text-green-300 text-sm">Auto-posting enabled. Go to Queue and hit "Post to X Now".</p>
                   </div>
-                ))}
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-gray-300 text-sm">Add these 4 secrets from your X Developer Portal (developer.twitter.com).</p>
+                    {[
+                      { key: "TWITTER_API_KEY",             desc: "API Key (Consumer Key)" },
+                      { key: "TWITTER_API_SECRET",          desc: "API Key Secret (Consumer Secret)" },
+                      { key: "TWITTER_ACCESS_TOKEN",        desc: "Access Token (with write permission)" },
+                      { key: "TWITTER_ACCESS_TOKEN_SECRET", desc: "Access Token Secret" },
+                    ].map(s => (
+                      <div key={s.key} className="flex items-center justify-between p-2 bg-black/30 rounded-lg border border-white/10">
+                        <div>
+                          <p className="text-cyan-300 text-xs font-mono">{s.key}</p>
+                          <p className="text-gray-500 text-xs">{s.desc}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => copyToClipboard(s.key, "Secret name")} className="text-gray-500 hover:text-white text-xs"><Copy className="w-3 h-3" /></Button>
+                      </div>
+                    ))}
+                    <a href="https://developer.twitter.com/en/portal/dashboard" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-gray-300 text-sm hover:underline">
+                      <Link2 className="w-4 h-4" /> Open X Developer Portal
+                    </a>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Facebook */}
+            <Card className={`border ${platformConnected.facebook ? "bg-blue-600/10 border-blue-600/30" : "bg-white/5 border-white/10"}`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-white text-sm font-bold"><SiFacebook className="w-5 h-5 text-blue-500" /> Facebook</span>
+                  {platformConnected.facebook ? <Badge className="bg-green-500/20 text-green-300">Connected</Badge> : <Badge className="bg-gray-700 text-gray-400">Not Connected</Badge>}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {platformConnected.facebook ? (
+                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <p className="text-green-300 text-sm">Auto-posting enabled. Go to Queue and hit "Post to Facebook Now".</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-gray-300 text-sm">You need a Facebook Page and a Meta App. Get a Page Access Token from Meta Business Suite.</p>
+                    {[
+                      { key: "FACEBOOK_PAGE_ACCESS_TOKEN", desc: "Long-lived Page Access Token" },
+                      { key: "FACEBOOK_PAGE_ID",           desc: "Your CAREN Facebook Page ID" },
+                    ].map(s => (
+                      <div key={s.key} className="flex items-center justify-between p-2 bg-black/30 rounded-lg border border-white/10">
+                        <div>
+                          <p className="text-cyan-300 text-xs font-mono">{s.key}</p>
+                          <p className="text-gray-500 text-xs">{s.desc}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => copyToClipboard(s.key, "Secret name")} className="text-gray-500 hover:text-white text-xs"><Copy className="w-3 h-3" /></Button>
+                      </div>
+                    ))}
+                    <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-400 text-sm hover:underline">
+                      <Link2 className="w-4 h-4" /> Open Meta Graph API Explorer
+                    </a>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Instagram */}
+            <Card className={`border ${platformConnected.instagram ? "bg-pink-500/10 border-pink-500/30" : "bg-white/5 border-white/10"}`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <span className="flex items-center gap-2 text-white text-sm font-bold"><SiInstagram className="w-5 h-5 text-pink-400" /> Instagram</span>
+                  {platformConnected.instagram ? <Badge className="bg-green-500/20 text-green-300">Connected</Badge> : <Badge className="bg-gray-700 text-gray-400">Not Connected</Badge>}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {platformConnected.instagram ? (
+                  <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                    <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <p className="text-green-300 text-sm">Auto-posting enabled. Posts your videos as Instagram Reels.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    <p className="text-gray-300 text-sm">Instagram uses the same Page Access Token as Facebook, plus your Instagram Business Account ID.</p>
+                    {[
+                      { key: "FACEBOOK_PAGE_ACCESS_TOKEN", desc: "Same token as Facebook (shared)" },
+                      { key: "INSTAGRAM_ACCOUNT_ID",       desc: "Your Instagram Business Account ID" },
+                    ].map(s => (
+                      <div key={s.key} className="flex items-center justify-between p-2 bg-black/30 rounded-lg border border-white/10">
+                        <div>
+                          <p className="text-cyan-300 text-xs font-mono">{s.key}</p>
+                          <p className="text-gray-500 text-xs">{s.desc}</p>
+                        </div>
+                        <Button size="sm" variant="ghost" onClick={() => copyToClipboard(s.key, "Secret name")} className="text-gray-500 hover:text-white text-xs"><Copy className="w-3 h-3" /></Button>
+                      </div>
+                    ))}
+                    <p className="text-gray-500 text-xs">Find your Instagram Account ID by calling the Facebook Graph API: GET /me/accounts — look for the Instagram linked to your page.</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

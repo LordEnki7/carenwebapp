@@ -27,6 +27,36 @@ Key features include:
 -   **C.A.R.E.N. Legal Access Network (CLAN)**: A comprehensive attorney network system including an Attorney Application Form (public, multi-step with AI scoring), an Admin Approval Panel, an Attorney Portal for profile management, an Upgraded Matching Algorithm, and an Outreach CRM.
 -   **Regional Director Program**: Full director recruitment system with a public application form, Director Portal (Dashboard/Commissions/Leaderboard), and Director Admin Panel. Includes a commission system with tier-based rates (20%–35% by level) and a performance scoring formula.
 
+## Social Media Posting System
+
+Built into the AI Agent Dashboard at `/social-agent`. Handles AI caption generation, queue management, and one-click posting to all platforms.
+
+### Backend (`server/routes/social-media.routes.ts`)
+- `GET /api/social/posts` — list all queued posts
+- `POST /api/social/generate` — AI generates platform-specific caption from a video
+- `POST /api/social/save` — save/schedule a post
+- `DELETE /api/social/posts/:id` — delete a post
+- `PUT /api/social/posts/:id/mark-posted` — manually mark as posted
+- `GET /api/social/{platform}/status` — check if platform credentials are configured
+- `POST /api/social/linkedin/post/:id` — post to LinkedIn
+- `POST /api/social/twitter/post/:id` — post to X/Twitter
+- `POST /api/social/facebook/post/:id` — post to Facebook Page
+- `POST /api/social/instagram/post/:id` — post as Instagram Reel
+
+### Required Secrets per Platform
+| Platform  | Secrets needed |
+|-----------|---------------|
+| LinkedIn  | `LINKEDIN_ACCESS_TOKEN`, `LINKEDIN_AUTHOR_URN` |
+| X/Twitter | `TWITTER_API_KEY`, `TWITTER_API_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` |
+| Facebook  | `FACEBOOK_PAGE_ACCESS_TOKEN`, `FACEBOOK_PAGE_ID` |
+| Instagram | `FACEBOOK_PAGE_ACCESS_TOKEN`, `INSTAGRAM_ACCOUNT_ID` |
+
+### Database
+- Table: `social_media_posts` (schema in `shared/schema.ts`)
+- Status flow: `draft` → `scheduled` → `posted` | `failed`
+
+---
+
 ## External Dependencies
 
 -   **PostgreSQL**: Primary database.

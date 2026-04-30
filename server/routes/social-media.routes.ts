@@ -190,11 +190,31 @@ Return JSON with exactly these fields:
     }
   });
 
-  // ── LinkedIn: check if credentials are configured ─────────────────────────
+  // ── Platform status endpoints ──────────────────────────────────────────────
   app.get("/api/social/linkedin/status", async (_req, res) => {
     const hasToken = !!process.env.LINKEDIN_ACCESS_TOKEN;
     const hasAuthor = !!process.env.LINKEDIN_AUTHOR_URN;
     res.json({ connected: hasToken && hasAuthor, hasToken, hasAuthor });
+  });
+
+  app.get("/api/social/twitter/status", async (_req, res) => {
+    const connected = !!(
+      process.env.TWITTER_API_KEY &&
+      process.env.TWITTER_API_SECRET &&
+      process.env.TWITTER_ACCESS_TOKEN &&
+      process.env.TWITTER_ACCESS_TOKEN_SECRET
+    );
+    res.json({ connected });
+  });
+
+  app.get("/api/social/facebook/status", async (_req, res) => {
+    const connected = !!(process.env.FACEBOOK_PAGE_ACCESS_TOKEN && process.env.FACEBOOK_PAGE_ID);
+    res.json({ connected });
+  });
+
+  app.get("/api/social/instagram/status", async (_req, res) => {
+    const connected = !!(process.env.FACEBOOK_PAGE_ACCESS_TOKEN && process.env.INSTAGRAM_ACCOUNT_ID);
+    res.json({ connected });
   });
 
   // ── LinkedIn: post a saved post ────────────────────────────────────────────
@@ -268,6 +288,181 @@ Return JSON with exactly these fields:
       res.json({ success: true, postUrl });
     } catch (err: any) {
       console.error("[LINKEDIN] Error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── X / Twitter: post a saved post ────────────────────────────────────────
+  app.post("/api/social/twitter/post/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const apiKey            = process.env.TWITTER_API_KEY;
+      const apiSecret         = process.env.TWITTER_API_SECRET;
+      const accessToken       = process.env.TWITTER_ACCESS_TOKEN;
+      const accessTokenSecret = process.env.TWITTER_ACCESS_TOKEN_SECRET;
+
+      if (!apiKey || !apiSecret || !accessToken || !accessTokenSecret) {
+        return res.status(400).json({
+          error: "X/Twitter credentials not configured. Add TWITTER_API_KEY, TWITTER_API_SECRET, TWITTER_ACCESS_TOKEN, and TWITTER_ACCESS_TOKEN_SECRET to your Secrets."
+        });
+      }
+
+      const [post] = await db.select().from(socialMediaPosts).where(eq(socialMediaPosts.id, id));
+      if (!post) return res.status(404).json({ error: "Post not found" });
+
+      const { TwitterApi } = await import("twitter-api-v2");
+      const client = new TwitterApi({
+        appKey: apiKey,
+        appSecret: apiSecret,
+        accessToken,
+        accessSecret: accessTokenSecret,
+      });
+
+      const tweetText = [
+        post.caption || "",
+        post.hashtags ? `\n${post.hashtags}` : "",
+      ].join("").trim().slice(0, 280);
+
+      const { data: tweet } = await client.v2.tweet(tweetText);
+
+      const postUrl = `https://x.com/i/web/status/${tweet.id}`;
+
+      await db.update(socialMediaPosts)
+        .set({ status: "posted", postedAt: new Date(), postUrl })
+        .where(eq(socialMediaPosts.id, id));
+
+      res.json({ success: true, postUrl, tweetId: tweet.id });
+    } catch (err: any) {
+      console.error("[TWITTER] Error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── Facebook: post a saved post ────────────────────────────────────────────
+  app.post("/api/social/facebook/post/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const pageToken = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+      const pageId    = process.env.FACEBOOK_PAGE_ID;
+
+      if (!pageToken || !pageId) {
+        return res.status(400).json({
+          error: "Facebook credentials not configured. Add FACEBOOK_PAGE_ACCESS_TOKEN and FACEBOOK_PAGE_ID to your Secrets."
+        });
+      }
+
+      const [post] = await db.select().from(socialMediaPosts).where(eq(socialMediaPosts.id, id));
+      if (!post) return res.status(404).json({ error: "Post not found" });
+
+      const message = [
+        post.caption || "",
+        post.hashtags ? `\n\n${post.hashtags}` : "",
+      ].join("").trim();
+
+      const response = await fetch(
+        `https://graph.facebook.com/v19.0/${pageId}/feed`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message,
+            link: "https://carenalert.com",
+            access_token: pageToken,
+          }),
+        }
+      );
+
+      const data: any = await response.json();
+      if (!response.ok || data.error) {
+        console.error("[FACEBOOK] Post error:", data.error);
+        return res.status(400).json({ error: data.error?.message || "Facebook API error" });
+      }
+
+      const postUrl = `https://www.facebook.com/${data.id}`;
+
+      await db.update(socialMediaPosts)
+        .set({ status: "posted", postedAt: new Date(), postUrl })
+        .where(eq(socialMediaPosts.id, id));
+
+      res.json({ success: true, postUrl, postId: data.id });
+    } catch (err: any) {
+      console.error("[FACEBOOK] Error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── Instagram: post a saved post (via Meta Graph API) ─────────────────────
+  // Instagram requires a 2-step process: create media container → publish
+  app.post("/api/social/instagram/post/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const pageToken    = process.env.FACEBOOK_PAGE_ACCESS_TOKEN;
+      const igAccountId  = process.env.INSTAGRAM_ACCOUNT_ID;
+
+      if (!pageToken || !igAccountId) {
+        return res.status(400).json({
+          error: "Instagram credentials not configured. Add FACEBOOK_PAGE_ACCESS_TOKEN and INSTAGRAM_ACCOUNT_ID to your Secrets."
+        });
+      }
+
+      const [post] = await db.select().from(socialMediaPosts).where(eq(socialMediaPosts.id, id));
+      if (!post) return res.status(404).json({ error: "Post not found" });
+
+      const caption = [
+        post.caption || "",
+        post.hashtags ? `\n\n${post.hashtags}` : "",
+      ].join("").trim();
+
+      // Step 1: Create media container (image_url required for static posts)
+      // For video posts, use video_url and media_type: REELS
+      const containerRes = await fetch(
+        `https://graph.facebook.com/v19.0/${igAccountId}/media`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            video_url: `https://carenalert.com/${post.videoFile}`,
+            caption,
+            media_type: "REELS",
+            access_token: pageToken,
+          }),
+        }
+      );
+
+      const container: any = await containerRes.json();
+      if (!containerRes.ok || container.error) {
+        console.error("[INSTAGRAM] Container error:", container.error);
+        return res.status(400).json({ error: container.error?.message || "Instagram container creation failed" });
+      }
+
+      // Step 2: Publish the container
+      const publishRes = await fetch(
+        `https://graph.facebook.com/v19.0/${igAccountId}/media_publish`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            creation_id: container.id,
+            access_token: pageToken,
+          }),
+        }
+      );
+
+      const published: any = await publishRes.json();
+      if (!publishRes.ok || published.error) {
+        console.error("[INSTAGRAM] Publish error:", published.error);
+        return res.status(400).json({ error: published.error?.message || "Instagram publish failed" });
+      }
+
+      const postUrl = `https://www.instagram.com/p/${published.id}`;
+
+      await db.update(socialMediaPosts)
+        .set({ status: "posted", postedAt: new Date(), postUrl })
+        .where(eq(socialMediaPosts.id, id));
+
+      res.json({ success: true, postUrl, mediaId: published.id });
+    } catch (err: any) {
+      console.error("[INSTAGRAM] Error:", err);
       res.status(500).json({ error: err.message });
     }
   });
