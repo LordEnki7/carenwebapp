@@ -27,7 +27,18 @@ export default function Dashboard() {
   // Start on PanicHome — user can swipe into full dashboard
   const [showFullDashboard, setShowFullDashboard] = useState(false);
   
-  const { data: referralData, refetch: refetchReferral } = useQuery<{ referralCode: string | null; total: number; converted: number; rewardEarned: boolean }>({
+  const { data: referralData, refetch: refetchReferral } = useQuery<{
+    referralCode: string | null;
+    total: number;
+    converted: number;
+    rewardEarned: boolean;
+    rewardTier: number;
+    referralCount: number;
+    isSafetyAmbassador: boolean;
+    nextTierAt: number | null;
+    nextTierReward: string;
+    premiumExpiresAt: string | null;
+  }>({
     queryKey: ["/api/referrals/my"],
     enabled: isAuthenticated,
   });
@@ -711,21 +722,91 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* Safety Ambassador Badge */}
+            {referralData?.isSafetyAmbassador && (
+              <div className="cyber-card rounded-xl card-depth-1 p-5 animate-fade-in-up border border-purple-500/40 bg-purple-500/5" style={{ animationDelay: '0.73s' }}>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl">🛡️</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-purple-300 font-bold text-sm">Safety Ambassador</span>
+                      <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-xs font-bold">EARNED</span>
+                    </div>
+                    <p className="text-purple-200/60 text-xs mt-0.5">
+                      {referralData.referralCount} referrals — thank you for growing the C.A.R.E.N. community
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Refer a Friend */}
             {referralData?.referralCode && (
               <div className="cyber-card rounded-xl card-depth-1 p-6 animate-fade-in-up border border-purple-500/30" style={{ animationDelay: '0.75s' }}>
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Gift className="w-5 h-5 text-purple-400" />
-                    <h3 className="text-lg font-semibold text-purple-300">Refer a Friend</h3>
+                    <h3 className="text-lg font-semibold text-purple-300">Refer & Earn</h3>
                   </div>
-                  {referralData.total >= 1 && (
-                    <span className="px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs font-bold">
-                      🎉 {referralData.total} Referral{referralData.total !== 1 ? 's' : ''}!
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {referralData.isSafetyAmbassador && (
+                      <span className="px-2 py-1 bg-purple-500/20 text-purple-300 border border-purple-500/30 rounded-full text-xs font-bold">🛡️ Ambassador</span>
+                    )}
+                    {referralData.referralCount >= 1 && (
+                      <span className="px-2 py-1 bg-green-500/20 text-green-300 border border-green-500/30 rounded-full text-xs font-bold">
+                        🎉 {referralData.referralCount} Referral{referralData.referralCount !== 1 ? 's' : ''}!
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <p className="text-slate-400 text-sm mb-4">Share your unique link — you get a free month when your friend subscribes.</p>
+
+                {/* Tier progress */}
+                {referralData.nextTierAt !== null ? (
+                  <div className="mb-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-purple-300 text-xs font-semibold">Next reward: {referralData.nextTierReward}</span>
+                      <span className="text-purple-400 text-xs font-bold">
+                        {referralData.referralCount}/{referralData.nextTierAt}
+                      </span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all duration-700"
+                        style={{ width: `${Math.min(100, (referralData.referralCount / referralData.nextTierAt) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <p className="text-purple-300 text-xs font-semibold">🛡️ Maximum tier reached — you're a Safety Ambassador!</p>
+                    {referralData.premiumExpiresAt && (
+                      <p className="text-purple-200/60 text-xs mt-1">Premium active until {new Date(referralData.premiumExpiresAt).toLocaleDateString()}</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Tier ladder */}
+                <div className="flex items-center gap-1 mb-4">
+                  {[
+                    { at: 1,  label: "1 ref",  reward: "1 wk",  tier: 1  },
+                    { at: 3,  label: "3 refs", reward: "1 mo",  tier: 3  },
+                    { at: 10, label: "10 refs", reward: "3 mo + 🛡️", tier: 10 },
+                  ].map((step, i) => {
+                    const done = referralData.referralCount >= step.at;
+                    return (
+                      <div key={step.at} className="flex items-center flex-1">
+                        <div className={`flex-1 text-center px-1 py-1.5 rounded-lg border text-xs ${done ? "bg-green-500/20 border-green-500/30 text-green-300" : "bg-white/5 border-white/10 text-gray-500"}`}>
+                          <div className="font-bold">{done ? "✓" : step.label}</div>
+                          <div className="text-xs opacity-80">{step.reward}</div>
+                        </div>
+                        {i < 2 && <div className={`w-3 h-px mx-0.5 ${done ? "bg-green-500/40" : "bg-white/10"}`} />}
+                      </div>
+                    );
+                  })}
+                </div>
+
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-cyan-300 text-sm font-mono truncate">
                     {`${window.location.origin}/?ref=${referralData.referralCode}`}
@@ -741,10 +822,10 @@ export default function Dashboard() {
                   </button>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-slate-400">
-                  <span>Referred: <strong className="text-white">{referralData.total}</strong></span>
+                  <span>Referred: <strong className="text-white">{referralData.referralCount ?? referralData.total}</strong></span>
                   <span>Converted: <strong className="text-green-300">{referralData.converted}</strong></span>
-                  {referralData.rewardEarned && (
-                    <span className="text-yellow-300 font-bold">✓ Free Month Earned!</span>
+                  {referralData.rewardTier > 0 && (
+                    <span className="text-yellow-300 font-bold">✓ Rewards active</span>
                   )}
                 </div>
               </div>
