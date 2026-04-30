@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useCloudSyncIntegration } from "@/hooks/useCloudSyncIntegration";
 import { useEmergencyRecording } from "@/hooks/useEmergencyRecording";
-import { Mic, MicOff, Video, VideoOff, Play, Pause, Download, Trash2, Send, AlertCircle, Cloud, CloudOff, Settings, FlipHorizontal2 } from "lucide-react";
+import { Mic, MicOff, Video, VideoOff, Play, Pause, Download, Trash2, Send, AlertCircle, Cloud, CloudOff, Settings, FlipHorizontal2, CheckCircle2 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import { RobustRecorder } from "@/lib/robustRecorder";
@@ -78,6 +78,10 @@ export default function Record() {
   const chunksRef = useRef<Blob[]>([]);
   const videoPlayerRef = useRef<HTMLVideoElement>(null);
   const effectiveRecordingTypeRef = useRef<'audio' | 'video'>('audio');
+
+  // Cloud backup state — purely additive, never blocks the existing recording flow
+  const cloudIncidentIdRef = useRef<string | null>(null);
+  const [cloudStatus, setCloudStatus] = useState<'idle' | 'active' | 'uploading' | 'saved' | 'failed'>('idle');
 
   // Flip between front and rear camera while a video stream is active
   const flipCamera = async () => {
@@ -508,7 +512,45 @@ export default function Record() {
       
       startTimeRef.current = Date.now();
       setIsRecording(true);
-      
+
+      // ── Cloud backup: silently register incident ─────────────────────────
+      cloudIncidentIdRef.current = null;
+      setCloudStatus('active');
+      (async () => {
+        try {
+          let lat: number | null = null;
+          let lng: number | null = null;
+          if (navigator.geolocation) {
+            await new Promise<void>((resolve) => {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => { lat = pos.coords.latitude; lng = pos.coords.longitude; resolve(); },
+                () => resolve(),
+                { timeout: 3000 }
+              );
+            });
+          }
+          const res = await fetch('/api/incidents/start', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              latitude: lat,
+              longitude: lng,
+              triggerType: isEmergencyMode ? 'emergency' : effectiveRecordingType === 'video' ? 'video_record' : 'audio_record',
+            }),
+          });
+          if (res.ok) {
+            const { incidentId } = await res.json();
+            cloudIncidentIdRef.current = incidentId;
+            console.log('[CLOUD BACKUP] Incident registered:', incidentId);
+          }
+        } catch (err) {
+          console.warn('[CLOUD BACKUP] Registration failed (non-fatal):', err);
+          setCloudStatus('failed');
+        }
+      })();
+      // ────────────────────────────────────────────────────────────────────
+
       recordingTimerRef.current = setInterval(() => {
         setRecordingDuration(Math.floor((Date.now() - startTimeRef.current) / 1000));
       }, 1000);
@@ -623,7 +665,49 @@ export default function Record() {
         }
         
         setRecordings(prev => [newRecording, ...prev]);
-        
+
+        // ── Cloud backup: upload blob to R2 ─────────────────────────────
+        const incidentId = cloudIncidentIdRef.current;
+        if (incidentId && blob.size > 0) {
+          setCloudStatus('uploading');
+          (async () => {
+            try {
+              const urlRes = await fetch('/api/incidents/chunk-url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ incidentId, chunkIndex: 0, contentType: blob.type || 'video/webm' }),
+              });
+              if (!urlRes.ok) throw new Error(`chunk-url ${urlRes.status}`);
+              const { uploadUrl } = await urlRes.json();
+
+              const uploadRes = await fetch(uploadUrl, {
+                method: 'PUT',
+                headers: { 'Content-Type': blob.type || 'video/webm' },
+                body: blob,
+              });
+              if (!uploadRes.ok) throw new Error(`R2 upload ${uploadRes.status}`);
+
+              await fetch('/api/incidents/end', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ incidentId, durationSeconds: recordingDuration }),
+              });
+
+              setCloudStatus('saved');
+              cloudIncidentIdRef.current = null;
+              console.log('[CLOUD BACKUP] Recording saved to R2:', incidentId);
+            } catch (err) {
+              console.warn('[CLOUD BACKUP] Upload failed (non-fatal):', err);
+              setCloudStatus('failed');
+            }
+          })();
+        } else {
+          setCloudStatus('idle');
+        }
+        // ────────────────────────────────────────────────────────────────
+
         // Clean up recorder
         recorderRef.current.cleanup();
         recorderRef.current = null;
@@ -958,6 +1042,27 @@ export default function Record() {
                   {isRecording && (
                     <span className="ml-auto text-sm font-mono bg-red-500/20 text-red-300 px-2 py-1 rounded border border-red-400/30">
                       {formatDuration(recordingDuration)}
+                    </span>
+                  )}
+                  {/* Cloud backup status badge */}
+                  {cloudStatus === 'active' && (
+                    <span className="flex items-center gap-1 text-xs text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-1 rounded">
+                      <Cloud className="w-3 h-3 animate-pulse" /> Cloud active
+                    </span>
+                  )}
+                  {cloudStatus === 'uploading' && (
+                    <span className="flex items-center gap-1 text-xs text-yellow-400 bg-yellow-500/10 border border-yellow-500/20 px-2 py-1 rounded animate-pulse">
+                      <Cloud className="w-3 h-3" /> Uploading…
+                    </span>
+                  )}
+                  {cloudStatus === 'saved' && (
+                    <span className="flex items-center gap-1 text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-2 py-1 rounded">
+                      <CheckCircle2 className="w-3 h-3" /> Cloud saved
+                    </span>
+                  )}
+                  {cloudStatus === 'failed' && (
+                    <span className="flex items-center gap-1 text-xs text-gray-400 bg-gray-500/10 border border-gray-500/20 px-2 py-1 rounded" title="Local recording still saved">
+                      <CloudOff className="w-3 h-3" /> Local only
                     </span>
                   )}
                 </h3>
