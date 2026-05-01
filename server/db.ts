@@ -834,6 +834,11 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS reason TEXT`,
     `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS severity VARCHAR DEFAULT 'HIGH'`,
     `ALTER TABLE banned_fingerprints ADD COLUMN IF NOT EXISTS banned_by VARCHAR DEFAULT 'admin'`,
+
+    // Legal hold + evidence package columns on cloud_incidents
+    `ALTER TABLE cloud_incidents ADD COLUMN IF NOT EXISTS is_legal_hold BOOLEAN DEFAULT FALSE`,
+    `ALTER TABLE cloud_incidents ADD COLUMN IF NOT EXISTS legal_hold_reason TEXT`,
+    `ALTER TABLE cloud_incidents ADD COLUMN IF NOT EXISTS legal_hold_set_at TIMESTAMP`,
   ];
 
   const allMigrations = [...createTables, ...addMissingColumns];

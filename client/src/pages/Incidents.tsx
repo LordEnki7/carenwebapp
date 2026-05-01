@@ -10,7 +10,8 @@ import { useToast } from "@/hooks/use-toast";
 import {
   CloudUpload, Video, Shield, MapPin, Clock, Trash2, Share2,
   Play, Mic, MicOff, VideoOff, AlertTriangle, CheckCircle2,
-  ChevronLeft, Lock, Wifi, WifiOff, Upload, Camera
+  ChevronLeft, Lock, Wifi, WifiOff, Upload, Camera,
+  FileText, Scale, AlertOctagon, ExternalLink, ChevronDown
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -27,6 +28,9 @@ interface Incident {
   notes: string | null;
   started_at: string;
   ended_at: string | null;
+  is_legal_hold: boolean;
+  legal_hold_reason: string | null;
+  share_expires_at: string | null;
 }
 
 function formatDuration(seconds: number | null): string {
@@ -54,11 +58,15 @@ export default function Incidents() {
   const queryClient = useQueryClient();
   const videoPreviewRef = useRef<HTMLVideoElement>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [shareLabel, setShareLabel] = useState<string>("");
+  const [shareIncident, setShareIncident] = useState<Incident | null>(null);
+  const [shareDurationDays, setShareDurationDays] = useState<number>(1);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [showPlayback, setShowPlayback] = useState(false);
   const [playbackUrls, setPlaybackUrls] = useState<string[]>([]);
   const [playbackLoading, setPlaybackLoading] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number; state?: string; address?: string } | null>(null);
+  const [holdReason, setHoldReason] = useState("");
 
   const { isRecording, incidentId, chunkCount, elapsedSeconds, error, start, stop } = useCloudRecorder({
     onChunkUploaded: (i) => {
@@ -130,23 +138,58 @@ export default function Incidents() {
     toast({ title: "Recording Saved", description: `Incident ${id?.slice(0, 8)}… secured in cloud storage.` });
   };
 
-  // Delete incident
+  // Delete incident (blocked by backend if legal hold active)
   const deleteMutation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/incidents/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/incidents/my"] });
       toast({ title: "Incident deleted" });
     },
+    onError: async (err: any) => {
+      // 423 = legal hold active
+      const body = err?.response ? await err.response.json().catch(() => ({})) : {};
+      if (body?.code === "LEGAL_HOLD_ACTIVE") {
+        toast({
+          title: "Cannot delete — Legal Hold active",
+          description: "Remove the legal hold on this incident before deleting.",
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Delete failed", description: "Please try again.", variant: "destructive" });
+      }
+    },
   });
 
-  // Share incident
+  // Share incident with configurable duration
   const shareMutation = useMutation({
-    mutationFn: (id: string) => apiRequest("POST", `/api/incidents/${id}/share`),
+    mutationFn: ({ id, durationDays }: { id: string; durationDays: number }) =>
+      apiRequest("POST", `/api/incidents/${id}/share`, { durationDays }),
     onSuccess: async (res: any) => {
       const data = await res.json();
       setShareUrl(data.shareUrl);
+      setShareLabel(data.label ?? "");
     },
   });
+
+  // Legal hold toggle
+  const legalHoldMutation = useMutation({
+    mutationFn: ({ id, hold, reason }: { id: string; hold: boolean; reason?: string }) =>
+      apiRequest("PATCH", `/api/incidents/${id}/legal-hold`, { hold, reason }),
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/incidents/my"] });
+      toast({
+        title: vars.hold ? "Legal Hold Activated" : "Legal Hold Removed",
+        description: vars.hold
+          ? "This incident is now protected. It cannot be deleted while the hold is active."
+          : "Legal hold removed. The incident can now be deleted.",
+      });
+    },
+    onError: () => toast({ title: "Failed to update legal hold", variant: "destructive" }),
+  });
+
+  const openEvidencePackage = (incident: Incident) => {
+    window.open(`/api/incidents/${incident.id}/evidence-package`, "_blank");
+  };
 
   const handlePlayback = async (incident: Incident) => {
     setSelectedIncident(incident);
@@ -395,8 +438,17 @@ export default function Incidents() {
                         </div>
                       </div>
 
+                      {/* Legal hold badge */}
+                      {incident.is_legal_hold && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-2 py-1 w-fit">
+                          <Scale className="w-3 h-3 shrink-0" />
+                          Legal Hold Active
+                          {incident.legal_hold_reason && <span className="text-amber-300/70"> — {incident.legal_hold_reason}</span>}
+                        </div>
+                      )}
+
                       {/* Actions */}
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1 shrink-0 mt-1 flex-wrap">
                         {incident.status === "complete" && incident.chunk_count > 0 && (
                           <Button
                             variant="ghost"
@@ -408,28 +460,65 @@ export default function Incidents() {
                             <Play className="w-4 h-4" />
                           </Button>
                         )}
+
+                        {/* Evidence Package */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-400 hover:text-green-400"
+                          onClick={() => openEvidencePackage(incident)}
+                          title="Generate evidence package (print to PDF)"
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Button>
+
+                        {/* Share with attorney */}
                         <Button
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8 text-gray-400 hover:text-cyan-400"
                           onClick={() => {
-                            setSelectedIncident(incident);
-                            shareMutation.mutate(incident.id);
+                            setShareIncident(incident);
+                            setShareDurationDays(1);
+                            setShareUrl(null);
                           }}
                           title="Share with attorney"
                         >
                           <Share2 className="w-4 h-4" />
                         </Button>
+
+                        {/* Legal Hold toggle */}
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-gray-400 hover:text-red-400"
+                          className={`h-8 w-8 ${incident.is_legal_hold ? "text-amber-400 hover:text-amber-300" : "text-gray-400 hover:text-amber-400"}`}
                           onClick={() => {
-                            if (confirm("Delete this incident from cloud storage?")) {
+                            if (incident.is_legal_hold) {
+                              if (confirm("Remove the legal hold on this incident?")) {
+                                legalHoldMutation.mutate({ id: incident.id, hold: false });
+                              }
+                            } else {
+                              const reason = prompt("Optional: enter a brief reason for this legal hold (e.g. 'Traffic stop 05/01/2026')");
+                              legalHoldMutation.mutate({ id: incident.id, hold: true, reason: reason ?? undefined });
+                            }
+                          }}
+                          title={incident.is_legal_hold ? "Remove legal hold" : "Mark as legal evidence (legal hold)"}
+                        >
+                          <Scale className="w-4 h-4" />
+                        </Button>
+
+                        {/* Delete (disabled when hold active) */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-gray-400 hover:text-red-400 disabled:opacity-30"
+                          disabled={incident.is_legal_hold}
+                          onClick={() => {
+                            if (confirm("Delete this incident from cloud storage? This cannot be undone.")) {
                               deleteMutation.mutate(incident.id);
                             }
                           }}
-                          title="Delete incident"
+                          title={incident.is_legal_hold ? "Cannot delete — legal hold active" : "Delete incident"}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -461,25 +550,96 @@ export default function Incidents() {
         )}
       </div>
 
-      {/* Share Dialog */}
-      <Dialog open={!!shareUrl} onOpenChange={() => setShareUrl(null)}>
+      {/* Share Setup Dialog — choose duration then generate */}
+      <Dialog open={!!shareIncident && !shareUrl} onOpenChange={() => setShareIncident(null)}>
         <DialogContent className="bg-gray-900 border-cyan-500/20 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Share2 className="w-5 h-5 text-cyan-400" />
-              Attorney Share Link
+              Share with Attorney
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-gray-400">
-              This secure link expires in 24 hours. Share it with your attorney or trusted contact.
+              Generate a secure link to this incident. Choose how long the link stays active.
             </p>
+            <div className="space-y-2">
+              <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Link duration</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: "24 hours", value: 1 },
+                  { label: "7 days", value: 7 },
+                  { label: "30 days", value: 30 },
+                  { label: "90 days", value: 90 },
+                  { label: "Permanent", value: 0 },
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setShareDurationDays(opt.value)}
+                    className={`rounded-lg border px-3 py-2 text-sm transition-all ${
+                      shareDurationDays === opt.value
+                        ? "border-cyan-500 bg-cyan-500/20 text-cyan-300 font-semibold"
+                        : "border-gray-700 text-gray-400 hover:border-gray-500"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+              {shareDurationDays === 0 && (
+                <p className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-3 py-2">
+                  Permanent links give ongoing access. Share only with your own attorney.
+                </p>
+              )}
+            </div>
+            <Button
+              onClick={() => {
+                if (shareIncident) shareMutation.mutate({ id: shareIncident.id, durationDays: shareDurationDays });
+              }}
+              disabled={shareMutation.isPending}
+              className="w-full bg-cyan-600 hover:bg-cyan-500 text-white"
+            >
+              {shareMutation.isPending ? "Generating…" : "Generate Link"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Share Link Generated Dialog */}
+      <Dialog open={!!shareUrl} onOpenChange={() => { setShareUrl(null); setShareIncident(null); }}>
+        <DialogContent className="bg-gray-900 border-cyan-500/20 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-cyan-400" />
+              Attorney Link Ready
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-xs text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 rounded px-3 py-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              Access expires: <strong>{shareLabel}</strong>
+            </div>
             <div className="bg-black/50 rounded-lg p-3 border border-white/10 text-xs text-cyan-300 break-all font-mono">
               {shareUrl}
             </div>
-            <Button onClick={copyShareUrl} className="w-full bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl">
-              Copy Link
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={copyShareUrl}
+                className="flex-1 bg-cyan-600 hover:bg-cyan-500 text-white"
+              >
+                Copy Link
+              </Button>
+              <Button
+                variant="outline"
+                className="border-gray-600 text-gray-400 hover:text-white"
+                onClick={() => window.open(shareUrl!, "_blank")}
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500">
+              This link gives read-only access to footage and metadata. Share it only with your attorney or a trusted contact.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
