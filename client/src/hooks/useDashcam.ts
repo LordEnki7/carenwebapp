@@ -44,11 +44,14 @@ export function useDashcam() {
     }
   }, []);
 
-  const startDashcam = useCallback(async () => {
+  const startDashcam = useCallback(async (deviceId?: string) => {
     setError(null);
     try {
+      const videoConstraints: MediaTrackConstraints = deviceId
+        ? { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }
+        : { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } };
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        video: videoConstraints,
         audio: true,
       });
       streamRef.current = stream;

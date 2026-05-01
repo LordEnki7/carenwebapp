@@ -155,11 +155,18 @@ Continuous background recording that buffers the last 10 minutes in memory and u
 - **Backend**: Reuses existing `/api/incidents/*` routes (no changes)
 
 ### Behavior
-- Start → `MediaRecorder` records continuously in 15s chunks
+- Start → `MediaRecorder` records continuously in 15s chunks (optional `deviceId` for BT cameras)
 - Buffer auto-drops oldest chunks when window exceeds 10 min
 - "Save Incident" → creates incident, uploads all buffered chunks to R2, marks complete, resets buffer
 - Recording continues seamlessly after save
 - Status badges: Offline / Standby (buffering) / Uploading…
+
+### Bluetooth Integration (Step 3 — LIVE)
+- **Hook**: `client/src/hooks/useBluetooth.ts` — BLE pairing, keyboard trigger, camera enumeration
+- **Layer 1 — BT Camera**: `listVideoDevices()` enumerates all `videoinput` devices; dropdown appears when >1 camera found; selected `deviceId` passed to `startDashcam()`
+- **Layer 2 — BLE Remote**: Web Bluetooth API device picker; connects to GATT, finds first notifiable characteristic, fires `saveIncident` on change; Chrome/Edge only with graceful fallback
+- **Layer 3 — Keyboard/HID Trigger**: Listens for VolumeUp / Space / Enter / MediaPlayPause — works with any BT remote that fires keyboard events; toggle switch in UI
+- Bluetooth panel is collapsible (closed by default, non-intrusive)
 
 ## Record Page Cloud Backup (Step 1 — LIVE)
 - Silent `/api/incidents/start` call on recording start (GPS grabbed in background, non-blocking)
