@@ -467,5 +467,118 @@ Return JSON with exactly these fields:
     }
   });
 
+  // ── Incident Social Share: Generate AI caption ────────────────────────────
+  app.post("/api/incidents/:id/social-share/generate", async (req, res) => {
+    try {
+      const userId = (req.session as any)?.userId;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const incidentId = req.params.id;
+      const { platform } = req.body;
+      if (!platform) return res.status(400).json({ error: "platform required" });
+
+      const { neon } = await import("@neondatabase/serverless");
+      const sql = neon(process.env.DATABASE_URL!);
+      const rows = await sql`
+        SELECT * FROM cloud_incidents
+        WHERE id = ${incidentId} AND user_id = ${userId} AND deleted_at IS NULL
+      `;
+      if (!rows.length) return res.status(404).json({ error: "Incident not found" });
+      const incident = rows[0];
+
+      const guide = PLATFORM_GUIDES[platform] || PLATFORM_GUIDES.instagram;
+
+      const dateStr = new Date(incident.started_at).toLocaleDateString("en-US", {
+        month: "long", day: "numeric", year: "numeric",
+      });
+      const duration = incident.duration_seconds
+        ? `${Math.floor(incident.duration_seconds / 60)}m ${incident.duration_seconds % 60}s`
+        : "unknown duration";
+      const stateInfo = incident.state ? `in ${incident.state}` : "on the road";
+      const triggerLabel =
+        incident.trigger_type === "emergency" ? "an emergency situation" :
+        incident.trigger_type === "traffic_stop" ? "a traffic stop" :
+        "a roadside incident";
+
+      const { default: OpenAI } = await import("openai");
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const completion = await openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [
+          {
+            role: "system",
+            content: `You are a social media copywriter for C.A.R.E.N.™ Alert. You help users share their roadside incident experiences to raise awareness and advocate for their rights. C.A.R.E.N.™ Alert is NOT a law firm. Posts must be authentic, empowering, and community-focused. Never include identifying details about specific officers. Keep the tone factual and rights-focused.`,
+          },
+          {
+            role: "user",
+            content: `Write a ${platform.toUpperCase()} post for a user sharing their documented roadside incident recorded with C.A.R.E.N.™ Alert.
+
+Incident context:
+- Date: ${dateStr}
+- Location: ${stateInfo}
+- Type: ${triggerLabel}
+- Duration recorded: ${duration}
+- Address: ${incident.address || "not captured"}
+
+Platform guidance: ${guide.style}
+Tone: ${guide.tone}
+Max hashtags: ${guide.maxHashtags}
+
+Goals:
+- Share the experience to raise awareness
+- Highlight that documentation protects rights
+- Encourage others to know their rights and record safely
+- Reference C.A.R.E.N.™ Alert as the tool used (carenalert.com)
+- Do NOT name or identify any individuals involved
+- Do NOT make legal conclusions about the incident
+
+Include a brief advisory disclaimer at the end: "Recorded with C.A.R.E.N.™ Alert. This post is for awareness only and does not constitute legal advice."
+
+Return JSON with exactly these fields:
+{
+  "title": "Post title (YouTube only, blank for others)",
+  "caption": "The full post body text",
+  "hashtags": "Space-separated hashtags starting with #"
+}`,
+          },
+        ],
+        response_format: { type: "json_object" },
+      });
+
+      const result = JSON.parse(completion.choices[0].message.content || "{}");
+      res.json(result);
+    } catch (err: any) {
+      console.error("[INCIDENT SHARE] Generate error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  // ── Incident Social Share: Save as draft ──────────────────────────────────
+  app.post("/api/incidents/:id/social-share/save", async (req, res) => {
+    try {
+      const userId = (req.session as any)?.userId;
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const incidentId = req.params.id;
+      const { platform, caption, hashtags, title } = req.body;
+      if (!platform || !caption) return res.status(400).json({ error: "platform and caption required" });
+
+      const [post] = await db.insert(socialMediaPosts).values({
+        platform,
+        videoFile: `incident:${incidentId}`,
+        title: title || null,
+        caption,
+        hashtags: hashtags || null,
+        status: "draft",
+      }).returning();
+
+      res.json({ success: true, post });
+    } catch (err: any) {
+      console.error("[INCIDENT SHARE] Save error:", err);
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   console.log("[ROUTES] Social Media Agent routes registered");
 }

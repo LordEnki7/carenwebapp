@@ -11,7 +11,8 @@ import {
   CloudUpload, Video, Shield, MapPin, Clock, Trash2, Share2,
   Play, Mic, MicOff, VideoOff, AlertTriangle, CheckCircle2,
   ChevronLeft, Lock, Wifi, WifiOff, Upload, Camera,
-  FileText, Scale, AlertOctagon, ExternalLink, ChevronDown
+  FileText, Scale, AlertOctagon, ExternalLink, ChevronDown,
+  Megaphone, Loader2, Sparkles, CheckCircle, Copy, ExternalLink as ExternalLinkIcon
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -67,6 +68,15 @@ export default function Incidents() {
   const [playbackLoading, setPlaybackLoading] = useState(false);
   const [location, setLocation] = useState<{ lat: number; lng: number; state?: string; address?: string } | null>(null);
   const [holdReason, setHoldReason] = useState("");
+
+  // Social share state
+  const [socialShareIncident, setSocialShareIncident] = useState<Incident | null>(null);
+  const [socialSharePlatform, setSocialSharePlatform] = useState<string>("instagram");
+  const [socialShareCaption, setSocialShareCaption] = useState<string>("");
+  const [socialShareHashtags, setSocialShareHashtags] = useState<string>("");
+  const [socialShareTitle, setSocialShareTitle] = useState<string>("");
+  const [socialShareGenerating, setSocialShareGenerating] = useState(false);
+  const [socialShareSaved, setSocialShareSaved] = useState(false);
 
   const { isRecording, incidentId, chunkCount, elapsedSeconds, error, start, stop } = useCloudRecorder({
     onChunkUploaded: (i) => {
@@ -487,6 +497,26 @@ export default function Incidents() {
                           <Share2 className="w-4 h-4" />
                         </Button>
 
+                        {/* Post to Social Media */}
+                        {incident.status === "complete" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-gray-400 hover:text-purple-400"
+                            onClick={() => {
+                              setSocialShareIncident(incident);
+                              setSocialSharePlatform("instagram");
+                              setSocialShareCaption("");
+                              setSocialShareHashtags("");
+                              setSocialShareTitle("");
+                              setSocialShareSaved(false);
+                            }}
+                            title="Share incident to social media"
+                          >
+                            <Megaphone className="w-4 h-4" />
+                          </Button>
+                        )}
+
                         {/* Legal Hold toggle */}
                         <Button
                           variant="ghost"
@@ -682,6 +712,177 @@ export default function Incidents() {
               </div>
             )}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Social Share Dialog */}
+      <Dialog open={!!socialShareIncident} onOpenChange={(open) => { if (!open) setSocialShareIncident(null); }}>
+        <DialogContent className="bg-gray-900 border-purple-500/20 text-white max-w-lg max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Megaphone className="w-5 h-5 text-purple-400" />
+              Share Incident to Social Media
+            </DialogTitle>
+          </DialogHeader>
+
+          {socialShareIncident && (
+            <div className="space-y-5">
+              {/* Incident summary */}
+              <div className="bg-black/30 border border-white/10 rounded-lg px-4 py-3 text-sm space-y-1">
+                <div className="text-gray-400 text-xs uppercase tracking-wider font-semibold mb-1">Incident</div>
+                <div className="text-white font-medium">
+                  {socialShareIncident.trigger_type === "emergency" ? "🚨 Emergency" :
+                   socialShareIncident.trigger_type === "traffic_stop" ? "🚔 Traffic Stop" :
+                   "📹 Manual Recording"}
+                </div>
+                <div className="text-gray-400 text-xs flex flex-wrap gap-3">
+                  <span>{formatDate(socialShareIncident.started_at)}</span>
+                  {socialShareIncident.state && <span>📍 {socialShareIncident.state}</span>}
+                  {socialShareIncident.duration_seconds && <span>⏱ {formatDuration(socialShareIncident.duration_seconds)}</span>}
+                </div>
+              </div>
+
+              {/* Platform selector */}
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-2">Choose Platform</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "instagram", label: "Instagram", emoji: "📸" },
+                    { id: "facebook", label: "Facebook", emoji: "👥" },
+                    { id: "twitter", label: "X / Twitter", emoji: "🐦" },
+                    { id: "tiktok", label: "TikTok", emoji: "🎵" },
+                    { id: "linkedin", label: "LinkedIn", emoji: "💼" },
+                    { id: "youtube", label: "YouTube", emoji: "▶️" },
+                  ].map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setSocialSharePlatform(p.id);
+                        setSocialShareCaption("");
+                        setSocialShareHashtags("");
+                        setSocialShareSaved(false);
+                      }}
+                      className={`rounded-lg border px-2 py-2 text-xs font-medium transition-all flex flex-col items-center gap-1 ${
+                        socialSharePlatform === p.id
+                          ? "border-purple-500 bg-purple-500/20 text-purple-300"
+                          : "border-gray-700 text-gray-400 hover:border-gray-500"
+                      }`}
+                    >
+                      <span className="text-base">{p.emoji}</span>
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Generate button */}
+              <Button
+                className="w-full bg-purple-600 hover:bg-purple-500 text-white gap-2"
+                disabled={socialShareGenerating}
+                onClick={async () => {
+                  setSocialShareGenerating(true);
+                  setSocialShareCaption("");
+                  setSocialShareHashtags("");
+                  setSocialShareSaved(false);
+                  try {
+                    const res = await apiRequest("POST", `/api/incidents/${socialShareIncident.id}/social-share/generate`, {
+                      platform: socialSharePlatform,
+                    });
+                    const data = await res.json();
+                    setSocialShareCaption(data.caption || "");
+                    setSocialShareHashtags(data.hashtags || "");
+                    setSocialShareTitle(data.title || "");
+                  } catch {
+                    toast({ title: "Generation failed", description: "Could not generate caption. Please try again.", variant: "destructive" });
+                  } finally {
+                    setSocialShareGenerating(false);
+                  }
+                }}
+              >
+                {socialShareGenerating ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Generating…</>
+                ) : (
+                  <><Sparkles className="w-4 h-4" /> Generate AI Caption</>
+                )}
+              </Button>
+
+              {/* Caption editor */}
+              {socialShareCaption && (
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Caption</p>
+                    <textarea
+                      className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-sm text-white placeholder-gray-600 resize-none focus:outline-none focus:border-purple-500/50"
+                      rows={7}
+                      value={socialShareCaption}
+                      onChange={e => setSocialShareCaption(e.target.value)}
+                    />
+                  </div>
+                  {socialShareHashtags && (
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Hashtags</p>
+                      <textarea
+                        className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-xs text-purple-300 placeholder-gray-600 resize-none focus:outline-none focus:border-purple-500/50"
+                        rows={2}
+                        value={socialShareHashtags}
+                        onChange={e => setSocialShareHashtags(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  {/* Advisory */}
+                  <div className="text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded px-3 py-2">
+                    ⚠️ Before posting footage of a law enforcement encounter, confirm sharing is permitted in your state. This post is for awareness only and does not constitute legal advice.
+                  </div>
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2">
+                    <Button
+                      className="flex-1 bg-purple-700 hover:bg-purple-600 text-white gap-2"
+                      disabled={socialShareSaved}
+                      onClick={async () => {
+                        try {
+                          await apiRequest("POST", `/api/incidents/${socialShareIncident.id}/social-share/save`, {
+                            platform: socialSharePlatform,
+                            caption: socialShareCaption,
+                            hashtags: socialShareHashtags,
+                            title: socialShareTitle,
+                          });
+                          setSocialShareSaved(true);
+                          toast({ title: "Saved as draft", description: "Open the Social Media Manager to review and post." });
+                        } catch {
+                          toast({ title: "Save failed", description: "Could not save the draft.", variant: "destructive" });
+                        }
+                      }}
+                    >
+                      {socialShareSaved ? <><CheckCircle className="w-4 h-4" /> Saved!</> : "Save as Draft"}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="border-gray-600 text-gray-300 hover:text-white gap-2"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`${socialShareCaption}\n\n${socialShareHashtags}`.trim());
+                        toast({ title: "Copied!", description: "Caption copied to clipboard." });
+                      }}
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </Button>
+                  </div>
+
+                  {socialShareSaved && (
+                    <a
+                      href="/social-agent"
+                      className="flex items-center justify-center gap-2 text-sm text-purple-400 hover:text-purple-300 underline underline-offset-2"
+                    >
+                      <ExternalLinkIcon className="w-3.5 h-3.5" />
+                      Open Social Media Manager to post
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
