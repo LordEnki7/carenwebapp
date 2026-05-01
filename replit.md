@@ -141,3 +141,28 @@ incidents/{incidentId}/meta.json
 ### Tier Limits
 - Free: 3 incidents max
 - Premium: Unlimited
+
+---
+
+## Always-On Dashcam (Step 2 — LIVE)
+
+Continuous background recording that buffers the last 10 minutes in memory and uploads to R2 on demand.
+
+### Architecture
+- **Hook**: `client/src/hooks/useDashcam.ts` — `MediaRecorder` with 15s `timeslice`, circular buffer of 40 chunks (10 min rolling window), trigger-to-upload flow
+- **Page**: `client/src/pages/Dashcam.tsx` — at `/dashcam`
+- **Dashboard card**: purple "Always-On Dashcam" card → `/dashcam`
+- **Backend**: Reuses existing `/api/incidents/*` routes (no changes)
+
+### Behavior
+- Start → `MediaRecorder` records continuously in 15s chunks
+- Buffer auto-drops oldest chunks when window exceeds 10 min
+- "Save Incident" → creates incident, uploads all buffered chunks to R2, marks complete, resets buffer
+- Recording continues seamlessly after save
+- Status badges: Offline / Standby (buffering) / Uploading…
+
+## Record Page Cloud Backup (Step 1 — LIVE)
+- Silent `/api/incidents/start` call on recording start (GPS grabbed in background, non-blocking)
+- Blob uploaded to R2 on recording stop (presigned URL flow)
+- Cloud status badge: "Cloud active" → "Uploading…" → "Cloud saved ✓" / "Local only"
+- All cloud ops are fire-and-forget — local recording never affected

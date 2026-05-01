@@ -132,6 +132,7 @@ const Founders = lazy(() => import("@/pages/Founders"));
 const ShareStory = lazy(() => import("@/pages/ShareStory"));
 const AdminStories = lazy(() => import("@/pages/AdminStories"));
 const Incidents = lazy(() => import("@/pages/Incidents"));
+const Dashcam = lazy(() => import("@/pages/Dashcam"));
 const MobilePreview = lazy(() => import("@/pages/MobilePreview"));
 const AutoScreenshot = lazy(() => import("@/pages/AutoScreenshot"));
 
@@ -345,6 +346,7 @@ function Router() {
             <Route path="/share-story" component={ShareStory} />
             <Route path="/admin/stories" component={AdminStories} />
             <Route path="/incidents" component={Incidents} />
+            <Route path="/dashcam" component={Dashcam} />
             <Route path="/settings" component={Settings} />
             <Route path="/account-security" component={AccountSecurity} />
             <Route path="/pricing" component={Plans} />

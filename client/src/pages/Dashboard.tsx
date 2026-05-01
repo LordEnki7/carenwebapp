@@ -739,6 +739,23 @@ export default function Dashboard() {
               </div>
             </div>
 
+            {/* Always-On Dashcam */}
+            <div className="cyber-card rounded-xl card-depth-1 p-5 animate-fade-in-up border border-purple-500/20 bg-purple-500/5" style={{ animationDelay: '0.715s' }}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center flex-shrink-0 text-xl">📷</div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-purple-300 font-semibold text-sm">Always-On Dashcam</p>
+                  <p className="text-purple-200/60 text-xs mt-0.5">Buffers 10 min of footage — tap to lock &amp; upload</p>
+                </div>
+                <button
+                  onClick={() => setLocation('/dashcam')}
+                  className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 rounded-lg text-purple-300 text-xs font-semibold transition-colors flex-shrink-0"
+                >
+                  Open →
+                </button>
+              </div>
+            </div>
+
             {/* Story Spotlight — Phase 3 */}
             <div className="cyber-card rounded-xl card-depth-1 p-5 animate-fade-in-up border border-green-500/20 bg-green-500/5" style={{ animationDelay: '0.72s' }}>
               <div className="flex items-center gap-3">
