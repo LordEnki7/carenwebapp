@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Capacitor } from "@capacitor/core";
 import { useToast } from "@/hooks/use-toast";
 import iapService, { type PlanId } from "@/lib/iapService";
+import SubscriptionPlans from "@/components/SubscriptionPlans";
 
 const PLANS = [
   {
@@ -233,7 +234,7 @@ export default function Plans() {
         )}
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-8 space-y-5">
+      <div className="max-w-6xl mx-auto px-4 py-8 space-y-5">
         {/* Hero */}
         <div className="text-center space-y-2 pb-2">
           <div className="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-4 py-1 text-cyan-400 text-xs font-medium">
@@ -248,67 +249,68 @@ export default function Plans() {
           </p>
         </div>
 
-        {/* Plan Cards */}
-        {PLANS.map((plan) => {
-          const Icon = plan.icon;
-          const isPurchasing = purchasing === plan.id;
+        {/* Plan Cards — Web uses new design, iOS keeps IAP flow */}
+        {!isIOS ? (
+          <SubscriptionPlans />
+        ) : (
+          PLANS.map((plan) => {
+            const Icon = plan.icon;
+            const isPurchasing = purchasing === plan.id;
 
-          return (
-            <div
-              key={plan.id}
-              className={`relative rounded-2xl bg-gradient-to-b ${plan.glowColor} to-gray-900/80 border border-white/10 ring-1 ${plan.ringColor} overflow-hidden`}
-            >
-              {plan.badge && (
-                <div className={`absolute top-0 right-0 ${plan.badgeColor} text-white text-xs font-bold px-3 py-1 rounded-bl-xl`}>
-                  {plan.badge}
-                </div>
-              )}
-
-              <div className="p-5 space-y-4">
-                {/* Plan header */}
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
-                    <Icon className={`w-5 h-5 ${plan.iconColor}`} />
+            return (
+              <div
+                key={plan.id}
+                className={`relative rounded-2xl bg-gradient-to-b ${plan.glowColor} to-gray-900/80 border border-white/10 ring-1 ${plan.ringColor} overflow-hidden`}
+              >
+                {plan.badge && (
+                  <div className={`absolute top-0 right-0 ${plan.badgeColor} text-white text-xs font-bold px-3 py-1 rounded-bl-xl`}>
+                    {plan.badge}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xl font-bold text-white">{plan.price}</span>
-                      <span className="text-gray-400 text-sm">{plan.period}</span>
+                )}
+
+                <div className="p-5 space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                      <Icon className={`w-5 h-5 ${plan.iconColor}`} />
                     </div>
-                    <h3 className="font-semibold text-white">{plan.name}</h3>
-                    <p className="text-gray-400 text-xs mt-0.5">{plan.description}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-xl font-bold text-white">{plan.price}</span>
+                        <span className="text-gray-400 text-sm">{plan.period}</span>
+                      </div>
+                      <h3 className="font-semibold text-white">{plan.name}</h3>
+                      <p className="text-gray-400 text-xs mt-0.5">{plan.description}</p>
+                    </div>
                   </div>
+
+                  <ul className="space-y-1.5">
+                    {plan.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
+                        <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Button
+                    className={`w-full font-bold py-3 rounded-xl ${plan.ctaClass}`}
+                    onClick={() => handleSelect(plan.id)}
+                    disabled={isPurchasing || !!purchasing}
+                  >
+                    {isPurchasing ? (
+                      <span className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Processing…
+                      </span>
+                    ) : (
+                      plan.cta
+                    )}
+                  </Button>
                 </div>
-
-                {/* Features */}
-                <ul className="space-y-1.5">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* CTA */}
-                <Button
-                  className={`w-full font-bold py-3 rounded-xl ${plan.ctaClass}`}
-                  onClick={() => handleSelect(plan.id)}
-                  disabled={isPurchasing || !!purchasing}
-                >
-                  {isPurchasing ? (
-                    <span className="flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      Processing…
-                    </span>
-                  ) : (
-                    plan.cta
-                  )}
-                </Button>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
 
         {/* Footer legal text — required by App Store Guideline 3.1.2(c) */}
         <div className="text-center text-xs text-gray-500 space-y-2 pt-2 pb-8">
