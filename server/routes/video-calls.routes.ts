@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { db } from "../db";
 import { eq, and, desc, or } from "drizzle-orm";
-import { videoCalls, attorneys } from "@shared/schema";
+import { videoCalls } from "@shared/schema";
 import { neon } from "@neondatabase/serverless";
 
 function getSql() {
@@ -96,9 +96,12 @@ export function registerVideoCallRoutes(app: Express) {
         .where(eq(videoCalls.id, call.id))
         .returning();
 
-      const [attorney] = await db.select().from(attorneys).where(eq(attorneys.id, Number(attorneyId))).limit(1);
-      if (attorney) {
-        notifyAttorneyViaSMS(attorney, call.id, incidentType, incidentState).catch(() => {});
+      const sql2 = getSql();
+      const attyRows = await sql2`SELECT id, contact_info FROM attorneys WHERE id = ${Number(attorneyId)} LIMIT 1`;
+      const atty = attyRows[0];
+      if (atty) {
+        const ci = typeof atty.contact_info === "string" ? JSON.parse(atty.contact_info) : (atty.contact_info || {});
+        notifyAttorneyViaSMS({ phone: ci.phone }, call.id, incidentType, incidentState).catch(() => {});
       }
 
       console.log(`[VIDEO_CALLS] Call ${call.id} requested by ${userId} → attorney ${attorneyId}`);
@@ -125,8 +128,13 @@ export function registerVideoCallRoutes(app: Express) {
 
       let attorney = null;
       try {
-        const [a] = await db.select().from(attorneys).where(eq(attorneys.id, call.attorneyId)).limit(1);
-        if (a) attorney = { firstName: a.firstName, lastName: a.lastName, firmName: a.firmName, phone: a.phone };
+        const sql2 = getSql();
+        const attyRows = await sql2`SELECT id, firm_name, contact_info FROM attorneys WHERE id = ${call.attorneyId} LIMIT 1`;
+        const a = attyRows[0];
+        if (a) {
+          const ci = typeof a.contact_info === "string" ? JSON.parse(a.contact_info) : (a.contact_info || {});
+          attorney = { firstName: ci.name?.split(" ")[0] || "", lastName: ci.name?.split(" ").slice(1).join(" ") || "", firmName: a.firm_name, phone: ci.phone };
+        }
       } catch (_) {}
 
       return res.json({ ...call, attorney });
@@ -141,18 +149,15 @@ export function registerVideoCallRoutes(app: Express) {
       const userId = getUserId(req);
       if (!userId) return res.status(401).json({ message: "Not authenticated" });
 
-      const [attorney] = await db
-        .select()
-        .from(attorneys)
-        .where(eq(attorneys.userId, userId))
-        .limit(1);
-
-      if (!attorney) return res.json([]);
+      const sql2 = getSql();
+      const attyRows = await sql2`SELECT id FROM attorneys WHERE user_id = ${userId} LIMIT 1`;
+      if (!attyRows[0]) return res.json([]);
+      const attorneyId = attyRows[0].id;
 
       const incoming = await db
         .select()
         .from(videoCalls)
-        .where(and(eq(videoCalls.attorneyId, attorney.id), eq(videoCalls.status, "waiting")))
+        .where(and(eq(videoCalls.attorneyId, attorneyId), eq(videoCalls.status, "waiting")))
         .orderBy(desc(videoCalls.requestedAt))
         .limit(5);
 
@@ -228,9 +233,10 @@ export function registerVideoCallRoutes(app: Express) {
       const userId = getUserId(req);
       if (!userId) return res.status(401).json({ message: "Not authenticated" });
 
-      const [attorney] = await db.select().from(attorneys).where(eq(attorneys.userId, userId)).limit(1);
-      const filter = attorney
-        ? eq(videoCalls.attorneyId, attorney.id)
+      const sql2 = getSql();
+      const attyRows = await sql2`SELECT id FROM attorneys WHERE user_id = ${userId} LIMIT 1`;
+      const filter = attyRows[0]
+        ? eq(videoCalls.attorneyId, attyRows[0].id)
         : eq(videoCalls.userId, userId);
 
       const history = await db
