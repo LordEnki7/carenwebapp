@@ -174,11 +174,20 @@ export function logLoginAttempt(opts: {
  * Returns null if the request should proceed.
  * Returns a Response (already sent) if the request was blocked — caller should return immediately.
  */
+// Owner / platform admin accounts are never locked out
+const OWNER_WHITELIST = new Set([
+  (process.env.OWNER_EMAIL || '').toLowerCase(),
+  'carenwebapp@yahoo.com',
+]);
+
 export function checkBotProtection(
   req: Request,
   res: Response,
   email: string
 ): boolean {
+  // Never lock out the platform owner
+  if (OWNER_WHITELIST.has(email.toLowerCase().trim())) return false;
+
   const ip = getClientIp(req);
   const ua = req.headers["user-agent"] || "";
 
