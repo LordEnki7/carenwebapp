@@ -1082,6 +1082,39 @@ setInterval(load, 15000);
         });
       }
 
+      // Owner / founder account — credentials stored as hashed env vars
+      const ownerEmail = process.env.OWNER_EMAIL;
+      const ownerHash  = process.env.OWNER_PASSWORD_HASH;
+      if (ownerEmail && ownerHash && email.toLowerCase() === ownerEmail.toLowerCase()) {
+        const isOwner = await bcrypt.compare(password, ownerHash);
+        if (isOwner) {
+          const ownerUser = {
+            id: 'owner-001',
+            email: ownerEmail,
+            firstName: 'C.A.R.E.N.',
+            lastName: 'Admin',
+            role: 'admin',
+            subscriptionTier: 'constitutional_pro',
+            agreedToTerms: true,
+            termsAgreedAt: new Date(),
+            emergencyContacts: [],
+            currentState: 'Texas',
+            preferredLanguage: 'en'
+          };
+          (req.session as any).userId = ownerUser.id;
+          (req.session as any).user   = ownerUser;
+          (req.session as any).isAuthenticated = true;
+          (req.session as any).authMethod = 'owner';
+          return req.session.save((err: any) => {
+            if (err) return res.status(500).json({ success: false, message: 'Session error' });
+            const sessionToken = `cdt_${ownerUser.id}_${Date.now()}_owner`;
+            console.log('[LOGIN] Owner account authenticated');
+            return res.json({ success: true, user: ownerUser, sessionToken, message: 'Welcome back!' });
+          });
+        }
+        // wrong password for owner email — fall through to normal error
+      }
+
       // Check if user exists in stored users first
       const storedUser = findUserByEmail(email);
       
