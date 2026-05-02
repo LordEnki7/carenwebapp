@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Shield, Phone, Globe, Star, Zap, Search, MapPin, Filter } from "lucide-react";
+import { Shield, Phone, Globe, Star, Zap, Search, MapPin, Filter, Video } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import VideoCallModal from "@/components/VideoCallModal";
 
 const US_STATES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
@@ -25,6 +26,7 @@ export default function AttorneyDirectory() {
   const [search, setSearch] = useState("");
   const [selectedState, setSelectedState] = useState("");
   const [showFilters, setShowFilters] = useState(false);
+  const [callTarget, setCallTarget] = useState<any | null>(null);
 
   const params = new URLSearchParams();
   if (selectedState) params.set("state", selectedState);
@@ -38,6 +40,9 @@ export default function AttorneyDirectory() {
       return res.json();
     },
   });
+
+  const canCall = (attorney: any) =>
+    attorney.availabilityStatus === "available" || attorney.availabilityStatus === "emergency_only";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 p-4 md:p-6 pb-20">
@@ -78,25 +83,21 @@ export default function AttorneyDirectory() {
 
           {showFilters && (
             <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
-              <div>
-                <label className="text-gray-300 text-xs font-semibold uppercase tracking-wide mb-2 block">Filter by State</label>
-                <div className="flex flex-wrap gap-1.5">
+              <p className="text-white text-sm font-medium">Filter by State</p>
+              <div className="flex flex-wrap gap-2">
+                {US_STATES.map(s => (
                   <button
-                    onClick={() => setSelectedState("")}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${!selectedState ? "bg-cyan-500 text-black border-cyan-500" : "border-white/20 text-gray-400 hover:border-white/40"}`}
+                    key={s}
+                    onClick={() => setSelectedState(selectedState === s ? "" : s)}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-all ${
+                      selectedState === s
+                        ? "bg-cyan-500 border-cyan-500 text-black"
+                        : "bg-white/5 border-white/10 text-gray-300 hover:border-cyan-500/40"
+                    }`}
                   >
-                    All States
+                    {s}
                   </button>
-                  {US_STATES.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => setSelectedState(selectedState === s ? "" : s)}
-                      className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${selectedState === s ? "bg-cyan-500 text-black border-cyan-500" : "border-white/20 text-gray-400 hover:border-white/40"}`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+                ))}
               </div>
             </div>
           )}
@@ -201,16 +202,31 @@ export default function AttorneyDirectory() {
                         </div>
                       </div>
 
-                      {/* Rating */}
-                      {parseFloat(attorney.rating || "0") > 0 && (
-                        <div className="flex flex-col items-center flex-shrink-0">
-                          <div className="flex items-center gap-1">
-                            <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-                            <span className="text-white font-bold text-sm">{parseFloat(attorney.rating).toFixed(1)}</span>
+                      {/* Right column: rating + call button */}
+                      <div className="flex flex-col items-end gap-3 flex-shrink-0">
+                        {parseFloat(attorney.rating || "0") > 0 && (
+                          <div className="flex flex-col items-center">
+                            <div className="flex items-center gap-1">
+                              <Star className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+                              <span className="text-white font-bold text-sm">{parseFloat(attorney.rating).toFixed(1)}</span>
+                            </div>
+                            <span className="text-gray-500 text-xs">{attorney.reviewCount} reviews</span>
                           </div>
-                          <span className="text-gray-500 text-xs">{attorney.reviewCount} reviews</span>
-                        </div>
-                      )}
+                        )}
+
+                        {canCall(attorney) ? (
+                          <Button
+                            size="sm"
+                            className="bg-green-600 hover:bg-green-700 text-white gap-1.5 text-xs px-3 h-8"
+                            onClick={() => setCallTarget(attorney)}
+                          >
+                            <Video className="w-3.5 h-3.5" />
+                            {attorney.availabilityStatus === "emergency_only" ? "Emergency Call" : "Request Call"}
+                          </Button>
+                        ) : (
+                          <span className="text-gray-600 text-xs">Unavailable</span>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -238,6 +254,15 @@ export default function AttorneyDirectory() {
           <Button variant="ghost" className="text-gray-400 hover:text-white w-full">← Back to Dashboard</Button>
         </Link>
       </div>
+
+      {/* Video Call Modal */}
+      {callTarget && (
+        <VideoCallModal
+          attorney={callTarget}
+          open={!!callTarget}
+          onClose={() => setCallTarget(null)}
+        />
+      )}
     </div>
   );
 }

@@ -2905,3 +2905,25 @@ export const socialMediaPosts = pgTable("social_media_posts", {
 export const insertSocialMediaPostSchema = createInsertSchema(socialMediaPosts).omit({ id: true, createdAt: true, postedAt: true });
 export type InsertSocialMediaPost = z.infer<typeof insertSocialMediaPostSchema>;
 export type SocialMediaPost = typeof socialMediaPosts.$inferSelect;
+
+// ── Video Calls ──────────────────────────────────────────────────────────────
+export const videoCalls = pgTable("video_calls", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  attorneyId: integer("attorney_id").notNull(),
+  incidentId: varchar("incident_id"),
+  roomName: varchar("room_name"),
+  roomUrl: varchar("room_url"),
+  status: varchar("status").default("waiting"), // waiting | active | ended | declined | missed
+  userNote: text("user_note"),
+  incidentType: varchar("incident_type"),
+  incidentState: varchar("incident_state"),
+  durationSeconds: integer("duration_seconds"),
+  requestedAt: timestamp("requested_at").defaultNow(),
+  startedAt: timestamp("started_at"),
+  endedAt: timestamp("ended_at"),
+});
+
+export const insertVideoCallSchema = createInsertSchema(videoCalls).omit({ id: true, requestedAt: true });
+export type InsertVideoCall = z.infer<typeof insertVideoCallSchema>;
+export type VideoCall = typeof videoCalls.$inferSelect;

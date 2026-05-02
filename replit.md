@@ -25,6 +25,7 @@ Key features include:
 -   **Browser Push Notifications**: VAPID keys for SOS alerts.
 -   **C.A.R.E.N. Support Agent**: AI-powered customer support chat widget.
 -   **C.A.R.E.N. Legal Access Network (CLAN)**: A comprehensive attorney network system with an application form, admin approval, attorney portal, upgraded matching algorithm, and outreach CRM. Extended attorney access links for incidents are supported (1 day to 10 years duration).
+-   **Live Attorney Video/Voice Calls**: Daily.co-powered real-time video calls between users and network attorneys. Users request calls from the Attorney Directory (visible on available/emergency_only attorneys). Attorneys see flashing incoming call alerts in their portal (polls every 5s), can accept/decline, and the Daily.co prebuilt iframe opens for both parties. Call history and duration are logged in the `video_calls` DB table. Requires `DAILY_API_KEY` env var (graceful fallback when absent). Routes: `server/routes/video-calls.routes.ts`. Frontend: `VideoCallModal.tsx`, updated `AttorneyDirectory.tsx`, updated `AttorneyPortal.tsx` (new Calls tab).
 -   **Regional Director Program**: Full director recruitment system with application, portal, and admin panel, including a commission system.
 -   **Social Media Posting System**: Integrated into the AI Agent Dashboard for AI caption generation, queue management, and one-click posting to multiple platforms.
 -   **Legal Hold**: Ability to place incidents under legal hold to prevent deletion.

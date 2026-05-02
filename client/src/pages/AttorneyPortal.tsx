@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,8 +14,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Scale, LayoutDashboard, User, Clock, Map, MessageCircle,
-  TrendingUp, Settings, Bell, CheckCircle, AlertCircle, 
-  Phone, Mail, Eye, Star, Zap, Shield
+  TrendingUp, Settings, Bell, CheckCircle, AlertCircle,
+  Phone, Mail, Eye, Star, Zap, Shield, Video, PhoneIncoming,
+  PhoneOff, PhoneMissed, History, X
 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
@@ -33,11 +34,35 @@ export default function AttorneyPortal() {
   const qc = useQueryClient();
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [activeCallRoom, setActiveCallRoom] = useState<string | null>(null);
+  const [activeCallId, setActiveCallId] = useState<number | null>(null);
+  const [callElapsed, setCallElapsed] = useState(0);
 
   const { data: profile, isLoading } = useQuery<any>({
     queryKey: ["/api/attorney-network/my-profile"],
     enabled: isAuthenticated,
   });
+
+  const { data: incomingCalls = [] } = useQuery<any[]>({
+    queryKey: ["/api/video-calls/attorney-incoming"],
+    refetchInterval: profile?.availabilityStatus !== "offline" ? 5000 : false,
+    enabled: isAuthenticated && !!profile,
+  });
+
+  const { data: callHistory = [] } = useQuery<any[]>({
+    queryKey: ["/api/video-calls/history"],
+    enabled: isAuthenticated && activeTab === "calls",
+  });
+
+  useEffect(() => {
+    let timer: ReturnType<typeof setInterval> | null = null;
+    if (activeCallRoom) {
+      timer = setInterval(() => setCallElapsed(s => s + 1), 1000);
+    } else {
+      setCallElapsed(0);
+    }
+    return () => { if (timer) clearInterval(timer); };
+  }, [activeCallRoom]);
 
   const updateAvailability = useMutation({
     mutationFn: (availabilityStatus: string) =>
@@ -54,6 +79,35 @@ export default function AttorneyPortal() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["/api/attorney-network/my-profile"] });
       toast({ title: "Profile updated successfully" });
+    },
+  });
+
+  const acceptCall = useMutation({
+    mutationFn: (callId: number) => apiRequest("PATCH", `/api/video-calls/${callId}/accept`, {}),
+    onSuccess: (data: any) => {
+      setActiveCallId(data.id);
+      setActiveCallRoom(data.roomUrl);
+      qc.invalidateQueries({ queryKey: ["/api/video-calls/attorney-incoming"] });
+    },
+    onError: () => toast({ title: "Failed to accept call", variant: "destructive" }),
+  });
+
+  const declineCall = useMutation({
+    mutationFn: (callId: number) => apiRequest("PATCH", `/api/video-calls/${callId}/decline`, {}),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["/api/video-calls/attorney-incoming"] });
+      toast({ title: "Call declined" });
+    },
+  });
+
+  const endCall = useMutation({
+    mutationFn: (callId: number) => apiRequest("PATCH", `/api/video-calls/${callId}/end`, {}),
+    onSuccess: () => {
+      setActiveCallRoom(null);
+      setActiveCallId(null);
+      qc.invalidateQueries({ queryKey: ["/api/video-calls/history"] });
+      qc.invalidateQueries({ queryKey: ["/api/video-calls/attorney-incoming"] });
+      toast({ title: "Call ended" });
     },
   });
 
@@ -77,6 +131,10 @@ export default function AttorneyPortal() {
     { label: "Verified", value: profile?.verified ? "Yes" : "Pending", icon: Shield, color: profile?.verified ? "text-green-400" : "text-gray-400" },
   ];
 
+  const formatTime = (s: number) => `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  const formatDuration = (s: number | null) => s ? `${Math.floor(s / 60)}m ${s % 60}s` : "—";
+  const formatDate = (d: string | null) => d ? new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "—";
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center text-center p-6">
@@ -93,7 +151,93 @@ export default function AttorneyPortal() {
   const content = (
     <div className="flex-1 overflow-auto">
       <div className="p-4 md:p-6 space-y-6">
-        {/* Header */}
+
+        {/* ── Active Call Banner ────────────────────────────── */}
+        {activeCallRoom && (
+          <div className="bg-green-500/10 border border-green-500/40 rounded-xl overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 bg-green-500/10">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-green-300 font-semibold text-sm">Live Call in Progress</span>
+                <span className="text-green-400 font-mono text-sm">{formatTime(callElapsed)}</span>
+              </div>
+              <Button
+                size="sm"
+                variant="destructive"
+                className="h-7 px-3 text-xs gap-1"
+                onClick={() => activeCallId && endCall.mutate(activeCallId)}
+                disabled={endCall.isPending}
+              >
+                <PhoneOff className="w-3 h-3" /> End Call
+              </Button>
+            </div>
+            <iframe
+              src={activeCallRoom}
+              allow="camera; microphone; fullscreen; speaker; display-capture"
+              className="w-full"
+              style={{ height: "420px", border: "none" }}
+              title="Active Call"
+            />
+          </div>
+        )}
+
+        {/* ── Incoming Call Alerts ─────────────────────────── */}
+        {incomingCalls.length > 0 && !activeCallRoom && (
+          <div className="space-y-3">
+            {incomingCalls.map((call: any) => (
+              <div
+                key={call.id}
+                className="bg-red-500/10 border border-red-500/60 rounded-xl p-4 animate-pulse-slow"
+                style={{ animation: "pulse 2s ease-in-out infinite" }}
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center shrink-0">
+                      <PhoneIncoming className="w-5 h-5 text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-white font-bold text-sm flex items-center gap-2">
+                        Incoming Emergency Call
+                        <Badge className="bg-red-500/20 text-red-400 border-red-500/30 border text-xs animate-pulse">LIVE</Badge>
+                      </p>
+                      <p className="text-gray-400 text-xs mt-0.5">
+                        {call.incidentType ? call.incidentType.replace(/_/g, " ") : "Legal assistance"}
+                        {call.incidentState ? ` · ${call.incidentState}` : ""}
+                      </p>
+                      {call.userNote && (
+                        <p className="text-gray-300 text-xs mt-1 italic">"{call.userNote}"</p>
+                      )}
+                      <p className="text-gray-500 text-xs mt-1">
+                        Requested {new Date(call.requestedAt).toLocaleTimeString()}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 shrink-0">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-red-500/50 text-red-400 hover:bg-red-500/10 h-8 px-3 text-xs"
+                      onClick={() => declineCall.mutate(call.id)}
+                      disabled={declineCall.isPending || acceptCall.isPending}
+                    >
+                      <X className="w-3 h-3 mr-1" /> Decline
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700 h-8 px-3 text-xs gap-1"
+                      onClick={() => acceptCall.mutate(call.id)}
+                      disabled={acceptCall.isPending || declineCall.isPending}
+                    >
+                      <Video className="w-3 h-3" /> Accept
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── Header ─────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
@@ -159,10 +303,18 @@ export default function AttorneyPortal() {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="bg-gray-800/60 border border-gray-700 w-full grid grid-cols-4">
+          <TabsList className="bg-gray-800/60 border border-gray-700 w-full grid grid-cols-5">
             <TabsTrigger value="overview" className="data-[state=active]:bg-cyan-600 text-xs">Overview</TabsTrigger>
             <TabsTrigger value="profile" className="data-[state=active]:bg-cyan-600 text-xs">My Profile</TabsTrigger>
             <TabsTrigger value="availability" className="data-[state=active]:bg-cyan-600 text-xs">Availability</TabsTrigger>
+            <TabsTrigger value="calls" className="data-[state=active]:bg-cyan-600 text-xs flex items-center gap-1">
+              Calls
+              {incomingCalls.length > 0 && (
+                <span className="ml-1 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center font-bold">
+                  {incomingCalls.length}
+                </span>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="performance" className="data-[state=active]:bg-cyan-600 text-xs">Performance</TabsTrigger>
           </TabsList>
 
@@ -193,6 +345,18 @@ export default function AttorneyPortal() {
                 <a href="/messages" className="flex items-center gap-3 p-3 rounded-lg border border-gray-700 hover:border-purple-700 text-gray-300 hover:text-white transition-all text-sm">
                   <MessageCircle className="w-4 h-4 text-purple-400" /> Open Messages
                 </a>
+                <button
+                  onClick={() => setActiveTab("calls")}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-700 hover:border-green-700 text-gray-300 hover:text-white transition-all text-sm text-left"
+                >
+                  <Video className="w-4 h-4 text-green-400" />
+                  Video Calls
+                  {incomingCalls.length > 0 && (
+                    <Badge className="ml-auto bg-red-500/20 text-red-400 border-red-500/30 border animate-pulse">
+                      {incomingCalls.length} incoming
+                    </Badge>
+                  )}
+                </button>
               </CardContent>
             </Card>
 
@@ -244,6 +408,105 @@ export default function AttorneyPortal() {
             </Card>
           </TabsContent>
 
+          {/* CALLS TAB */}
+          <TabsContent value="calls" className="space-y-5 mt-5">
+            {/* Active incoming */}
+            {incomingCalls.length > 0 && !activeCallRoom && (
+              <Card className="bg-red-500/10 border-red-500/40">
+                <CardHeader>
+                  <CardTitle className="text-red-300 text-sm flex items-center gap-2">
+                    <PhoneIncoming className="w-4 h-4 animate-pulse" />
+                    Incoming Calls ({incomingCalls.length})
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {incomingCalls.map((call: any) => (
+                    <div key={call.id} className="flex items-center justify-between gap-3 p-3 bg-gray-800/60 rounded-xl border border-gray-700">
+                      <div className="min-w-0">
+                        <p className="text-white text-sm font-semibold">
+                          {call.incidentType?.replace(/_/g, " ") || "Legal assistance request"}
+                        </p>
+                        <p className="text-gray-400 text-xs">
+                          {call.incidentState && <span>{call.incidentState} · </span>}
+                          {new Date(call.requestedAt).toLocaleTimeString()}
+                        </p>
+                        {call.userNote && <p className="text-gray-300 text-xs italic mt-1">"{call.userNote}"</p>}
+                      </div>
+                      <div className="flex gap-2 shrink-0">
+                        <Button size="sm" variant="outline" className="border-red-500/50 text-red-400 hover:bg-red-500/10 h-8 px-2 text-xs"
+                          onClick={() => declineCall.mutate(call.id)} disabled={declineCall.isPending || acceptCall.isPending}>
+                          <X className="w-3.5 h-3.5" />
+                        </Button>
+                        <Button size="sm" className="bg-green-600 hover:bg-green-700 h-8 px-3 text-xs gap-1"
+                          onClick={() => acceptCall.mutate(call.id)} disabled={acceptCall.isPending || declineCall.isPending}>
+                          <Video className="w-3 h-3" /> Accept
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {incomingCalls.length === 0 && !activeCallRoom && (
+              <Card className="bg-gray-800/60 border-gray-700">
+                <CardContent className="p-8 text-center">
+                  <Phone className="w-10 h-10 text-gray-600 mx-auto mb-3" />
+                  <p className="text-gray-400 text-sm">No incoming calls right now</p>
+                  <p className="text-gray-600 text-xs mt-1">
+                    Set your status to <span className="text-green-400">Available</span> or <span className="text-orange-400">Emergency Only</span> to receive calls
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Call history */}
+            <Card className="bg-gray-800/60 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white text-sm flex items-center gap-2">
+                  <History className="w-4 h-4 text-cyan-400" /> Call History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {callHistory.length === 0 ? (
+                  <p className="text-gray-500 text-sm text-center py-4">No call history yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {callHistory.map((call: any) => (
+                      <div key={call.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-700 gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {call.status === "ended" && <CheckCircle className="w-4 h-4 text-green-400 shrink-0" />}
+                          {call.status === "declined" && <X className="w-4 h-4 text-red-400 shrink-0" />}
+                          {call.status === "missed" && <PhoneMissed className="w-4 h-4 text-yellow-400 shrink-0" />}
+                          {(call.status === "waiting" || call.status === "active") && <Clock className="w-4 h-4 text-cyan-400 shrink-0" />}
+                          <div className="min-w-0">
+                            <p className="text-white text-sm font-medium truncate">
+                              {call.incidentType?.replace(/_/g, " ") || "Legal call"}
+                              {call.incidentState && <span className="text-gray-500"> · {call.incidentState}</span>}
+                            </p>
+                            <p className="text-gray-500 text-xs">{formatDate(call.requestedAt)}</p>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <Badge className={`text-xs border ${
+                            call.status === "ended" ? "bg-green-500/20 text-green-400 border-green-500/30" :
+                            call.status === "declined" ? "bg-red-500/20 text-red-400 border-red-500/30" :
+                            "bg-gray-500/20 text-gray-400 border-gray-500/30"
+                          }`}>
+                            {call.status}
+                          </Badge>
+                          {call.durationSeconds && (
+                            <p className="text-gray-500 text-xs mt-1">{formatDuration(call.durationSeconds)}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           {/* PERFORMANCE */}
           <TabsContent value="performance" className="space-y-5 mt-5">
             <div className="grid grid-cols-2 gap-4">
@@ -281,7 +544,7 @@ export default function AttorneyPortal() {
       <div className="flex h-screen bg-gray-950 text-white overflow-hidden">
         <Sidebar />
         <main className="flex-1 flex flex-col overflow-hidden">
-          <TopBar title="Attorney Portal" />
+          <TopBar title="Attorney Portal" description="Manage your profile, availability, and incoming calls" />
           {content}
         </main>
       </div>
