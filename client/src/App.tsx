@@ -264,6 +264,9 @@ function Router() {
             <Route path="/announcements-admin" component={AnnouncementsAdmin} />
             <Route path="/agent-dashboard" component={AgentDashboard} />
             <Route path="/attorney-portal" component={AttorneyPortal} />
+            <Route path="/analytics" component={AnalyticsDashboard} />
+            <Route path="/admin/stories" component={AdminStories} />
+            <Route path="/director-portal" component={DirectorPortal} />
 
             {/* Catch-all route - redirect all other routes to sign in for unauthenticated users */}
             <Route path="*" component={() => {
