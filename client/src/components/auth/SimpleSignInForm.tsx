@@ -95,6 +95,12 @@ export default function SimpleSignInForm({ onSwitchToCreate, onSwitchToForgot, o
         localStorage.setItem('demoSessionKey', data.demoSessionKey);
         console.log('[SIGNIN] Demo session key stored:', data.demoSessionKey);
       }
+
+      // Admin accounts get full admin access automatically — no PIN needed
+      if (data.user?.role === 'admin') {
+        sessionStorage.setItem('carenAdminAuth', 'CAREN_ADMIN_2025_PRODUCTION');
+        console.log('[SIGNIN] Admin session unlocked automatically');
+      }
       
       // Extract user name for personalized welcome
       const userName = data.user?.firstName || data.user?.email?.split('@')[0] || 'User';
