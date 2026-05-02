@@ -190,11 +190,78 @@ Return JSON with exactly these fields:
     }
   });
 
+  // ── LinkedIn OAuth flow ────────────────────────────────────────────────────
+  app.get("/api/social/linkedin/auth", (req, res) => {
+    const clientId = process.env.LINKEDIN_CLIENT_ID;
+    if (!clientId) return res.status(500).json({ error: "LINKEDIN_CLIENT_ID not configured" });
+    const redirectUri = `${req.protocol}://${req.get("host")}/api/social/linkedin/callback`;
+    const scope = "openid profile w_member_social";
+    const state = Math.random().toString(36).substring(2);
+    (req.session as any).linkedinOAuthState = state;
+    const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${state}`;
+    res.redirect(url);
+  });
+
+  app.get("/api/social/linkedin/callback", async (req, res) => {
+    try {
+      const { code, state, error } = req.query as Record<string, string>;
+      if (error) return res.redirect(`/social-media?linkedin_error=${encodeURIComponent(error)}`);
+
+      const savedState = (req.session as any).linkedinOAuthState;
+      if (!savedState || state !== savedState) return res.redirect("/social-media?linkedin_error=state_mismatch");
+
+      const clientId = process.env.LINKEDIN_CLIENT_ID!;
+      const clientSecret = process.env.LINKEDIN_CLIENT_SECRET!;
+      const redirectUri = `${req.protocol}://${req.get("host")}/api/social/linkedin/callback`;
+
+      const tokenRes = await fetch("https://www.linkedin.com/oauth/v2/accessToken", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ grant_type: "authorization_code", code, redirect_uri: redirectUri, client_id: clientId, client_secret: clientSecret }).toString(),
+      });
+
+      if (!tokenRes.ok) {
+        const err = await tokenRes.text();
+        console.error("[LINKEDIN_OAUTH] Token exchange failed:", err);
+        return res.redirect(`/social-media?linkedin_error=${encodeURIComponent("Token exchange failed")}`);
+      }
+
+      const tokenData: any = await tokenRes.json();
+      const accessToken = tokenData.access_token;
+
+      // Fetch the author URN using the userinfo endpoint (OpenID Connect)
+      const profileRes = await fetch("https://api.linkedin.com/v2/userinfo", {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+
+      let authorUrn = "";
+      if (profileRes.ok) {
+        const profile: any = await profileRes.json();
+        authorUrn = profile.sub ? `urn:li:person:${profile.sub}` : "";
+      }
+
+      // Store in session so the status endpoint can report them
+      (req.session as any).linkedinAccessToken = accessToken;
+      (req.session as any).linkedinAuthorUrn = authorUrn;
+      (req.session as any).linkedinTokenExpiry = Date.now() + (tokenData.expires_in || 5184000) * 1000;
+
+      console.log("[LINKEDIN_OAUTH] Authorization successful, authorUrn:", authorUrn);
+      res.redirect("/social-media?linkedin_connected=1");
+    } catch (err: any) {
+      console.error("[LINKEDIN_OAUTH] Callback error:", err.message);
+      res.redirect(`/social-media?linkedin_error=${encodeURIComponent(err.message)}`);
+    }
+  });
+
   // ── Platform status endpoints ──────────────────────────────────────────────
-  app.get("/api/social/linkedin/status", async (_req, res) => {
-    const hasToken = !!process.env.LINKEDIN_ACCESS_TOKEN;
-    const hasAuthor = !!process.env.LINKEDIN_AUTHOR_URN;
-    res.json({ connected: hasToken && hasAuthor, hasToken, hasAuthor });
+  app.get("/api/social/linkedin/status", async (req, res) => {
+    // Prefer session-based token (from OAuth), fall back to env var
+    const sessionToken = (req.session as any)?.linkedinAccessToken;
+    const sessionUrn = (req.session as any)?.linkedinAuthorUrn;
+    const hasToken = !!(sessionToken || process.env.LINKEDIN_ACCESS_TOKEN);
+    const hasAuthor = !!(sessionUrn || process.env.LINKEDIN_AUTHOR_URN);
+    const source = sessionToken ? "oauth" : (process.env.LINKEDIN_ACCESS_TOKEN ? "env" : "none");
+    res.json({ connected: hasToken && hasAuthor, hasToken, hasAuthor, source });
   });
 
   app.get("/api/social/twitter/status", async (_req, res) => {
@@ -221,12 +288,13 @@ Return JSON with exactly these fields:
   app.post("/api/social/linkedin/post/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const token = process.env.LINKEDIN_ACCESS_TOKEN;
-      const authorUrn = process.env.LINKEDIN_AUTHOR_URN;
+      // Prefer session OAuth token over env var
+      const token = (req.session as any)?.linkedinAccessToken || process.env.LINKEDIN_ACCESS_TOKEN;
+      const authorUrn = (req.session as any)?.linkedinAuthorUrn || process.env.LINKEDIN_AUTHOR_URN;
 
       if (!token || !authorUrn) {
         return res.status(400).json({
-          error: "LinkedIn credentials not configured. Add LINKEDIN_ACCESS_TOKEN and LINKEDIN_AUTHOR_URN to your secrets."
+          error: "LinkedIn not connected. Please authorize via the Connect tab in Social Media Agent."
         });
       }
 

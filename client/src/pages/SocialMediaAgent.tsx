@@ -576,58 +576,21 @@ export default function SocialMediaAgent() {
                 {linkedInConnected ? (
                   <div className="flex items-center gap-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                     <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0" />
-                    <div>
-                      <p className="text-green-300 font-semibold text-sm">Auto-posting is enabled</p>
+                    <div className="flex-1">
+                      <p className="text-green-300 font-semibold text-sm">LinkedIn Connected</p>
                       <p className="text-green-200/60 text-xs mt-0.5">Go to the Queue tab and hit "Post to LinkedIn Now" on any LinkedIn post.</p>
                     </div>
+                    <a href="/api/social/linkedin/auth" className="text-xs text-gray-400 hover:text-white underline">Re-authorize</a>
                   </div>
                 ) : (
-                  <>
-                    <p className="text-gray-300 text-sm">Follow these steps to connect LinkedIn. Takes about 5 minutes.</p>
-                    <div className="space-y-3">
-                      {LINKEDIN_SETUP_STEPS.map(s => (
-                        <div key={s.step} className="flex gap-3">
-                          <span className="w-6 h-6 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold flex items-center justify-center flex-shrink-0 mt-0.5">
-                            {s.step}
-                          </span>
-                          <p className="text-gray-300 text-sm leading-relaxed">{s.text}</p>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="border-t border-white/10 pt-4 space-y-2">
-                      <p className="text-gray-400 text-xs font-medium uppercase tracking-wide">Secrets to add in Replit</p>
-                      {[
-                        { key: "LINKEDIN_ACCESS_TOKEN", desc: "Your 60-day OAuth access token" },
-                        { key: "LINKEDIN_AUTHOR_URN",   desc: "e.g. urn:li:person:ABC123 or urn:li:organization:12345" },
-                      ].map(s => (
-                        <div key={s.key} className="flex items-center justify-between p-2 bg-black/30 rounded-lg border border-white/10">
-                          <div>
-                            <p className="text-cyan-300 text-xs font-mono">{s.key}</p>
-                            <p className="text-gray-500 text-xs">{s.desc}</p>
-                          </div>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => copyToClipboard(s.key, "Secret name")}
-                            className="text-gray-500 hover:text-white text-xs"
-                          >
-                            <Copy className="w-3 h-3" />
-                          </Button>
-                        </div>
-                      ))}
-                      <p className="text-gray-500 text-xs pt-1">After adding secrets, restart the app and come back here — it will show Connected automatically.</p>
-                    </div>
-
-                    <a
-                      href="https://www.linkedin.com/developers/apps"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 text-blue-400 text-sm hover:underline"
-                    >
-                      <Link2 className="w-4 h-4" /> Open LinkedIn Developer Portal
+                  <div className="space-y-4">
+                    <p className="text-gray-300 text-sm">Click the button below to authorize LinkedIn. You'll be redirected to LinkedIn to approve access, then brought right back.</p>
+                    <a href="/api/social/linkedin/auth" className="flex items-center justify-center gap-2 w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+                      <SiLinkedin className="w-5 h-5" />
+                      Connect LinkedIn Account
                     </a>
-                  </>
+                    <p className="text-gray-500 text-xs text-center">You'll need to be logged into LinkedIn in this browser. Access lasts 60 days.</p>
+                  </div>
                 )}
               </CardContent>
             </Card>
