@@ -126,6 +126,7 @@ export default function SimpleAdminDashboard() {
   const authenticateAdmin = () => {
     if (adminKey === 'CAREN_ADMIN_2025_PRODUCTION') {
       setIsAuthenticated(true);
+      sessionStorage.setItem('carenAdminAuth', 'CAREN_ADMIN_2025_PRODUCTION');
       loadDashboardData();
       loadUsers();
       runAbuseScan(adminKey);

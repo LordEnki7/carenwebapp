@@ -92,6 +92,8 @@ export default function SocialMediaAgent() {
     tiktok:    false,
   };
 
+  const linkedInConnected = platformConnected.linkedin;
+
   const platforms = PLATFORM_META.map(p => ({ ...p, connected: platformConnected[p.id] ?? false }));
 
   const generateMutation = useMutation({
