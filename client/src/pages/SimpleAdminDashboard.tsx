@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2, Search, Shield, CheckCircle, Star } from 'lucide-react';
+import { Users, Activity, Clock, Database, AlertTriangle, AlertCircle, Video, BookOpen, Zap, DollarSign, Brain, TrendingUp, Target, Building2, LifeBuoy, Megaphone, Share2, Search, Shield, CheckCircle, Star, RefreshCw, MessageSquare, Mail, CreditCard, CloudUpload, Bot, Bell, Lock } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
 
 const ADMIN_PANELS = [
   { label: "Director Admin", description: "Manage directors, issue PINs, track commissions", href: "/director-admin", icon: Building2, color: "border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10", badge: "Manage" },
@@ -53,6 +54,196 @@ interface UserSession {
   loginCount: number;
   authMethod: string;
   lastLogin: string;
+}
+
+interface HealthCheck {
+  service: string;
+  status: 'ok' | 'warning' | 'error';
+  message: string;
+  latencyMs?: number;
+  detail?: string;
+}
+
+interface HealthResponse {
+  ok: boolean;
+  summary: { errors: number; warnings: number; ok: number; total: number };
+  checks: HealthCheck[];
+  timestamp: string;
+}
+
+const SERVICE_ICONS: Record<string, any> = {
+  'Database': Database,
+  'SMS': MessageSquare,
+  'Email': Mail,
+  'Stripe': CreditCard,
+  'Daily': Video,
+  'Cloudflare': CloudUpload,
+  'AI': Bot,
+  'Push': Bell,
+  'Google': Shield,
+  'LinkedIn': Share2,
+  'Session': Lock,
+};
+
+function getServiceIcon(serviceName: string) {
+  for (const key of Object.keys(SERVICE_ICONS)) {
+    if (serviceName.includes(key)) return SERVICE_ICONS[key];
+  }
+  return Activity;
+}
+
+function SystemHealthTab() {
+  const [adminKey] = useState(() => sessionStorage.getItem('carenAdminAuth') || '');
+  const [forceRefresh, setForceRefresh] = useState(false);
+
+  const { data, isLoading, error, refetch } = useQuery<HealthResponse>({
+    queryKey: ['/api/health', adminKey, forceRefresh],
+    queryFn: async () => {
+      const res = await fetch(`/api/health?refresh=${forceRefresh}`, {
+        headers: { 'x-admin-key': adminKey },
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    },
+    enabled: !!adminKey,
+    staleTime: 60_000,
+    retry: false,
+  });
+
+  const handleRefresh = () => {
+    setForceRefresh(true);
+    setTimeout(() => {
+      refetch();
+      setForceRefresh(false);
+    }, 50);
+  };
+
+  if (!adminKey) {
+    return (
+      <div className="text-center text-gray-400 py-12">
+        <Lock className="h-12 w-12 mx-auto mb-4 opacity-50" />
+        <p>Admin key required. Log in via the main admin panel first.</p>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="text-center text-gray-400 py-12">
+        <RefreshCw className="h-8 w-8 mx-auto mb-4 animate-spin" />
+        <p>Running health checks across all integrations…</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-400 py-12">
+        <AlertCircle className="h-12 w-12 mx-auto mb-4" />
+        <p>Could not load health data: {String(error)}</p>
+        <Button onClick={() => refetch()} className="mt-4 bg-red-600 hover:bg-red-700">Retry</Button>
+      </div>
+    );
+  }
+
+  if (!data) return null;
+
+  const { summary, checks, timestamp } = data;
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-bold text-white">Integration Health Monitor</h3>
+          <p className="text-gray-400 text-sm mt-1">
+            Live status of every service CAREN depends on. Last checked: {new Date(timestamp).toLocaleTimeString()}
+          </p>
+        </div>
+        <Button onClick={handleRefresh} variant="outline" className="border-gray-600 text-white hover:bg-gray-700 gap-2">
+          <RefreshCw className="h-4 w-4" /> Force Refresh
+        </Button>
+      </div>
+
+      {/* Summary bar */}
+      <div className="grid grid-cols-3 gap-4">
+        <div className={`rounded-lg p-4 text-center ${summary.errors > 0 ? 'bg-red-900/40 border border-red-500/50' : 'bg-gray-700/50 border border-gray-600'}`}>
+          <div className={`text-3xl font-bold ${summary.errors > 0 ? 'text-red-400' : 'text-gray-400'}`}>{summary.errors}</div>
+          <div className="text-sm mt-1 text-gray-300">Critical Failures</div>
+        </div>
+        <div className={`rounded-lg p-4 text-center ${summary.warnings > 0 ? 'bg-yellow-900/40 border border-yellow-500/50' : 'bg-gray-700/50 border border-gray-600'}`}>
+          <div className={`text-3xl font-bold ${summary.warnings > 0 ? 'text-yellow-400' : 'text-gray-400'}`}>{summary.warnings}</div>
+          <div className="text-sm mt-1 text-gray-300">Warnings</div>
+        </div>
+        <div className="rounded-lg p-4 text-center bg-green-900/40 border border-green-500/50">
+          <div className="text-3xl font-bold text-green-400">{summary.ok}</div>
+          <div className="text-sm mt-1 text-gray-300">Healthy</div>
+        </div>
+      </div>
+
+      {/* Critical failures first */}
+      {summary.errors > 0 && (
+        <div className="rounded-lg bg-red-900/20 border border-red-500/40 p-4">
+          <div className="flex items-center gap-2 mb-3">
+            <AlertCircle className="h-5 w-5 text-red-400" />
+            <span className="text-red-400 font-semibold">ACTION REQUIRED — {summary.errors} service(s) are down</span>
+          </div>
+          <div className="space-y-2">
+            {checks.filter(c => c.status === 'error').map((c, i) => (
+              <div key={i} className="flex items-start gap-2 text-sm text-red-300">
+                <span className="text-red-500 mt-0.5">✗</span>
+                <div>
+                  <span className="font-medium">{c.service}:</span> {c.message}
+                  {c.detail && <span className="text-red-400/70 ml-1">— {c.detail}</span>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* All checks */}
+      <div className="grid grid-cols-1 gap-3">
+        {checks.map((check, i) => {
+          const Icon = getServiceIcon(check.service);
+          const isError = check.status === 'error';
+          const isWarn = check.status === 'warning';
+          return (
+            <div key={i} className={`rounded-lg p-4 flex items-center gap-4 border ${
+              isError ? 'bg-red-900/20 border-red-500/30' :
+              isWarn  ? 'bg-yellow-900/20 border-yellow-500/30' :
+                        'bg-gray-700/30 border-gray-600/30'
+            }`}>
+              <Icon className={`h-5 w-5 shrink-0 ${isError ? 'text-red-400' : isWarn ? 'text-yellow-400' : 'text-green-400'}`} />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-white text-sm">{check.service}</span>
+                  {check.latencyMs !== undefined && (
+                    <span className="text-xs text-gray-500">{check.latencyMs}ms</span>
+                  )}
+                </div>
+                <p className={`text-sm mt-0.5 ${isError ? 'text-red-300' : isWarn ? 'text-yellow-300' : 'text-gray-400'}`}>
+                  {check.message}
+                  {check.detail && <span className="text-gray-500 ml-1">— {check.detail}</span>}
+                </p>
+              </div>
+              <Badge className={`shrink-0 text-xs px-2 py-0.5 ${
+                isError ? 'bg-red-600 text-white' :
+                isWarn  ? 'bg-yellow-600 text-white' :
+                          'bg-green-700 text-white'
+              }`}>
+                {isError ? 'FAIL' : isWarn ? 'WARN' : 'OK'}
+              </Badge>
+            </div>
+          );
+        })}
+      </div>
+
+      <p className="text-xs text-gray-600 text-center">
+        Results cached for 60 seconds. Use "Force Refresh" to recheck immediately. These checks also run on every server startup.
+      </p>
+    </div>
+  );
 }
 
 export default function SimpleAdminDashboard() {
@@ -545,7 +736,8 @@ export default function SimpleAdminDashboard() {
         {/* Dashboard Tabs */}
         <Card className="bg-gray-800 border-gray-700">
           <Tabs defaultValue="analytics" className="w-full">
-            <TabsList className="grid w-full grid-cols-6 bg-gray-700">
+            <TabsList className="grid w-full grid-cols-7 bg-gray-700">
+              <TabsTrigger value="health" className="text-white font-semibold">🔍 System Health</TabsTrigger>
               <TabsTrigger value="analytics" className="text-white">User Analytics</TabsTrigger>
               <TabsTrigger value="sessions" className="text-white">Live Sessions</TabsTrigger>
               <TabsTrigger value="payments" className="text-white">Payment Tracking</TabsTrigger>
@@ -554,6 +746,10 @@ export default function SimpleAdminDashboard() {
               <TabsTrigger value="users" className="text-white font-semibold">👥 Manage Users</TabsTrigger>
             </TabsList>
             
+            <TabsContent value="health" className="p-6">
+              <SystemHealthTab />
+            </TabsContent>
+
             <TabsContent value="analytics" className="p-6">
               <h3 className="text-xl font-semibold mb-4 text-white">User Statistics</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

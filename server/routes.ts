@@ -22,6 +22,7 @@ import { demoSecurityMiddleware } from "./demoSecurity";
 import { BluetoothEarpieceService } from "./bluetoothEarpieceService";
 import { generateCustomDomainToken } from "./customDomainAuth";
 import { checkBotProtection, recordLoginSuccess, recordLoginFailure } from "./botProtection";
+import { runHealthChecks } from "./healthCheck";
 import { setupGoogleAuth } from "./googleAuth";
 import { 
   insertLegalDocumentTemplateSchema,
@@ -318,6 +319,31 @@ GUIDELINES:
       env: process.env.NODE_ENV || "development",
       ok: true,
     });
+  });
+
+  // ── GET /api/health ─────────────────────────────────────────────────────────
+  // Runs live checks against every integration (DB, SMS, email, Stripe, etc.)
+  // and returns a structured status report. Admin-key protected.
+  app.get("/api/health", async (req: any, res) => {
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate");
+    const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
+    if (adminKey !== 'CAREN_ADMIN_2025_PRODUCTION') {
+      return res.status(403).json({ error: 'Admin key required' });
+    }
+    try {
+      const forceRefresh = req.query.refresh === 'true';
+      const results = await runHealthChecks(forceRefresh);
+      const errors = results.filter(r => r.status === 'error').length;
+      const warnings = results.filter(r => r.status === 'warning').length;
+      res.json({
+        ok: errors === 0,
+        summary: { errors, warnings, ok: results.filter(r => r.status === 'ok').length, total: results.length },
+        checks: results,
+        timestamp: new Date().toISOString(),
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
   });
 
   // ── GET /api/deploy-health ──────────────────────────────────────────────────

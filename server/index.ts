@@ -7,6 +7,7 @@ import pgPkg from "pg";
 const { Pool: PgPool } = pgPkg;
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import { runStartupDiagnostics } from "./healthCheck";
 import { runAutoMigrations } from "./db";
 import { 
   securityHeaders, 
@@ -433,6 +434,9 @@ app.use((req, res, next) => {
   });
 
   const server = await registerRoutes(app);
+
+  // Run diagnostics after routes are set up (non-blocking)
+  runStartupDiagnostics().catch(e => console.error('[HEALTH] Startup diagnostics failed:', e));
 
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
