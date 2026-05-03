@@ -454,6 +454,56 @@ setInterval(load, 15000);
   // EXTRACTED: rate limit reset endpoint moved to authentication.routes.ts
 
   // Test email endpoint for development
+  // Test SMS endpoint — admin only, available in any env
+  app.post('/api/test-sms', async (req: any, res) => {
+    const adminKey = req.headers['x-admin-key'] || req.body.adminKey;
+    if (adminKey !== 'CAREN_ADMIN_2025_PRODUCTION') {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+    try {
+      const { phone } = req.body;
+      if (!phone) return res.status(400).json({ error: 'phone is required' });
+
+      // Normalize phone
+      const digits = phone.replace(/\D/g, '');
+      const normalizedPhone = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith('1') ? `+${digits}` : phone;
+
+      const textbeltKey = process.env.TEXTBELT_API_KEY || '160040e53102b2285931df3013d933b0e46ebf7cqeCXDWl6beXnP8pfl4LFyke6F';
+
+      // Check quota first
+      const quotaRes = await fetch(`https://textbelt.com/quota/${textbeltKey}`);
+      const quotaData = await quotaRes.json();
+
+      const response = await fetch('https://textbelt.com/text', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          phone: normalizedPhone,
+          message: `🚨 C.A.R.E.N.™ TEST: SMS system is working! If you received this, emergency alerts will reach you. Time: ${new Date().toLocaleTimeString()}`,
+          key: textbeltKey
+        })
+      });
+
+      const rawText = await response.text();
+      let result: any = {};
+      try { result = JSON.parse(rawText); } catch { result = { success: false, error: `TextBelt returned non-JSON: ${rawText.slice(0, 100)}` }; }
+      console.log(`[SMS_TEST] To ${normalizedPhone}: success=${result.success} error=${result.error} quota=${result.quotaRemaining}`);
+
+      res.json({
+        success: result.success,
+        phone: normalizedPhone,
+        quotaBefore: quotaData.quotaRemaining,
+        quotaAfter: result.quotaRemaining,
+        textId: result.textId,
+        error: result.error || null,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error: any) {
+      console.error('[SMS_TEST] Error:', error);
+      res.status(500).json({ success: false, error: error.message });
+    }
+  });
+
   app.post('/api/test-email', async (req, res) => {
     if (process.env.NODE_ENV !== 'development') {
       return res.status(403).json({ error: 'Only available in development mode' });

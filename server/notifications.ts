@@ -240,22 +240,30 @@ ${locationText}
 ${alertData.userMessage ? `Message: ${alertData.userMessage}` : ''}
 Contact them immediately!`;
 
-  // Priority 1: TextBelt (Configured with user's API key)
+  // Normalize phone to digits-only E.164 format TextBelt expects
+  const rawPhone = contact.phone || '';
+  const digits = rawPhone.replace(/\D/g, '');
+  // Prepend country code if not already present
+  const normalizedPhone = digits.length === 10 ? `+1${digits}` : digits.length === 11 && digits.startsWith('1') ? `+${digits}` : rawPhone;
+
+  const textbeltKey = process.env.TEXTBELT_API_KEY || '160040e53102b2285931df3013d933b0e46ebf7cqeCXDWl6beXnP8pfl4LFyke6F';
+
+  // Priority 1: TextBelt
   try {
     const response = await fetch('https://textbelt.com/text', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        phone: contact.phone,
+        phone: normalizedPhone,
         message: message,
-        key: '160040e53102b2285931df3013d933b0e46ebf7cqeCXDWl6beXnP8pfl4LFyke6F'
+        key: textbeltKey
       })
     });
 
     const result = await response.json();
-    
+
     if (result.success) {
-      console.log(`Emergency SMS sent via TextBelt to ${contact.name} (${contact.phone}): ${alertTypeName}`);
+      console.log(`[SMS] Sent via TextBelt to ${contact.name} (${normalizedPhone}): ${alertTypeName} | textId=${result.textId}`);
       return {
         contactId: contact.id,
         method: 'sms',
@@ -263,10 +271,10 @@ Contact them immediately!`;
         messageId: result.textId
       };
     } else {
-      console.error(`TextBelt SMS failed: ${result.error}`);
+      console.error(`[SMS] TextBelt failed for ${normalizedPhone}: ${result.error} | quota=${result.quotaRemaining}`);
     }
   } catch (error) {
-    console.error('TextBelt SMS error:', error);
+    console.error('[SMS] TextBelt error:', error);
   }
 
   // All SMS methods failed
