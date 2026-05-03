@@ -53,7 +53,7 @@ async function notifyAttorneyViaSMS(attorney: any, callId: number, incidentType:
   if (!attorney?.phone) return;
   const message = `🚨 C.A.R.E.N. Alert: Emergency call request! A user needs legal help with a ${incidentType?.replace(/_/g, " ") || "incident"} in ${incidentState || "their state"}. Log in to your attorney portal to accept: https://carenalert.com/attorney-portal`;
   try {
-    const apiKey = process.env.NIG_API_KEY || process.env.TEXTBELT_API_KEY || "textbelt";
+    const apiKey = process.env.TEXTBELT_API_KEY || '160040e53102b2285931df3013d933b0e46ebf7cqeCXDWl6beXnP8pfl4LFyke6F';
     await fetch("https://textbelt.com/text", {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
