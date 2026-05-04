@@ -59,6 +59,17 @@ export default function AttorneyDirectory() {
           </p>
         </div>
 
+        {/* Coming Soon Banner */}
+        <div className="bg-amber-500/15 border border-amber-500/40 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-2xl">⚖️</span>
+          <div>
+            <p className="text-amber-400 font-bold text-sm">Attorney Network — Coming Soon</p>
+            <p className="text-amber-200/70 text-xs mt-0.5">
+              We're actively onboarding verified attorneys to our network. Live consultations and video calls will be available soon. In the meantime, you can browse attorney profiles below.
+            </p>
+          </div>
+        </div>
+
         {/* Search + Filter Bar */}
         <div className="space-y-3">
           <div className="flex gap-2">
@@ -214,18 +225,9 @@ export default function AttorneyDirectory() {
                           </div>
                         )}
 
-                        {canCall(attorney) ? (
-                          <Button
-                            size="sm"
-                            className="bg-green-600 hover:bg-green-700 text-white gap-1.5 text-xs px-3 h-8"
-                            onClick={() => setCallTarget(attorney)}
-                          >
-                            <Video className="w-3.5 h-3.5" />
-                            {attorney.availabilityStatus === "emergency_only" ? "Emergency Call" : "Request Call"}
-                          </Button>
-                        ) : (
-                          <span className="text-gray-600 text-xs">Unavailable</span>
-                        )}
+                        <span className="text-xs bg-amber-500/15 border border-amber-500/30 text-amber-400 px-2.5 py-1 rounded-lg font-medium">
+                          Coming Soon
+                        </span>
                       </div>
                     </div>
                   </CardContent>

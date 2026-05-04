@@ -146,6 +146,17 @@ export default function Attorneys() {
         
         <main className="p-6">
           <div className="max-w-6xl mx-auto">
+            {/* Coming Soon Banner */}
+            <div className="bg-amber-500/15 border border-amber-500/40 rounded-xl p-4 mb-6 flex items-start gap-3">
+              <span className="text-2xl">⚖️</span>
+              <div>
+                <p className="text-amber-400 font-bold text-sm">Attorney Network — Coming Soon</p>
+                <p className="text-amber-200/70 text-xs mt-0.5">
+                  We're actively onboarding verified civil rights attorneys. Live connections and consultations will be available very soon. Want to be notified? Attorneys can apply below.
+                </p>
+              </div>
+            </div>
+
             {/* Attorney Recruitment Banner */}
             <div className="cyber-card p-6 mb-6 animate-fade-in-up bg-gradient-to-r from-blue-600 to-purple-600 text-white">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -343,60 +354,13 @@ export default function Attorneys() {
                       )}
 
                       <div className="flex gap-2">
-                        <Dialog open={selectedAttorney?.id === attorney.id} onOpenChange={(open) => {
-                          if (!open) {
-                            setSelectedAttorney(null);
-                            setConnectionMessage("");
-                          }
-                        }}>
-                          <DialogTrigger asChild>
-                            <Button 
-                              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                              onClick={() => setSelectedAttorney(attorney)}
-                            >
-                              <MessageCircle className="w-4 h-4 mr-2" />
-                              Connect
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="sm:max-w-md bg-gray-900 border-gray-700">
-                            <DialogHeader>
-                              <DialogTitle className="text-white">Connect with {attorney.firmName}</DialogTitle>
-                              <DialogDescription className="text-gray-400">
-                                Send a message to request legal consultation or representation.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4">
-                              <div>
-                                <Label htmlFor="message" className="text-white">Your Message</Label>
-                                <Textarea
-                                  id="message"
-                                  placeholder="Describe your legal situation or request..."
-                                  value={connectionMessage}
-                                  onChange={(e) => setConnectionMessage(e.target.value)}
-                                  className="mt-1 bg-gray-800 border-gray-600 text-white"
-                                />
-                              </div>
-                            </div>
-                            <DialogFooter>
-                              <Button variant="outline" onClick={() => setSelectedAttorney(null)} className="bg-gray-800 border-gray-600 text-white">
-                                Cancel
-                              </Button>
-                              <Button 
-                                onClick={connectWithAttorney}
-                                disabled={isConnecting || !connectionMessage.trim()}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                              >
-                                {isConnecting ? "Sending..." : "Send Message"}
-                              </Button>
-                            </DialogFooter>
-                          </DialogContent>
-                        </Dialog>
-
-                        {attorney.contactInfo && (
-                          <Button variant="outline" size="sm" className="bg-gray-800/50 border-gray-600 text-cyan-400 hover:bg-gray-700">
-                            <Phone className="w-4 h-4" />
-                          </Button>
-                        )}
+                        <Button
+                          disabled
+                          className="flex-1 bg-gray-700/50 text-amber-400 border border-amber-500/30 cursor-not-allowed opacity-80"
+                        >
+                          <Clock className="w-4 h-4 mr-2" />
+                          Coming Soon
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

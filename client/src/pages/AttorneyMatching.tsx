@@ -112,6 +112,17 @@ export default function AttorneyMatching() {
           </div>
         </div>
 
+        {/* Coming Soon Banner */}
+        <div className="bg-amber-500/15 border border-amber-500/40 rounded-xl p-4 flex items-start gap-3">
+          <span className="text-2xl">⚖️</span>
+          <div>
+            <p className="text-amber-400 font-bold text-sm">Attorney Matching — Coming Soon</p>
+            <p className="text-amber-200/70 text-xs mt-0.5">
+              We're building our verified attorney network. Once attorneys are onboarded, this tool will match you with the right legal professional for your situation. Check back soon!
+            </p>
+          </div>
+        </div>
+
         {!result && (
           <Card className="bg-gray-900/80 border-gray-700 backdrop-blur">
             <CardHeader>
@@ -159,8 +170,8 @@ export default function AttorneyMatching() {
                 <label className="text-gray-400 text-sm mb-1 block">Describe What Happened</label>
                 <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Provide details about your incident including what happened, when, and any relevant circumstances..." className="bg-gray-800 border-gray-600 text-white min-h-[120px]" />
               </div>
-              <Button onClick={handleMatch} disabled={matchMutation.isPending} className="w-full bg-blue-600 hover:bg-blue-500 text-white py-3 text-lg">
-                {matchMutation.isPending ? 'Finding Attorneys...' : 'Find My Attorney Match'}
+              <Button disabled className="w-full bg-gray-700 text-gray-400 py-3 text-lg cursor-not-allowed opacity-60">
+                Attorney Network Coming Soon
               </Button>
             </CardContent>
           </Card>
