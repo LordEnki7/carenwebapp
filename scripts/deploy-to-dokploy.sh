@@ -60,6 +60,18 @@ echo -e "  ${GREEN}✓ buildTimestamp.ts stamped: $BUILD_TS${RESET}"
 sed -i "s|RUN echo \"BUILD_TIMESTAMP: .*\"|RUN echo \"BUILD_TIMESTAMP: $BUILD_TS\"|" Dockerfile
 echo -e "  ${GREEN}✓ Dockerfile RUN echo stamped: $BUILD_TS${RESET}"
 
+# ── Step 1c: TypeScript type check ───────────────────────────
+# Zero-tolerance gate: if tsc reports any errors the deploy aborts here,
+# before the Vite build and before any push to GitHub.
+echo -e "\n${YELLOW}Step 1c — Running TypeScript type check...${RESET}"
+if npx tsc --noEmit 2>&1; then
+  echo -e "  ${GREEN}✓ TypeScript — zero errors${RESET}"
+else
+  echo -e "  ${RED}✗ TypeScript errors found — fix them before deploying${RESET}"
+  echo -e "  ${YELLOW}→ Run: npx tsc --noEmit   to see the full error list${RESET}"
+  exit 1
+fi
+
 # ── Step 1d: Build the frontend (Vite) in Replit where VITE_* secrets are available ──
 # Vite MUST run here, not in Docker — Docker build has no access to VITE_STRIPE_PUBLIC_KEY etc.
 # The fresh dist/public/ is committed to git and copied into Docker via the fresh COPY layer
