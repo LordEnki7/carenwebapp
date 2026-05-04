@@ -415,8 +415,8 @@ export default function BrowserCompatibleSignIn() {
             ))}
           </div>
 
-          {/* Promo photo */}
-          <div className="w-full max-w-xl">
+          {/* Promo photo — hidden on mobile, visible on large screens only */}
+          <div className="hidden lg:block w-full max-w-xl">
             <p className="text-gray-500 text-xs text-center mb-3 uppercase tracking-widest font-semibold">Trusted by families everywhere</p>
             <div className="relative rounded-xl overflow-hidden shadow-lg group">
               <img
