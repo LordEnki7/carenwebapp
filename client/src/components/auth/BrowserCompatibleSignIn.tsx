@@ -415,30 +415,20 @@ export default function BrowserCompatibleSignIn() {
             ))}
           </div>
 
-          {/* Promo photo strip */}
+          {/* Promo photo */}
           <div className="w-full max-w-xl">
             <p className="text-gray-500 text-xs text-center mb-3 uppercase tracking-widest font-semibold">Trusted by families everywhere</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative rounded-xl overflow-hidden shadow-lg group">
-                <img
-                  src={promoImage1}
-                  alt="C.A.R.E.N. Alert user"
-                  className="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <p className="text-white text-xs font-semibold leading-snug">Real protection for real people</p>
-                </div>
-              </div>
-              <div className="relative rounded-xl overflow-hidden shadow-lg group">
-                <img
-                  src={promoImage2}
-                  alt="C.A.R.E.N. Alert user"
-                  className="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-3">
-                  <p className="text-white text-xs font-semibold leading-snug">Know your rights instantly</p>
+            <div className="relative rounded-xl overflow-hidden shadow-lg group">
+              <img
+                src={promoImage2}
+                alt="C.A.R.E.N. Alert user"
+                className="w-full object-cover aspect-video group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-white text-sm font-semibold leading-snug">"Knowing my rights has never been this easy."</p>
+                <div className="flex gap-0.5 mt-1">
+                  {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-xs">★</span>)}
                 </div>
               </div>
             </div>
