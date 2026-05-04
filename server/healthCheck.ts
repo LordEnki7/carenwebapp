@@ -112,6 +112,10 @@ async function checkAI(): Promise<HealthResult> {
       try { const body: any = await res.json(); detail = body?.error?.message?.slice(0, 100) || detail; } catch {}
       return { service: 'AI (OpenAI)', status: 'error', message: `Quota exceeded — AI features WILL FAIL`, detail, latencyMs };
     }
+    // 405 = Replit AI proxy doesn't support GET /models — key is configured, treat as ok
+    if (res.status === 405 && replitKey) {
+      return { service: 'AI (OpenAI)', status: 'ok', message: `Configured via Replit AI integration (${keyLabel})`, latencyMs };
+    }
     return { service: 'AI (OpenAI)', status: 'warning', message: `Unexpected response ${res.status} from OpenAI`, detail: keyLabel, latencyMs };
   } catch (e: any) {
     return { service: 'AI (OpenAI)', status: 'error', message: 'Could not reach OpenAI API', detail: e.message };
