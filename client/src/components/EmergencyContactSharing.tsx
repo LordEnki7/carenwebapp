@@ -81,15 +81,15 @@ export default function EmergencyContactSharing() {
       }
     };
 
-    window.addEventListener('voiceTriggeredEmergencySharing', handleVoiceTriggeredSharing);
+    window.addEventListener('voiceTriggeredEmergencySharing', handleVoiceTriggeredSharing as EventListener);
     
     return () => {
-      window.removeEventListener('voiceTriggeredEmergencySharing', handleVoiceTriggeredSharing);
+      window.removeEventListener('voiceTriggeredEmergencySharing', handleVoiceTriggeredSharing as EventListener);
     };
   }, []);
 
   // Fetch emergency contacts
-  const { data: contacts = [], isLoading: contactsLoading } = useQuery({
+  const { data: contacts = [], isLoading: contactsLoading } = useQuery<EmergencyContact[]>({
     queryKey: ['/api/emergency-contacts'],
     enabled: !!user
   });
@@ -151,16 +151,14 @@ export default function EmergencyContactSharing() {
       customMessage?: string;
       contactIds?: number[];
     }) => {
-      return apiRequest('/api/emergency-contacts/share', {
-        method: 'POST',
-        body: JSON.stringify(shareData)
-      });
+      const res = await apiRequest('POST', '/api/emergency-contacts/share', shareData);
+      return res.json() as Promise<{ results: EmergencyShareStatus[] }>;
     },
     onSuccess: (data) => {
       setShareStatuses(data.results || []);
       toast({
         title: "Emergency Contacts Notified",
-        description: `Successfully shared location with ${data.results?.filter((r: any) => r.status === 'sent').length || 0} contacts`,
+        description: `Successfully shared location with ${data.results?.filter((r) => r.status === 'sent').length || 0} contacts`,
       });
     },
     onError: (error) => {

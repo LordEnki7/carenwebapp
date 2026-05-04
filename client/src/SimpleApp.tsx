@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "next-themes";
 import { useAuth } from "@/hooks/useAuth";
-import SignIn from "@/pages/SignIn";
 import Dashboard from "@/pages/Dashboard";
 
 function SimpleRouter() {
@@ -24,15 +23,9 @@ function SimpleRouter() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
-        <Route path="*" component={SignIn} />
-      ) : (
-        <>
-          <Route path="/" component={Dashboard} />
-          <Route path="/dashboard" component={Dashboard} />
-          <Route path="*" component={Dashboard} />
-        </>
-      )}
+      <Route path="/" component={Dashboard} />
+      <Route path="/dashboard" component={Dashboard} />
+      <Route path="*" component={Dashboard} />
     </Switch>
   );
 }

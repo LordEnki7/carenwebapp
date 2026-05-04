@@ -29,7 +29,7 @@ export default function LegalDocumentGenerator() {
   const queryClient = useQueryClient();
 
   // Fetch legal document templates
-  const { data: templates = [], isLoading: templatesLoading } = useQuery({
+  const { data: templates = [], isLoading: templatesLoading } = useQuery<LegalDocumentTemplate[]>({
     queryKey: ['/api/legal-document-templates'],
     retry: false,
   });
