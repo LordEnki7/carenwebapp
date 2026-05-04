@@ -773,6 +773,16 @@ export async function runAutoMigrations(): Promise<void> {
       banned_at TIMESTAMP DEFAULT NOW(),
       banned_by VARCHAR DEFAULT 'admin'
     )`,
+
+    `CREATE TABLE IF NOT EXISTS attorney_state_waitlist (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR REFERENCES users(id) ON DELETE SET NULL,
+      email VARCHAR NOT NULL,
+      state VARCHAR NOT NULL,
+      notified BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      UNIQUE (email, state)
+    )`,
   ];
 
   // Additional ALTER TABLE statements for columns that may be missing on existing deployments

@@ -620,5 +620,71 @@ export function registerAttorneyNetworkRoutes(app: Express) {
     }
   });
 
+  // ─── ATTORNEY STATE WAITLIST ─────────────────────────────────────────────
+
+  // Check how many approved attorneys exist in a given state
+  app.get("/api/attorney-state-check", async (req, res) => {
+    try {
+      const { state } = req.query;
+      if (!state) return res.json({ count: 0, state: "" });
+
+      const result = await db.execute(sql`
+        SELECT COUNT(*) as count
+        FROM attorneys
+        WHERE active_status = true
+          AND verified = true
+          AND profile_status = 'approved'
+          AND (
+            states_licensed::text ILIKE ${`%${state}%`}
+            OR bar_state ILIKE ${state as string}
+          )
+      `);
+
+      const count = parseInt((result.rows?.[0] as any)?.count ?? "0", 10);
+      res.json({ count, state });
+    } catch (error) {
+      console.error("[ATTORNEY] check-state error:", error);
+      res.json({ count: 0, state: req.query.state });
+    }
+  });
+
+  // Save a user to the attorney state waitlist
+  app.post("/api/attorney-state-waitlist", async (req: any, res) => {
+    try {
+      const { email, state, userId } = req.body;
+      if (!email || !state) {
+        return res.status(400).json({ message: "Email and state are required" });
+      }
+
+      await db.execute(sql`
+        INSERT INTO attorney_state_waitlist (user_id, email, state, notified)
+        VALUES (${userId || null}, ${email}, ${state}, false)
+        ON CONFLICT DO NOTHING
+      `);
+
+      res.json({ success: true, message: "You'll be notified when an attorney joins your state." });
+    } catch (error) {
+      console.error("[ATTORNEY] state waitlist error:", error);
+      res.status(500).json({ message: "Failed to save notification preference" });
+    }
+  });
+
+  // Admin: view all state waitlist entries
+  app.get("/api/attorney-state-waitlist", async (req: any, res) => {
+    if (!isAdmin(req)) return res.status(403).json({ message: "Unauthorized" });
+    try {
+      const rows = await db.execute(sql`
+        SELECT state, COUNT(*) as count
+        FROM attorney_state_waitlist
+        WHERE notified = false
+        GROUP BY state
+        ORDER BY count DESC
+      `);
+      res.json(rows.rows);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch waitlist" });
+    }
+  });
+
   console.log("[ROUTES] Attorney network routes registered successfully");
 }

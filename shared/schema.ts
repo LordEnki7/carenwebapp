@@ -2927,3 +2927,17 @@ export const videoCalls = pgTable("video_calls", {
 export const insertVideoCallSchema = createInsertSchema(videoCalls).omit({ id: true, requestedAt: true });
 export type InsertVideoCall = z.infer<typeof insertVideoCallSchema>;
 export type VideoCall = typeof videoCalls.$inferSelect;
+
+// ===== ATTORNEY STATE WAITLIST =====
+export const attorneyStateWaitlist = pgTable("attorney_state_waitlist", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").references(() => users.id, { onDelete: "cascade" }),
+  email: varchar("email").notNull(),
+  state: varchar("state").notNull(),
+  notified: boolean("notified").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAttorneyStateWaitlistSchema = createInsertSchema(attorneyStateWaitlist).omit({ id: true, notified: true, createdAt: true });
+export type InsertAttorneyStateWaitlist = z.infer<typeof insertAttorneyStateWaitlistSchema>;
+export type AttorneyStateWaitlist = typeof attorneyStateWaitlist.$inferSelect;
