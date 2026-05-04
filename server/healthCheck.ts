@@ -87,12 +87,11 @@ async function checkAI(): Promise<HealthResult> {
   if (!replitKey && !openaiKey) {
     return { service: 'AI (OpenAI)', status: 'error', message: 'No AI key set — AI features WILL FAIL', detail: 'Need AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY' };
   }
-  const usedKey = replitKey ? 'AI_INTEGRATIONS_OPENAI_API_KEY (Replit AI)' : 'OPENAI_API_KEY';
-  const agentRoutesUseReplitKey = !!(process.env.AI_INTEGRATIONS_OPENAI_API_KEY);
-  if (!agentRoutesUseReplitKey && openaiKey) {
-    return { service: 'AI (OpenAI)', status: 'warning', message: 'Using OPENAI_API_KEY directly — agent.routes.ts may bypass Replit AI billing', detail: 'Some routes use OPENAI_API_KEY instead of AI_INTEGRATIONS_OPENAI_API_KEY' };
+  if (replitKey) {
+    return { service: 'AI (OpenAI)', status: 'ok', message: 'Configured via AI_INTEGRATIONS_OPENAI_API_KEY (Replit AI)' };
   }
-  return { service: 'AI (OpenAI)', status: 'ok', message: `Configured via ${usedKey}` };
+  // Only OPENAI_API_KEY is set — perfectly fine in production (Dokploy), minor note in Replit dev
+  return { service: 'AI (OpenAI)', status: 'ok', message: 'Configured via OPENAI_API_KEY' };
 }
 
 async function checkPushNotifications(): Promise<HealthResult> {
