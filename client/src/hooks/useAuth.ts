@@ -214,7 +214,11 @@ export function useAuth() {
   });
 
   // Stable authentication state to prevent flickering
-  const [stableAuth, setStableAuth] = useState({
+  const [stableAuth, setStableAuth] = useState<{
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    user: any | null;
+  }>({
     isAuthenticated: false,
     isLoading: true,
     user: null

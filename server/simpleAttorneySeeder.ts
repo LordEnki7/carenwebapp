@@ -119,7 +119,7 @@ export class SimpleAttorneySeeder {
       FROM attorneys
     `);
     
-    return result[0];
+    return (result as any)[0];
   }
 }
 

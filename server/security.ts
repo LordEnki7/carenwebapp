@@ -34,7 +34,7 @@ export class EncryptionService {
   static encrypt(text: string, key?: string): { encrypted: string; key: string; iv: string; tag: string } {
     const encryptionKey = key || this.generateKey();
     const iv = crypto.randomBytes(SECURITY_CONFIG.encryption.ivLength);
-    const cipher = crypto.createCipher(SECURITY_CONFIG.encryption.algorithm, Buffer.from(encryptionKey, 'hex'));
+    const cipher = crypto.createCipher(SECURITY_CONFIG.encryption.algorithm, Buffer.from(encryptionKey, 'hex')) as any;
     cipher.setAAD(Buffer.from('C.A.R.E.N.™ Alert', 'utf8'));
     
     let encrypted = cipher.update(text, 'utf8', 'hex');
@@ -52,7 +52,7 @@ export class EncryptionService {
 
   static decrypt(encryptedData: { encrypted: string; key: string; iv: string; tag: string }): string {
     try {
-      const decipher = crypto.createDecipher(SECURITY_CONFIG.encryption.algorithm, Buffer.from(encryptedData.key, 'hex'));
+      const decipher = crypto.createDecipher(SECURITY_CONFIG.encryption.algorithm, Buffer.from(encryptedData.key, 'hex')) as any;
       decipher.setAuthTag(Buffer.from(encryptedData.tag, 'hex'));
       decipher.setAAD(Buffer.from('C.A.R.E.N.™ Alert', 'utf8'));
       
@@ -289,10 +289,10 @@ export const validateApiKey = (req: Request, res: Response, next: NextFunction):
       method: req.method
     }, req);
     
-    return res.status(401).json({
+    res.status(401).json({
       error: 'API key required',
       message: 'Valid API key must be provided in X-API-Key header'
-    });
+    }); return;
   }
   
   // In production, validate against stored API keys
@@ -306,10 +306,10 @@ export const validateApiKey = (req: Request, res: Response, next: NextFunction):
       method: req.method
     }, req);
     
-    return res.status(401).json({
+    res.status(401).json({
       error: 'Invalid API key',
       message: 'The provided API key is not valid'
-    });
+    }); return;
   }
   
   next();

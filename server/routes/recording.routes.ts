@@ -162,7 +162,7 @@ export function registerRecordingRoutes(app: Express) {
 
       // Update complaint status to filed
       try {
-        await ComplaintService.updateComplaintStatus(complaintId, 'filed', currentUser.id);
+        await (ComplaintService.updateComplaintStatus as any)(complaintId, 'filed', currentUser.id);
       } catch (error) {
         console.warn('Failed to update complaint status, continuing with submission');
       }

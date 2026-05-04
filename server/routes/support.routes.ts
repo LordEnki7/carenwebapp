@@ -144,7 +144,7 @@ export function registerSupportRoutes(app: Express) {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      const messages: any[] = [
         { role: "system", content: SUPPORT_SYSTEM_PROMPT },
         ...history.slice(-12).map((m: { role: string; content: string }) => ({
           role: m.role as "user" | "assistant",

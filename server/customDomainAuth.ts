@@ -100,12 +100,12 @@ setInterval(() => {
   const now = new Date();
   let cleanedCount = 0;
   
-  for (const [token, data] of customDomainTokens.entries()) {
+  customDomainTokens.forEach((data, token) => {
     if (now > data.expiresAt) {
       customDomainTokens.delete(token);
       cleanedCount++;
     }
-  }
+  });
   
   if (cleanedCount > 0) {
     console.log('[CUSTOM_DOMAIN_AUTH] Cleaned up', cleanedCount, 'expired tokens');

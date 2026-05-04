@@ -412,7 +412,7 @@ Automated Evidence Delivery System`;
       }
     };
 
-    const info = await transporter.sendMail(mailOptions);
+    const info = await transporter!.sendMail(mailOptions);
     
     console.log(`Recording sent to attorney ${firmName} (${attorneyEmail}): ${recordingData.title}`);
     

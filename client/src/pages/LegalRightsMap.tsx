@@ -122,7 +122,7 @@ export default function LegalRightsMap() {
       const location = await getCurrentLocation();
       if (!location) return [];
       
-      const response = await fetch(`/api/legal-destinations/emergency?latitude=${location.latitude}&longitude=${location.longitude}`, {
+      const response = await fetch(`/api/legal-destinations/emergency?latitude=${(location as any).latitude}&longitude=${(location as any).longitude}`, {
         credentials: 'include'
       });
       if (!response.ok) throw new Error('Failed to fetch emergency destinations');
@@ -141,8 +141,8 @@ export default function LegalRightsMap() {
       if (!location) return [];
       
       const params = new URLSearchParams({
-        latitude: location.latitude.toString(),
-        longitude: location.longitude.toString(),
+        latitude: (location as any).latitude.toString(),
+        longitude: (location as any).longitude.toString(),
         radius: '25'
       });
       
@@ -1416,10 +1416,10 @@ export default function LegalRightsMap() {
                                 </span>
                               )}
                             </div>
-                            {destination.hours && (
+                            {!!(destination.hours as any) && (
                               <div className="mt-2 text-xs text-gray-500">
                                 <Clock className="h-3 w-3 inline mr-1" />
-                                {typeof destination.hours === 'object' ? destination.hours.hours : destination.hours}
+                                {typeof destination.hours === 'object' ? (destination.hours as any).hours : String(destination.hours)}
                               </div>
                             )}
                           </CardContent>
@@ -1494,7 +1494,7 @@ export default function LegalRightsMap() {
                                   <span>Website</span>
                                 </div>
                               )}
-                              {destination.hours && (
+                              {(destination.hours as any) && (
                                 <div className="flex items-center gap-1 text-cyan-400">
                                   <Clock className="h-3 w-3" />
                                   <span>Hours</span>
@@ -1580,17 +1580,17 @@ export default function LegalRightsMap() {
                         <span className="text-gray-400">Type:</span>
                         <span className="text-white capitalize">{selectedDestination.type?.replace('_', ' ')}</span>
                       </div>
-                      {selectedDestination.hours && (
+                      {!!(selectedDestination.hours as any) && (
                         <div className="flex items-start gap-2">
                           <Clock className="h-4 w-4 text-cyan-400 mt-0.5" />
                           <div>
                             <span className="text-gray-300">
                               {typeof selectedDestination.hours === 'object' 
-                                ? selectedDestination.hours.hours 
-                                : selectedDestination.hours}
+                                ? (selectedDestination.hours as any).hours 
+                                : String(selectedDestination.hours)}
                             </span>
-                            {typeof selectedDestination.hours === 'object' && selectedDestination.hours.description && (
-                              <div className="text-gray-500 text-xs">{selectedDestination.hours.description}</div>
+                            {typeof selectedDestination.hours === 'object' && (selectedDestination.hours as any).description && (
+                              <div className="text-gray-500 text-xs">{(selectedDestination.hours as any).description}</div>
                             )}
                           </div>
                         </div>
@@ -1611,11 +1611,11 @@ export default function LegalRightsMap() {
                   </div>
                 </div>
 
-                {selectedDestination.specialties && selectedDestination.specialties.length > 0 && (
+                {!!(selectedDestination.specialties as any) && (selectedDestination.specialties as any[]).length > 0 && (
                   <div>
                     <h4 className="font-semibold text-white mb-2">Specialties</h4>
                     <div className="flex flex-wrap gap-2">
-                      {selectedDestination.specialties.map((specialty, index) => (
+                      {(selectedDestination.specialties as any[]).map((specialty: string, index: number) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {specialty}
                         </Badge>

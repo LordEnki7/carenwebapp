@@ -179,7 +179,6 @@ export class LivestreamService {
    */
   static async addParticipant(connection: StreamConnection): Promise<StreamParticipant> {
     const participantData: InsertStreamParticipant = {
-      id: `participant_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       sessionId: connection.sessionId,
       userId: connection.userId,
       role: connection.role,
@@ -187,7 +186,7 @@ export class LivestreamService {
       permissions: this.getDefaultPermissions(connection.role),
     };
 
-    const [participant] = await db.insert(streamParticipants).values(participantData).returning();
+    const [participant] = await db.insert(streamParticipants).values(participantData as any).returning();
 
     // Update viewer count
     await this.updateViewerCount(connection.sessionId);
@@ -220,7 +219,7 @@ export class LivestreamService {
         ));
 
       if (participant) {
-        const duration = Math.floor((leftAt.getTime() - participant.joinedAt.getTime()) / 1000);
+        const duration = Math.floor((leftAt.getTime() - (participant.joinedAt?.getTime() ?? 0)) / 1000);
 
         await db
           .update(streamParticipants)
@@ -257,7 +256,7 @@ export class LivestreamService {
    * Send chat message
    */
   static async sendMessage(messageData: ChatMessage): Promise<StreamMessage> {
-    const messageInsert: InsertStreamMessage = {
+    const messageInsert: any = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       sessionId: messageData.sessionId,
       senderId: messageData.senderId,
@@ -334,7 +333,7 @@ export class LivestreamService {
    * Record stream segment
    */
   static async recordSegment(recordingData: Omit<InsertStreamRecording, 'id' | 'createdAt'>): Promise<StreamRecording> {
-    const recording: InsertStreamRecording = {
+    const recording: any = {
       id: `rec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       ...recordingData,
     };
@@ -382,7 +381,7 @@ export class LivestreamService {
    * Log analytics event
    */
   private static async logAnalytics(analyticsData: Omit<InsertStreamAnalytics, 'id' | 'timestamp'>): Promise<void> {
-    const analytics: InsertStreamAnalytics = {
+    const analytics: any = {
       id: `analytics_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       ...analyticsData,
     };

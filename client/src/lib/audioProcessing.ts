@@ -245,10 +245,10 @@ export class AdvancedAudioProcessor {
 
     // Calculate quality (signal-to-noise ratio estimate)
     const signalBand = dataArray.slice(20, 100); // Voice frequencies
-    const noiseBand = dataArray.slice(0, 10).concat(dataArray.slice(200, 220)); // Noise frequencies
+    const noiseBand = [...Array.from(dataArray.slice(0, 10)), ...Array.from(dataArray.slice(200, 220))]; // Noise frequencies
     
-    const signalLevel = signalBand.reduce((a, b) => a + b, 0) / signalBand.length;
-    const noiseLevel = noiseBand.reduce((a, b) => a + b, 0) / noiseBand.length;
+    const signalLevel = signalBand.reduce((a: number, b: number) => a + b, 0) / signalBand.length;
+    const noiseLevel = noiseBand.reduce((a: number, b: number) => a + b, 0) / noiseBand.length;
     
     const quality = Math.min(signalLevel / (noiseLevel + 1), 1);
 
@@ -284,8 +284,6 @@ export function getEnhancedMediaConstraints(config: NoiseFilterConfig): MediaStr
       autoGainControl: true,
       sampleRate: 44100,
       channelCount: 1,
-      // Advanced constraints for supported browsers
-      ...(navigator.mediaDevices?.getSupportedConstraints?.() || {}),
       advanced: [
         {
           echoCancellation: true,

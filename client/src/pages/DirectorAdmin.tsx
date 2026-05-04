@@ -80,7 +80,7 @@ export default function DirectorAdmin() {
   const [expandedId, setExpandedId] = useState<number | null>(null);
   const [territoryInput, setTerritoryInput] = useState<Record<number, string>>({});
   const [notesInput, setNotesInput] = useState<Record<number, string>>({});
-  const [pinInputs, setPinInputs] = useState<Record<number, string>>({});
+  const [pinInputs, setPinInputs] = useState<Record<string, string>>({});
   const [revealedPins, setRevealedPins] = useState<Record<number, string>>({});
   // Invite form state
   const [showInviteForm, setShowInviteForm] = useState(false);

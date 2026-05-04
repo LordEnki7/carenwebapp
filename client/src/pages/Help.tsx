@@ -367,10 +367,7 @@ export default function Help() {
   // Support Ticket Submission
   const submitTicket = useMutation({
     mutationFn: async (ticketData: typeof ticketForm) => {
-      return await apiRequest('/api/support/tickets', {
-        method: 'POST',
-        body: ticketData
-      });
+      return await apiRequest('POST', '/api/support/tickets', ticketData);
     },
     onSuccess: () => {
       toast({

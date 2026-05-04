@@ -24,25 +24,25 @@ export function useCloudSync(): CloudSyncHook {
   const [lastSyncTime, setLastSyncTime] = useState<number>(Date.now());
 
   // Fetch devices
-  const { data: devicesData, isLoading: devicesLoading } = useQuery({
+  const { data: devicesData, isLoading: devicesLoading } = useQuery<{ devices: any[] }>({
     queryKey: ['/api/cloud-sync/devices'],
     refetchInterval: 30000 // Refresh every 30 seconds
   });
 
   // Fetch storage usage
-  const { data: storageData, isLoading: storageLoading } = useQuery({
+  const { data: storageData, isLoading: storageLoading } = useQuery<{ usage: any }>({
     queryKey: ['/api/cloud-sync/storage-usage'],
     refetchInterval: 60000 // Refresh every minute
   });
 
   // Fetch conflicts
-  const { data: conflictsData, isLoading: conflictsLoading } = useQuery({
+  const { data: conflictsData, isLoading: conflictsLoading } = useQuery<{ conflicts: any[] }>({
     queryKey: ['/api/cloud-sync/conflicts'],
     refetchInterval: 15000 // Check for conflicts every 15 seconds
   });
 
   // Fetch backup settings
-  const { data: backupData, isLoading: backupLoading } = useQuery({
+  const { data: backupData, isLoading: backupLoading } = useQuery<{ settings: any }>({
     queryKey: ['/api/cloud-sync/backup-settings'],
     refetchInterval: 300000 // Refresh every 5 minutes
   });
@@ -50,10 +50,7 @@ export function useCloudSync(): CloudSyncHook {
   // Device registration mutation
   const registerDeviceMutation = useMutation({
     mutationFn: async (deviceData: any) => {
-      return apiRequest('/api/cloud-sync/devices/register', {
-        method: 'POST',
-        body: JSON.stringify(deviceData)
-      });
+      return apiRequest('POST', '/api/cloud-sync/devices/register', deviceData);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cloud-sync/devices'] });
@@ -84,15 +81,12 @@ export function useCloudSync(): CloudSyncHook {
       // Sync incidents
       for (const incident of incidents) {
         syncPromises.push(
-          apiRequest('/api/cloud-sync/sync', {
-            method: 'POST',
-            body: JSON.stringify({
-              dataType: 'incidents',
-              entityId: incident.id,
-              data: incident,
-              version: incident.lastModified || Date.now(),
-              priority: incident.isEmergency ? 5 : 3
-            })
+          apiRequest('POST', '/api/cloud-sync/sync', {
+            dataType: 'incidents',
+            entityId: incident.id,
+            data: incident,
+            version: incident.lastModified || Date.now(),
+            priority: incident.isEmergency ? 5 : 3
           })
         );
       }
@@ -100,15 +94,12 @@ export function useCloudSync(): CloudSyncHook {
       // Sync emergency contacts
       for (const contact of contacts) {
         syncPromises.push(
-          apiRequest('/api/cloud-sync/sync', {
-            method: 'POST',
-            body: JSON.stringify({
-              dataType: 'emergencyContacts',
-              entityId: contact.id,
-              data: contact,
-              version: contact.lastModified || Date.now(),
-              priority: 4
-            })
+          apiRequest('POST', '/api/cloud-sync/sync', {
+            dataType: 'emergencyContacts',
+            entityId: contact.id,
+            data: contact,
+            version: contact.lastModified || Date.now(),
+            priority: 4
           })
         );
       }
@@ -116,15 +107,12 @@ export function useCloudSync(): CloudSyncHook {
       // Sync user preferences
       if (Object.keys(preferences).length > 0) {
         syncPromises.push(
-          apiRequest('/api/cloud-sync/sync', {
-            method: 'POST',
-            body: JSON.stringify({
-              dataType: 'userPreferences',
-              entityId: 'preferences',
-              data: preferences,
-              version: Date.now(),
-              priority: 2
-            })
+          apiRequest('POST', '/api/cloud-sync/sync', {
+            dataType: 'userPreferences',
+            entityId: 'preferences',
+            data: preferences,
+            version: Date.now(),
+            priority: 2
           })
         );
       }
@@ -152,10 +140,7 @@ export function useCloudSync(): CloudSyncHook {
   // Conflict resolution mutation
   const resolveConflictMutation = useMutation({
     mutationFn: async ({ conflictId, resolution, mergedData }: any) => {
-      return apiRequest('/api/cloud-sync/conflicts/resolve', {
-        method: 'POST',
-        body: JSON.stringify({ conflictId, resolution, mergedData })
-      });
+      return apiRequest('POST', '/api/cloud-sync/conflicts/resolve', { conflictId, resolution, mergedData });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cloud-sync/conflicts'] });
@@ -176,10 +161,7 @@ export function useCloudSync(): CloudSyncHook {
   // Backup settings mutation
   const updateBackupSettingsMutation = useMutation({
     mutationFn: async (settings: any) => {
-      return apiRequest('/api/cloud-sync/backup-settings', {
-        method: 'PUT',
-        body: JSON.stringify(settings)
-      });
+      return apiRequest('PUT', '/api/cloud-sync/backup-settings', settings);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/cloud-sync/backup-settings'] });
@@ -200,15 +182,12 @@ export function useCloudSync(): CloudSyncHook {
   // Individual sync functions for specific data types
   const syncIncident = async (incident: any) => {
     try {
-      await apiRequest('/api/cloud-sync/sync', {
-        method: 'POST',
-        body: JSON.stringify({
-          dataType: 'incidents',
-          entityId: incident.id,
-          data: incident,
-          version: incident.lastModified || Date.now(),
-          priority: incident.isEmergency ? 5 : 3
-        })
+      await apiRequest('POST', '/api/cloud-sync/sync', {
+        dataType: 'incidents',
+        entityId: incident.id,
+        data: incident,
+        version: incident.lastModified || Date.now(),
+        priority: incident.isEmergency ? 5 : 3
       });
       queryClient.invalidateQueries({ queryKey: ['/api/cloud-sync'] });
     } catch (error) {
@@ -218,15 +197,12 @@ export function useCloudSync(): CloudSyncHook {
 
   const syncEmergencyContact = async (contact: any) => {
     try {
-      await apiRequest('/api/cloud-sync/sync', {
-        method: 'POST',
-        body: JSON.stringify({
-          dataType: 'emergencyContacts',
-          entityId: contact.id,
-          data: contact,
-          version: contact.lastModified || Date.now(),
-          priority: 4
-        })
+      await apiRequest('POST', '/api/cloud-sync/sync', {
+        dataType: 'emergencyContacts',
+        entityId: contact.id,
+        data: contact,
+        version: contact.lastModified || Date.now(),
+        priority: 4
       });
       queryClient.invalidateQueries({ queryKey: ['/api/cloud-sync'] });
     } catch (error) {
@@ -236,15 +212,12 @@ export function useCloudSync(): CloudSyncHook {
 
   const syncUserPreferences = async (preferences: any) => {
     try {
-      await apiRequest('/api/cloud-sync/sync', {
-        method: 'POST',
-        body: JSON.stringify({
-          dataType: 'userPreferences',
-          entityId: 'preferences',
-          data: preferences,
-          version: Date.now(),
-          priority: 2
-        })
+      await apiRequest('POST', '/api/cloud-sync/sync', {
+        dataType: 'userPreferences',
+        entityId: 'preferences',
+        data: preferences,
+        version: Date.now(),
+        priority: 2
       });
       queryClient.invalidateQueries({ queryKey: ['/api/cloud-sync'] });
     } catch (error) {
@@ -270,7 +243,7 @@ export function useCloudSync(): CloudSyncHook {
   // Periodic auto-sync every 5 minutes
   useEffect(() => {
     const interval = setInterval(() => {
-      if (devicesData?.devices?.length > 0) {
+      if ((devicesData?.devices?.length ?? 0) > 0) {
         syncNowMutation.mutate();
       }
     }, 300000); // 5 minutes
@@ -286,12 +259,12 @@ export function useCloudSync(): CloudSyncHook {
     conflicts: conflictsData?.conflicts || [],
     backupSettings: backupData?.settings || null,
     isLoading,
-    registerDevice: registerDeviceMutation.mutateAsync,
-    syncNow: syncNowMutation.mutateAsync,
+    registerDevice: async (deviceData: any) => { await registerDeviceMutation.mutateAsync(deviceData); },
+    syncNow: async () => { await syncNowMutation.mutateAsync(); },
     resolveConflict: async (conflictId: string, resolution: string, mergedData?: any) => {
       await resolveConflictMutation.mutateAsync({ conflictId, resolution, mergedData });
     },
-    updateBackupSettings: updateBackupSettingsMutation.mutateAsync,
+    updateBackupSettings: async (settings: any) => { await updateBackupSettingsMutation.mutateAsync(settings); },
     syncIncident,
     syncEmergencyContact,
     syncUserPreferences

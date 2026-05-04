@@ -207,7 +207,7 @@ export default function UnifiedDeviceSetup() {
                 <CardContent className="space-y-4">
                   <Select onValueChange={(value) => {
                     const camera = availableDevices.cameras.find(d => d.deviceId === value);
-                    setDevices(prev => ({ ...prev, camera }));
+                    setDevices(prev => ({ ...prev, camera: camera ?? null }));
                   }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select camera device" />
@@ -243,7 +243,7 @@ export default function UnifiedDeviceSetup() {
                 <CardContent className="space-y-4">
                   <Select onValueChange={(value) => {
                     const microphone = availableDevices.microphones.find(d => d.deviceId === value);
-                    setDevices(prev => ({ ...prev, microphone }));
+                    setDevices(prev => ({ ...prev, microphone: microphone ?? null }));
                   }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select microphone device" />

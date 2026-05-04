@@ -269,7 +269,7 @@ export default function EmergencyPullover() {
               action: {
                 label: "Call Now",
                 onClick: () => window.location.href = `tel:${attorney.contactInfo.phone}`
-              }
+              } as any
             });
           } else {
             // Create emergency conversation
@@ -312,7 +312,7 @@ export default function EmergencyPullover() {
               action: {
                 label: "Call Now",
                 onClick: () => window.location.href = `tel:${nearestAttorney.contactInfo?.phone || '555-123-4567'}`
-              }
+              } as any
             });
           }
         }

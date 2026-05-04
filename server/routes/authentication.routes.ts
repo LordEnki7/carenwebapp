@@ -51,7 +51,7 @@ export function registerAuthenticationRoutes(app: Express) {
       // Create user in database
       let newUser: any;
       try {
-        newUser = await storage.createUser({
+        newUser = await (storage.createUser as any)({
           id: newUserId,
           email,
           password: hashedPassword,
@@ -83,7 +83,7 @@ export function registerAuthenticationRoutes(app: Express) {
 
       // Also add to in-memory store for session lookups
       try {
-        addUser(email, password, { firstName, lastName, id: newUser.id });
+        (addUser as any)(email, password, { firstName, lastName, id: newUser.id });
       } catch {}
 
       // Set session
@@ -99,7 +99,7 @@ export function registerAuthenticationRoutes(app: Express) {
 
         // Send welcome email (non-blocking)
         try {
-          await sendDirectWelcomeEmail(email, firstName || 'User');
+          await (sendDirectWelcomeEmail as any)(email, firstName || 'User');
         } catch (emailErr) {
           console.warn('[REGISTER] Welcome email failed (non-fatal):', emailErr);
         }
@@ -151,12 +151,12 @@ export function registerAuthenticationRoutes(app: Express) {
       
       if (!user) {
         // For demo purposes, create user if doesn't exist
-        user = addUser(email, password, { firstName, lastName });
+        user = (addUser as any)(email, password, { firstName, lastName });
         console.log('[DEMO_LOGIN] Created new demo user:', email);
         
         // Send welcome email
         try {
-          await sendDirectWelcomeEmail(email, firstName || 'User');
+          await (sendDirectWelcomeEmail as any)(email, firstName || 'User');
           console.log('[DEMO_LOGIN] Welcome email sent to:', email);
         } catch (emailError) {
           console.warn('[DEMO_LOGIN] Failed to send welcome email:', emailError);
@@ -227,7 +227,7 @@ export function registerAuthenticationRoutes(app: Express) {
       console.log('[DEMO_LOGOUT] Processing demo logout request');
       
       // Clear demo authentication state
-      setUserAuthenticated(false, null, null);
+      (setUserAuthenticated as any)(false, null, null);
       
       // Clear session
       req.session.destroy((err) => {
@@ -316,12 +316,12 @@ export function registerAuthenticationRoutes(app: Express) {
       console.log('[CLEAR_SESSIONS] Clearing all session data');
       
       // Clear in-memory demo sessions
-      if (global.demoSessions) {
-        global.demoSessions.clear();
+      if ((global as any).demoSessions) {
+        (global as any).demoSessions.clear();
       }
       
       // Clear demo state
-      setUserAuthenticated(false, null, null);
+      (setUserAuthenticated as any)(false, null, null);
       resetUserState();
       
       // Clear browser session

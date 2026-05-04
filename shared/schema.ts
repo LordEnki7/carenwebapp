@@ -10,6 +10,7 @@ import {
   integer,
   decimal,
   doublePrecision,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -326,9 +327,6 @@ export type ContentEngagement = typeof contentEngagement.$inferSelect;
 
 export type InsertKnowledgeAssessment = typeof knowledgeAssessments.$inferInsert;
 export type KnowledgeAssessment = typeof knowledgeAssessments.$inferSelect;
-
-export type InsertFeatureUsage = typeof featureUsage.$inferInsert;
-export type FeatureUsage = typeof featureUsage.$inferSelect;
 
 export type InsertEmergencyResponseMetric = typeof emergencyResponseMetrics.$inferInsert;
 export type EmergencyResponseMetric = typeof emergencyResponseMetrics.$inferSelect;
@@ -2080,7 +2078,7 @@ export const forumReplies = pgTable("forum_replies", {
   userId: varchar("user_id").notNull().references(() => users.id),
   content: text("content").notNull(),
   isAnonymous: boolean("is_anonymous").default(false),
-  parentReplyId: integer("parent_reply_id").references(() => forumReplies.id), // for nested replies
+  parentReplyId: integer("parent_reply_id").references((): AnyPgColumn => forumReplies.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

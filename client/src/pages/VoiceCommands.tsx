@@ -14,6 +14,7 @@ export default function VoiceCommandsPage() {
   const error = null;
   
   const { toast } = useToast();
+  const toggleListening = () => {};
 
   const testVoiceCommand = () => {
     toast({

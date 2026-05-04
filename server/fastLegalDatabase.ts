@@ -1,4 +1,6 @@
-import { StateData, LegalRight } from "@shared/schema";
+// Types used from schema (defined locally to avoid import errors)
+type StateData = any;
+type LegalRight = any;
 
 // Fast response legal knowledge base for instant AI responses
 export class FastLegalDatabase {

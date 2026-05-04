@@ -3,11 +3,11 @@ import { apiRequest } from "@/lib/queryClient";
 import type { EmergencyContact, InsertEmergencyContact } from "@shared/schema";
 
 export function useEmergencyContacts() {
-  return useQuery({
+  return useQuery<EmergencyContact[]>({
     queryKey: ['/api/emergency-contacts'],
     queryFn: async () => {
-      const response = await apiRequest('/api/emergency-contacts');
-      return response as EmergencyContact[];
+      const response = await apiRequest('GET', '/api/emergency-contacts');
+      return response.json() as Promise<EmergencyContact[]>;
     },
   });
 }
@@ -17,7 +17,7 @@ export function useCreateEmergencyContact() {
   
   return useMutation({
     mutationFn: (contact: InsertEmergencyContact) => 
-      apiRequest('/api/emergency-contacts', 'POST', contact),
+      apiRequest('POST', '/api/emergency-contacts', contact),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/emergency-contacts'] });
     },
@@ -29,7 +29,7 @@ export function useUpdateEmergencyContact() {
   
   return useMutation({
     mutationFn: ({ id, updates }: { id: string; updates: Partial<EmergencyContact> }) =>
-      apiRequest(`/api/emergency-contacts/${id}`, 'PATCH', updates),
+      apiRequest('PATCH', `/api/emergency-contacts/${id}`, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/emergency-contacts'] });
     },
@@ -41,7 +41,7 @@ export function useDeleteEmergencyContact() {
   
   return useMutation({
     mutationFn: (id: string) => 
-      apiRequest(`/api/emergency-contacts/${id}`, 'DELETE'),
+      apiRequest('DELETE', `/api/emergency-contacts/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/emergency-contacts'] });
     },

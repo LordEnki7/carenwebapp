@@ -110,7 +110,7 @@ export function registerReferralRoutes(app: Express) {
         rewardGranted: false,
       });
 
-      await db.update(users).set({ referralCode: code }).where(eq(users.id, userId)).catch(() => {});
+      await db.update(users).set({ referralCode: code } as any).where(eq(users.id, userId)).catch(() => {});
 
       res.json({ success: true, referralCode: code, pending: 0, converted: 0, total: 0 });
     } catch (err: any) {
@@ -216,7 +216,7 @@ export function registerReferralRoutes(app: Express) {
         await db.update(users).set({
           referralSource: referralCode,
           referralCount: sql`referral_count + 1`,
-        }).where(eq(users.id, sourceRef.referrerId)).catch(() => {});
+        } as any).where(eq(users.id, sourceRef.referrerId)).catch(() => {});
 
         // ── Grant any newly unlocked reward tiers ──
         await grantReferralRewards(sourceRef.referrerId);

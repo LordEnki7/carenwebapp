@@ -51,7 +51,7 @@ export function useVoiceEmergencyContacts(): VoiceEmergencyContacts {
   const queryClient = useQueryClient();
 
   // Fetch emergency contacts
-  const { data: contacts = [] } = useQuery({
+  const { data: contacts = [] } = useQuery<EmergencyContact[]>({
     queryKey: ['/api/emergency-contacts'],
     enabled: true
   });

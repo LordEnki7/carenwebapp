@@ -417,7 +417,7 @@ export class VoiceLearningService {
         eq(customVoiceCommands.userId, userId)
       ));
 
-    return result.rowCount > 0;
+    return (result.rowCount ?? 0) > 0;
   }
 
   // Update custom voice command

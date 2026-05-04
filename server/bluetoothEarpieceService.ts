@@ -62,9 +62,9 @@ export class BluetoothEarpieceService {
         id: device.id,
         name: device.deviceName,
         type: device.deviceType as 'earpiece' | 'headphones' | 'speaker' | 'unknown',
-        connected: device.isConnected,
-        batteryLevel: device.batteryLevel || undefined,
-        signalStrength: device.signalStrength,
+        connected: device.isConnected ?? false,
+        batteryLevel: device.batteryLevel ?? undefined,
+        signalStrength: device.signalStrength ?? 0,
         capabilities: device.capabilities as any,
         lastConnected: device.lastConnected?.toISOString(),
         trustLevel: device.trustLevel as 'trusted' | 'new' | 'suspicious',
@@ -114,9 +114,9 @@ export class BluetoothEarpieceService {
         id: newDevice.id,
         name: newDevice.deviceName,
         type: newDevice.deviceType as any,
-        connected: newDevice.isConnected,
-        batteryLevel: newDevice.batteryLevel || undefined,
-        signalStrength: newDevice.signalStrength,
+        connected: newDevice.isConnected ?? false,
+        batteryLevel: newDevice.batteryLevel ?? undefined,
+        signalStrength: newDevice.signalStrength ?? 0,
         capabilities: newDevice.capabilities as any,
         trustLevel: newDevice.trustLevel as any,
         deviceAddress: newDevice.deviceAddress
@@ -172,16 +172,16 @@ export class BluetoothEarpieceService {
             deviceId,
             connectionType: 'manual',
             connectionTime: new Date(),
-            audioQuality: this.determineAudioQuality(device.signalStrength),
+            audioQuality: this.determineAudioQuality(device.signalStrength ?? 0),
             isActive: true
-          });
+          } as any);
 
         return {
           success: true,
           deviceId,
           deviceName: device.deviceName,
           connectionTime: Date.now(),
-          audioQuality: this.determineAudioQuality(device.signalStrength)
+          audioQuality: this.determineAudioQuality(device.signalStrength ?? 0)
         };
       } else {
         return {
@@ -374,7 +374,7 @@ export class BluetoothEarpieceService {
       // Simulate audio test
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      const quality = this.determineAudioQuality(device.signalStrength);
+      const quality = this.determineAudioQuality(device.signalStrength ?? 0);
       const latency = this.calculateLatency(quality);
       const bitrate = this.calculateBitrate(quality);
 
@@ -383,7 +383,7 @@ export class BluetoothEarpieceService {
         quality,
         latency,
         bitrate,
-        signalStrength: device.signalStrength
+        signalStrength: device.signalStrength ?? 0
       };
     } catch (error) {
       console.error('Error testing audio connection:', error);
@@ -420,7 +420,7 @@ export class BluetoothEarpieceService {
       }
 
       // Verify activation phrase
-      if (activationPhrase.toLowerCase().includes(settings.emergencyActivationPhrase.toLowerCase())) {
+      if (activationPhrase.toLowerCase().includes((settings.emergencyActivationPhrase ?? '').toLowerCase())) {
         const emergencyId = `emergency-${Date.now()}`;
         const actionsTriggered: string[] = [];
 
@@ -478,7 +478,7 @@ export class BluetoothEarpieceService {
         activeDevices: devices.filter(d => d.isConnected).length,
         trustedDevices: devices.filter(d => d.trustLevel === 'trusted').length,
         recentConnections: connections.slice(0, 5),
-        averageSignalStrength: devices.reduce((acc, d) => acc + d.signalStrength, 0) / devices.length || 0
+        averageSignalStrength: devices.reduce((acc, d) => acc + (d.signalStrength ?? 0), 0) / devices.length || 0
       };
     } catch (error) {
       console.error('Error fetching connection statistics:', error);

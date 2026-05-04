@@ -35,13 +35,13 @@ export default function LegalDocumentGenerator() {
   });
 
   // Fetch user incidents
-  const { data: incidents = [], isLoading: incidentsLoading } = useQuery({
+  const { data: incidents = [], isLoading: incidentsLoading } = useQuery<Incident[]>({
     queryKey: ['/api/incidents'],
     retry: false,
   });
 
   // Fetch generated documents
-  const { data: generatedDocuments = [], isLoading: documentsLoading } = useQuery({
+  const { data: generatedDocuments = [], isLoading: documentsLoading } = useQuery<GeneratedLegalDocument[]>({
     queryKey: ['/api/generated-legal-documents'],
     retry: false,
   });

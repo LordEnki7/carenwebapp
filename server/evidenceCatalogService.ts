@@ -64,7 +64,6 @@ export class EvidenceCatalogService {
     const category = evidenceData.category || this.autoDetectCategory(evidenceData.mimeType, evidenceData.fileName);
 
     const evidenceRecord: InsertEvidenceCatalog = {
-      id: uuidv4(),
       userId: evidenceData.userId,
       incidentId: evidenceData.incidentId,
       complaintId: evidenceData.complaintId,
@@ -91,7 +90,7 @@ export class EvidenceCatalogService {
       processingProgress: 0
     };
 
-    const [evidence] = await db.insert(evidenceCatalog).values(evidenceRecord).returning();
+    const [evidence] = await db.insert(evidenceCatalog).values(evidenceRecord as any).returning();
 
     // Queue analysis job
     await this.queueAnalysisJob(evidence.id, evidenceData.userId, evidenceData.evidenceType);
@@ -161,7 +160,7 @@ export class EvidenceCatalogService {
     };
   }> {
     
-    let query = db.select().from(evidenceCatalog).where(eq(evidenceCatalog.userId, userId));
+    let query: any = db.select().from(evidenceCatalog).where(eq(evidenceCatalog.userId, userId));
     
     // Apply filters
     const conditions = [eq(evidenceCatalog.userId, userId)];
@@ -211,19 +210,19 @@ export class EvidenceCatalogService {
       .where(whereClause);
 
     // Build main query
-    query = db.select().from(evidenceCatalog).where(whereClause);
+    query = db.select().from(evidenceCatalog).where(whereClause) as any;
 
     // Apply sorting
     const sortColumn = filters.sortBy || 'createdAt';
     const sortDirection = filters.sortOrder === 'asc' ? asc : desc;
-    query = query.orderBy(sortDirection(evidenceCatalog[sortColumn]));
+    query = (query as any).orderBy(sortDirection(evidenceCatalog[sortColumn]));
 
     // Apply pagination
     if (filters.limit) {
-      query = query.limit(filters.limit);
+      query = (query as any).limit(filters.limit);
     }
     if (filters.offset) {
-      query = query.offset(filters.offset);
+      query = (query as any).offset(filters.offset);
     }
 
     const evidence = await query;
@@ -277,7 +276,6 @@ export class EvidenceCatalogService {
     
     for (const jobType of jobTypes) {
       const job: InsertEvidenceAnalysisJob = {
-        id: uuidv4(),
         evidenceId,
         userId,
         jobType,
@@ -288,7 +286,7 @@ export class EvidenceCatalogService {
         maxRetries: 3
       };
 
-      const [createdJob] = await db.insert(evidenceAnalysisJobs).values(job).returning();
+      const [createdJob] = await db.insert(evidenceAnalysisJobs).values(job as any).returning();
       jobs.push(createdJob);
     }
 
@@ -349,7 +347,7 @@ export class EvidenceCatalogService {
         .set({
           status: 'failed',
           errorMessage: error instanceof Error ? error.message : 'Unknown error',
-          retryCount: job.retryCount + 1
+          retryCount: (job.retryCount ?? 0) + 1
         })
         .where(eq(evidenceAnalysisJobs.id, jobId));
 
@@ -381,7 +379,7 @@ export class EvidenceCatalogService {
         sql`${evidenceCatalog.id} != ${evidenceId}`
       ));
 
-    const relationships: InsertEvidenceRelationship[] = [];
+    const relationships: any[] = [];
 
     for (const match of potentialMatches) {
       const relationship = await this.analyzeRelationship(evidence, match);
@@ -391,19 +389,19 @@ export class EvidenceCatalogService {
           primaryEvidenceId: evidenceId,
           relatedEvidenceId: match.id,
           relationshipType: relationship.type,
-          confidence: relationship.confidence,
+          confidence: String(relationship.confidence),
           automatedDetection: true,
           similarities: relationship.similarities,
           differences: relationship.differences,
           timeDifference: relationship.timeDifference,
-          locationDistance: relationship.locationDistance
+          locationDistance: relationship.locationDistance != null ? String(relationship.locationDistance) : null
         });
       }
     }
 
     // Save relationships
     if (relationships.length > 0) {
-      await db.insert(evidenceRelationships).values(relationships);
+      await db.insert(evidenceRelationships).values(relationships as any);
     }
 
     return db
@@ -432,8 +430,7 @@ export class EvidenceCatalogService {
 
     const qualityAssessment = await this.performQualityAssessment(evidence);
 
-    const qualityRecord: InsertEvidenceQuality = {
-      id: uuidv4(),
+    const qualityRecord: any = {
       evidenceId,
       overallQuality: qualityAssessment.overallQuality,
       qualityScore: qualityAssessment.qualityScore,
@@ -452,7 +449,7 @@ export class EvidenceCatalogService {
       assessmentNotes: qualityAssessment.notes
     };
 
-    const [quality] = await db.insert(evidenceQuality).values(qualityRecord).returning();
+    const [quality] = await db.insert(evidenceQuality).values(qualityRecord as any).returning();
     return quality;
   }
 
@@ -487,7 +484,7 @@ export class EvidenceCatalogService {
         await db
           .update(evidenceCategorizationRules)
           .set({
-            timesApplied: rule.timesApplied + 1,
+            timesApplied: (rule.timesApplied ?? 0) + 1,
             lastApplied: new Date()
           })
           .where(eq(evidenceCategorizationRules.id, rule.id));
@@ -517,7 +514,6 @@ export class EvidenceCatalogService {
     }
   ): Promise<void> {
     const accessLog: InsertEvidenceAccessLog = {
-      id: uuidv4(),
       evidenceId,
       userId,
       accessType,
@@ -532,7 +528,7 @@ export class EvidenceCatalogService {
       authorizationLevel: 'owner'
     };
 
-    await db.insert(evidenceAccessLogs).values(accessLog);
+    await db.insert(evidenceAccessLogs).values(accessLog as any);
   }
 
   // ========================================
@@ -884,7 +880,7 @@ export class EvidenceCatalogService {
         .where(eq(evidenceCatalog.id, evidenceId));
       
       const currentTags = (evidence?.tags as string[]) || [];
-      const newTags = [...new Set([...currentTags, ...actions.addTags])];
+      const newTags = Array.from(new Set([...currentTags, ...actions.addTags]));
       updateData.tags = newTags;
     }
     
@@ -893,7 +889,7 @@ export class EvidenceCatalogService {
     }
     
     if (Object.keys(updateData).length > 0) {
-      updateData.updatedAt = new Date();
+      (updateData as any).updatedAt = new Date();
       await db
         .update(evidenceCatalog)
         .set(updateData)

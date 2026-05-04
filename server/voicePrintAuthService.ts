@@ -515,7 +515,7 @@ export class VoicePrintAuthService {
       
       return {
         isRegistered: true,
-        isEnabled: profile.isEnabled,
+        isEnabled: profile.isEnabled ?? false,
         isLockedOut: profile.isLockedOut || false,
         lockoutUntil: profile.lockoutUntil || undefined,
         failedAttempts: profile.failedAttempts || 0,

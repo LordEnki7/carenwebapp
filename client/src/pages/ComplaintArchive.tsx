@@ -59,13 +59,13 @@ export default function ComplaintArchive() {
   const [selectedComplaint, setSelectedComplaint] = useState<OfficerComplaint | null>(null);
 
   // Fetch user's complaints
-  const { data: complaints = [], isLoading, refetch } = useQuery({
+  const { data: complaints = [], isLoading, refetch } = useQuery<OfficerComplaint[]>({
     queryKey: ['/api/complaints/my-complaints'],
     enabled: true
   });
 
   // Fetch updates for selected complaint
-  const { data: complaintUpdates = [] } = useQuery({
+  const { data: complaintUpdates = [] } = useQuery<any[]>({
     queryKey: ['/api/complaints', selectedComplaint?.id, 'updates'],
     enabled: !!selectedComplaint?.id
   });

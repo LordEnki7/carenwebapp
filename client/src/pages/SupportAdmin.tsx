@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -1347,7 +1348,7 @@ export default function SupportAdmin() {
       <div className="flex h-screen bg-gray-950 text-white overflow-hidden">
         <Sidebar />
         <main className="flex-1 flex flex-col overflow-hidden">
-          <TopBar title="Support & Payments Admin" />
+          <TopBar title="Support & Payments Admin" description="Manage support tickets, refunds, and payments" />
           <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
 
             <div>

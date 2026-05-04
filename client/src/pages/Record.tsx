@@ -1183,7 +1183,7 @@ export default function Record() {
                 <div className="flex gap-3 items-center flex-wrap">
                   {!isRecording ? (
                     <Button 
-                      onClick={startRecording}
+                      onClick={() => startRecording()}
                       size="lg"
                       className={`cyber-button-primary flex-1 sm:flex-none ${isEmergencyMode ? 'cyber-button-danger' : ''}`}
                     >

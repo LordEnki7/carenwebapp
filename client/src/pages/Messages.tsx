@@ -201,9 +201,9 @@ export default function Messages() {
       recognition.interimResults = true;
       recognition.lang = 'en-US';
       
-      recognition.onresult = (event) => {
-        const transcript = Array.from(event.results)
-          .map(result => result[0].transcript)
+      recognition.onresult = (event: any) => {
+        const transcript = Array.from(event.results as any)
+          .map((result: any) => result[0].transcript)
           .join('');
           
         // Handle voice commands
@@ -211,11 +211,7 @@ export default function Messages() {
         
         if (command.includes('send message')) {
           if (newMessage.trim()) {
-            sendMessageMutation.mutate({
-              conversationId: selectedConversation!,
-              content: newMessage,
-              messageType: 'text',
-            });
+            sendMessageMutation.mutate(newMessage as any);
           }
         } else if (command.includes('new conversation')) {
           setIsNewConversationOpen(true);
@@ -237,7 +233,7 @@ export default function Messages() {
         }
       };
       
-      recognition.onerror = (event) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
       };
@@ -300,7 +296,7 @@ export default function Messages() {
                 action: {
                   label: "Call Now",
                   onClick: () => window.location.href = `tel:${foundAttorney.contactInfo.phone}`
-                }
+                } as any
               });
             } else {
               toast({

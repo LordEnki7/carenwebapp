@@ -125,11 +125,11 @@ export class DemoSecurityManager {
 
   static cleanupExpiredSessions(): void {
     const now = Date.now();
-    for (const [sessionId, session] of this.demoSessions.entries()) {
+    this.demoSessions.forEach((session, sessionId) => {
       if (now - session.startTime > this.DEMO_TIME_LIMIT) {
         this.demoSessions.delete(sessionId);
       }
-    }
+    });
   }
 }
 

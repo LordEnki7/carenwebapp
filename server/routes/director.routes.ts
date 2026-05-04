@@ -590,7 +590,7 @@ export function registerDirectorRoutes(app: Express) {
       const total = directors.length;
       const approved = directors.filter(d => d.status === "approved").length;
       const pending = directors.filter(d => d.status === "pending").length;
-      const cities = [...new Set(directors.map(d => d.city))].length;
+      const cities = Array.from(new Set(directors.map(d => d.city))).length;
 
       const allActivities = await db.select().from(directorActivities);
       const totalAttorneys = allActivities.filter(a => a.type === "attorney_onboarded").reduce((s, a) => s + (a.count || 1), 0);

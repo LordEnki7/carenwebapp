@@ -225,7 +225,7 @@ export class DocumentGenerator {
   static getRecommendedTemplates(incident: any): LegalDocumentTemplate[] {
     if (!incident) return [];
     
-    const recommended: LegalDocumentTemplate[] = [];
+    const recommended: any[] = [];
     const incidentTitle = incident.title?.toLowerCase() || '';
     const incidentDescription = incident.description?.toLowerCase() || '';
     

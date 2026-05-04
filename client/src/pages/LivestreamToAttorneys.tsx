@@ -92,13 +92,13 @@ const LivestreamToAttorneys = () => {
   const [streamQuality, setStreamQuality] = useState<'auto' | '720p' | '480p' | '360p'>('auto');
 
   // Get available attorneys
-  const { data: attorneys, isLoading: attorneysLoading } = useQuery({
+  const { data: attorneys, isLoading: attorneysLoading } = useQuery<{ attorneys: Attorney[] } | undefined>({
     queryKey: ['/api/attorneys/available'],
     enabled: true
   });
 
   // Get user's streaming sessions
-  const { data: sessions, isLoading: sessionsLoading } = useQuery({
+  const { data: sessions, isLoading: sessionsLoading } = useQuery<{ sessions: StreamSession[] } | undefined>({
     queryKey: ['/api/livestream/sessions'],
     enabled: true
   });

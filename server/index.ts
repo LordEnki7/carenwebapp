@@ -257,7 +257,7 @@ const sessionConfig = {
   saveUninitialized: false, // Security: Prevent session fixation attacks
   cookie: {
     // SECURITY FIX: Always use secure cookies in production, flexible in development
-    secure: isHTTPS,
+    secure: isHTTPS ? true : undefined,
     // SECURITY FIX: Always use httpOnly for security - prevents XSS attacks
     httpOnly: true, // Changed from isProduction to always true for security
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
@@ -337,7 +337,7 @@ app.use((req: any, res, next) => {
         // cdt_${userId}_${timestamp}_${nonce}  OR  gauth_${userId}_${timestamp}_${random}
         const parts = token.split('_');
         if (parts.length >= 2) userId = parts[1];
-      } else if (global.demoSessions && (global as any).demoSessions.has(token)) {
+      } else if ((global as any).demoSessions && (global as any).demoSessions.has(token)) {
         userId = (global as any).demoSessions.get(token)?.id || null;
       }
       if (userId) {

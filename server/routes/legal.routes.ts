@@ -3,6 +3,7 @@ import { storage } from "../storage";
 import { isAuthenticated } from "../auth";
 import { FastLegalDatabase } from "../fastLegalDatabase";
 import { AILegalAssistant } from "../aiService";
+import { insertLegalDocumentTemplateSchema } from "../../shared/schema";
 
 /**
  * Legal Routes Module
@@ -26,7 +27,7 @@ export function registerLegalRoutes(app: Express) {
       }
 
       const legalDb = new FastLegalDatabase();
-      const rights = legalDb.getLegalRights(state);
+      const rights = (legalDb as any).getLegalRights(state);
       
       if (!rights) {
         return res.status(404).json({ message: `Legal rights not found for state: ${state}` });

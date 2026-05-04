@@ -60,7 +60,7 @@ export function useBluetoothAudioManager(): BluetoothAudioManager {
       }
 
       // Request car audio device
-      const device = await navigator.bluetooth.requestDevice({
+      const device = await (navigator as any).bluetooth.requestDevice({
         filters: [
           { services: ['audio_sink'] },
           { namePrefix: 'Car' },
@@ -103,7 +103,7 @@ export function useBluetoothAudioManager(): BluetoothAudioManager {
         // Set up disconnect listener
         device.addEventListener('gattserverdisconnected', () => {
           setConnectedDevices(prev => 
-            prev.filter(d => d.device.id !== device.id)
+            prev.filter(d => (d.device as any)?.id !== (device as any)?.id)
           );
           if (deviceType === 'car') {
             setIsCarConnected(false);

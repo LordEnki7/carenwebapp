@@ -77,9 +77,8 @@ export default function VoicePrintAuth() {
   const queryClient = useQueryClient();
 
   // Get voice authentication status
-  const { data: authStatus, isLoading: loadingStatus } = useQuery({
+  const { data: authStatus, isLoading: loadingStatus } = useQuery<{ status: VoiceAuthStatus } | undefined>({
     queryKey: ['/api/voice-auth/status'],
-    queryFn: () => apiRequest('/api/voice-auth/status'),
   });
 
   const status: VoiceAuthStatus = authStatus?.status || {
@@ -94,10 +93,7 @@ export default function VoicePrintAuth() {
   // Register voice print mutation
   const registerVoicePrint = useMutation({
     mutationFn: async (data: { audioSamples: string[]; passphrase?: string; environmentalFactors?: any }) => {
-      return apiRequest('/api/voice-auth/register', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
+      return apiRequest('POST', '/api/voice-auth/register', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-auth/status'] });
@@ -121,12 +117,10 @@ export default function VoicePrintAuth() {
   // Authenticate with voice print mutation
   const authenticateVoice = useMutation({
     mutationFn: async (data: { audioData: string; passphrase?: string }) => {
-      return apiRequest('/api/voice-auth/authenticate', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      });
+      const res = await apiRequest('POST', '/api/voice-auth/authenticate', data);
+      return res.json() as Promise<any>;
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       toast({
         title: "Authentication Successful",
         description: `Authenticated with ${(data.confidence * 100).toFixed(1)}% confidence.`,
@@ -146,10 +140,7 @@ export default function VoicePrintAuth() {
   // Update settings mutation
   const updateSettings = useMutation({
     mutationFn: async (data: Partial<VoiceAuthSettings>) => {
-      return apiRequest('/api/voice-auth/settings', {
-        method: 'PUT',
-        body: JSON.stringify(data)
-      });
+      return apiRequest('PUT', '/api/voice-auth/settings', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-auth/status'] });
@@ -163,9 +154,7 @@ export default function VoicePrintAuth() {
   // Reset lockout mutation
   const resetLockout = useMutation({
     mutationFn: async () => {
-      return apiRequest('/api/voice-auth/reset-lockout', {
-        method: 'POST'
-      });
+      return apiRequest('POST', '/api/voice-auth/reset-lockout');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-auth/status'] });

@@ -25,7 +25,7 @@ export function usePoliceCommandMonitor() {
   });
   
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
 
   // Get user location for state-specific legal rights
@@ -78,16 +78,16 @@ export function usePoliceCommandMonitor() {
       });
     };
 
-    recognition.onresult = async (event) => {
+    recognition.onresult = async (event: any) => {
       const transcript = Array.from(event.results)
-        .map(result => result[0].transcript)
+        .map((result: any) => result[0].transcript)
         .join('');
 
       // Analyze for unlawful commands
       await analyzePoliceCommand(transcript);
     };
 
-    recognition.onerror = (event) => {
+    recognition.onerror = (event: any) => {
       console.error('Speech recognition error:', event.error);
       if (event.error === 'not-allowed') {
         toast({
@@ -161,7 +161,7 @@ export function usePoliceCommandMonitor() {
               action: {
                 label: "Call Supervisor",
                 onClick: () => handleCallSupervisor(unlawfulCommand)
-              }
+              } as any
             });
           }
         }

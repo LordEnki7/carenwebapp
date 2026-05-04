@@ -318,7 +318,7 @@ export function registerAttorneyNetworkRoutes(app: Express) {
             try {
               const counties = (updated.countiesServed as string[] | null) || [];
               const city = counties.length > 0 ? counties[0] : "";
-              const state = (updated.statesLicensed as string[])[0] || updated.barState || "";
+              const state = (updated.statesLicensed as string[])[0] || (updated as any).barState || "";
               const coords = await geocodeLocation(city || state, state);
               if (coords && inserted?.id) {
                 await db.execute(sql`
@@ -656,7 +656,7 @@ export function registerAttorneyNetworkRoutes(app: Express) {
   app.get("/api/attorney-network/stats", isAuthenticated, async (req: any, res) => {
     if (!isAdmin(req)) return res.status(403).json({ message: "Admin access required" });
     try {
-      const [appStats] = await db.execute(sql`
+      const [appStats] = (await db.execute(sql`
         SELECT
           COUNT(*) FILTER (WHERE verification_status = 'pending') as pending,
           COUNT(*) FILTER (WHERE verification_status = 'approved') as approved,
@@ -664,9 +664,9 @@ export function registerAttorneyNetworkRoutes(app: Express) {
           COUNT(*) FILTER (WHERE verification_status = 'hold') as hold,
           COUNT(*) as total
         FROM attorney_applications
-      `);
+      `)) as unknown as any[];
 
-      const [outreachStats] = await db.execute(sql`
+      const [outreachStats] = (await db.execute(sql`
         SELECT
           COUNT(*) FILTER (WHERE status = 'not_contacted') as not_contacted,
           COUNT(*) FILTER (WHERE status = 'contacted') as contacted,
@@ -674,9 +674,9 @@ export function registerAttorneyNetworkRoutes(app: Express) {
           COUNT(*) FILTER (WHERE status = 'onboarded') as onboarded,
           COUNT(*) as total
         FROM attorney_outreach
-      `);
+      `)) as unknown as any[];
 
-      const [networkStats] = await db.execute(sql`
+      const [networkStats] = (await db.execute(sql`
         SELECT
           COUNT(*) as total,
           COUNT(*) FILTER (WHERE availability_status = 'available') as available,
@@ -684,7 +684,7 @@ export function registerAttorneyNetworkRoutes(app: Express) {
           COUNT(*) FILTER (WHERE verified = true) as verified
         FROM attorneys
         WHERE active_status = true
-      `);
+      `)) as unknown as any[];
 
       res.json({ applications: appStats, outreach: outreachStats, network: networkStats });
     } catch (error) {

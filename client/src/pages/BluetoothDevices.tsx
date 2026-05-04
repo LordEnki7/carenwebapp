@@ -175,7 +175,7 @@ export default function BluetoothDevices() {
     
     try {
       // Using Web Bluetooth API for real device scanning
-      const device = await navigator.bluetooth.requestDevice({
+      const device = await (navigator as any).bluetooth.requestDevice({
         acceptAllDevices: true,
         optionalServices: ['battery_service', 'device_information']
       });

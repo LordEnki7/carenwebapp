@@ -85,7 +85,7 @@ export class SimpleRecorder {
     }
 
     // Set up event handlers
-    this.mediaRecorder.ondataavailable = (event) => {
+    this.mediaRecorder!.ondataavailable = (event) => {
       const size = event.data?.size || 0;
       console.log(`Simple ${this.recordingType}: Data chunk:`, size, 'bytes');
       if (event.data && size > 0) {
@@ -94,24 +94,24 @@ export class SimpleRecorder {
       }
     };
 
-    this.mediaRecorder.onstart = () => {
+    this.mediaRecorder!.onstart = () => {
       console.log(`Simple ${this.recordingType}: Recording started`);
       this.isRecording = true;
     };
 
-    this.mediaRecorder.onstop = () => {
+    this.mediaRecorder!.onstop = () => {
       console.log(`Simple ${this.recordingType}: Recording stopped`);
       this.isRecording = false;
     };
 
-    this.mediaRecorder.onerror = (event) => {
+    this.mediaRecorder!.onerror = (event) => {
       console.error(`Simple ${this.recordingType}: Recording error:`, event);
       this.isRecording = false;
     };
 
     // Start recording with frequent data requests
-    this.mediaRecorder.start(500); // Request data every 500ms
-    console.log(`Simple ${this.recordingType}: Started, state:`, this.mediaRecorder.state);
+    this.mediaRecorder!.start(500); // Request data every 500ms
+    console.log(`Simple ${this.recordingType}: Started, state:`, this.mediaRecorder!.state);
   }
 
   stop(): Promise<Blob> {

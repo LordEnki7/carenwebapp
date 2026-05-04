@@ -31,8 +31,8 @@ export default function AccountSecurity() {
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [activeSessions, setActiveSessions] = useState([]);
-  const [loginHistory, setLoginHistory] = useState([]);
+  const [activeSessions, setActiveSessions] = useState<any[]>([]);
+  const [loginHistory, setLoginHistory] = useState<any[]>([]);
   const [securitySettings, setSecuritySettings] = useState({
     twoFactorEnabled: false,
     deviceTrustEnabled: true,
@@ -49,11 +49,12 @@ export default function AccountSecurity() {
   const loadSecurityData = async () => {
     setLoading(true);
     try {
-      const [sessionsResponse, historyResponse] = await Promise.all([
+      const [sessionsRaw, historyRaw] = await Promise.all([
         apiRequest("GET", "/api/auth/sessions"),
         apiRequest("GET", "/api/auth/login-history")
       ]);
-      
+      const sessionsResponse: any = await sessionsRaw.json().catch(() => ({}));
+      const historyResponse: any = await historyRaw.json().catch(() => ({}));
       setActiveSessions(Array.isArray(sessionsResponse) ? sessionsResponse : (sessionsResponse?.sessions ?? sessionsResponse?.data ?? []));
       setLoginHistory(Array.isArray(historyResponse) ? historyResponse : (historyResponse?.history ?? historyResponse?.data ?? []));
     } catch (error) {

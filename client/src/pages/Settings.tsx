@@ -124,7 +124,7 @@ export default function Settings() {
   // Single consolidated early return for loading/auth states
   if (authLoading || !isAuthenticated || !user) {
     return (
-      <MobileResponsiveLayout title="Settings" description="Account settings and preferences">
+      <MobileResponsiveLayout>
         <div className="min-h-screen bg-gray-50">
           <Sidebar />
           <div className="pl-72 p-6">
@@ -290,7 +290,7 @@ export default function Settings() {
 
 
   return (
-    <MobileResponsiveLayout title="Settings" description="Manage your account, preferences, and security settings">
+    <MobileResponsiveLayout>
       <div className="min-h-screen bg-gray-900">
         <TopBar 
           title={t("settings")}

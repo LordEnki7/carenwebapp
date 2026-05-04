@@ -219,7 +219,7 @@ async function seedDatabase() {
     ];
 
     for (const attorney of attorneyData) {
-      await storage.createAttorney(attorney);
+      await storage.createAttorney(attorney as any);
     }
 
     // Create a test user for demonstration

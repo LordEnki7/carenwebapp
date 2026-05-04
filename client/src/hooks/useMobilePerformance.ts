@@ -165,7 +165,8 @@ export function useMobilePerformance(): MobilePerformanceState & PerformanceOpti
     // Reduce screen brightness request
     try {
       // @ts-ignore - Screen brightness API is experimental
-      if (screen.brightness) {
+      if ((screen as any).brightness) {
+        // @ts-ignore
         screen.brightness = 0.7;
       }
     } catch (error) {
@@ -185,7 +186,7 @@ export function useMobilePerformance(): MobilePerformanceState & PerformanceOpti
       if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
         const registration = await navigator.serviceWorker.ready;
         // Register background sync for recording
-        await registration.sync.register('background-recording');
+        await (registration as any).sync.register('background-recording');
         
         setPerformanceState(prev => ({ ...prev, backgroundRecordingActive: true }));
         localStorage.setItem('caren-background-recording', 'true');

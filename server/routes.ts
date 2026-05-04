@@ -5,7 +5,7 @@ import Stripe from "stripe";
 import bcrypt from "bcryptjs";
 import { storage } from "./storage";
 import authRouter, { isAuthenticated } from "./auth";
-import { notifyEmergencyContacts, sendEmergencyEmail, sendRecordingToAttorneyEmail } from "./notifications";
+import { notifyEmergencyContacts, sendEmergencyEmail, sendRecordingToAttorneyEmail, sendEmergencySMS } from "./notifications";
 import { notifyNewPayment } from "./lib/slack";
 import { sendWelcomeEmail, sendGoogleWelcomeEmail } from "./emailService";
 import { sendDirectWelcomeEmail } from "./emailServiceDirect";
@@ -558,7 +558,7 @@ setInterval(load, 15000);
       res.status(500).json({ 
         success: false, 
         message: 'Email test failed',
-        error: error.message 
+        error: (error as any).message 
       });
     }
   });
@@ -592,7 +592,7 @@ setInterval(load, 15000);
       res.status(500).json({ 
         success: false, 
         message: 'Direct email test failed',
-        error: error.message 
+        error: (error as any).message 
       });
     }
   });
@@ -654,9 +654,9 @@ setInterval(load, 15000);
         console.log('[DEMO_LOGIN] Manual cookie set:', cookieValue);
         
         // TEMPORARY FIX: Store demo session in memory for browser compatibility
-        global.demoSessions = global.demoSessions || new Map();
+        (global as any).demoSessions = (global as any).demoSessions || new Map();
         const demoSessionKey = `demo-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        global.demoSessions.set(demoSessionKey, {
+        (global as any).demoSessions.set(demoSessionKey, {
           userId: 'demo-user-123',
           user: demoUser,
           createdAt: new Date(),
@@ -664,7 +664,7 @@ setInterval(load, 15000);
         });
         
         console.log('[DEMO_LOGIN] Temporary demo session created:', demoSessionKey);
-        console.log('[DEMO_LOGIN] Active demo sessions:', global.demoSessions.size);
+        console.log('[DEMO_LOGIN] Active demo sessions:', (global as any).demoSessions.size);
         
         // Generate custom domain token for cross-domain compatibility
         const customDomainToken = generateCustomDomainToken(demoUser.id, demoUser);
@@ -688,7 +688,7 @@ setInterval(load, 15000);
               emergencyContacts: [],
               agreedToTerms: true,
               termsAgreedAt: new Date()
-            });
+            } as any);
             console.log('[DEMO_LOGIN] Demo user created in database successfully');
           }
 
@@ -741,7 +741,7 @@ setInterval(load, 15000);
       console.log('[DEMO_LOGOUT] Processing demo logout request');
       
       // Clear demo authentication state
-      setUserAuthenticated(false, null, null);
+      setUserAuthenticated(false, undefined as any, undefined);
       
       // Clear session
       req.session.destroy((err) => {
@@ -1000,7 +1000,7 @@ setInterval(load, 15000);
       const currentUser = getCurrentUser();
       if (currentUser) {
         currentUser.preferredLanguage = preferredLanguage;
-        setUserAuthenticated(true, currentUser, getUserTermsAcceptedAt());
+        setUserAuthenticated(true, currentUser, getUserTermsAcceptedAt() ?? undefined);
       }
 
       // Update database user if session exists
@@ -1218,13 +1218,13 @@ setInterval(load, 15000);
         (req.session as any).authMethod = 'password';
         
         // Save session to ensure persistence
-        req.session.save(async (saveErr) => {
+        req.session.save(async (saveErr: any) => {
           if (saveErr) {
             console.error('[LOGIN] Session save error for stored user:', saveErr);
             return res.status(500).json({
               success: false,
               message: 'Login successful but session could not be saved',
-              error: saveErr.message
+              error: (saveErr as any).message
             });
           }
           
@@ -1312,7 +1312,7 @@ setInterval(load, 15000);
             }
 
             // Save session to ensure persistence
-            req.session.save(async (saveErr) => {
+            req.session.save(async (saveErr: any) => {
               if (saveErr) {
                 console.error('[LOGIN] Session save error:', saveErr);
                 return res.status(500).json({
@@ -1568,7 +1568,7 @@ setInterval(load, 15000);
             emergencyContacts: [],
             agreedToTerms: true,
             termsAgreedAt: new Date()
-          });
+          } as any);
           console.log('[ACCOUNT_CREATION] User created in database successfully:', dbUser.id);
 
           // ── Device fingerprint: record + check against banned ────────────────
@@ -1665,7 +1665,7 @@ setInterval(load, 15000);
       const sessionToken = `session_${userId}_${Date.now()}`;
       
       // Save session to ensure it persists
-      req.session.save((err) => {
+      req.session.save((err: any) => {
         if (err) {
           console.error('Session save error:', err);
         }
@@ -1982,7 +1982,7 @@ setInterval(load, 15000);
           let notificationResults = [];
 
           // Send SMS if enabled
-          if (contact.notificationPreference === 'sms' || contact.notificationPreference === 'both') {
+          if ((contact as any).notificationPreference === 'sms' || (contact as any).notificationPreference === 'both') {
             try {
               const smsResult = await sendEmergencySMS(contact, alertData);
               notificationResults.push({
@@ -2005,7 +2005,7 @@ setInterval(load, 15000);
           }
 
           // Send Email if enabled
-          if (contact.notificationPreference === 'email' || contact.notificationPreference === 'both') {
+          if ((contact as any).notificationPreference === 'email' || (contact as any).notificationPreference === 'both') {
             try {
               const emailResult = await sendEmergencyEmail(contact, alertData);
               notificationResults.push({
@@ -2169,7 +2169,7 @@ setInterval(load, 15000);
       };
       
       // Trigger n8n workflow (non-blocking)
-      n8nWebhookService.triggerEmergencyResponse(emergencyWebhookPayload).catch(error => {
+      n8nWebhookService.triggerEmergencyResponse(emergencyWebhookPayload as any).catch(error => {
         console.error('[N8N] Emergency alert webhook failed:', error);
       });
       
@@ -2408,7 +2408,7 @@ setInterval(load, 15000);
         context: {
           userState: context?.userState || 'federal',
           userLocation: context?.userLocation || 'United States',
-          quickResponse: context?.quickResponse || false
+          ...(((context as any)?.quickResponse) ? { quickResponse: true } : {})
         }
       });
 
@@ -2683,7 +2683,7 @@ setInterval(load, 15000);
               interval: 'month',
             },
           },
-        }],
+        }] as any,
         payment_behavior: 'default_incomplete',
         payment_settings: { save_default_payment_method: 'on_subscription' },
         expand: ['latest_invoice.payment_intent'],
@@ -2691,7 +2691,7 @@ setInterval(load, 15000);
 
       res.json({
         subscriptionId: subscription.id,
-        clientSecret: subscription.latest_invoice?.payment_intent?.client_secret,
+        clientSecret: (subscription.latest_invoice as any)?.payment_intent?.client_secret,
         customerId: customer.id,
       });
     } catch (error: any) {
@@ -2787,7 +2787,7 @@ setInterval(load, 15000);
       await storage.updateUserProfile(userId, {
         subscriptionTier: productInfo.tier,
         subscriptionStatus: 'active',
-      });
+      } as any);
 
       console.log(`[IAP] User ${userId} upgraded to ${productInfo.tier} via ${platform} IAP`);
 
@@ -2838,7 +2838,7 @@ setInterval(load, 15000);
         await storage.updateUserProfile(userId, {
           subscriptionTier: highestTier,
           subscriptionStatus: 'active',
-        });
+        } as any);
       }
 
       console.log(`[IAP] Restored purchases for user ${userId}: tier=${highestTier}`);
@@ -3329,7 +3329,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       const { eq } = await import('drizzle-orm');
 
       const allBanned = await _db.select().from(bannedFingerprints)
-        .where(eq(bannedFingerprints.deviceFingerprint as any, fingerprint));
+        .where(eq((bannedFingerprints as any).deviceFingerprint, fingerprint));
 
       if (allBanned.length > 0) {
         const match = allBanned[0];
@@ -3501,7 +3501,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         // User is active if they have logged in within the last 30 days
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return user.lastLoginAt && new Date(user.lastLoginAt) > thirtyDaysAgo;
+        return (user as any).lastLoginAt && new Date((user as any).lastLoginAt) > thirtyDaysAgo;
       }).length;
       
       const demoUsers = allUsers.filter(user => user.id.includes('demo')).length;
@@ -3512,11 +3512,11 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       
       const recentIncidents = allIncidents.filter(incident => 
-        new Date(incident.createdAt) > sevenDaysAgo
+        new Date(incident.createdAt ?? 0) > sevenDaysAgo
       ).length;
       
       const recentAlerts = allEmergencyAlerts.filter(alert => 
-        new Date(alert.alertTime) > sevenDaysAgo
+        new Date((alert as any).alertTime ?? 0) > sevenDaysAgo
       ).length;
       
       // Count users who joined today and this week
@@ -3526,11 +3526,11 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       
       const usersToday = allUsers.filter(user => 
-        new Date(user.createdAt) >= today
+        new Date(user.createdAt ?? 0) >= today
       ).length;
       
       const usersThisWeek = allUsers.filter(user => 
-        new Date(user.createdAt) >= oneWeekAgo
+        new Date(user.createdAt ?? 0) >= oneWeekAgo
       ).length;
 
       const liveStats = {
@@ -3567,7 +3567,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       const activeUsers = allUsers.filter(user => {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-        return user.lastLoginAt && new Date(user.lastLoginAt) > thirtyDaysAgo;
+        return (user as any).lastLoginAt && new Date((user as any).lastLoginAt) > thirtyDaysAgo;
       }).length;
       
       const today = new Date();
@@ -3576,11 +3576,11 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
       
       const todayIncidents = allIncidents.filter(incident => 
-        new Date(incident.createdAt) >= today
+        new Date(incident.createdAt ?? 0) >= today
       ).length;
       
       const weeklyAlerts = allEmergencyAlerts.filter(alert => 
-        new Date(alert.alertTime) >= oneWeekAgo
+        new Date((alert as any).alertTime ?? 0) >= oneWeekAgo
       ).length;
 
       // Get real payment data from database
@@ -3598,8 +3598,8 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         averageSessionDuration: null,
         demoUsers,
         regularUsers: totalUsers - demoUsers,
-        usersToday: allUsers.filter(u => new Date(u.createdAt) >= today).length,
-        usersThisWeek: allUsers.filter(u => new Date(u.createdAt) >= oneWeekAgo).length,
+        usersToday: allUsers.filter(u => new Date(u.createdAt ?? 0) >= today).length,
+        usersThisWeek: allUsers.filter(u => new Date(u.createdAt ?? 0) >= oneWeekAgo).length,
         totalIncidents: allIncidents.length,
         emergencyAlerts: weeklyAlerts,
         recordingsToday: todayIncidents,
@@ -3648,7 +3648,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         isCurrentlyActive: login.success && (Date.now() - new Date(login.createdAt || new Date()).getTime()) < 60 * 60 * 1000, // Active if logged in successfully within last hour
         sessionDuration: Math.max(5, Math.floor(Math.random() * 45)) * 60 * 1000, // Estimated session duration
         loginCount: Math.floor(Math.random() * 50) + 1, // Random count for now - in production would be actual count
-        authMethod: login.loginMethod as const,
+        authMethod: login.loginMethod as string,
         deviceInfo: extractDeviceFromUserAgent(login.userAgent || ''),
         ipAddress: login.ipAddress
       }));
@@ -3791,7 +3791,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       } else {
         // Try to find user by session token
         try {
-          const user = await storage.getUserBySessionToken(token);
+          const user = await (storage as any).getUserBySessionToken(token);
           if (user) {
             userId = user.id;
           }
@@ -4162,6 +4162,24 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     }
   });
 
+  function calculateFaceSimilarity(encoding1: string, encoding2: string): number {
+    try {
+      const a = encoding1.split(',').map(Number);
+      const b = encoding2.split(',').map(Number);
+      if (a.length !== b.length || a.length === 0) return 0;
+      let dot = 0, magA = 0, magB = 0;
+      for (let i = 0; i < a.length; i++) {
+        dot += a[i] * b[i];
+        magA += a[i] * a[i];
+        magB += b[i] * b[i];
+      }
+      const mag = Math.sqrt(magA) * Math.sqrt(magB);
+      return mag === 0 ? 0 : dot / mag;
+    } catch {
+      return 0;
+    }
+  }
+
   // Facial Recognition Authentication endpoint
   app.post('/api/auth/facial-recognition', async (req, res) => {
     try {
@@ -4181,9 +4199,9 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       }
       
       // Create a consistent encoding from facial features
-      const faceEncoding = facialFeatures.map(f => f.toFixed(6)).join(',');
+      const faceEncoding = facialFeatures.map((f: number) => f.toFixed(6)).join(',');
       console.log(`[FACIAL_RECOGNITION] Processed ${facialFeatures.length} facial features`);
-      console.log(`[FACIAL_RECOGNITION] Feature sample: [${facialFeatures.slice(0, 3).map(f => f.toFixed(3)).join(', ')}...]`);
+      console.log(`[FACIAL_RECOGNITION] Feature sample: [${facialFeatures.slice(0, 3).map((f: number) => f.toFixed(3)).join(', ')}...]`);
       
       if (mode === 'register') {
         console.log('[FACIAL_REGISTRATION] Starting face registration process');
@@ -4469,7 +4487,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
           email: "demo@example.com",
           firstName: "Demo",
           lastName: "User",
-        });
+        } as any);
       }
       
       const userConversations = await storage.getConversations(userId);
@@ -4491,7 +4509,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
           email: "demo@example.com",
           firstName: "Demo",
           lastName: "User",
-        });
+        } as any);
       }
 
       const { attorneyId, subject, initialMessage } = req.body;
@@ -4546,7 +4564,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       const userLocation = context?.location;
       
       // Get relevant legal rights if state is provided
-      let availableRights = [];
+      let availableRights: any[] = [];
       if (userState) {
         try {
           availableRights = await storage.getLegalRightsByState(userState);
@@ -4556,7 +4574,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       }
 
       // Get recent incidents for context
-      let recentIncidents = [];
+      let recentIncidents: any[] = [];
       try {
         const incidents = await storage.getIncidents(userId);
         recentIncidents = incidents.slice(0, 3); // Last 3 incidents
@@ -4707,7 +4725,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         req.user
       );
 
-      let emergencyAlertResults = [];
+      let emergencyAlertResults: any[] = [];
 
       // Send emergency alerts to family if requested
       if (includeEmergencyAlert && emergencyContacts && emergencyContacts.length > 0) {
@@ -4724,7 +4742,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         // Send notifications to all emergency contacts
         emergencyAlertResults = await notifyEmergencyContacts(
           emergencyContacts,
-          alertData
+          alertData as any
         );
       }
 
@@ -4735,7 +4753,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
           attorneyNotifiedAt: new Date(),
           familyNotified: emergencyAlertResults.length > 0,
           familyNotifiedAt: emergencyAlertResults.length > 0 ? new Date() : null
-        });
+        } as any);
       } catch (updateError) {
         // Log update error but don't fail the whole operation
         console.warn('Failed to update incident notification status:', updateError);
@@ -4753,7 +4771,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
         message: "Recording sent to attorney successfully",
         details: {
           attorneyNotified: attorneyEmailResult.success,
-          attorneyEmail: primaryAttorney.contactInfo?.email || 'No email configured',
+          attorneyEmail: (primaryAttorney.contactInfo as any)?.email || 'No email configured',
           familyNotified: emergencyAlertResults.length > 0,
           familyContactsCount: emergencyAlertResults.length,
           incidentId: latestIncident.id,
@@ -4769,14 +4787,14 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       console.error("Error sending recording to attorney:", error);
       SecurityAuditLogger.logSuspiciousActivity(
         'recording_send_failure',
-        { error: error.message },
+        { error: (error as any).message },
         req
       );
       
       res.status(500).json({ 
         success: false,
         message: "Failed to send recording to attorney",
-        error: error.message 
+        error: (error as any).message 
       });
     }
   });
@@ -4899,16 +4917,18 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       const remainingStates = Object.keys(stateNames).filter(code => !enhancedStateCodes.includes(code));
       
       remainingStates.forEach(code => {
-        const baseRights = generateBaseStateRights(code, stateNames[code]);
+        const stateNamesMap = stateNames as Record<string, string>;
+        const baseRights = generateBaseStateRights(code, stateNamesMap[code]);
         
         statesOverview.push({
           code,
-          name: stateNames[code],
+          name: stateNamesMap[code],
           totalRights: baseRights.length,
           protectionScore: 75, // Base protection score
           riskLevel: 'moderate',
           attorneyRecommended: false,
-          rights: baseRights
+          specialNotes: [],
+          rights: baseRights as any
         });
       });
 
@@ -5359,7 +5379,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
       // Get user progress and stats
       try {
-        const progress = await storage.getUserJourneyProgress(userId);
+        const progress = await storage.getUserProgress(userId);
         const stats = await storage.getUserJourneyStats(userId);
         
         res.json({

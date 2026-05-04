@@ -62,7 +62,7 @@ export async function setupGoogleAuth(app: Express) {
           preferredLanguage: "en"
         };
 
-        user = await storage.createUser(userData);
+        user = await storage.createUser(userData as any);
         console.log('[GOOGLE_AUTH] Created new user from Google account:', user.id);
 
         sendDirectGoogleWelcomeEmail({
@@ -91,7 +91,7 @@ export async function setupGoogleAuth(app: Express) {
 
         const sessionToken = `gauth_${user.id}_${Date.now()}_${Math.random().toString(36).substring(2)}`;
 
-        req.session.userId = user.id;
+        (req.session as any).userId = user.id;
         (req.session as any).authMethod = 'google';
         (req.session as any).sessionToken = sessionToken;
 

@@ -41,12 +41,12 @@ export function registerJourneyRoutes(app: Express) {
       let isNewMilestone = false;
       try {
         const userProgress = await storage.getUserProgress(userId);
-        const milestoneCompleted = userProgress?.completedMilestones?.includes(milestone.id) || false;
+        const milestoneCompleted = (userProgress as any)?.completedMilestones?.includes(milestone.id) || false;
         isNewMilestone = !milestoneCompleted;
 
         // Update user progress if new milestone
         if (isNewMilestone) {
-          await storage.recordUserProgress(userId, milestone.id, action, {
+          await (storage as any).recordUserProgress(userId, milestone.id, action, {
             ...metadata,
             timestamp: new Date().toISOString()
           });
@@ -55,7 +55,7 @@ export function registerJourneyRoutes(app: Express) {
           await storage.updateUserJourneyStats(userId, {
             points: milestone.points,
             milestonesCompleted: 1
-          });
+          } as any);
 
           console.log(`🎯 Milestone achieved: User ${userId} completed ${action} (+${milestone.points} points)`);
         }
@@ -93,7 +93,7 @@ export function registerJourneyRoutes(app: Express) {
               })
             });
           } catch (error) {
-            console.log('Sparkle trigger failed:', error.message);
+            console.log('Sparkle trigger failed:', (error as any).message);
           }
         }, 500);
       }
@@ -123,7 +123,7 @@ export function registerJourneyRoutes(app: Express) {
 
       // Store sparkle effect in queue for frontend retrieval
       try {
-        await storage.queueSparkleEffect(userId, {
+        await (storage as any).queueSparkleEffect(userId, {
           sparkleType,
           location,
           intensity,

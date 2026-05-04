@@ -69,14 +69,14 @@ export function useSmartAutoMute() {
   const microphoneRef = useRef<MediaStreamAudioSourceNode | null>(null);
   const audioBufferRef = useRef<Float32Array | null>(null);
   const animationFrameRef = useRef<number>();
-  const speechRecognitionRef = useRef<SpeechRecognition | null>(null);
+  const speechRecognitionRef = useRef<any>(null);
   const muteStartTimeRef = useRef<number | null>(null);
 
   // Initialize audio analysis
   const initializeAudioAnalysis = useCallback(async (stream: MediaStream) => {
     try {
       // Create audio context
-      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
       const audioContext = audioContextRef.current;
 
       // Create analyser
@@ -94,14 +94,14 @@ export function useSmartAutoMute() {
 
       // Initialize speech recognition for trigger phrases
       if (settings.voiceDetectionEnabled && 'webkitSpeechRecognition' in window) {
-        speechRecognitionRef.current = new webkitSpeechRecognition();
+        speechRecognitionRef.current = new (window as any).webkitSpeechRecognition();
         speechRecognitionRef.current.continuous = true;
         speechRecognitionRef.current.interimResults = true;
         speechRecognitionRef.current.lang = 'en-US';
 
-        speechRecognitionRef.current.onresult = (event) => {
+        speechRecognitionRef.current.onresult = (event: any) => {
           const transcript = Array.from(event.results)
-            .map(result => result[0].transcript)
+            .map((result: any) => result[0].transcript)
             .join('')
             .toLowerCase();
 

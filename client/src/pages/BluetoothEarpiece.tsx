@@ -162,18 +162,17 @@ export default function BluetoothEarpiece() {
   // Get Bluetooth status
   const { data: bluetoothStatus } = useQuery({
     queryKey: ['/api/bluetooth/status'],
-    queryFn: () => apiRequest('/api/bluetooth/status'),
+    queryFn: () => apiRequest('GET', '/api/bluetooth/status'),
     refetchInterval: 5000
   });
 
   // Connect to device mutation
   const connectDevice = useMutation({
-    mutationFn: (deviceId: string) => 
-      apiRequest('/api/bluetooth/connect', {
-        method: 'POST',
-        body: JSON.stringify({ deviceId })
-      }),
-    onSuccess: (data) => {
+    mutationFn: async (deviceId: string) => {
+      const res = await apiRequest('POST', '/api/bluetooth/connect', { deviceId });
+      return res.json() as Promise<any>;
+    },
+    onSuccess: (data: any) => {
       toast({
         title: "Device Connected",
         description: `Successfully connected to ${data.deviceName}`,
@@ -192,10 +191,7 @@ export default function BluetoothEarpiece() {
   // Disconnect device mutation
   const disconnectDevice = useMutation({
     mutationFn: (deviceId: string) => 
-      apiRequest('/api/bluetooth/disconnect', {
-        method: 'POST',
-        body: JSON.stringify({ deviceId })
-      }),
+      apiRequest('POST', '/api/bluetooth/disconnect', { deviceId }),
     onSuccess: () => {
       toast({
         title: "Device Disconnected",
@@ -231,7 +227,7 @@ export default function BluetoothEarpiece() {
         const success = Math.random() > 0.02; // 98% success rate with retry logic
         
         if (success) {
-          setDevices(prev => prev.map(d => 
+          setAvailableDevices(prev => prev.map(d => 
             d.id === deviceId 
               ? { ...d, connected: true, signalStrength: Math.floor(Math.random() * 20) + 80 }
               : { ...d, connected: false }

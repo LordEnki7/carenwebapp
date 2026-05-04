@@ -23,7 +23,7 @@ export class ProductionMediaFixer {
       getUserMedia: !!navigator.mediaDevices?.getUserMedia,
       mediaRecorder: !!window.MediaRecorder,
       webRTC: !!window.RTCPeerConnection,
-      audioContext: !!window.AudioContext || !!window.webkitAudioContext
+      audioContext: !!window.AudioContext || !!(window as any).webkitAudioContext
     };
     
     const blobSupport = await this.testBlobSupport();
@@ -87,7 +87,7 @@ export class ProductionMediaFixer {
         blobUrlSupport = blobUrl.startsWith('blob:');
         details.blobUrl = blobUrl;
       } catch (error) {
-        details.blobUrlError = error.message;
+        details.blobUrlError = error instanceof Error ? error.message : String(error);
       }
       
       // Test blob URL access
@@ -98,7 +98,7 @@ export class ProductionMediaFixer {
           canPlayBlobs = response.ok;
           details.blobFetchSuccess = canPlayBlobs;
         } catch (error) {
-          details.blobFetchError = error.message;
+          details.blobFetchError = error instanceof Error ? error.message : String(error);
         }
         
         // Clean up
@@ -117,7 +117,7 @@ export class ProductionMediaFixer {
         canCreateBlobs: false,
         canPlayBlobs: false,
         blobUrlSupport: false,
-        details: { error: error.message }
+        details: { error: error instanceof Error ? error.message : String(error) }
       };
     }
   }
@@ -182,7 +182,7 @@ export class ProductionMediaFixer {
       return {
         success: false,
         method: 'all_methods_failed',
-        error: error.message
+        error: error instanceof Error ? error.message : String(error)
       };
     }
   }

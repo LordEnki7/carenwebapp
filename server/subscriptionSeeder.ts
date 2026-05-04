@@ -238,7 +238,7 @@ export async function seedSubscriptionPlans() {
             maxIncidents: plan.maxIncidents,
             maxEmergencyContacts: plan.maxEmergencyContacts,
             maxAttorneyConnections: plan.maxAttorneyConnections,
-            maxBluetoothDevices: plan.maxBluetoothDevices,
+            maxBluetoothDevices: (plan as any).maxBluetoothDevices,
             maxFamilyMembers: plan.maxFamilyMembers,
             cloudStorageDays: plan.cloudStorageDays,
             emergencyLawyerCalls: plan.emergencyLawyerCalls,
@@ -246,7 +246,7 @@ export async function seedSubscriptionPlans() {
             attorneyResponseTime: plan.attorneyResponseTime,
             isActive: plan.isActive,
             updatedAt: new Date(),
-          },
+          } as any,
         });
     }
     
@@ -335,6 +335,6 @@ export function checkFeatureAccess(tier: string, feature: string): boolean {
     ]
   };
   
-  const tierFeatures = features[tier as keyof typeof features] || features.free;
+  const tierFeatures = features[tier as keyof typeof features] || [];
   return tierFeatures.includes(feature);
 }

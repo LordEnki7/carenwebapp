@@ -11,7 +11,8 @@ export default function SimpleSignIn() {
   const handleDemoLogin = async () => {
     setIsLoading(true);
     try {
-      const response = await apiRequest("POST", "/api/auth/demo-login", {});
+      const rawResponse = await apiRequest("POST", "/api/auth/demo-login", {});
+      const response = await rawResponse.json() as any;
       
       if (response.success) {
         // Store authentication data

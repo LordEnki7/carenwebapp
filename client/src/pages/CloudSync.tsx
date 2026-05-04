@@ -318,7 +318,7 @@ export default function CloudSync() {
   };
 
   return (
-    <MobileResponsiveLayout title="Secure Cloud Sync" description="Synchronize your data securely across all devices">
+    <MobileResponsiveLayout>
       <div className="min-h-screen bg-gray-900">
         <div className="p-6 max-w-7xl mx-auto space-y-6">
           {/* Header */}

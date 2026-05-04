@@ -12,7 +12,7 @@ import { Shield, Users, Clock, Activity, UserCheck, Calendar, Key, Mail, CheckCi
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { MobileResponsiveLayout } from "@/components/MobileResponsiveLayout";
-import { TopBar } from "@/components/TopBar";
+import TopBar from "@/components/TopBar";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 
@@ -64,14 +64,14 @@ export default function AdminDashboard() {
     }
   };
 
-  const { data: adminStats, isLoading: statsLoading } = useQuery({
+  const { data: adminStats, isLoading: statsLoading } = useQuery<any>({
     queryKey: ["/api/admin/stats"],
     enabled: isAuthenticated,
     refetchInterval: 30000, // Update every 30 seconds
     staleTime: 10000,
   });
 
-  const { data: userSessions, isLoading: sessionsLoading } = useQuery({
+  const { data: userSessions, isLoading: sessionsLoading } = useQuery<any[]>({
     queryKey: ["/api/admin/sessions"],
     enabled: isAuthenticated,
     refetchInterval: 30000,

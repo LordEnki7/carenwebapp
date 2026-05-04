@@ -14,7 +14,7 @@ export function useCloudSyncIntegration() {
   const queryClient = useQueryClient();
 
   // Check if cloud sync is available
-  const { data: devices, isLoading } = useQuery({
+  const { data: devices, isLoading } = useQuery<{ success: boolean }>({
     queryKey: ['/api/cloud-sync/devices'],
     retry: false
   });
@@ -106,7 +106,7 @@ export function useCloudSyncIntegration() {
       if (e.key === 'incidents' && e.newValue) {
         setTimeout(() => {
           try {
-            const incidents = JSON.parse(e.newValue);
+            const incidents = JSON.parse(e.newValue!);
             incidents.forEach((incident: any) => {
               if (incident.lastModified > Date.now() - 10000) { // Only sync recently modified
                 syncIncident(incident);
@@ -121,7 +121,7 @@ export function useCloudSyncIntegration() {
       if (e.key === 'emergencyContacts' && e.newValue) {
         setTimeout(() => {
           try {
-            const contacts = JSON.parse(e.newValue);
+            const contacts = JSON.parse(e.newValue!);
             contacts.forEach((contact: any) => {
               if (contact.lastModified > Date.now() - 10000) { // Only sync recently modified
                 syncEmergencyContact(contact);
@@ -136,7 +136,7 @@ export function useCloudSyncIntegration() {
       if (e.key === 'userPreferences' && e.newValue) {
         setTimeout(() => {
           try {
-            const preferences = JSON.parse(e.newValue);
+            const preferences = JSON.parse(e.newValue!);
             syncUserPreferences(preferences);
           } catch (error) {
             console.error('Failed to parse preferences for sync:', error);

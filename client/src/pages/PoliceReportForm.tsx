@@ -26,6 +26,7 @@ import {
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
+import StateLegalInformation from "@/components/StateLegalInformation";
 
 interface PoliceReportFormData {
   // Officer Information
@@ -127,10 +128,7 @@ export default function PoliceReportForm() {
   });
 
   const saveReportMutation = useMutation({
-    mutationFn: (data: any) => apiRequest('/api/police-reports', {
-      method: 'POST',
-      body: JSON.stringify(data)
-    }),
+    mutationFn: (data: any) => apiRequest('POST', '/api/police-reports', data),
     onSuccess: (response: any) => {
       const { report, severityLevel, suggestedAttorneys, legalInformation } = response;
       
@@ -175,10 +173,7 @@ export default function PoliceReportForm() {
 
   const requestAttorneyMutation = useMutation({
     mutationFn: ({ reportId, attorneyId, urgencyLevel }: any) => 
-      apiRequest(`/api/police-reports/${reportId}/request-attorney`, {
-        method: 'POST',
-        body: JSON.stringify({ attorneyId, urgencyLevel })
-      }),
+      apiRequest('POST', `/api/police-reports/${reportId}/request-attorney`, { attorneyId, urgencyLevel }),
     onSuccess: () => {
       toast({
         title: "Attorney Contacted",
@@ -347,7 +342,7 @@ export default function PoliceReportForm() {
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-4">State Legal Information & Remedies</h3>
                 <StateLegalInformation 
-                  state={userState}
+                  state={(user as any)?.currentState || 'US'}
                   incidentType={formData.reportType.toLowerCase().replace(' ', '_')}
                   severityLevel={formData.severityLevel || 'low'}
                 />

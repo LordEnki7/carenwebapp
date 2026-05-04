@@ -21,10 +21,10 @@ interface GeolocationError {
 
 export function useGeolocation() {
   // COMPLETELY DISABLED TO PREVENT GLITCHING AND CONTINUOUS API CALLS
-  const [location] = useState<LocationData | null>(null);
-  const [error] = useState<GeolocationError | null>(null);
-  const [isLoading] = useState(false);
-  // const { toast } = useToast(); // Disabled
+  const [location, setLocation] = useState<LocationData | null>(null);
+  const [error, setError] = useState<GeolocationError | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const reverseGeocode = async (lat: number, lng: number): Promise<Partial<LocationData>> => {
     // DISABLED - Always return empty object to prevent API calls
@@ -470,7 +470,7 @@ export function useGeolocation() {
 
   // COMPLETELY DISABLED ALL GEOLOCATION FUNCTIONALITY TO PREVENT GLITCHING
   return {
-    location: null,
+    location: location,
     error: null,
     isLoading: false,
     getCurrentLocation: async () => null,

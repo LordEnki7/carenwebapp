@@ -20,8 +20,8 @@ export function usePermissions() {
       } else {
         // Fallback: try to access microphone directly
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          stream.getTracks().forEach(track => track.stop());
+          const stream = await (navigator as Navigator).mediaDevices.getUserMedia({ audio: true });
+          stream.getTracks().forEach((track: MediaStreamTrack) => track.stop());
           setMicPermission('granted');
         } catch (error) {
           setMicPermission('denied');

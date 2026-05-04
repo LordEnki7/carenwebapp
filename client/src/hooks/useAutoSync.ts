@@ -31,7 +31,7 @@ export function useAutoSync(options: AutoSyncOptions = {
   const isOnlineRef = useRef(navigator.onLine);
 
   // Get user devices for sync
-  const { data: devices } = useQuery({
+  const { data: devices } = useQuery<{ success: boolean }>({
     queryKey: ['/api/cloud-sync/devices'],
     enabled: options.enabled
   });

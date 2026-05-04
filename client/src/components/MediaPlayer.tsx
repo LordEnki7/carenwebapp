@@ -111,11 +111,12 @@ export function MediaPlayer({
           description: `Playing ${type} file`,
         });
       } catch (error) {
+        const errMsg = error instanceof Error ? error.message : String(error);
         console.error('Playback failed:', error);
-        setError(`Playback failed: ${error.message}`);
+        setError(`Playback failed: ${errMsg}`);
         toast({
           title: "Playback Failed",
-          description: `Error: ${error.message}. Try clicking play again or check browser permissions.`,
+          description: `Error: ${errMsg}. Try clicking play again or check browser permissions.`,
           variant: "destructive",
         });
       }

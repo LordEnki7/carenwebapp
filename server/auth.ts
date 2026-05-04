@@ -204,10 +204,10 @@ router.post('/register', async (req, res) => {
       subscriptionTier: 'free',
       currentState: null,
       preferredLanguage: preferredLanguage || 'en',
-      emergencyContacts: null,
+      emergencyContacts: null as any,
       agreedToTerms: agreeToTerms,
       termsAgreedAt: new Date(),
-    });
+    } as any);
     
     // Create session
     const session = req.session as any;
@@ -277,8 +277,8 @@ router.get('/user', async (req, res) => {
       console.log(`[AUTH_USER] Checking session token:`, sessionToken);
       
       // Check demo sessions first
-      if (global.demoSessions && global.demoSessions.has(sessionToken)) {
-        const demoSession = global.demoSessions.get(sessionToken);
+      if ((global as any).demoSessions && (global as any).demoSessions.has(sessionToken)) {
+        const demoSession = (global as any).demoSessions.get(sessionToken);
         console.log(`[AUTH_USER] Found demo session! Returning user:`, demoSession.user.id);
         return res.json(demoSession.user);
       }

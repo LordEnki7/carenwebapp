@@ -102,7 +102,7 @@ export function registerEmergencyRoutes(app: Express) {
       
       // Trigger n8n workflow (non-blocking - emergency response continues even if webhook fails)
       try {
-        await n8nWebhookService.triggerEmergencyResponse(emergencyWebhookPayload);
+        await n8nWebhookService.triggerEmergencyResponse(emergencyWebhookPayload as any);
       } catch (error: any) {
         console.error('[N8N] Emergency webhook failed, continuing with manual emergency response:', error);
       }
@@ -133,7 +133,7 @@ export function registerEmergencyRoutes(app: Express) {
       for (const contact of contacts) {
         try {
           if (contact.email) {
-            await sendEmergencyEmail({
+            await (sendEmergencyEmail as any)({
               to: contact.email,
               subject: `🚨 EMERGENCY ALERT - ${contact.name}`,
               message: `${alertData.message}\n\nLocation: ${alertData.location}\nTime: ${alertData.timestamp}\n\nThis is an automated emergency notification from C.A.R.E.N.™ Alert`,

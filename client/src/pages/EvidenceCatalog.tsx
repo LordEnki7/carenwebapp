@@ -92,7 +92,7 @@ export default function EvidenceCatalog() {
   const queryClient = useQueryClient();
 
   // Get user's evidence
-  const { data: evidenceData, isLoading: evidenceLoading } = useQuery({
+  const { data: evidenceData, isLoading: evidenceLoading } = useQuery<{ evidence: any[]; total: number } | undefined>({
     queryKey: ['/api/evidence/my-evidence', {
       searchQuery,
       evidenceType: filterType === 'all' ? undefined : filterType,
@@ -106,17 +106,14 @@ export default function EvidenceCatalog() {
   });
 
   // Get evidence analytics
-  const { data: analyticsData } = useQuery({
+  const { data: analyticsData } = useQuery<{ analytics: EvidenceAnalytics } | undefined>({
     queryKey: ['/api/evidence/analytics']
   });
 
   // Star evidence mutation
   const starEvidenceMutation = useMutation({
     mutationFn: ({ evidenceId, isStarred }: { evidenceId: string; isStarred: boolean }) =>
-      apiRequest(`/api/evidence/${evidenceId}/star`, {
-        method: 'POST',
-        body: JSON.stringify({ isStarred })
-      }),
+      apiRequest('POST', `/api/evidence/${evidenceId}/star`, { isStarred }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/evidence/my-evidence'] });
       toast({
@@ -129,10 +126,7 @@ export default function EvidenceCatalog() {
   // Flag evidence mutation
   const flagEvidenceMutation = useMutation({
     mutationFn: ({ evidenceId, isFlagged, flagReason }: { evidenceId: string; isFlagged: boolean; flagReason?: string }) =>
-      apiRequest(`/api/evidence/${evidenceId}/flag`, {
-        method: 'POST',
-        body: JSON.stringify({ isFlagged, flagReason })
-      }),
+      apiRequest('POST', `/api/evidence/${evidenceId}/flag`, { isFlagged, flagReason }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/evidence/my-evidence'] });
       toast({
@@ -145,9 +139,7 @@ export default function EvidenceCatalog() {
   // Delete evidence mutation
   const deleteEvidenceMutation = useMutation({
     mutationFn: (evidenceId: string) =>
-      apiRequest(`/api/evidence/${evidenceId}`, {
-        method: 'DELETE'
-      }),
+      apiRequest('DELETE', `/api/evidence/${evidenceId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/evidence/my-evidence'] });
       queryClient.invalidateQueries({ queryKey: ['/api/evidence/analytics'] });
@@ -159,7 +151,7 @@ export default function EvidenceCatalog() {
   });
 
   const evidence = evidenceData?.evidence || [];
-  const analytics = analyticsData?.analytics as EvidenceAnalytics;
+  const analytics = analyticsData?.analytics;
 
   const getEvidenceIcon = (type: string) => {
     switch (type) {
@@ -572,7 +564,7 @@ export default function EvidenceCatalog() {
                       {/* Tags */}
                       {item.tags && item.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mb-4">
-                          {item.tags.slice(0, 3).map((tag, index) => (
+                          {item.tags.slice(0, 3).map((tag: string, index: number) => (
                             <Badge key={index} variant="secondary" className="text-xs">
                               {tag}
                             </Badge>
@@ -675,7 +667,7 @@ export default function EvidenceCatalog() {
                                       <div>
                                         <p className="text-sm text-gray-400 mb-1">Detected Objects:</p>
                                         <div className="flex flex-wrap gap-2">
-                                          {item.detectedObjects.map((obj, index) => (
+                                          {item.detectedObjects.map((obj: string, index: number) => (
                                             <Badge key={index} variant="outline" className="text-cyan-400 border-cyan-400">
                                               {obj}
                                             </Badge>

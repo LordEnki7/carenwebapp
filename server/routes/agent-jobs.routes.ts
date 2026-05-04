@@ -24,14 +24,14 @@ function getAuthUserId(req: any): string | null {
 
 async function gatherBusinessContext(): Promise<string> {
   try {
-    const [userCount] = await db.execute(sql`SELECT COUNT(*) as count FROM users`);
-    const [leadCount] = await db.execute(sql`SELECT COUNT(*) as count FROM leads`);
-    const [newLeadCount] = await db.execute(sql`SELECT COUNT(*) as count FROM leads WHERE status = 'new'`);
-    const [convertedLeadCount] = await db.execute(sql`SELECT COUNT(*) as count FROM leads WHERE status = 'converted'`);
-    const [contentCount] = await db.execute(sql`SELECT COUNT(*) as count FROM agent_content`);
-    const [postedCount] = await db.execute(sql`SELECT COUNT(*) as count FROM agent_content WHERE status = 'posted'`);
-    const [memoryCount] = await db.execute(sql`SELECT COUNT(*) as count FROM agent_memory`);
-    const [recentJobCount] = await db.execute(sql`SELECT COUNT(*) as count FROM agent_jobs WHERE created_at > NOW() - INTERVAL '7 days'`);
+    const userCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM users`)) as any)?.[0];
+    const leadCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM leads`)) as any)?.[0];
+    const newLeadCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM leads WHERE status = 'new'`)) as any)?.[0];
+    const convertedLeadCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM leads WHERE status = 'converted'`)) as any)?.[0];
+    const contentCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM agent_content`)) as any)?.[0];
+    const postedCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM agent_content WHERE status = 'posted'`)) as any)?.[0];
+    const memoryCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM agent_memory`)) as any)?.[0];
+    const recentJobCount = ((await db.execute(sql`SELECT COUNT(*) as count FROM agent_jobs WHERE created_at > NOW() - INTERVAL '7 days'`)) as any)?.[0];
 
     const totalUsers = (userCount as any)?.[0]?.count || 0;
     const totalLeads = (leadCount as any)?.[0]?.count || 0;

@@ -111,30 +111,30 @@ export default function VoiceLearning() {
   const [currentTrainingSession, setCurrentTrainingSession] = useState<any>(null);
 
   // Fetch voice profile
-  const { data: profileData, isLoading: profileLoading } = useQuery({
+  const { data: profileData, isLoading: profileLoading } = useQuery<{ profile: VoiceProfile | null } | undefined>({
     queryKey: ['/api/voice-learning/profile'],
     retry: false
   });
 
   // Fetch custom commands
-  const { data: commandsData, isLoading: commandsLoading } = useQuery({
+  const { data: commandsData, isLoading: commandsLoading } = useQuery<{ commands: CustomVoiceCommand[] } | undefined>({
     queryKey: ['/api/voice-learning/commands']
   });
 
   // Fetch analytics
-  const { data: analyticsData, isLoading: analyticsLoading } = useQuery({
+  const { data: analyticsData, isLoading: analyticsLoading } = useQuery<{ analytics: VoiceLearningAnalytics | null } | undefined>({
     queryKey: ['/api/voice-learning/analytics']
   });
 
   // Fetch settings
-  const { data: settingsData, isLoading: settingsLoading } = useQuery({
+  const { data: settingsData, isLoading: settingsLoading } = useQuery<{ settings: VoiceLearningSettings | null } | undefined>({
     queryKey: ['/api/voice-learning/settings']
   });
 
   // Initialize profile mutation
   const initializeProfileMutation = useMutation({
     mutationFn: (data: { language: string }) => 
-      apiRequest('/api/voice-learning/profile/initialize', { method: 'POST', body: data }),
+      apiRequest('POST', '/api/voice-learning/profile/initialize', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-learning/profile'] });
       toast({ title: "Voice profile initialized successfully!" });
@@ -147,7 +147,7 @@ export default function VoiceLearning() {
   // Create command mutation
   const createCommandMutation = useMutation({
     mutationFn: (data: any) => 
-      apiRequest('/api/voice-learning/commands', { method: 'POST', body: data }),
+      apiRequest('POST', '/api/voice-learning/commands', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-learning/commands'] });
       toast({ title: "Voice command created successfully!" });
@@ -160,7 +160,7 @@ export default function VoiceLearning() {
   // Delete command mutation
   const deleteCommandMutation = useMutation({
     mutationFn: (commandId: number) => 
-      apiRequest(`/api/voice-learning/commands/${commandId}`, { method: 'DELETE' }),
+      apiRequest('DELETE', `/api/voice-learning/commands/${commandId}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-learning/commands'] });
       toast({ title: "Voice command deleted successfully!" });
@@ -172,9 +172,11 @@ export default function VoiceLearning() {
 
   // Start training mutation
   const startTrainingMutation = useMutation({
-    mutationFn: (data: { sessionType: string; commandId?: number }) => 
-      apiRequest('/api/voice-learning/training/start', { method: 'POST', body: data }),
-    onSuccess: (data) => {
+    mutationFn: async (data: { sessionType: string; commandId?: number }) => {
+      const res = await apiRequest('POST', '/api/voice-learning/training/start', data);
+      return res.json() as Promise<any>;
+    },
+    onSuccess: (data: any) => {
       setCurrentTrainingSession(data.session);
       setIsTraining(true);
       toast({ title: "Training session started!" });
@@ -187,7 +189,7 @@ export default function VoiceLearning() {
   // Complete training mutation
   const completeTrainingMutation = useMutation({
     mutationFn: (data: { sessionId: number; results: any }) => 
-      apiRequest('/api/voice-learning/training/complete', { method: 'POST', body: data }),
+      apiRequest('POST', '/api/voice-learning/training/complete', data),
     onSuccess: () => {
       setIsTraining(false);
       setCurrentTrainingSession(null);
@@ -203,7 +205,7 @@ export default function VoiceLearning() {
   // Update settings mutation
   const updateSettingsMutation = useMutation({
     mutationFn: (data: Partial<VoiceLearningSettings>) => 
-      apiRequest('/api/voice-learning/settings', { method: 'PUT', body: data }),
+      apiRequest('PUT', '/api/voice-learning/settings', data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/voice-learning/settings'] });
       toast({ title: "Settings updated successfully!" });
@@ -233,10 +235,10 @@ export default function VoiceLearning() {
     }
   });
 
-  const profile: VoiceProfile | null = profileData?.profile;
+  const profile: VoiceProfile | null = profileData?.profile ?? null;
   const commands: CustomVoiceCommand[] = commandsData?.commands || [];
-  const analytics: VoiceLearningAnalytics | null = analyticsData?.analytics;
-  const settings: VoiceLearningSettings | null = settingsData?.settings;
+  const analytics: VoiceLearningAnalytics | null = analyticsData?.analytics ?? null;
+  const settings: VoiceLearningSettings | null = settingsData?.settings ?? null;
 
   // Initialize profile if not exists
   useEffect(() => {

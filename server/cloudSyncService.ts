@@ -67,7 +67,7 @@ export class CloudSyncService {
       lastSyncAt: new Date(),
     };
 
-    const [device] = await db.insert(userDevices).values(deviceData).returning();
+    const [device] = await db.insert(userDevices).values(deviceData as any).returning();
     
     // Initialize cloud backup settings for new devices
     await this.initializeCloudBackupSettings(userId);
@@ -166,7 +166,7 @@ export class CloudSyncService {
       successfulSyncAt: new Date()
     };
 
-    const [result] = await db.insert(cloudSyncData).values(syncData).returning();
+    const [result] = await db.insert(cloudSyncData).values(syncData as any).returning();
     
     await this.updateDeviceLastSync(deviceId);
     
@@ -242,7 +242,7 @@ export class CloudSyncService {
         }
       };
 
-      const [conflict] = await db.insert(syncConflicts).values(conflictData).returning();
+      const [conflict] = await db.insert(syncConflicts).values(conflictData as any).returning();
       return conflict;
     }
 
@@ -332,7 +332,7 @@ export class CloudSyncService {
       encryptionMethod: 'AES-256-GCM'
     };
 
-    await db.insert(syncSessions).values(sessionData);
+    await db.insert(syncSessions).values(sessionData as any);
     return sessionId;
   }
 

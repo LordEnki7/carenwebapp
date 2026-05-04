@@ -61,10 +61,10 @@ export function registerCommunityRoutes(app: Express) {
   // Community stats (public)
   app.get("/api/community/stats", async (req, res) => {
     try {
-      const [userCount] = await db.execute(sql`SELECT COUNT(*) AS total FROM users`);
-      const [refCount] = await db.execute(sql`
+      const [userCount] = (await db.execute(sql`SELECT COUNT(*) AS total FROM users`)) as unknown as any[];
+      const [refCount] = (await db.execute(sql`
         SELECT COUNT(DISTINCT referred_user_id) AS total FROM referral_tracking WHERE status = 'converted'
-      `);
+      `)) as unknown as any[];
       res.json({
         totalGuardians: parseInt((userCount as any).rows?.[0]?.total || "0"),
         totalReferrals: parseInt((refCount as any).rows?.[0]?.total || "0"),

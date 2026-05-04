@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
+type WebBluetoothDevice = any;
+
 interface ConnectedDevice {
   id: string;
   name: string;
@@ -7,7 +9,7 @@ interface ConnectedDevice {
   status: 'connected' | 'connecting' | 'disconnected';
   capabilities: string[];
   lastSeen: Date;
-  device?: BluetoothDevice;
+  device?: WebBluetoothDevice;
 }
 
 interface BluetoothHook {
@@ -55,7 +57,7 @@ export function useBluetoothDevices(): BluetoothHook {
   }, []);
 
   // Determine device type based on name and services
-  const determineDeviceType = (device: BluetoothDevice): ConnectedDevice['type'] => {
+  const determineDeviceType = (device: WebBluetoothDevice): ConnectedDevice['type'] => {
     const name = device.name?.toLowerCase() || '';
     
     if (name.includes('dash') || name.includes('cam') || name.includes('recorder')) {

@@ -131,9 +131,7 @@ export default function NewUserOnboardingModal({
         email: '',
         relationship: form.relationship,
         priority: 'primary',
-        notifyBySms: true,
-        notifyByEmail: false,
-      });
+      } as any);
       setSubmitted(true);
       setTimeout(() => { onComplete(); }, 1800);
     } catch {

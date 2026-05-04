@@ -175,8 +175,8 @@ class OfflineStorageService {
     if (!this.db) await this.init();
 
     try {
-      const recordings = await this.db!.getAllFromIndex('recordings', 'emergency', true);
-      const offlineData = await this.db!.getAllFromIndex('offline-data', 'synced', false);
+      const recordings = await this.db!.getAllFromIndex('recordings', 'emergency', true as any);
+      const offlineData = await this.db!.getAllFromIndex('offline-data', 'synced', false as any);
       
       return [...recordings, ...offlineData];
     } catch (error) {
