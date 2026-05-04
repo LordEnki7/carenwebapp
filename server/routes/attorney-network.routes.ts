@@ -8,6 +8,8 @@ import {
   attorneyOutreach,
   insertAttorneyApplicationSchema,
   insertAttorneyOutreachSchema,
+  userPersonalAttorneys,
+  insertUserPersonalAttorneySchema,
 } from "@shared/schema";
 import { getOpenAIClient } from "../aiService";
 import nodemailer from "nodemailer";
@@ -18,6 +20,34 @@ const ADMIN_EMAIL = "info@carenalert.com";
 function isAdmin(req: any): boolean {
   const adminKey = req.headers["x-admin-key"] || req.query.adminKey;
   return adminKey === "CAREN_ADMIN_2025_PRODUCTION";
+}
+
+// Haversine distance in miles between two lat/lng points
+function haversineDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3958.8;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Geocode a city+state using OpenStreetMap Nominatim (already used elsewhere in the app)
+async function geocodeLocation(city: string, state: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const q = encodeURIComponent(`${city}, ${state}, USA`);
+    const url = `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&countrycodes=us`;
+    const res = await fetch(url, { headers: { "User-Agent": "CARENAlert/1.0 info@carenalert.com" } });
+    const data = await res.json() as any[];
+    if (data?.length > 0) {
+      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+    }
+  } catch (e) {
+    console.warn("[GEOCODE] Failed:", e);
+  }
+  return null;
 }
 
 const transporter = nodemailer.createTransport({
@@ -281,7 +311,50 @@ export function registerAttorneyNetworkRoutes(app: Express) {
             verified: false,
             activeStatus: true,
           };
-          await db.insert(attorneys).values(newAttorneyData);
+          const [inserted] = await db.insert(attorneys).values(newAttorneyData).returning();
+
+          // Geocode attorney location in the background
+          setImmediate(async () => {
+            try {
+              const counties = (updated.countiesServed as string[] | null) || [];
+              const city = counties.length > 0 ? counties[0] : "";
+              const state = (updated.statesLicensed as string[])[0] || updated.barState || "";
+              const coords = await geocodeLocation(city || state, state);
+              if (coords && inserted?.id) {
+                await db.execute(sql`
+                  UPDATE attorneys SET lat = ${coords.lat}, lng = ${coords.lng}
+                  WHERE id = ${inserted.id}
+                `);
+                console.log(`[GEOCODE] Attorney ${inserted.id} geocoded: ${coords.lat}, ${coords.lng}`);
+
+                // Notify waitlisted users within 50 miles
+                try {
+                  const waitlist = await db.execute(sql`
+                    SELECT email FROM attorney_state_waitlist
+                    WHERE state ILIKE ${state} AND notified = false
+                  `);
+                  for (const row of (waitlist.rows || []) as any[]) {
+                    await transporter.sendMail({
+                      from: '"C.A.R.E.N.™ Alert" <info@carenalert.com>',
+                      to: row.email,
+                      subject: "An Attorney Just Joined Your Area!",
+                      html: `<h2>Great news!</h2><p>A verified civil rights attorney has just joined the C.A.R.E.N.™ Alert network in your area (<strong>${state}</strong>).</p><p><a href="https://carenalert.com/attorneys">View Attorneys →</a></p><p>— The C.A.R.E.N.™ Alert Team</p>`,
+                    });
+                  }
+                  if ((waitlist.rows || []).length > 0) {
+                    await db.execute(sql`
+                      UPDATE attorney_state_waitlist SET notified = true
+                      WHERE state ILIKE ${state} AND notified = false
+                    `);
+                  }
+                } catch (notifyErr) {
+                  console.warn("[ATTORNEY] Waitlist notify failed:", notifyErr);
+                }
+              }
+            } catch (geoErr) {
+              console.warn("[GEOCODE] Background geocode failed:", geoErr);
+            }
+          });
         }
 
         // Send approval email to attorney
@@ -617,6 +690,122 @@ export function registerAttorneyNetworkRoutes(app: Express) {
     } catch (error) {
       console.error("[ATTORNEY NETWORK] Stats error:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  // ─── GEOGRAPHIC COVERAGE CHECK ───────────────────────────────────────────
+
+  // Returns {covered: bool, nearestMiles: number|null} for a given lat/lng
+  app.get("/api/attorney-coverage-check", async (req, res) => {
+    try {
+      const lat = parseFloat(req.query.lat as string);
+      const lng = parseFloat(req.query.lng as string);
+      if (isNaN(lat) || isNaN(lng)) {
+        return res.json({ covered: false, nearestMiles: null });
+      }
+
+      const rows = await db.execute(sql`
+        SELECT lat, lng FROM attorneys
+        WHERE profile_status = 'approved' AND lat IS NOT NULL AND lng IS NOT NULL
+      `);
+
+      let nearest: number | null = null;
+      for (const row of (rows.rows || []) as any[]) {
+        const d = haversineDistance(lat, lng, parseFloat(row.lat), parseFloat(row.lng));
+        if (nearest === null || d < nearest) nearest = d;
+      }
+
+      res.json({ covered: nearest !== null && nearest <= 50, nearestMiles: nearest !== null ? Math.round(nearest) : null });
+    } catch (error) {
+      console.error("[COVERAGE] check error:", error);
+      res.json({ covered: false, nearestMiles: null });
+    }
+  });
+
+  // ─── MY ATTORNEY (USER PERSONAL ATTORNEYS) ───────────────────────────────
+
+  app.get("/api/my-attorneys", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId;
+      const rows = await db
+        .select()
+        .from(userPersonalAttorneys)
+        .where(eq(userPersonalAttorneys.userId, userId))
+        .orderBy(desc(userPersonalAttorneys.isPrimary));
+      res.json(rows);
+    } catch (error) {
+      console.error("[MY ATTORNEY] fetch error:", error);
+      res.status(500).json({ message: "Failed to fetch your attorneys" });
+    }
+  });
+
+  app.post("/api/my-attorneys", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId;
+      const parsed = insertUserPersonalAttorneySchema.safeParse({ ...req.body, userId });
+      if (!parsed.success) {
+        return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+      }
+
+      // If this is set as primary, unset any existing primary
+      if (parsed.data.isPrimary) {
+        await db
+          .update(userPersonalAttorneys)
+          .set({ isPrimary: false })
+          .where(eq(userPersonalAttorneys.userId, userId));
+      }
+
+      const [created] = await db.insert(userPersonalAttorneys).values(parsed.data).returning();
+      res.json(created);
+    } catch (error) {
+      console.error("[MY ATTORNEY] create error:", error);
+      res.status(500).json({ message: "Failed to add attorney" });
+    }
+  });
+
+  app.patch("/api/my-attorneys/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId;
+      const id = parseInt(req.params.id);
+
+      const existing = await db
+        .select()
+        .from(userPersonalAttorneys)
+        .where(and(eq(userPersonalAttorneys.id, id), eq(userPersonalAttorneys.userId, userId)))
+        .limit(1);
+      if (existing.length === 0) return res.status(404).json({ message: "Not found" });
+
+      // If setting as primary, unset others first
+      if (req.body.isPrimary) {
+        await db
+          .update(userPersonalAttorneys)
+          .set({ isPrimary: false })
+          .where(eq(userPersonalAttorneys.userId, userId));
+      }
+
+      const [updated] = await db
+        .update(userPersonalAttorneys)
+        .set({ ...req.body, updatedAt: new Date() })
+        .where(eq(userPersonalAttorneys.id, id))
+        .returning();
+      res.json(updated);
+    } catch (error) {
+      console.error("[MY ATTORNEY] update error:", error);
+      res.status(500).json({ message: "Failed to update attorney" });
+    }
+  });
+
+  app.delete("/api/my-attorneys/:id", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user?.claims?.sub || req.session?.userId;
+      const id = parseInt(req.params.id);
+      await db
+        .delete(userPersonalAttorneys)
+        .where(and(eq(userPersonalAttorneys.id, id), eq(userPersonalAttorneys.userId, userId)));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("[MY ATTORNEY] delete error:", error);
+      res.status(500).json({ message: "Failed to delete attorney" });
     }
   });
 

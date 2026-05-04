@@ -783,6 +783,20 @@ export async function runAutoMigrations(): Promise<void> {
       created_at TIMESTAMP DEFAULT NOW(),
       UNIQUE (email, state)
     )`,
+
+    `CREATE TABLE IF NOT EXISTS user_personal_attorneys (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      name VARCHAR NOT NULL,
+      phone VARCHAR,
+      email VARCHAR,
+      firm_name VARCHAR,
+      specialty VARCHAR,
+      notes TEXT,
+      is_primary BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )`,
   ];
 
   // Additional ALTER TABLE statements for columns that may be missing on existing deployments
@@ -849,6 +863,10 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE cloud_incidents ADD COLUMN IF NOT EXISTS is_legal_hold BOOLEAN DEFAULT FALSE`,
     `ALTER TABLE cloud_incidents ADD COLUMN IF NOT EXISTS legal_hold_reason TEXT`,
     `ALTER TABLE cloud_incidents ADD COLUMN IF NOT EXISTS legal_hold_set_at TIMESTAMP`,
+
+    // Geographic unlock — lat/lng on attorneys table
+    `ALTER TABLE attorneys ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`,
+    `ALTER TABLE attorneys ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`,
   ];
 
   const allMigrations = [...createTables, ...addMissingColumns];

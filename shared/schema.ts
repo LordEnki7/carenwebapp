@@ -9,6 +9,7 @@ import {
   boolean,
   integer,
   decimal,
+  doublePrecision,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -162,6 +163,8 @@ export const attorneys = pgTable("attorneys", {
   lastActive: timestamp("last_active").defaultNow(),
   // Network-specific fields
   countiesServed: jsonb("counties_served").default('[]'),
+  lat: doublePrecision("lat"),
+  lng: doublePrecision("lng"),
   availabilityStatus: varchar("availability_status").default("offline"), // available | busy | offline | emergency_only
   profileScore: integer("profile_score").default(0), // 0-100
   avgResponseMinutes: integer("avg_response_minutes").default(60),
@@ -2927,6 +2930,25 @@ export const videoCalls = pgTable("video_calls", {
 export const insertVideoCallSchema = createInsertSchema(videoCalls).omit({ id: true, requestedAt: true });
 export type InsertVideoCall = z.infer<typeof insertVideoCallSchema>;
 export type VideoCall = typeof videoCalls.$inferSelect;
+
+// ===== USER PERSONAL ATTORNEYS ("My Attorney") =====
+export const userPersonalAttorneys = pgTable("user_personal_attorneys", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  name: varchar("name").notNull(),
+  phone: varchar("phone"),
+  email: varchar("email"),
+  firmName: varchar("firm_name"),
+  specialty: varchar("specialty"),
+  notes: text("notes"),
+  isPrimary: boolean("is_primary").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertUserPersonalAttorneySchema = createInsertSchema(userPersonalAttorneys).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertUserPersonalAttorney = z.infer<typeof insertUserPersonalAttorneySchema>;
+export type UserPersonalAttorney = typeof userPersonalAttorneys.$inferSelect;
 
 // ===== ATTORNEY STATE WAITLIST =====
 export const attorneyStateWaitlist = pgTable("attorney_state_waitlist", {
