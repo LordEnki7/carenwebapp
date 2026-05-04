@@ -422,7 +422,7 @@ export default function BrowserCompatibleSignIn() {
               <img
                 src={promoImage2}
                 alt="C.A.R.E.N. Alert user"
-                className="w-full object-cover object-top aspect-video group-hover:scale-105 transition-transform duration-500"
+                className="w-full object-cover object-center aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-4">
