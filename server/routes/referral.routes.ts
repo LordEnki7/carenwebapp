@@ -122,9 +122,24 @@ export function registerReferralRoutes(app: Express) {
   // ===== GET MY REFERRAL STATS (with tier info) =====
   app.get("/api/referrals/my", async (req, res) => {
     const sessionUser = (req.session as any)?.user || (req.session as any)?.passport?.user;
-    if (!sessionUser) return res.status(401).json({ error: "Unauthorized" });
 
-    const userId = sessionUser.id || sessionUser.claims?.sub;
+    // Fallback: resolve userId from Bearer token (covers iOS/mobile where cookies aren't sent)
+    let userId: string | null = sessionUser?.id || sessionUser?.claims?.sub || null;
+    if (!userId) {
+      const authHeader = (req.headers as any).authorization as string | undefined;
+      if (authHeader?.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        if (token.startsWith('cdt_')) {
+          // Format: cdt_{userId}_{timestamp}_{suffix}
+          userId = token.split('_')[1] || null;
+        } else if (token.startsWith('session_')) {
+          userId = token.split('_')[1] || null;
+        }
+      }
+    }
+
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
     try {
       const myReferrals = await db.select().from(referrals).where(eq(referrals.referrerId, userId));
       if (myReferrals.length === 0) {

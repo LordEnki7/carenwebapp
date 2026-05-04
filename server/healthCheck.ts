@@ -84,14 +84,38 @@ async function checkCloudflareR2(): Promise<HealthResult> {
 async function checkAI(): Promise<HealthResult> {
   const replitKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
   const openaiKey = process.env.OPENAI_API_KEY;
-  if (!replitKey && !openaiKey) {
+  const key = replitKey || openaiKey;
+  const keyLabel = replitKey ? 'AI_INTEGRATIONS_OPENAI_API_KEY' : 'OPENAI_API_KEY';
+
+  if (!key) {
     return { service: 'AI (OpenAI)', status: 'error', message: 'No AI key set — AI features WILL FAIL', detail: 'Need AI_INTEGRATIONS_OPENAI_API_KEY or OPENAI_API_KEY' };
   }
-  if (replitKey) {
-    return { service: 'AI (OpenAI)', status: 'ok', message: 'Configured via AI_INTEGRATIONS_OPENAI_API_KEY (Replit AI)' };
+
+  // Actually test the key by calling the models endpoint — catches invalid keys and quota exceeded
+  const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL || 'https://api.openai.com';
+  const t = Date.now();
+  try {
+    const res = await fetch(`${baseURL}/v1/models`, {
+      headers: { Authorization: `Bearer ${key}` },
+      signal: AbortSignal.timeout(8000),
+    });
+    const latencyMs = Date.now() - t;
+
+    if (res.status === 200) {
+      return { service: 'AI (OpenAI)', status: 'ok', message: `Key valid (${keyLabel})`, latencyMs };
+    }
+    if (res.status === 401) {
+      return { service: 'AI (OpenAI)', status: 'error', message: `API key rejected — AI features WILL FAIL`, detail: `${keyLabel} is invalid or revoked`, latencyMs };
+    }
+    if (res.status === 429) {
+      let detail = 'Check billing at platform.openai.com';
+      try { const body: any = await res.json(); detail = body?.error?.message?.slice(0, 100) || detail; } catch {}
+      return { service: 'AI (OpenAI)', status: 'error', message: `Quota exceeded — AI features WILL FAIL`, detail, latencyMs };
+    }
+    return { service: 'AI (OpenAI)', status: 'warning', message: `Unexpected response ${res.status} from OpenAI`, detail: keyLabel, latencyMs };
+  } catch (e: any) {
+    return { service: 'AI (OpenAI)', status: 'error', message: 'Could not reach OpenAI API', detail: e.message };
   }
-  // Only OPENAI_API_KEY is set — perfectly fine in production (Dokploy), minor note in Replit dev
-  return { service: 'AI (OpenAI)', status: 'ok', message: 'Configured via OPENAI_API_KEY' };
 }
 
 async function checkPushNotifications(): Promise<HealthResult> {
