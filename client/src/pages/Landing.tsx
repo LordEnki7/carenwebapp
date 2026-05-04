@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Shield, Video, Scale, UserCheck, Globe, Cloud, Mic, Camera, FileAudio, FileVideo, CheckCircle2, Loader2 } from "lucide-react";
+import { Shield, Video, Scale, UserCheck, Globe, Cloud, Mic, Camera, FileAudio, FileVideo, CheckCircle2, Loader2, Star } from "lucide-react";
 import carenLogo from "@assets/caren-logo-full.png";
+import promoImage1 from "@assets/promo-woman-kitchen.jpg";
+import promoImage2 from "@assets/promo-woman-white.jpg";
 import LegalAgreementModal from "@/components/LegalAgreementModal";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import ChatAgent from "@/components/ChatAgent";
@@ -165,6 +167,45 @@ export default function Landing() {
               </p>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Social Proof Photo Section */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <span className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+              <Star className="w-4 h-4 fill-blue-600" /> Real People. Real Protection.
+            </span>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">Trusted by Families Across America</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">
+              C.A.R.E.N.™ Alert puts legal protection in the hands of everyday people — at home, on the road, wherever life takes you.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl group">
+              <img
+                src={promoImage1}
+                alt="C.A.R.E.N. Alert user holding phone showing the app"
+                className="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <p className="text-white font-bold text-lg leading-tight">"Finally, protection I can carry in my pocket."</p>
+                <p className="text-gray-300 text-sm mt-1">Sign up for C.A.R.E.N. Alert today</p>
+              </div>
+            </div>
+            <div className="relative rounded-2xl overflow-hidden shadow-xl group">
+              <img
+                src={promoImage2}
+                alt="C.A.R.E.N. Alert user pointing to app on phone"
+                className="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <p className="text-white font-bold text-lg leading-tight">"Knowing my rights has never been this easy."</p>
+                <p className="text-gray-300 text-sm mt-1">Sign up for C.A.R.E.N. Alert today</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Lead Capture Section */}

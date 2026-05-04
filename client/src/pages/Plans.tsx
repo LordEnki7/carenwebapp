@@ -6,6 +6,8 @@ import { Capacitor } from "@capacitor/core";
 import { useToast } from "@/hooks/use-toast";
 import iapService, { type PlanId } from "@/lib/iapService";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
+import promoImage1 from "@assets/promo-woman-kitchen.jpg";
+import promoImage2 from "@assets/promo-woman-white.jpg";
 
 const PLANS = [
   {
@@ -247,6 +249,41 @@ export default function Plans() {
               ? "Subscriptions managed through your Apple ID. Cancel anytime."
               : "Cancel auto-renewable plans anytime from your account settings."}
           </p>
+        </div>
+
+        {/* Promo photo strip */}
+        <div className="relative rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-2 gap-3 max-w-2xl mx-auto">
+            <div className="relative rounded-xl overflow-hidden shadow-xl group">
+              <img
+                src={promoImage1}
+                alt="C.A.R.E.N. Alert user"
+                className="w-full object-cover object-top aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-white font-bold text-sm leading-snug">"Finally, protection I can count on."</p>
+                <div className="flex gap-0.5 mt-1">
+                  {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-xs">★</span>)}
+                </div>
+              </div>
+            </div>
+            <div className="relative rounded-xl overflow-hidden shadow-xl group">
+              <img
+                src={promoImage2}
+                alt="C.A.R.E.N. Alert user"
+                className="w-full object-cover object-top aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-4">
+                <p className="text-white font-bold text-sm leading-snug">"My rights in my pocket, always."</p>
+                <div className="flex gap-0.5 mt-1">
+                  {[1,2,3,4,5].map(i => <span key={i} className="text-yellow-400 text-xs">★</span>)}
+                </div>
+              </div>
+            </div>
+          </div>
+          <p className="text-gray-500 text-xs text-center mt-3">Join thousands protecting themselves with C.A.R.E.N.™ Alert</p>
         </div>
 
         {/* Plan Cards — Web uses new design, iOS keeps IAP flow */}

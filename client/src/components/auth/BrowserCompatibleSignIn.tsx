@@ -5,6 +5,8 @@ import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Mic, MicOff, Play, Loader2, AlertCircle } from "lucide-react";
 import carenLogo from "@assets/caren-logo-full.png";
+import promoImage1 from "@assets/promo-woman-kitchen.jpg";
+import promoImage2 from "@assets/promo-woman-white.jpg";
 
 // SimpleSignInForm stays eager — it is shown immediately on first render
 import SimpleSignInForm from "./SimpleSignInForm";
@@ -411,6 +413,35 @@ export default function BrowserCompatibleSignIn() {
                 {b}
               </span>
             ))}
+          </div>
+
+          {/* Promo photo strip */}
+          <div className="w-full max-w-xl">
+            <p className="text-gray-500 text-xs text-center mb-3 uppercase tracking-widest font-semibold">Trusted by families everywhere</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="relative rounded-xl overflow-hidden shadow-lg group">
+                <img
+                  src={promoImage1}
+                  alt="C.A.R.E.N. Alert user"
+                  className="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="text-white text-xs font-semibold leading-snug">Real protection for real people</p>
+                </div>
+              </div>
+              <div className="relative rounded-xl overflow-hidden shadow-lg group">
+                <img
+                  src={promoImage2}
+                  alt="C.A.R.E.N. Alert user"
+                  className="w-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-3">
+                  <p className="text-white text-xs font-semibold leading-snug">Know your rights instantly</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
