@@ -12,6 +12,10 @@ const EMERGENCY_FEATURES = new Set([
   "Family emergency notification network",
 ]);
 
+const COMING_SOON_FEATURES = new Set([
+  "Attorney matching & direct connect",
+]);
+
 const PLANS = [
   {
     id: "community_guardian",
@@ -300,8 +304,13 @@ export default function SubscriptionPlans({ currentTier, onUpgrade }: Subscripti
                           : <Check className="w-2.5 h-2.5 text-green-400" />
                         }
                       </div>
-                      <span className={`text-sm leading-snug ${isEmergency ? "text-white font-medium" : "text-gray-300"}`}>
+                      <span className={`text-sm leading-snug flex items-center gap-1.5 flex-wrap ${isEmergency ? "text-white font-medium" : "text-gray-300"}`}>
                         {feature}
+                        {COMING_SOON_FEATURES.has(feature) && (
+                          <span className="inline-block text-[9px] font-bold tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded px-1.5 py-0.5 leading-none">
+                            COMING SOON
+                          </span>
+                        )}
                       </span>
                     </div>
                   );

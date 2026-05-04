@@ -324,7 +324,14 @@ export default function Plans() {
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-start gap-2 text-sm text-gray-300">
                         <Check className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                        {f}
+                        <span className="flex items-center gap-1.5 flex-wrap">
+                          {f}
+                          {f === "Attorney matching & direct connect" && (
+                            <span className="inline-block text-[9px] font-bold tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded px-1.5 py-0.5 leading-none">
+                              COMING SOON
+                            </span>
+                          )}
+                        </span>
                       </li>
                     ))}
                   </ul>
