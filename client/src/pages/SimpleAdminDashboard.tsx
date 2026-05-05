@@ -760,15 +760,17 @@ export default function SimpleAdminDashboard() {
         {/* Dashboard Tabs */}
         <Card className="bg-gray-800 border-gray-700">
           <Tabs defaultValue="analytics" className="w-full">
-            <TabsList className="grid w-full grid-cols-7 bg-gray-700">
-              <TabsTrigger value="health" className="text-white font-semibold">🔍 System Health</TabsTrigger>
-              <TabsTrigger value="analytics" className="text-white">User Analytics</TabsTrigger>
-              <TabsTrigger value="sessions" className="text-white">Live Sessions</TabsTrigger>
-              <TabsTrigger value="payments" className="text-white">Payment Tracking</TabsTrigger>
-              <TabsTrigger value="learning" className="text-white">Learning Analytics</TabsTrigger>
-              <TabsTrigger value="platform" className="text-white">Platform Metrics</TabsTrigger>
-              <TabsTrigger value="users" className="text-white font-semibold">👥 Manage Users</TabsTrigger>
-            </TabsList>
+            <div className="overflow-x-auto">
+              <TabsList className="flex w-max min-w-full bg-gray-700 rounded-none">
+                <TabsTrigger value="health" className="text-white font-semibold whitespace-nowrap flex-shrink-0">🔍 System Health</TabsTrigger>
+                <TabsTrigger value="analytics" className="text-white whitespace-nowrap flex-shrink-0">User Analytics</TabsTrigger>
+                <TabsTrigger value="sessions" className="text-white whitespace-nowrap flex-shrink-0">Live Sessions</TabsTrigger>
+                <TabsTrigger value="payments" className="text-white whitespace-nowrap flex-shrink-0">Payment Tracking</TabsTrigger>
+                <TabsTrigger value="learning" className="text-white whitespace-nowrap flex-shrink-0">Learning Analytics</TabsTrigger>
+                <TabsTrigger value="platform" className="text-white whitespace-nowrap flex-shrink-0">Platform Metrics</TabsTrigger>
+                <TabsTrigger value="users" className="text-white font-semibold whitespace-nowrap flex-shrink-0">👥 Manage Users</TabsTrigger>
+              </TabsList>
+            </div>
             
             <TabsContent value="health" className="p-6">
               <SystemHealthTab />
