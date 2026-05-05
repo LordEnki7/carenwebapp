@@ -272,6 +272,10 @@ export default function SimpleAdminDashboard() {
   const [confirmDialog, setConfirmDialog] = useState<{ userId: string; action: 'quarantine'|'ban'|'delete'; userName: string } | null>(null);
   const [actionReason, setActionReason] = useState('');
 
+  // Bulk action state (from Abuse Monitor findings)
+  const [bulkConfirm, setBulkConfirm] = useState<{ userIds: string[]; action: 'delete'|'ban'; label: string } | null>(null);
+  const [bulkLoading, setBulkLoading] = useState(false);
+
   const takeAction = async (userId: string, action: 'quarantine' | 'ban' | 'delete') => {
     const key = `${userId}:${action}`;
     setActionLoading(key);
@@ -295,6 +299,26 @@ export default function SimpleAdminDashboard() {
       }
     } catch (e) { alert('Network error — try again'); }
     finally { setActionLoading(null); }
+  };
+
+  const executeBulkAction = async () => {
+    if (!bulkConfirm) return;
+    setBulkLoading(true);
+    try {
+      const res = await fetch('/api/admin/bulk-action', {
+        method: 'POST',
+        headers: { 'x-admin-key': 'CAREN_ADMIN_2025_PRODUCTION', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userIds: bulkConfirm.userIds, action: bulkConfirm.action, reason: `Bulk ${bulkConfirm.action} via Abuse Monitor` }),
+      });
+      const data = await res.json();
+      setBulkConfirm(null);
+      await loadUsers();
+      await runAbuseScan();
+      if (data.failed > 0) {
+        alert(`Done: ${data.succeeded} succeeded, ${data.failed} failed.\n${data.errors?.join('\n') || ''}`);
+      }
+    } catch (e) { alert('Network error — try again'); }
+    finally { setBulkLoading(false); }
   };
 
   const runAbuseScan = async (key?: string) => {
@@ -1200,16 +1224,36 @@ export default function SimpleAdminDashboard() {
                             f.severity === 'MEDIUM' ? 'bg-orange-900/20 border-orange-500' :
                             'bg-gray-800/50 border-gray-600'
                           }`}>
-                            <p className={`font-bold mb-0.5 ${f.severity === 'HIGH' ? 'text-red-300' : f.severity === 'MEDIUM' ? 'text-orange-300' : 'text-gray-400'}`}>
-                              [{f.severity}] {f.type} — {f.summary}
-                            </p>
-                            <p className="text-gray-400">{f.detail}</p>
-                            {f.affectedUsers.length > 0 && (
-                              <p className="text-gray-500 mt-1">
-                                Affected: {f.affectedUsers.slice(0, 5).join(', ')}
-                                {f.affectedUsers.length > 5 ? ` +${f.affectedUsers.length - 5} more` : ''}
-                              </p>
-                            )}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <p className={`font-bold mb-0.5 ${f.severity === 'HIGH' ? 'text-red-300' : f.severity === 'MEDIUM' ? 'text-orange-300' : 'text-gray-400'}`}>
+                                  [{f.severity}] {f.type} — {f.summary}
+                                </p>
+                                <p className="text-gray-400">{f.detail}</p>
+                                {f.affectedUsers?.length > 0 && (
+                                  <p className="text-gray-500 mt-1">
+                                    Affected: {f.affectedUsers.slice(0, 5).join(', ')}
+                                    {f.affectedUsers.length > 5 ? ` +${f.affectedUsers.length - 5} more` : ''}
+                                  </p>
+                                )}
+                              </div>
+                              {f.affectedIds?.length > 0 && f.severity !== 'LOW' && (
+                                <div className="flex gap-1.5 flex-shrink-0 mt-0.5">
+                                  <button
+                                    onClick={() => setBulkConfirm({ userIds: f.affectedIds, action: 'ban', label: f.summary })}
+                                    className="px-2 py-1 rounded bg-orange-800/60 hover:bg-orange-700/80 text-orange-200 border border-orange-600/40 text-xs font-semibold transition-colors"
+                                  >
+                                    🚫 Ban All
+                                  </button>
+                                  <button
+                                    onClick={() => setBulkConfirm({ userIds: f.affectedIds, action: 'delete', label: f.summary })}
+                                    className="px-2 py-1 rounded bg-red-900/60 hover:bg-red-800/80 text-red-200 border border-red-700/40 text-xs font-semibold transition-colors"
+                                  >
+                                    🗑 Delete All
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1379,6 +1423,37 @@ export default function SimpleAdminDashboard() {
                           }`}
                         >
                           {actionLoading ? 'Working…' : `Confirm ${confirmDialog.action.charAt(0).toUpperCase() + confirmDialog.action.slice(1)}`}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bulk Action Confirm Dialog */}
+                {bulkConfirm && (
+                  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+                    <div className="bg-gray-900 border border-gray-700 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+                      <h3 className="text-white font-bold text-lg mb-1">
+                        {bulkConfirm.action === 'delete' ? '🗑 Bulk Delete' : '🚫 Bulk Ban'}
+                      </h3>
+                      <p className="text-gray-400 text-sm mb-1">
+                        Finding: <span className="text-white font-medium">{bulkConfirm.label}</span>
+                      </p>
+                      <p className="text-gray-400 text-sm mb-4">
+                        This will {bulkConfirm.action === 'delete' ? 'permanently delete' : 'permanently ban'} <strong className="text-white">{bulkConfirm.userIds.length} accounts</strong> and store their fingerprints to prevent return.{bulkConfirm.action === 'delete' ? ' This cannot be undone.' : ''}
+                      </p>
+                      <div className="flex gap-3 justify-end">
+                        <Button variant="outline" onClick={() => setBulkConfirm(null)} className="border-gray-600 text-gray-300" disabled={bulkLoading}>
+                          Cancel
+                        </Button>
+                        <Button
+                          onClick={executeBulkAction}
+                          disabled={bulkLoading}
+                          className={`text-white font-semibold ${bulkConfirm.action === 'delete' ? 'bg-red-800 hover:bg-red-900' : 'bg-red-600 hover:bg-red-700'}`}
+                        >
+                          {bulkLoading ? (
+                            <><span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin mr-2 inline-block" />Working…</>
+                          ) : `Confirm ${bulkConfirm.action === 'delete' ? 'Delete' : 'Ban'} All`}
                         </Button>
                       </div>
                     </div>

@@ -3110,68 +3110,73 @@ setInterval(load, 15000);
         summary: string;
         detail: string;
         affectedUsers: string[];
+        affectedIds: string[];
       }> = [];
 
       // 1. Multiple accounts with identical full name
-      const nameGroups: Record<string, string[]> = {};
+      const nameGroups: Record<string, { email: string; id: string }[]> = {};
       for (const u of users) {
         const name = `${(u.firstName || '').trim()} ${(u.lastName || '').trim()}`.toLowerCase().trim();
         if (name.length > 2 && name !== 'test user' && name !== 'demo user' && name !== 'face user') {
           if (!nameGroups[name]) nameGroups[name] = [];
-          nameGroups[name].push(u.email || u.id);
+          nameGroups[name].push({ email: u.email || u.id, id: u.id });
         }
       }
-      for (const [name, emails] of Object.entries(nameGroups)) {
-        if (emails.length >= 3) {
+      for (const [name, entries] of Object.entries(nameGroups)) {
+        if (entries.length >= 3) {
           findings.push({
             severity: 'HIGH',
             type: 'Duplicate Identity',
-            summary: `"${name}" has ${emails.length} accounts`,
-            detail: `Same full name across ${emails.length} accounts may indicate a single user evading limits or a test account not cleaned up.`,
-            affectedUsers: emails,
+            summary: `"${name}" has ${entries.length} accounts`,
+            detail: `Same full name across ${entries.length} accounts may indicate a single user evading limits or a test account not cleaned up.`,
+            affectedUsers: entries.map(e => e.email),
+            affectedIds: entries.map(e => e.id),
           });
-        } else if (emails.length === 2) {
+        } else if (entries.length === 2) {
           findings.push({
             severity: 'LOW',
             type: 'Duplicate Identity',
             summary: `"${name}" has 2 accounts`,
             detail: `Possible duplicate account or legitimate second device.`,
-            affectedUsers: emails,
+            affectedUsers: entries.map(e => e.email),
+            affectedIds: entries.map(e => e.id),
           });
         }
       }
 
       // 2. Email address variations (likely same person)
-      const gmailVariants: Record<string, string[]> = {};
+      const gmailVariants: Record<string, { email: string; id: string }[]> = {};
       for (const u of users) {
         if (!u.email) continue;
-        // Normalize: remove dots, strip +aliases, lowercase
         const norm = u.email.toLowerCase().split('@')[0].replace(/\./g, '').replace(/\+.*$/, '');
         const domain = u.email.split('@')[1] || '';
         const key = `${norm}@${domain}`;
         if (!gmailVariants[key]) gmailVariants[key] = [];
-        gmailVariants[key].push(u.email);
+        gmailVariants[key].push({ email: u.email, id: u.id });
       }
-      for (const [, emails] of Object.entries(gmailVariants)) {
-        if (emails.length >= 2) {
+      for (const [, entries] of Object.entries(gmailVariants)) {
+        if (entries.length >= 2) {
           findings.push({
             severity: 'MEDIUM',
             type: 'Email Variant Accounts',
-            summary: `${emails.length} accounts with nearly identical email`,
+            summary: `${entries.length} accounts with nearly identical email`,
             detail: `These emails normalize to the same address — likely the same person with multiple accounts.`,
-            affectedUsers: emails,
+            affectedUsers: entries.map(e => e.email),
+            affectedIds: entries.map(e => e.id),
           });
         }
       }
 
       // 3. Signup burst — many accounts on same day
-      const dayGroups: Record<string, number> = {};
+      const dayGroups: Record<string, { count: number; ids: string[] }> = {};
       for (const u of users) {
         if (!u.createdAt) continue;
         const day = new Date(u.createdAt).toISOString().split('T')[0];
-        dayGroups[day] = (dayGroups[day] || 0) + 1;
+        if (!dayGroups[day]) dayGroups[day] = { count: 0, ids: [] };
+        dayGroups[day].count++;
+        dayGroups[day].ids.push(u.id);
       }
-      for (const [day, count] of Object.entries(dayGroups)) {
+      for (const [day, { count, ids }] of Object.entries(dayGroups)) {
         if (count >= 5) {
           findings.push({
             severity: count >= 10 ? 'HIGH' : 'MEDIUM',
@@ -3179,6 +3184,7 @@ setInterval(load, 15000);
             summary: `${count} accounts created on ${day}`,
             detail: `A spike of ${count} signups in one day may indicate bot registration, a shared link being shared broadly, or a test run.`,
             affectedUsers: [],
+            affectedIds: ids,
           });
         }
       }
@@ -3197,6 +3203,7 @@ setInterval(load, 15000);
           summary: `${staleFree.length} free accounts older than 60 days`,
           detail: `These users signed up but never upgraded. Consider a re-engagement email campaign or review for dormant/bot accounts.`,
           affectedUsers: staleFree.map(u => u.email || u.id).slice(0, 10),
+          affectedIds: staleFree.map(u => u.id),
         });
       }
 
@@ -3212,6 +3219,7 @@ setInterval(load, 15000);
           summary: `${seedAccounts.length} test accounts detected in live database`,
           detail: `Test accounts (carentest.com, example.com, demo.com) are still present in the production database. These should be cleaned up.`,
           affectedUsers: seedAccounts.map(u => u.email || u.id),
+          affectedIds: seedAccounts.map(u => u.id),
         });
       }
 
@@ -3224,6 +3232,7 @@ setInterval(load, 15000);
           summary: `${appleRelay.length} users signed in via Apple with hidden email`,
           detail: `These users used Apple's private relay. You cannot email them directly. If they have issues, they must contact support through the app.`,
           affectedUsers: appleRelay.map(u => `${u.firstName} ${u.lastName} (${u.email})`),
+          affectedIds: appleRelay.map(u => u.id),
         });
       }
 
@@ -3473,6 +3482,52 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       await softDeleteUser(id, adminId, 'Admin-initiated account removal');
       res.json({ success: true, deleted: true, fingerprintStored: true });
     } catch (err: any) { res.status(500).json({ message: err.message }); }
+  });
+
+  // POST /api/admin/bulk-action  — delete or ban a list of user IDs
+  app.post('/api/admin/bulk-action', async (req: any, res) => {
+    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    const { userIds, action, reason } = req.body as { userIds: string[]; action: 'delete' | 'ban'; reason?: string };
+    if (!Array.isArray(userIds) || userIds.length === 0) return res.status(400).json({ message: 'No userIds provided' });
+    if (action !== 'delete' && action !== 'ban') return res.status(400).json({ message: 'action must be delete or ban' });
+
+    const { db } = await import('./db');
+    const { users, bannedFingerprints } = await import('../shared/schema');
+    const { eq, inArray } = await import('drizzle-orm');
+    const { softDeleteUser } = await import('./dbSafety');
+
+    let succeeded = 0;
+    let failed = 0;
+    const errors: string[] = [];
+
+    for (const id of userIds) {
+      try {
+        const [user] = await db.select().from(users).where(eq(users.id, id));
+        if (!user) { failed++; continue; }
+
+        const fp = buildFingerprint(user);
+        await db.insert(bannedFingerprints).values({
+          originalUserId: id,
+          ...fp,
+          reason: reason || `Bulk ${action} by admin`,
+          severity: 'HIGH',
+          deviceFingerprint: null,
+        } as any);
+
+        if (action === 'delete') {
+          await db.execute(sql`UPDATE login_activity SET user_id = NULL WHERE user_id = ${id}`);
+          await softDeleteUser(id, 'admin', reason || 'Bulk delete via Abuse Monitor');
+        } else {
+          await db.update(users).set({ accountStatus: 'banned', subscriptionTier: 'free' } as any).where(eq(users.id, id));
+        }
+        succeeded++;
+      } catch (e: any) {
+        failed++;
+        errors.push(`${id}: ${e.message?.slice(0, 60)}`);
+      }
+    }
+
+    res.json({ success: true, succeeded, failed, errors });
   });
 
   // GET /api/admin/banned-fingerprints  — list all stored fingerprints
