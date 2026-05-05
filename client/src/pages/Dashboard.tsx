@@ -101,6 +101,16 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  // Paywall gate — free-tier users must choose a plan before accessing the dashboard
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && user) {
+      const tier = (user as any).subscriptionTier;
+      if (!tier || tier === 'free') {
+        window.location.href = '/plans?new=true';
+      }
+    }
+  }, [authLoading, isAuthenticated, user]);
+
   // Initialize journey tracking and track dashboard access
   useEffect(() => {
     if (isAuthenticated && user) {

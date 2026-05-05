@@ -140,6 +140,7 @@ export default function Plans() {
   const { toast } = useToast();
   const isIOS = Capacitor.isNativePlatform() && Capacitor.getPlatform() === "ios";
   const iapAvailable = iapService.isAvailable();
+  const isNewSignup = new URLSearchParams(window.location.search).get('new') === 'true';
 
   const [purchasing, setPurchasing] = useState<PlanId | null>(null);
   const [restoring, setRestoring] = useState(false);
@@ -209,18 +210,26 @@ export default function Plans() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-slate-900 to-gray-950 text-white">
       {/* Header */}
+      {isNewSignup && (
+        <div className="bg-emerald-600 text-white text-center py-3 px-4">
+          <p className="text-sm font-bold">One last step — activate your account</p>
+          <p className="text-xs text-emerald-100 mt-0.5">Your account is ready. Choose a plan below to get started. Early Access is just $0.99 one-time.</p>
+        </div>
+      )}
       <div className="sticky top-0 z-10 bg-gray-950/80 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setLocation("/dashboard")}
-          className="text-gray-400 hover:text-white p-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Button>
+        {!isNewSignup && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLocation("/dashboard")}
+            className="text-gray-400 hover:text-white p-2"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        )}
         <div className="flex-1">
-          <h1 className="font-bold text-white text-base">Choose Your Plan</h1>
-          <p className="text-xs text-gray-400">C.A.R.E.N.™ Alert Legal Protection</p>
+          <h1 className="font-bold text-white text-base">{isNewSignup ? "Activate Your Account" : "Choose Your Plan"}</h1>
+          <p className="text-xs text-gray-400">{isNewSignup ? "Select a plan to complete signup" : "C.A.R.E.N.™ Alert Legal Protection"}</p>
         </div>
         {isIOS && iapAvailable && (
           <Button

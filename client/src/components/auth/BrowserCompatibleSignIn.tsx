@@ -136,8 +136,8 @@ export default function BrowserCompatibleSignIn() {
         headers,
       });
       if (!res.ok) throw new Error('Failed to save terms agreement');
-      toast({ title: 'Welcome to C.A.R.E.N.™ Alert!', description: 'Redirecting to your dashboard…' });
-      setTimeout(() => { window.location.href = '/'; }, 800);
+      toast({ title: 'Account connected!', description: 'Choose a plan to activate your access — starting at $0.99.' });
+      setTimeout(() => { window.location.href = '/plans?new=true'; }, 800);
     } catch (err: any) {
       toast({ title: 'Something went wrong', description: err.message, variant: 'destructive' });
       setIsAgreeingToTerms(false);
@@ -267,13 +267,13 @@ export default function BrowserCompatibleSignIn() {
   const handleOnboardingComplete = () => {
     setShowOnboardingModal(false);
     toast({
-      title: "Welcome to C.A.R.E.N.™ Alert!",
-      description: "Your account is ready. Redirecting to dashboard...",
+      title: "Almost there!",
+      description: "Choose a plan to activate your account — starting at $0.99.",
     });
     setTimeout(() => {
-      window.location.href = '/dashboard';
+      window.location.href = '/plans?new=true';
     }, 1000);
-  };;
+  };
 
   const startDemoLogin = () => {
     demoLoginMutation.mutate();
