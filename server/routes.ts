@@ -3167,10 +3167,12 @@ setInterval(load, 15000);
         }
       }
 
-      // 3. Signup burst — many accounts on same day
+      // 3. Signup burst — many accounts on same day (exclude attorney/seed IDs)
       const dayGroups: Record<string, { count: number; ids: string[] }> = {};
       for (const u of users) {
         if (!u.createdAt) continue;
+        // Skip attorney seed accounts and other non-real-user IDs
+        if (u.id.startsWith('attorney_') || u.id.startsWith('demo-user') || u.id.startsWith('seed-')) continue;
         const day = new Date(u.createdAt).toISOString().split('T')[0];
         if (!dayGroups[day]) dayGroups[day] = { count: 0, ids: [] };
         dayGroups[day].count++;
