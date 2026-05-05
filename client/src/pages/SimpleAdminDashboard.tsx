@@ -262,6 +262,9 @@ export default function SimpleAdminDashboard() {
   const [savingUser, setSavingUser] = useState<string | null>(null);
   const [savedUser, setSavedUser] = useState<string | null>(null);
 
+  // Tab navigation (controlled so we can jump programmatically)
+  const [activeTab, setActiveTab] = useState('analytics');
+
   // Abuse monitoring state
   const [abuseReport, setAbuseReport] = useState<any>(null);
   const [abuseScanLoading, setAbuseScanLoading] = useState(false);
@@ -327,6 +330,11 @@ export default function SimpleAdminDashboard() {
       }
     } catch (e) { alert('Network error — try again'); }
     finally { setBulkLoading(false); }
+  };
+
+  const jumpToUser = (email: string) => {
+    setActiveTab('users');
+    setUserSearch(email);
   };
 
   const runAbuseScan = async (key?: string) => {
@@ -767,7 +775,7 @@ export default function SimpleAdminDashboard() {
 
         {/* Dashboard Tabs */}
         <Card className="bg-gray-800 border-gray-700">
-          <Tabs defaultValue="analytics" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
               <TabsList className="flex w-max min-w-full bg-gray-700 rounded-none">
                 <TabsTrigger value="health" className="text-white font-semibold whitespace-nowrap flex-shrink-0">🔍 System Health</TabsTrigger>
@@ -1240,11 +1248,31 @@ export default function SimpleAdminDashboard() {
                                   [{f.severity}] {f.type} — {f.summary}
                                 </p>
                                 <p className="text-gray-400">{f.detail}</p>
-                                {f.affectedUsers?.length > 0 && (
-                                  <p className="text-gray-500 mt-1">
-                                    Affected: {f.affectedUsers.slice(0, 5).join(', ')}
-                                    {f.affectedUsers.length > 5 ? ` +${f.affectedUsers.length - 5} more` : ''}
-                                  </p>
+                                {f.affectedIds?.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5 mt-2">
+                                    {f.affectedIds.slice(0, 8).map((uid: string, idx: number) => {
+                                      const u = allUsers.find((x: any) => x.id === uid);
+                                      const label = u ? (u.email || `${u.firstName} ${u.lastName}`.trim() || uid) : (f.affectedUsers?.[idx] || uid);
+                                      const tier = u?.subscriptionTier || 'free';
+                                      return (
+                                        <button
+                                          key={uid}
+                                          onClick={() => jumpToUser(label)}
+                                          title="Click to find this user in Manage Users"
+                                          className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-700/80 hover:bg-cyan-900/60 border border-gray-600 hover:border-cyan-500/60 transition-colors text-xs text-gray-300 hover:text-cyan-200"
+                                        >
+                                          <span>🔗</span>
+                                          <span className="truncate max-w-[140px]">{label}</span>
+                                          <span className={`px-1.5 py-0 rounded-full text-[10px] font-semibold ${TIER_COLORS[tier] || 'bg-gray-500/20 text-gray-400'}`}>
+                                            {TIER_LABELS[tier] ? TIER_LABELS[tier].split(' ')[0] : tier}
+                                          </span>
+                                        </button>
+                                      );
+                                    })}
+                                    {f.affectedIds.length > 8 && (
+                                      <span className="text-xs text-gray-500 self-center">+{f.affectedIds.length - 8} more</span>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                               {f.affectedIds?.length > 0 && f.severity !== 'LOW' && (
