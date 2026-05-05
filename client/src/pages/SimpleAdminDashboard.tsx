@@ -290,7 +290,11 @@ export default function SimpleAdminDashboard() {
         body: JSON.stringify({ reason: actionReason || undefined }),
       });
       if (res.ok) {
-        await loadUsers();
+        if (action === 'delete') {
+          setAllUsers(prev => prev.filter(u => u.id !== userId));
+        } else {
+          await loadUsers();
+        }
         setConfirmDialog(null);
         setActionReason('');
       } else {
@@ -312,7 +316,11 @@ export default function SimpleAdminDashboard() {
       });
       const data = await res.json();
       setBulkConfirm(null);
-      await loadUsers();
+      if (bulkConfirm.action === 'delete') {
+        setAllUsers(prev => prev.filter(u => !bulkConfirm.userIds.includes(u.id)));
+      } else {
+        await loadUsers();
+      }
       await runAbuseScan();
       if (data.failed > 0) {
         alert(`Done: ${data.succeeded} succeeded, ${data.failed} failed.\n${data.errors?.join('\n') || ''}`);
