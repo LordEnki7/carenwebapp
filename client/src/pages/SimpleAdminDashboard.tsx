@@ -1249,28 +1249,59 @@ export default function SimpleAdminDashboard() {
                                 </p>
                                 <p className="text-gray-400">{f.detail}</p>
                                 {f.affectedIds?.length > 0 && (
-                                  <div className="flex flex-wrap gap-1.5 mt-2">
+                                  <div className="flex flex-col gap-1 mt-2">
                                     {f.affectedIds.slice(0, 8).map((uid: string, idx: number) => {
                                       const u = allUsers.find((x: any) => x.id === uid);
-                                      const label = u ? (u.email || `${u.firstName} ${u.lastName}`.trim() || uid) : (f.affectedUsers?.[idx] || uid);
+                                      const displayName = u
+                                        ? (`${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email || uid)
+                                        : (f.affectedUsers?.[idx] || uid);
+                                      const email = u?.email || '';
                                       const tier = u?.subscriptionTier || 'free';
+                                      const acctStatus = u?.accountStatus || 'active';
                                       return (
-                                        <button
-                                          key={uid}
-                                          onClick={() => jumpToUser(label)}
-                                          title="Click to find this user in Manage Users"
-                                          className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-700/80 hover:bg-cyan-900/60 border border-gray-600 hover:border-cyan-500/60 transition-colors text-xs text-gray-300 hover:text-cyan-200"
-                                        >
-                                          <span>🔗</span>
-                                          <span className="truncate max-w-[140px]">{label}</span>
-                                          <span className={`px-1.5 py-0 rounded-full text-[10px] font-semibold ${TIER_COLORS[tier] || 'bg-gray-500/20 text-gray-400'}`}>
-                                            {TIER_LABELS[tier] ? TIER_LABELS[tier].split(' ')[0] : tier}
-                                          </span>
-                                        </button>
+                                        <div key={uid} className="flex items-center gap-2 px-2 py-1.5 rounded-lg bg-gray-800/80 border border-gray-700/60">
+                                          {/* Name + tier */}
+                                          <div className="flex-1 min-w-0 flex items-center gap-1.5">
+                                            <span className="text-gray-200 text-xs truncate max-w-[160px]">{displayName}</span>
+                                            {email && email !== displayName && (
+                                              <span className="text-gray-500 text-[10px] truncate max-w-[120px]">{email}</span>
+                                            )}
+                                            <span className={`px-1.5 py-0 rounded-full text-[10px] font-semibold flex-shrink-0 ${TIER_COLORS[tier] || 'bg-gray-500/20 text-gray-400'}`}>
+                                              {TIER_LABELS[tier] ? TIER_LABELS[tier].split(' ')[0] : tier}
+                                            </span>
+                                          </div>
+                                          {/* Action buttons */}
+                                          <div className="flex gap-1 flex-shrink-0">
+                                            <button
+                                              title="Jump to this user in Manage Users"
+                                              onClick={() => jumpToUser(email || displayName)}
+                                              className="w-6 h-6 rounded text-cyan-400 bg-cyan-900/20 hover:bg-cyan-900/50 border border-cyan-800/40 text-xs flex items-center justify-center transition-colors"
+                                            >🔗</button>
+                                            {acctStatus === 'active' && (
+                                              <button
+                                                title="Quarantine — suspend this account"
+                                                onClick={() => u && setConfirmDialog({ userId: u.id, action: 'quarantine', userName: displayName })}
+                                                className="w-6 h-6 rounded text-yellow-400 bg-yellow-900/20 hover:bg-yellow-900/40 border border-yellow-800/40 text-xs flex items-center justify-center transition-colors"
+                                              >⏸</button>
+                                            )}
+                                            {acctStatus !== 'banned' && (
+                                              <button
+                                                title="Ban — permanent ban"
+                                                onClick={() => u && setConfirmDialog({ userId: u.id, action: 'ban', userName: displayName })}
+                                                className="w-6 h-6 rounded text-orange-400 bg-orange-900/20 hover:bg-orange-900/40 border border-orange-800/40 text-xs flex items-center justify-center transition-colors"
+                                              >🚫</button>
+                                            )}
+                                            <button
+                                              title="Delete account permanently"
+                                              onClick={() => u && setConfirmDialog({ userId: u.id, action: 'delete', userName: displayName })}
+                                              className="w-6 h-6 rounded text-red-400 bg-red-900/20 hover:bg-red-900/40 border border-red-800/40 text-xs flex items-center justify-center transition-colors"
+                                            >🗑</button>
+                                          </div>
+                                        </div>
                                       );
                                     })}
                                     {f.affectedIds.length > 8 && (
-                                      <span className="text-xs text-gray-500 self-center">+{f.affectedIds.length - 8} more</span>
+                                      <span className="text-xs text-gray-500 pl-2">+{f.affectedIds.length - 8} more — use Ban All / Delete All above</span>
                                     )}
                                   </div>
                                 )}
