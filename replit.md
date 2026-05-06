@@ -1,54 +1,76 @@
 # C.A.R.E.N.™ Alert (Citizen Assistance for Roadside Emergencies and Navigation)
 
-## Overview
+C.A.R.E.N.™ Alert is a family protection platform with GPS-enabled legal rights display, emergency response, attorney network, AI features, and incident recording for legal encounters and vehicle emergencies.
 
-C.A.R.E.N.™ Alert is a comprehensive family protection platform providing GPS-enabled, state-specific legal protection and coordinated emergency response. It integrates real-time voice commands, multi-angle video recording, attorney communication, and roadside assistance. The platform offers peace of mind and protection during legal encounters and vehicle emergencies, leveraging AI for legal assistance, smart emergency detection, incident summarization, multi-language legal translation, attorney matching, and real-time voice coaching.
+## Run & Operate
+- **Dev server**: `npm run dev` (Express + Vite on port 5000)
+- **Typecheck**: `npx tsc --noEmit`
+- **Pre-push check**: `bash scripts/pre-push-check.sh`
+- **Push to production**: `git push github fresh-main:main` — then trigger **Dokploy redeploy** in the Dokploy dashboard (user must click this manually)
+- **Confirm production live**: check `https://carenalert.com/api/version` — commit hash must match local HEAD
+- **Do NOT use**: `bash scripts/deploy-to-dokploy.sh` (causes git lock issues in Replit sandbox) or Replit Publish button (wrong deploy method)
+- **Admin dashboard**: `/admin` — key is stored as env secret, never hardcode or display it
+- **Required env vars**: `DATABASE_URL`, `STRIPE_SECRET_KEY`, `VITE_STRIPE_PUBLIC_KEY`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `OPENAI_API_KEY`, `DAILY_API_KEY`, `CLOUDFLARE_R2_*`, `MAILTRAP_TOKEN`
+
+## Stack
+- **Frontend**: React + TypeScript, Vite, TailwindCSS, shadcn/ui, React Query, Wouter routing, Capacitor (iOS/Android)
+- **Backend**: Node.js + Express.js (TypeScript), Drizzle ORM, PostgreSQL (Neon serverless)
+- **Auth**: Replit OpenID Connect + Google OAuth + custom token auth
+- **AI**: Replit AI Integrations (gpt-5, gpt-4o via `AI_INTEGRATIONS_OPENAI_API_KEY`)
+- **Payments**: Stripe (live keys in production)
+- **Storage**: Cloudflare R2 for incident recordings
+- **Email**: SendGrid + Mailtrap + SMTP (Hostinger)
+- **SMS**: TextBelt (45 credits remaining as of 2026-05-03)
+- **Video calls**: Daily.co
+
+## Where Things Live
+- `client/src/pages/SimpleAdminDashboard.tsx` — admin dashboard (users, abuse monitor, health, analytics)
+- `server/routes.ts` — all API routes (~6300 lines)
+- `server/storage.ts` — all DB operations via Drizzle
+- `server/healthCheck.ts` — 11-integration health checks (runs on startup + `GET /api/health`)
+- `server/dbSafety.ts` — safe user deletion with audit trail (`softDeleteUser`)
+- `shared/schema.ts` — DB schema + Zod types
+- `client/src/buildTimestamp.ts` — auto-generated deploy timestamp for Docker cache busting
+- Schema source of truth: `shared/schema.ts`
+
+## Architecture Decisions
+- **Tabs in admin are controlled** (`value={activeTab}` + `onValueChange`) so `jumpToUser()` can switch to Manage Users tab programmatically
+- **Delete is optimistic**: deleted users are immediately removed from `allUsers` state; no second round-trip needed
+- **Abuse scan excludes**: attorney seed IDs (`attorney_*`), demo users (`demo-user*`), seed accounts (`seed-*`) from signup burst detection
+- **Pre-push hook** runs TypeScript check + server health + video checks before every `git push` — must pass or push is blocked
+- **Dokploy** is the production host. It rebuilds from GitHub on manual trigger. Docker build runs Vite inside the container using Dokploy's own env vars.
+- **Git lock issue**: `.git/refs/remotes/github/main.lock` sometimes goes stale after a push — Replit sandbox blocks `rm` on git files; workaround is that the push still succeeds and Replit auto-commits pending changes in the next checkpoint
+
+## Product
+- GPS-enabled legal rights for all 50 states + DC (467+ protections)
+- Voice command emergency activation (200+ patterns, English/Spanish)
+- Multi-angle video recording → Cloudflare R2, court-ready evidence packages
+- Always-On Dashcam (10-min rolling buffer)
+- AI Legal Assistant, Incident Summarizer, Attorney Matching, Voice Coaching
+- C.A.R.E.N. Legal Access Network (CLAN): attorney applications, portal, video calls
+- Regional Director Program with commissions
+- Referral system with tiered rewards
+- Founders Access / Refer & Earn / Story Spotlight launch incentives
+- Admin dashboard: user management, abuse monitor, system health, analytics
 
 ## User Preferences
+- **Communication**: Simple, everyday language — no technical jargon unless asked
+- **Don't ask**: the user to run commands they shouldn't have to — just do it
+- **Deployment**: User pushes to GitHub → Dokploy rebuilds → carenalert.com updates. The one step the agent cannot do is click "Redeploy" in Dokploy — that requires the user
+- **Recall**: User has noted their recall isn't strong — be proactive, don't wait to be asked, and handle the full flow end-to-end whenever possible
+- **Tone**: Supportive, calm, direct. The user builds something that genuinely helps people in serious situations
 
-Preferred communication style: Simple, everyday language.
+## Gotchas
+- `git commit` and `rm .git/**` are blocked in the Replit main agent sandbox — Replit auto-commits via checkpoints instead
+- `git push github fresh-main:main` works (non-destructive) but may leave a stale `.git/refs/remotes/github/main.lock` — harmless, resolves on next checkpoint
+- Attorney seed accounts (`attorney_1` through `attorney_N`) exist in the DB and must be excluded from abuse scan heuristics
+- `demo-user-123` / `demo@caren.app` is a persistent demo account — treat as test data, not a real user
+- TextBelt SMS credits are limited (45 as of 2026-05-03) — don't trigger test SMS calls unnecessarily
+- The Learning Analytics tab hits a `column "effectiveness" does not exist` DB error — known issue, non-blocking
+- Admin tabs are horizontally scrollable (`overflow-x-auto` flex row) — do NOT revert to `grid-cols-N`
 
-## System Architecture
-
-C.A.R.E.N.™ uses a modular, event-driven architecture with core modules (Authentication, Emergency Response, Voice Command, Legal Rights) and specialized feature modules (Bluetooth, Recording, Location). An Event Bus ensures loose coupling, prioritizing security, performance, and user experience.
-
-The frontend is built with React and TypeScript, using Vite, TailwindCSS with shadcn/ui, React Query for server state, and React hooks for local state. React Router manages navigation with authentication-protected routes. The application supports PWA capabilities and utilizes Capacitor for native iOS/Android wrappers. The UI/UX features a dark, "cyber" aesthetic with glassmorphism, neon accents, and space-inspired backgrounds.
-
-The backend is developed with Node.js and Express.js in TypeScript, offering RESTful APIs with WebSocket support. Authentication uses Replit OpenID Connect, supporting Google OAuth and custom token-based authentication. Security includes rate limiting, session management, AES-256-GCM encryption, biometric authentication, and GDPR compliance. Data storage uses PostgreSQL with Drizzle ORM, and file storage utilizes browser-based blob storage with secure cloud sync and end-to-end encryption.
-
-Key features include:
--   **GPS-Enabled Legal System**: Automatic location detection, OpenStreetMap reverse geocoding, and real-time state identification for displaying legal rights based on a comprehensive legal database (all 50 states + DC, 467+ legal protections).
--   **Voice Command System**: Hands-free emergency activation with 200+ voice patterns and multi-language support (English/Spanish).
--   **Recording and Evidence System**: Browser-based audio/video recording with live preview, GPS coordinate embedding, and court-ready evidence packages (printable HTML with disclaimers). Footage is preserved in Cloudflare R2 with chunked uploads. Includes an "Always-On Dashcam" for continuous background recording with a 10-minute rolling buffer and on-demand upload.
--   **AI-Powered Features**: Includes a Legal Assistant, Emergency Detection, Incident Summarizer, Multi-Language Translation, Attorney Matching, Real-Time Voice Coaching, Recording Analysis, Legal Document Generator, an AI Chat Agent, and an AI Agent Dashboard. This dashboard includes an AI Executive Team for business data analysis, an AI Agent Job System with Human-in-the-Loop Approval, and a Specialized Agent Fleet for focused tasks.
--   **Referral System**: Unique 8-character codes with a dedicated dashboard and tiered rewards for users.
--   **Browser Push Notifications**: VAPID keys for SOS alerts.
--   **C.A.R.E.N. Support Agent**: AI-powered customer support chat widget.
--   **C.A.R.E.N. Legal Access Network (CLAN)**: A comprehensive attorney network system with an application form, admin approval, attorney portal, upgraded matching algorithm, and outreach CRM. Extended attorney access links for incidents are supported (1 day to 10 years duration).
--   **Live Attorney Video/Voice Calls**: Daily.co-powered real-time video calls between users and network attorneys. Users request calls from the Attorney Directory (visible on available/emergency_only attorneys). Attorneys see flashing incoming call alerts in their portal (polls every 5s), can accept/decline, and the Daily.co prebuilt iframe opens for both parties. Call history and duration are logged in the `video_calls` DB table. Requires `DAILY_API_KEY` env var (graceful fallback when absent). Routes: `server/routes/video-calls.routes.ts`. Frontend: `VideoCallModal.tsx`, updated `AttorneyDirectory.tsx`, updated `AttorneyPortal.tsx` (new Calls tab).
--   **Regional Director Program**: Full director recruitment system with application, portal, and admin panel, including a commission system.
--   **Social Media Posting System**: Integrated into the AI Agent Dashboard for AI caption generation, queue management, and one-click posting to multiple platforms.
--   **Integration Health Monitor**: `server/healthCheck.ts` runs active checks against all 11 critical integrations (DB, SMS/TextBelt, SMTP email, Stripe, Daily.co, Cloudflare R2, OpenAI/AI, VAPID push, Google OAuth, LinkedIn, session secret) on every server startup and on-demand via `GET /api/health` (admin-key protected). Results are cached for 60 seconds. Results also display in the Admin Dashboard under the "System Health" tab. SMS fix history: `NIG_API_KEY` (Daily.co key) was incorrectly used as TextBelt key in `notifications.ts` and `video-calls.routes.ts` — fixed to use `TEXTBELT_API_KEY` env var with hardcoded fallback key. TextBelt has 45 credits remaining as of 2026-05-03.
--   **Legal Hold**: Ability to place incidents under legal hold to prevent deletion.
--   **Launch Incentive System**: Features Founders Access, Refer & Earn, and Story Spotlight programs with associated rewards.
--   **My Attorney**: Users can add their own personal attorneys (name, phone, email, firm, specialty, notes, is-primary flag) via the Attorney page "My Attorney" tab. Stored in `user_personal_attorneys` DB table. CRUD via `GET/POST/PATCH/DELETE /api/my-attorneys` (auth required). Primary attorney is flagged and shown first.
--   **Geographic Attorney Unlock**: When an admin approves an attorney, their city+state is geocoded via OpenStreetMap Nominatim (background job) and lat/lng stored in `attorneys.lat/lng`. `GET /api/attorney-coverage-check?lat=&lng=` returns `{covered: bool, nearestMiles: number|null}` using Haversine distance (50-mile radius). Attorney pages check user's browser location and show a green "Active in Your Area" banner if covered, or the Coming Soon banner with nearest distance otherwise. Waitlisted users in the approved state get an email notification automatically on approval.
-
-## External Dependencies
-
--   **PostgreSQL**: Primary database.
--   **Replit Auth**: User authentication and authorization.
--   **OpenStreetMap Nominatim**: Reverse geocoding.
--   **TextBelt API**: SMS emergency notifications.
--   **Gmail SMTP**: Email emergency notifications.
--   **Stripe**: Payment processing.
--   **Replit AI Integrations**: AI-powered features (gpt-5 and gpt-4o models).
--   **Cloudflare R2**: Cloud incident recording storage.
--   **SendGrid**: Email service.
--   **Drizzle ORM**: Database operations.
--   **shadcn/ui**: Component library.
--   **React Query**: Server state management.
--   **Capacitor**: Native mobile app wrapper.
--   **Vite**: Build system.
--   **bcryptjs**: Password hashing.
--   **passport-google-oauth20**: Google OAuth integration.
+## Pointers
+- Health check skill: `server/healthCheck.ts`
+- Pre-push script: `scripts/pre-push-check.sh`
+- Deploy check script: `scripts/check-deployment.sh`
+- Video check script: `scripts/check-videos.sh`
