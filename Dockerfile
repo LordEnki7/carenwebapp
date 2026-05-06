@@ -30,6 +30,7 @@ COPY . .
 # client/src/buildTimestamp.ts is written with a unique timestamp by deploy-to-dokploy.sh on
 # every deploy, guaranteeing Docker's COPY layer is always a content-hash cache MISS.
 # Only build the server-side bundle here — Vite MUST NOT run in Docker (no VITE_* env vars).
+RUN node scripts/write-build-info.cjs
 RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 EXPOSE 5000
