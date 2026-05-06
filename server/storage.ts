@@ -1634,7 +1634,6 @@ export class DatabaseStorage implements IStorage {
         .set({
           usageCount: (existing[0].usageCount ?? 0) + 1,
           lastUsed: new Date(),
-          effectiveness: (usage as any).effectiveness || (existing[0] as any).effectiveness,
           updatedAt: new Date(),
         } as any)
         .where(eq(featureUsage.id, existing[0].id))
@@ -1763,49 +1762,41 @@ export class DatabaseStorage implements IStorage {
     effectiveFeatures: any[];
     improvementAreas: any[];
   }> {
-    try {
-      // User engagement trends over time
-      const engagementResult = await db.execute(
-        sql`SELECT DATE(timestamp) as date, COUNT(*) as actions FROM user_actions WHERE timestamp >= NOW() - INTERVAL '30 days' GROUP BY DATE(timestamp) ORDER BY date`
-      );
+    const safeQuery = async (query: ReturnType<typeof sql>, label: string): Promise<any[]> => {
+      try {
+        const result = await db.execute(query);
+        return result.rows;
+      } catch (err) {
+        console.warn(`[LearningInsights] Skipping "${label}" — ${(err as any)?.message ?? err}`);
+        return [];
+      }
+    };
 
-      // Most popular content by engagement
-      const popularResult = await db.execute(
-        sql`SELECT content_type, content_title, COUNT(*) as views, AVG(rating) as avg_rating FROM content_engagement WHERE completed = true GROUP BY content_type, content_title ORDER BY views DESC LIMIT 10`
-      );
+    const [userEngagementTrends, popularContent, commonLearningPaths, effectiveFeatures, improvementAreas] =
+      await Promise.all([
+        safeQuery(
+          sql`SELECT DATE(timestamp) as date, COUNT(*) as actions FROM user_actions WHERE timestamp >= NOW() - INTERVAL '30 days' GROUP BY DATE(timestamp) ORDER BY date`,
+          'userEngagementTrends'
+        ),
+        safeQuery(
+          sql`SELECT content_type, content_title, COUNT(*) as views FROM content_engagement WHERE completed = true GROUP BY content_type, content_title ORDER BY views DESC LIMIT 10`,
+          'popularContent'
+        ),
+        safeQuery(
+          sql`SELECT category, skill_area, AVG(level) as avg_level, COUNT(*) as users FROM learning_progress GROUP BY category, skill_area ORDER BY users DESC LIMIT 10`,
+          'commonLearningPaths'
+        ),
+        safeQuery(
+          sql`SELECT feature, SUM(usage_count) as total_usage, COUNT(DISTINCT user_id) as user_count FROM feature_usage GROUP BY feature ORDER BY total_usage DESC LIMIT 10`,
+          'effectiveFeatures'
+        ),
+        safeQuery(
+          sql`SELECT skill_area, AVG(level) as avg_level, COUNT(*) as user_count FROM learning_progress WHERE level < 5 GROUP BY skill_area ORDER BY avg_level ASC LIMIT 5`,
+          'improvementAreas'
+        ),
+      ]);
 
-      // Common learning progression paths
-      const pathsResult = await db.execute(
-        sql`SELECT category, skill_area, AVG(level) as avg_level, COUNT(*) as users FROM learning_progress GROUP BY category, skill_area ORDER BY users DESC LIMIT 10`
-      );
-
-      // Most effective features by user satisfaction
-      const effectiveResult = await db.execute(
-        sql`SELECT feature, AVG(effectiveness) as avg_effectiveness, AVG(user_rating) as avg_rating, COUNT(*) as usage_count FROM feature_usage WHERE effectiveness IS NOT NULL GROUP BY feature ORDER BY avg_effectiveness DESC LIMIT 10`
-      );
-
-      // Areas needing improvement
-      const improvementResult = await db.execute(
-        sql`SELECT skill_area, AVG(level) as avg_level, COUNT(*) as user_count FROM learning_progress WHERE level < 5 GROUP BY skill_area ORDER BY avg_level ASC LIMIT 5`
-      );
-
-      return {
-        userEngagementTrends: engagementResult.rows,
-        popularContent: popularResult.rows,
-        commonLearningPaths: pathsResult.rows,
-        effectiveFeatures: effectiveResult.rows,
-        improvementAreas: improvementResult.rows
-      };
-    } catch (error) {
-      console.error('Error generating platform learning insights:', error);
-      return {
-        userEngagementTrends: [],
-        popularContent: [],
-        commonLearningPaths: [],
-        effectiveFeatures: [],
-        improvementAreas: []
-      };
-    }
+    return { userEngagementTrends, popularContent, commonLearningPaths, effectiveFeatures, improvementAreas };
   }
 
   // Legal Navigation operations
