@@ -2961,3 +2961,30 @@ export const attorneyStateWaitlist = pgTable("attorney_state_waitlist", {
 export const insertAttorneyStateWaitlistSchema = createInsertSchema(attorneyStateWaitlist).omit({ id: true, notified: true, createdAt: true });
 export type InsertAttorneyStateWaitlist = z.infer<typeof insertAttorneyStateWaitlistSchema>;
 export type AttorneyStateWaitlist = typeof attorneyStateWaitlist.$inferSelect;
+
+// ===== CONNECTED VEHICLES (EV Integration) =====
+export const connectedVehicles = pgTable("connected_vehicles", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  manufacturer: varchar("manufacturer").notNull(), // tesla | ford | gm | rivian | hyundai | kia | bmw
+  vehicleId: varchar("vehicle_id"),
+  vin: varchar("vin"),
+  displayName: varchar("display_name"),
+  model: varchar("model"),
+  year: varchar("year"),
+  color: varchar("color"),
+  accessToken: text("access_token"),
+  refreshToken: text("refresh_token"),
+  tokenExpiry: timestamp("token_expiry"),
+  isActive: boolean("is_active").default(true),
+  lastSynced: timestamp("last_synced"),
+  vehicleData: text("vehicle_data"), // latest JSON snapshot from manufacturer API
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const insertConnectedVehicleSchema = createInsertSchema(connectedVehicles).omit({
+  id: true, createdAt: true, updatedAt: true,
+});
+export type InsertConnectedVehicle = z.infer<typeof insertConnectedVehicleSchema>;
+export type ConnectedVehicle = typeof connectedVehicles.$inferSelect;

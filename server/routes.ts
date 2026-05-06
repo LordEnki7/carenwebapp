@@ -6290,5 +6290,205 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
   // Run once per week — no startup scan (avoids spam on server restarts)
   setInterval(runScheduledAbuseScan, 7 * 24 * 60 * 60 * 1000);
 
+  // ============================================================================
+  // EV / CONNECTED VEHICLE ROUTES
+  // ============================================================================
+
+  const TESLA_CLIENT_ID = process.env.TESLA_CLIENT_ID || "";
+  const TESLA_CLIENT_SECRET = process.env.TESLA_CLIENT_SECRET || "";
+  const TESLA_REDIRECT_URI = process.env.TESLA_REDIRECT_URI || "https://carenalert.com/api/ev/tesla/callback";
+  const TESLA_AUTH_BASE = "https://auth.tesla.com/oauth2/v3";
+  const TESLA_FLEET_BASE = "https://fleet-api.prd.na.vn.cloud.tesla.com/api/1";
+
+  // List user's connected vehicles
+  app.get("/api/ev/vehicles", async (req: any, res) => {
+    if (!req.session?.userId && !req.user?.id) return res.status(401).json({ message: "Not authenticated" });
+    const userId = req.session?.userId || req.user?.id;
+    try {
+      const vehicles = await storage.getConnectedVehicles(userId);
+      res.json(vehicles);
+    } catch (err) {
+      res.status(500).json({ message: "Failed to fetch vehicles" });
+    }
+  });
+
+  // Initiate Tesla OAuth
+  app.get("/api/ev/tesla/auth", (req: any, res) => {
+    if (!TESLA_CLIENT_ID) {
+      return res.status(503).send(`
+        <html><body style="background:#0f172a;color:#94a3b8;font-family:sans-serif;padding:2rem;">
+          <h2 style="color:#f87171">Tesla API not configured</h2>
+          <p>TESLA_CLIENT_ID and TESLA_CLIENT_SECRET must be set in environment variables.</p>
+          <p>Register your app at <a href="https://developer.tesla.com" style="color:#38bdf8">developer.tesla.com</a></p>
+          <a href="/ev-connect" style="color:#38bdf8">← Back to EV Connect</a>
+        </body></html>
+      `);
+    }
+    const state = Math.random().toString(36).slice(2);
+    if (req.session) req.session.teslaOAuthState = state;
+    const params = new URLSearchParams({
+      response_type: "code",
+      client_id: TESLA_CLIENT_ID,
+      redirect_uri: TESLA_REDIRECT_URI,
+      scope: "openid vehicle_device_data vehicle_commands offline_access",
+      state,
+    });
+    res.redirect(`${TESLA_AUTH_BASE}/authorize?${params}`);
+  });
+
+  // Tesla OAuth callback
+  app.get("/api/ev/tesla/callback", async (req: any, res) => {
+    const { code, state, error } = req.query;
+    if (error) return res.redirect(`/ev-connect?error=${encodeURIComponent(String(error))}`);
+    if (!code) return res.redirect("/ev-connect?error=no_code");
+
+    const userId = req.session?.userId || req.user?.id;
+    if (!userId) return res.redirect("/signin");
+
+    try {
+      // Exchange code for tokens
+      const tokenRes = await fetch(`${TESLA_AUTH_BASE}/token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          grant_type: "authorization_code",
+          client_id: TESLA_CLIENT_ID,
+          client_secret: TESLA_CLIENT_SECRET,
+          code: String(code),
+          redirect_uri: TESLA_REDIRECT_URI,
+        }),
+      });
+      if (!tokenRes.ok) throw new Error(`Token exchange failed: ${tokenRes.status}`);
+      const tokens: any = await tokenRes.json();
+
+      // Fetch vehicle list
+      const vehiclesRes = await fetch(`${TESLA_FLEET_BASE}/vehicles`, {
+        headers: { Authorization: `Bearer ${tokens.access_token}` },
+      });
+      const vehiclesData: any = vehiclesRes.ok ? await vehiclesRes.json() : { response: [] };
+      const fleet: any[] = vehiclesData.response ?? [];
+
+      // Save each vehicle
+      for (const v of fleet) {
+        await storage.createConnectedVehicle({
+          userId,
+          manufacturer: "tesla",
+          vehicleId: String(v.id),
+          vin: v.vin,
+          displayName: v.display_name,
+          model: v.model_name || "Tesla",
+          year: String(v.year ?? ""),
+          color: v.color ?? "",
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          tokenExpiry: tokens.expires_in
+            ? new Date(Date.now() + tokens.expires_in * 1000)
+            : null,
+          isActive: true,
+          lastSynced: new Date(),
+          vehicleData: JSON.stringify({}),
+        });
+      }
+
+      res.redirect("/ev-connect?connected=tesla");
+    } catch (err) {
+      console.error("[EV] Tesla OAuth error:", err);
+      res.redirect("/ev-connect?error=oauth_failed");
+    }
+  });
+
+  // Sync vehicle data
+  app.post("/api/ev/vehicles/:id/sync", async (req: any, res) => {
+    const userId = req.session?.userId || req.user?.id;
+    if (!userId) return res.status(401).json({ message: "Not authenticated" });
+    const vehicleId = parseInt(req.params.id);
+    try {
+      const vehicle = await storage.getConnectedVehicle(vehicleId, userId);
+      if (!vehicle) return res.status(404).json({ message: "Vehicle not found" });
+
+      let vehicleData = {};
+      if (vehicle.manufacturer === "tesla" && vehicle.accessToken && vehicle.vehicleId) {
+        const dataRes = await fetch(`${TESLA_FLEET_BASE}/vehicles/${vehicle.vehicleId}/vehicle_data`, {
+          headers: { Authorization: `Bearer ${vehicle.accessToken}` },
+        });
+        if (dataRes.ok) {
+          const raw: any = await dataRes.json();
+          const d = raw.response ?? {};
+          vehicleData = {
+            batteryLevel: d.charge_state?.battery_level,
+            range: d.charge_state?.est_battery_range != null
+              ? Math.round(d.charge_state.est_battery_range)
+              : undefined,
+            speed: d.drive_state?.speed,
+            latitude: d.drive_state?.latitude,
+            longitude: d.drive_state?.longitude,
+            isLocked: d.vehicle_state?.locked,
+            isCharging: d.charge_state?.charging_state === "Charging",
+            odometer: d.vehicle_state?.odometer != null
+              ? Math.round(d.vehicle_state.odometer)
+              : undefined,
+          };
+        }
+      }
+
+      const updated = await storage.updateConnectedVehicle(vehicleId, userId, {
+        vehicleData: JSON.stringify(vehicleData),
+        lastSynced: new Date(),
+      });
+      res.json(updated);
+    } catch (err) {
+      console.error("[EV] Sync error:", err);
+      res.status(500).json({ message: "Sync failed" });
+    }
+  });
+
+  // Disconnect vehicle
+  app.delete("/api/ev/vehicles/:id", async (req: any, res) => {
+    const userId = req.session?.userId || req.user?.id;
+    if (!userId) return res.status(401).json({ message: "Not authenticated" });
+    try {
+      await storage.deleteConnectedVehicle(parseInt(req.params.id), userId);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ message: "Failed to disconnect vehicle" });
+    }
+  });
+
+  // Emergency signal — honk + flash (Tesla only)
+  app.post("/api/ev/vehicles/:id/emergency-signal", async (req: any, res) => {
+    const userId = req.session?.userId || req.user?.id;
+    if (!userId) return res.status(401).json({ message: "Not authenticated" });
+    try {
+      const vehicle = await storage.getConnectedVehicle(parseInt(req.params.id), userId);
+      if (!vehicle) return res.status(404).json({ message: "Vehicle not found" });
+
+      if (vehicle.manufacturer === "tesla" && vehicle.accessToken && vehicle.vehicleId) {
+        await fetch(`${TESLA_FLEET_BASE}/vehicles/${vehicle.vehicleId}/command/honk_horn`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${vehicle.accessToken}`, "Content-Type": "application/json" },
+        });
+        await fetch(`${TESLA_FLEET_BASE}/vehicles/${vehicle.vehicleId}/command/flash_lights`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${vehicle.accessToken}`, "Content-Type": "application/json" },
+        });
+        res.json({ success: true, actions: ["honk_horn", "flash_lights"] });
+      } else {
+        res.json({ success: false, message: "Emergency signals not supported for this vehicle" });
+      }
+    } catch (err) {
+      console.error("[EV] Emergency signal error:", err);
+      res.status(500).json({ message: "Failed to send emergency signal" });
+    }
+  });
+
+  // EV manufacturer waitlist
+  app.post("/api/ev/waitlist", async (req: any, res) => {
+    const { manufacturer, email } = req.body;
+    if (!manufacturer || !email) return res.status(400).json({ message: "manufacturer and email required" });
+    // Log it — in production this could write to a DB table or send an email
+    console.log(`[EV-WAITLIST] ${email} → ${manufacturer}`);
+    res.json({ success: true });
+  });
+
   return httpServer;
 }

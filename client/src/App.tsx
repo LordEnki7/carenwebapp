@@ -135,6 +135,8 @@ const Incidents = lazy(() => import("@/pages/Incidents"));
 const Dashcam = lazy(() => import("@/pages/Dashcam"));
 const MobilePreview = lazy(() => import("@/pages/MobilePreview"));
 const AutoScreenshot = lazy(() => import("@/pages/AutoScreenshot"));
+const EVConnect = lazy(() => import("@/pages/EVConnect"));
+const CarMode = lazy(() => import("@/pages/CarMode"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -364,6 +366,8 @@ function Router() {
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/mobile-preview" component={MobilePreview} />
             <Route path="/auto-screenshot" component={AutoScreenshot} />
+            <Route path="/ev-connect" component={EVConnect} />
+            <Route path="/car-mode" component={CarMode} />
             <Route path="/privacy" component={PrivacyPolicy} />
             <Route path="/terms" component={TermsOfService} />
             <Route path="/tutorial" component={InteractiveTutorial} />

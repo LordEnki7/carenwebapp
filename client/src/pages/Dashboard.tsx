@@ -2,7 +2,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useEmergencyAlerts } from "@/hooks/useEmergencyAlerts";
-import { Car, MessageSquare, Video, Satellite, Signal, Mic, Users, MapPin, Wrench, Bluetooth, BluetoothConnected, VolumeX, Shield, Play, Copy, Gift, Bell, BellOff, AlertTriangle, X, CreditCard, ChevronRight } from "lucide-react";
+import { Car, MessageSquare, Video, Satellite, Signal, Mic, Users, MapPin, Wrench, Bluetooth, BluetoothConnected, VolumeX, Shield, Play, Copy, Gift, Bell, BellOff, AlertTriangle, X, CreditCard, ChevronRight, Zap } from "lucide-react";
 import MobileResponsiveLayout from "@/components/MobileResponsiveLayout";
 import SmartContextualUI from "@/components/SmartContextualUI";
 import { useBluetoothHandsFree } from "@/hooks/useBluetoothHandsFree";
@@ -578,6 +578,25 @@ export default function Dashboard() {
                     <div className="flex-1 min-w-0">
                       <h3 className="text-lg font-bold text-green-900 truncate">De-Escalation Guide</h3>
                       <p className="text-sm text-green-700 truncate">Stay safe during encounters</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* EV Connect */}
+              <div
+                onClick={() => window.location.href = '/ev-connect'}
+                className="group cursor-pointer animate-scale-in"
+                style={{ animationDelay: '0.15s' }}
+              >
+                <div className="bg-gradient-to-br from-cyan-50 to-teal-100 border border-cyan-200 rounded-xl p-6 card-depth-2 hover-lift hover-glow">
+                  <div className="flex items-center space-x-4">
+                    <div className="p-4 bg-cyan-600 rounded-xl shadow-lg group-hover:shadow-xl transition-all status-indicator">
+                      <Zap className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-bold text-cyan-900 truncate">EV Connect</h3>
+                      <p className="text-sm text-cyan-700 truncate">Link your electric vehicle</p>
                     </div>
                   </div>
                 </div>

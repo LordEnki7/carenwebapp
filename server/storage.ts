@@ -111,6 +111,9 @@ import {
   type InsertLegalDestination,
   type LegalRoute,
   type InsertLegalRoute,
+  connectedVehicles,
+  type ConnectedVehicle,
+  type InsertConnectedVehicle,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, inArray, sql, or } from "drizzle-orm";
@@ -374,6 +377,13 @@ export interface IStorage {
   // Milestone trigger operations (for automatic milestone detection)
   checkAndAwardMilestones(userId: string, actionType: string, relatedEntityId?: string, relatedEntityType?: string): Promise<UserJourneyProgress[]>;
   triggerMilestoneCheck(userId: string, milestoneNames: string[]): Promise<UserJourneyProgress[]>;
+
+  // EV / Connected Vehicle operations
+  getConnectedVehicles(userId: string): Promise<ConnectedVehicle[]>;
+  getConnectedVehicle(id: number, userId: string): Promise<ConnectedVehicle | undefined>;
+  createConnectedVehicle(data: InsertConnectedVehicle): Promise<ConnectedVehicle>;
+  updateConnectedVehicle(id: number, userId: string, updates: Partial<ConnectedVehicle>): Promise<ConnectedVehicle>;
+  deleteConnectedVehicle(id: number, userId: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -2424,6 +2434,38 @@ export class DatabaseStorage implements IStorage {
     }
     
     return awardedMilestones;
+  }
+
+  // ── EV / Connected Vehicle ────────────────────────────────────────────────
+  async getConnectedVehicles(userId: string): Promise<ConnectedVehicle[]> {
+    return db.select().from(connectedVehicles)
+      .where(and(eq(connectedVehicles.userId, userId), eq(connectedVehicles.isActive, true)))
+      .orderBy(desc(connectedVehicles.createdAt));
+  }
+
+  async getConnectedVehicle(id: number, userId: string): Promise<ConnectedVehicle | undefined> {
+    const [v] = await db.select().from(connectedVehicles)
+      .where(and(eq(connectedVehicles.id, id), eq(connectedVehicles.userId, userId)));
+    return v;
+  }
+
+  async createConnectedVehicle(data: InsertConnectedVehicle): Promise<ConnectedVehicle> {
+    const [v] = await db.insert(connectedVehicles).values(data).returning();
+    return v;
+  }
+
+  async updateConnectedVehicle(id: number, userId: string, updates: Partial<ConnectedVehicle>): Promise<ConnectedVehicle> {
+    const [v] = await db.update(connectedVehicles)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(and(eq(connectedVehicles.id, id), eq(connectedVehicles.userId, userId)))
+      .returning();
+    return v;
+  }
+
+  async deleteConnectedVehicle(id: number, userId: string): Promise<void> {
+    await db.update(connectedVehicles)
+      .set({ isActive: false, updatedAt: new Date() })
+      .where(and(eq(connectedVehicles.id, id), eq(connectedVehicles.userId, userId)));
   }
 
 }
