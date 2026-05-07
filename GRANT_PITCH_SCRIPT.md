@@ -1,5 +1,5 @@
 # C.A.R.E.N.™ Alert — Grant Pitch Script
-*For HeyGen avatar video. Estimated runtime: ~2.5 minutes at natural speaking pace.*
+*For HeyGen avatar video. Estimated runtime: 60–90 seconds at natural speaking pace (~170 words spoken).*
 *Swap [GRANT NAME] and [ORGANIZATION] for each application.*
 
 ---
@@ -8,120 +8,31 @@
 
 ---
 
-Hi, my name is [YOUR NAME], and I'm the founder of C.A.R.E.N. Alert —
-Citizen Assistance for Roadside Emergencies and Navigation.
-
-I'm applying for the [GRANT NAME] through [ORGANIZATION],
-and I want to tell you why this technology matters —
-and why right now is the moment to fund it.
-
----
-
-Every year, millions of Americans are pulled over by law enforcement.
-Most don't know their rights.
-Many don't know how to de-escalate.
-And in those moments — seconds matter.
-
-C.A.R.E.N. Alert is the first AI-powered family protection platform
-built specifically for those moments.
-
-It combines GPS-enabled legal rights,
-real-time voice coaching,
-automatic incident recording,
-and an AI legal assistant —
-all in one app, activated by your voice.
-
----
-
-Here's what makes C.A.R.E.N. stand out.
+Hi, I'm [YOUR NAME], founder of C.A.R.E.N. Alert —
+the first AI-powered platform that protects families during traffic stops and roadside emergencies.
 
 When a driver says "I'm being pulled over,"
-C.A.R.E.N. activates automatically.
-It detects the driver's exact location,
-pulls up that state's specific constitutional protections —
-and reads them out loud through a Bluetooth earpiece,
-so the driver hears their rights privately
-without looking at their phone.
+C.A.R.E.N. activates instantly.
+It detects their location, reads their state-specific legal rights through a Bluetooth earpiece,
+begins recording from multiple cameras,
+and notifies emergency contacts — all hands-free.
 
-At the same time, the app begins recording —
-audio, video, from multiple angles —
-and uploads that footage in real time to secure cloud storage.
+We cover all 50 states, 467 constitutional protections,
+with an AI legal assistant, attorney video connect, and court-ready evidence packaging
+built right in.
 
-If something goes wrong, the last ten minutes of dashcam footage
-are automatically saved as court-ready evidence.
+C.A.R.E.N. is live today at carenalert.com.
+This is not a concept — it's a working product with real users, real infrastructure,
+and a mobile app actively in development.
 
-Emergency contacts are notified with GPS coordinates.
-An attorney can be connected within minutes via video call.
-And the AI legal assistant can answer questions
-right there in the car, in plain language — or Spanish.
+The [GRANT NAME] from [ORGANIZATION] would accelerate our iOS and Android launch,
+expand our attorney network into underserved communities,
+and put this protection in the hands of the families who need it most.
 
-This isn't a passive tool. C.A.R.E.N. is active protection.
+People deserve to know their rights in the moment they need them.
+C.A.R.E.N. makes that possible.
 
----
-
-We've built something that works right now.
-
-C.A.R.E.N. is live at carenalert.com.
-We have five subscription tiers,
-a growing attorney network,
-a community forum,
-a regional director program with real commission structures,
-and a family plan that protects up to six people under one account.
-
-We cover all 50 states and Washington D.C. —
-467 constitutional protections, searchable by state.
-
-The platform has rate limiting, encrypted sessions,
-cloud-based incident storage through Cloudflare,
-AI integration through OpenAI,
-and video call infrastructure through Daily.co.
-
-This is not a concept. This is a working product with real infrastructure.
-
----
-
-So what would $50,000 do for C.A.R.E.N.?
-
-First — mobile app development.
-We are actively building the iOS and Android native apps.
-This funding accelerates that build so we can reach users
-who need this most — on the device they carry every day.
-
-Second — outreach and community partnerships.
-We want to put C.A.R.E.N. in the hands of families
-in communities that have historically been most vulnerable
-during law enforcement encounters.
-Grant funding lets us offer subsidized or free access
-to those who can't afford a subscription.
-
-Third — attorney network expansion.
-We are building the C.A.R.E.N. Legal Access Network —
-connecting users to civil rights attorneys across every state.
-This funding helps us onboard more attorneys,
-train them on the platform, and make legal help accessible to everyone —
-not just those who can afford a retainer.
-
----
-
-C.A.R.E.N. exists because people deserve to know their rights
-in the moment they need them most.
-
-Not after the fact.
-Not from a pamphlet.
-Right there. In real time. In their ear.
-
-We are protecting families.
-We are preserving evidence.
-We are making the legal system more accessible —
-one traffic stop at a time.
-
-With your support through [GRANT NAME],
-we can reach more people, faster —
-and make sure that the next family pulled over on the side of the road
-has C.A.R.E.N. in their corner.
-
-Thank you for your time and consideration.
-I would love the opportunity to discuss this further.
+Thank you.
 
 ---
 
