@@ -119,3 +119,9 @@ id = "EI5b_p-OhR2In2bvDtVdv"
 uri = "file://FOOD_DELIVERY_SECURITY_ROADMAP.md"
 type = "text"
 title = "Food Delivery App — Security Roadmap"
+
+[[outputs]]
+id = "CbDIZ945Qz4pfQNEX46hr"
+uri = "file://GRANT_PITCH_SCRIPT.md"
+type = "text"
+title = "C.A.R.E.N. Grant Pitch Script — HeyGen Ready"
