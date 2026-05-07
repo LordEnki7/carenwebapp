@@ -28,6 +28,17 @@ echo -e "\n${BOLD}━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BOLD}  C.A.R.E.N.™ Pre-Push Validation${RESET}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 
+# ── 0. Regenerate build-info.json with current git commit ────
+# Must run before push so Docker gets the real commit hash via COPY . .
+# (.git is excluded from .dockerignore so Docker can't run git itself)
+header "Build info"
+if node scripts/write-build-info.cjs 2>&1 | grep -q "commit="; then
+  COMMIT=$(node -e "const f=require('./dist/public/build-info.json');console.log(f.shortCommit)" 2>/dev/null || echo "?")
+  ok "build-info.json regenerated — commit=${COMMIT}"
+else
+  warn "build-info.json regeneration failed — version endpoint may show 'unknown'"
+fi
+
 # ── 1. TypeScript check ──────────────────────────────────────
 header "TypeScript"
 if npx tsc --noEmit 2>&1 | grep -q "error TS"; then
