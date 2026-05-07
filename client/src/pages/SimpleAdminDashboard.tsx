@@ -279,6 +279,32 @@ export default function SimpleAdminDashboard() {
   const [bulkConfirm, setBulkConfirm] = useState<{ userIds: string[]; action: 'delete'|'ban'; label: string } | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
 
+  // Security / threat log state
+  const [threatData, setThreatData] = useState<{ threats: any[]; stats: any } | null>(null);
+  const [securityData, setSecurityData] = useState<{ failedAdminKeyAttempts: any[]; total: number } | null>(null);
+  const [threatLoading, setThreatLoading] = useState(false);
+
+  const loadThreatData = async () => {
+    if (!adminKey) return;
+    setThreatLoading(true);
+    try {
+      const [t, s] = await Promise.all([
+        fetch('/api/admin/threats?limit=100', { headers: { 'x-admin-key': adminKey } }).then(r => r.json()),
+        fetch('/api/admin/security', { headers: { 'x-admin-key': adminKey } }).then(r => r.json()),
+      ]);
+      setThreatData(t);
+      setSecurityData(s);
+    } catch (e) {
+      console.error('Failed to load threat data', e);
+    } finally {
+      setThreatLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === 'security') loadThreatData();
+  }, [activeTab]);
+
   const takeAction = async (userId: string, action: 'quarantine' | 'ban' | 'delete') => {
     const key = `${userId}:${action}`;
     setActionLoading(key);
@@ -785,6 +811,7 @@ export default function SimpleAdminDashboard() {
                 <TabsTrigger value="learning" className="text-white whitespace-nowrap flex-shrink-0">Learning Analytics</TabsTrigger>
                 <TabsTrigger value="platform" className="text-white whitespace-nowrap flex-shrink-0">Platform Metrics</TabsTrigger>
                 <TabsTrigger value="users" className="text-white font-semibold whitespace-nowrap flex-shrink-0">👥 Manage Users</TabsTrigger>
+                <TabsTrigger value="security" className="text-white font-semibold whitespace-nowrap flex-shrink-0">🛡 Security</TabsTrigger>
               </TabsList>
             </div>
             
@@ -1533,6 +1560,135 @@ export default function SimpleAdminDashboard() {
                   ⏸ Quarantine = suspend (reversible) &nbsp;·&nbsp; 🚫 Ban = permanent + fingerprint stored &nbsp;·&nbsp; 🗑 Delete = removes account but saves fingerprint for return detection.
                 </p>
               </div>
+            </TabsContent>
+
+            {/* ── Security Tab ── */}
+            <TabsContent value="security" className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h3 className="text-xl font-semibold text-white">Security Center</h3>
+                  <p className="text-sm text-gray-400 mt-1">Honeypot trap hits, failed admin key attempts, and attacker fingerprints</p>
+                </div>
+                <Button onClick={loadThreatData} disabled={threatLoading} variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
+                  {threatLoading ? <><span className="w-3 h-3 border border-cyan-400 border-t-transparent rounded-full animate-spin mr-2" />Loading…</> : '↻ Refresh'}
+                </Button>
+              </div>
+
+              {!threatData && !threatLoading && (
+                <p className="text-gray-500 text-sm">Click Refresh to load security data.</p>
+              )}
+
+              {threatLoading && (
+                <div className="flex items-center gap-2 text-gray-400"><span className="w-4 h-4 border border-gray-400 border-t-transparent rounded-full animate-spin" />Loading threat data…</div>
+              )}
+
+              {threatData && (
+                <div className="space-y-6">
+                  {/* Stats row */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Card className="bg-gray-900 border-red-900/40">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-3xl font-bold text-red-400">{threatData.stats?.total ?? 0}</p>
+                        <p className="text-xs text-gray-400 mt-1">Total Trap Hits</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gray-900 border-orange-900/40">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-3xl font-bold text-orange-400">{threatData.stats?.last24h ?? 0}</p>
+                        <p className="text-xs text-gray-400 mt-1">Last 24 Hours</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gray-900 border-yellow-900/40">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-3xl font-bold text-yellow-400">{securityData?.total ?? 0}</p>
+                        <p className="text-xs text-gray-400 mt-1">Failed Admin Key Attempts</p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-gray-900 border-purple-900/40">
+                      <CardContent className="p-4 text-center">
+                        <p className="text-3xl font-bold text-purple-400">{threatData.stats?.topIps?.length ?? 0}</p>
+                        <p className="text-xs text-gray-400 mt-1">Unique Attacker IPs</p>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {/* Top attacker IPs */}
+                  {threatData.stats?.topIps?.length > 0 && (
+                    <Card className="bg-gray-900 border-gray-700">
+                      <CardHeader className="pb-2"><CardTitle className="text-white text-sm">🔴 Most Active Attacker IPs</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {threatData.stats.topIps.map((entry: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between bg-gray-800 rounded px-3 py-2">
+                              <span className="font-mono text-red-300 text-sm">{entry.ip}</span>
+                              <Badge className="bg-red-900/50 text-red-300 border-red-800">{entry.hits} hits</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Failed admin key attempts */}
+                  {(securityData?.failedAdminKeyAttempts?.length ?? 0) > 0 && (
+                    <Card className="bg-gray-900 border-gray-700">
+                      <CardHeader className="pb-2"><CardTitle className="text-white text-sm">⚠️ Failed Admin Key Attempts</CardTitle></CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          {(securityData?.failedAdminKeyAttempts ?? []).map((entry: any, i: number) => (
+                            <div key={i} className="flex items-center justify-between bg-gray-800 rounded px-3 py-2">
+                              <span className="font-mono text-yellow-300 text-sm">{entry.ip}</span>
+                              <div className="flex items-center gap-3">
+                                <span className="text-gray-400 text-xs">{new Date(entry.lastAt).toLocaleString()}</span>
+                                <Badge className="bg-yellow-900/50 text-yellow-300 border-yellow-800">{entry.count} attempts</Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Honeypot hit log */}
+                  <Card className="bg-gray-900 border-gray-700">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-white text-sm">🍯 Honeypot Trap Log <span className="text-gray-500 font-normal text-xs ml-2">(most recent first)</span></CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {threatData.threats.length === 0 ? (
+                        <p className="text-gray-500 text-sm">No trap hits yet — the honeypot is active and waiting.</p>
+                      ) : (
+                        <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                          {threatData.threats.map((t: any) => (
+                            <div key={t.id} className="bg-gray-800 rounded px-3 py-2 text-xs">
+                              <div className="flex items-center justify-between flex-wrap gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-red-400 font-semibold">{t.method}</span>
+                                  <span className="font-mono text-orange-300">{t.path}</span>
+                                </div>
+                                <div className="flex items-center gap-2 text-gray-400">
+                                  <span className="font-mono text-cyan-400">{t.ip}</span>
+                                  <span>{new Date(t.timestamp).toLocaleString()}</span>
+                                </div>
+                              </div>
+                              {t.userAgent && (
+                                <p className="text-gray-500 mt-1 truncate">{t.userAgent}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+
+              {threatData && threatData.threats.length === 0 && !threatLoading && (
+                <div className="mt-4 p-4 bg-green-900/20 border border-green-800/40 rounded-lg">
+                  <p className="text-green-400 text-sm font-medium">✅ No attacks detected yet</p>
+                  <p className="text-gray-400 text-xs mt-1">The honeypot is active. Any scanners or bots that probe your server will appear here automatically.</p>
+                </div>
+              )}
             </TabsContent>
 
           </Tabs>
