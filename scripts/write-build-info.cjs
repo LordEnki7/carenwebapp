@@ -8,9 +8,9 @@ function safeExec(cmd) {
   catch { return ''; }
 }
 
-const commit = safeExec('git rev-parse HEAD') || process.env.GIT_COMMIT || 'unknown';
+const commit = safeExec('git rev-parse HEAD') || process.env.CAREN_GIT_COMMIT || process.env.GIT_COMMIT || 'unknown';
 const shortCommit = commit.substring(0, 7);
-const branch = safeExec('git rev-parse --abbrev-ref HEAD') || 'unknown';
+const branch = safeExec('git rev-parse --abbrev-ref HEAD') || process.env.CAREN_GIT_BRANCH || 'unknown';
 const buildTime = new Date().toISOString();
 
 const info = { commit, shortCommit, branch, buildTime };

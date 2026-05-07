@@ -43,8 +43,12 @@ fi
 
 # Update Dockerfile cache buster timestamp so Docker invalidates its layer cache
 NOW_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+FULL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
 sed -i "s|RUN echo \"BUILD_TIMESTAMP: .*\"|RUN echo \"BUILD_TIMESTAMP: ${NOW_TS}\"|" Dockerfile
-ok "Dockerfile BUILD_TIMESTAMP updated to ${NOW_TS} (Docker cache busted)"
+sed -i "s|ENV CAREN_GIT_COMMIT=.*|ENV CAREN_GIT_COMMIT=${FULL_COMMIT}|" Dockerfile
+sed -i "s|ENV CAREN_GIT_BRANCH=.*|ENV CAREN_GIT_BRANCH=${BRANCH}|" Dockerfile
+ok "Dockerfile BUILD_TIMESTAMP + CAREN_GIT_COMMIT updated → ${FULL_COMMIT:0:7} (Docker cache busted)"
 
 # ── 1. TypeScript check ──────────────────────────────────────
 header "TypeScript"

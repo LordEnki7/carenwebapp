@@ -22,15 +22,20 @@ RUN npm install --legacy-peer-deps
 # RUN echo creates a real Docker layer whose cache key includes the timestamp string.
 # When the timestamp changes, this layer and ALL subsequent layers (COPY, esbuild) are
 # invalidated, guaranteeing Docker always copies the fresh dist/public/ bundle from git.
-RUN echo "BUILD_TIMESTAMP: 2026-05-07T11:37:00Z"
+RUN echo "BUILD_TIMESTAMP: 2026-05-07T12:23:36Z"
+
+# Git commit hash — updated by pre-push script alongside BUILD_TIMESTAMP.
+# Used by write-build-info.cjs at Docker build time (since .git is excluded from context).
+ENV CAREN_GIT_COMMIT=97d7b5f1fe0f045c8f838012dcfe54b9bcc50d38
+ENV CAREN_GIT_BRANCH=fresh-main
 
 COPY . .
 
 # dist/public/ is pre-built in Replit (where VITE_* secrets are available) and committed to git.
-# build-info.json is generated in Replit before every git push (where .git is available),
-# so the correct commit hash is already baked into dist/public/build-info.json by the time
-# Docker runs COPY . .  — no need to re-run the script here (it would produce 'unknown'
-# because .dockerignore excludes .git).
+# Re-run write-build-info here so the correct commit hash is always baked into the Docker image,
+# even if the committed dist/public/build-info.json is one push behind.
+RUN node scripts/write-build-info.cjs
+
 # Only build the server-side bundle here — Vite MUST NOT run in Docker (no VITE_* env vars).
 RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
