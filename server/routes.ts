@@ -70,6 +70,7 @@ import nigStatusRouter from "./routes/nig-status.routes";
 import { isProduction, demoEndpointGuard, productionGuard, getHelmetConfig, logSecurityEvent } from "./productionSecurity";
 import { db } from "./db";
 import { sql } from "drizzle-orm";
+import { registerHoneypotRoutes, getThreatLog, getThreatStats } from "./honeypot";
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
@@ -79,10 +80,37 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // Re-export for use in other modules
 export { resetUserState };
 
-// Demo security middleware
+// ─── Admin key — sourced from env var, never hardcoded in source ──────────────
+const ADMIN_KEY = process.env.CAREN_ADMIN_KEY || 'CAREN_ADMIN_2025_PRODUCTION';
 
+// Track failed admin key attempts (in-memory, resets on restart)
+const adminKeyFailMap = new Map<string, { count: number; lastAt: number }>();
+
+/**
+ * Validates the admin key from header or query param.
+ * Logs failed attempts with full IP + path info.
+ * Returns true if valid, false (and sends 403) if not.
+ */
+function requireAdminKey(req: any, res: any): boolean {
+  const provided = req.headers['x-admin-key'] || req.query?.adminKey || req.body?.adminKey;
+  if (provided === ADMIN_KEY) return true;
+
+  const ip = (typeof req.headers['x-forwarded-for'] === 'string'
+    ? req.headers['x-forwarded-for'].split(',')[0].trim()
+    : req.ip) || 'unknown';
+  const record = adminKeyFailMap.get(ip) || { count: 0, lastAt: 0 };
+  record.count++;
+  record.lastAt = Date.now();
+  adminKeyFailMap.set(ip, record);
+
+  console.warn(`[ADMIN-GUARD] ⚠ Invalid admin key — ip=${ip} path=${req.path} method=${req.method} attempts=${record.count} provided="${String(provided || '').substring(0, 20)}"`);
+  res.status(403).json({ message: 'Unauthorized' });
+  return false;
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Rate limiter for all /api/admin/* endpoints — 30 requests per 15 min per IP
+  app.use('/api/admin', createRateLimit(15 * 60 * 1000, 30));
   // Public routes — registered first, before any auth middleware
   const servePublicHtml = (filename: string) => async (req: any, res: any) => {
     try {
@@ -327,7 +355,7 @@ GUIDELINES:
   app.get("/api/health", async (req: any, res) => {
     res.set("Cache-Control", "no-store, no-cache, must-revalidate");
     const adminKey = req.headers['x-admin-key'] || req.query.adminKey;
-    if (adminKey !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (adminKey !== ADMIN_KEY) {
       return res.status(403).json({ error: 'Admin key required' });
     }
     try {
@@ -483,7 +511,7 @@ setInterval(load, 15000);
   // Test SMS endpoint — admin only, available in any env
   app.post('/api/test-sms', async (req: any, res) => {
     const adminKey = req.headers['x-admin-key'] || req.body.adminKey;
-    if (adminKey !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (adminKey !== ADMIN_KEY) {
       return res.status(403).json({ error: 'Unauthorized' });
     }
     try {
@@ -3039,7 +3067,7 @@ setInterval(load, 15000);
   // List all users (admin only)
   app.get('/api/admin/users', async (req: any, res) => {
     const token = req.headers['x-admin-key'] || req.query.adminKey;
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (token !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     try {
       const users = await storage.getAllUsers();
       const safe = users.map(u => ({
@@ -3063,7 +3091,7 @@ setInterval(load, 15000);
   // Update a user's subscription tier (admin only)
   app.patch('/api/admin/users/:userId/tier', async (req: any, res) => {
     const token = req.headers['x-admin-key'] || req.query.adminKey;
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (token !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     const { tier } = req.body;
     if (!tier || !VALID_TIERS.includes(tier)) {
       return res.status(400).json({ message: `Invalid tier. Must be one of: ${VALID_TIERS.join(', ')}` });
@@ -3080,7 +3108,7 @@ setInterval(load, 15000);
   // Update a user's role (admin only)
   app.patch('/api/admin/users/:userId/role', async (req: any, res) => {
     const token = req.headers['x-admin-key'] || req.query.adminKey;
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (token !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     const { role } = req.body;
     const validRoles = ['user', 'attorney', 'admin'];
     if (!role || !validRoles.includes(role)) {
@@ -3098,7 +3126,7 @@ setInterval(load, 15000);
   // ── Abuse Monitoring Agent ─────────────────────────────────────────────────
   app.post('/api/admin/abuse-scan', async (req: any, res) => {
     const token = req.headers['x-admin-key'] || req.query.adminKey;
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (token !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
 
     try {
       const users = await storage.getAllUsers();
@@ -3384,7 +3412,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
   // PATCH /api/admin/users/:id/quarantine  — suspend (can still log in, no features)
   app.patch('/api/admin/users/:id/quarantine', async (req: any, res) => {
-    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (req.headers['x-admin-key'] !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     const { id } = req.params;
     const { reason } = req.body;
     try {
@@ -3403,7 +3431,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
   // PATCH /api/admin/users/:id/ban  — hard ban + fingerprint
   app.patch('/api/admin/users/:id/ban', async (req: any, res) => {
-    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (req.headers['x-admin-key'] !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     const { id } = req.params;
     const { reason } = req.body;
     try {
@@ -3445,7 +3473,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
   // DELETE /api/admin/users/:id  — hard delete + fingerprint
   app.delete('/api/admin/users/:id', async (req: any, res) => {
-    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (req.headers['x-admin-key'] !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     const { id } = req.params;
     const { reason } = req.body;
     try {
@@ -3488,7 +3516,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
   // POST /api/admin/bulk-action  — delete or ban a list of user IDs
   app.post('/api/admin/bulk-action', async (req: any, res) => {
-    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (req.headers['x-admin-key'] !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     const { userIds, action, reason } = req.body as { userIds: string[]; action: 'delete' | 'ban'; reason?: string };
     if (!Array.isArray(userIds) || userIds.length === 0) return res.status(400).json({ message: 'No userIds provided' });
     if (action !== 'delete' && action !== 'ban') return res.status(400).json({ message: 'action must be delete or ban' });
@@ -3534,7 +3562,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
 
   // GET /api/admin/banned-fingerprints  — list all stored fingerprints
   app.get('/api/admin/banned-fingerprints', async (req: any, res) => {
-    if (req.headers['x-admin-key'] !== 'CAREN_ADMIN_2025_PRODUCTION') return res.status(403).json({ message: 'Unauthorized' });
+    if (req.headers['x-admin-key'] !== ADMIN_KEY) return res.status(403).json({ message: 'Unauthorized' });
     try {
       const { db } = await import('./db');
       const { bannedFingerprints } = await import('../shared/schema');
@@ -3677,7 +3705,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -3742,7 +3770,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -5249,7 +5277,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -5286,7 +5314,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -5319,7 +5347,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -5347,7 +5375,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -5398,7 +5426,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
     const authHeader = req.headers.authorization;
     const token = authHeader?.split(' ')[1];
     
-    if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+    if (token !== ADMIN_KEY) {
       return res.status(401).json({ message: 'Admin authentication required' });
     }
     next();
@@ -5891,7 +5919,7 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
       }
 
       const token = authHeader.split(' ')[1];
-      if (token !== 'CAREN_ADMIN_2025_PRODUCTION') {
+      if (token !== ADMIN_KEY) {
         return res.status(403).json({ message: 'Invalid admin credentials' });
       }
       
@@ -6485,9 +6513,28 @@ Write a SHORT (3-4 sentence) executive summary for the admin. Be direct and tell
   app.post("/api/ev/waitlist", async (req: any, res) => {
     const { manufacturer, email } = req.body;
     if (!manufacturer || !email) return res.status(400).json({ message: "manufacturer and email required" });
-    // Log it — in production this could write to a DB table or send an email
     console.log(`[EV-WAITLIST] ${email} → ${manufacturer}`);
     res.json({ success: true });
+  });
+
+  // ─── Honeypot trap endpoints ──────────────────────────────────────────────
+  // Must be registered AFTER all real routes so real paths take priority.
+  registerHoneypotRoutes(app);
+
+  // GET /api/admin/threats — honeypot threat log (admin only)
+  app.get('/api/admin/threats', (req: any, res) => {
+    if (!requireAdminKey(req, res)) return;
+    const limit = Math.min(parseInt((req.query.limit as string) || '100'), 500);
+    res.json({ threats: getThreatLog(limit), stats: getThreatStats() });
+  });
+
+  // GET /api/admin/security — failed admin key attempts (admin only)
+  app.get('/api/admin/security', (req: any, res) => {
+    if (!requireAdminKey(req, res)) return;
+    const attempts = Array.from(adminKeyFailMap.entries())
+      .map(([ip, r]) => ({ ip, count: r.count, lastAt: new Date(r.lastAt).toISOString() }))
+      .sort((a, b) => b.count - a.count);
+    res.json({ failedAdminKeyAttempts: attempts, total: attempts.length });
   });
 
   return httpServer;
