@@ -28,9 +28,11 @@ echo -e "\n${BOLD}━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BOLD}  C.A.R.E.N.™ Pre-Push Validation${RESET}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 
-# ── 0. Regenerate build-info.json with current git commit ────
+# ── 0. Regenerate build-info.json + bust Docker cache ────────
 # Must run before push so Docker gets the real commit hash via COPY . .
 # (.git is excluded from .dockerignore so Docker can't run git itself)
+# Also updates the Dockerfile BUILD_TIMESTAMP so Docker never serves a stale
+# cached image — without this, unchanged timestamp = all layers cached = old code.
 header "Build info"
 if node scripts/write-build-info.cjs 2>&1 | grep -q "commit="; then
   COMMIT=$(node -e "const f=require('./dist/public/build-info.json');console.log(f.shortCommit)" 2>/dev/null || echo "?")
@@ -38,6 +40,11 @@ if node scripts/write-build-info.cjs 2>&1 | grep -q "commit="; then
 else
   warn "build-info.json regeneration failed — version endpoint may show 'unknown'"
 fi
+
+# Update Dockerfile cache buster timestamp so Docker invalidates its layer cache
+NOW_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+sed -i "s|RUN echo \"BUILD_TIMESTAMP: .*\"|RUN echo \"BUILD_TIMESTAMP: ${NOW_TS}\"|" Dockerfile
+ok "Dockerfile BUILD_TIMESTAMP updated to ${NOW_TS} (Docker cache busted)"
 
 # ── 1. TypeScript check ──────────────────────────────────────
 header "TypeScript"
