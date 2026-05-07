@@ -116,7 +116,7 @@ import {
   type InsertConnectedVehicle,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, desc, and, inArray, sql, or } from "drizzle-orm";
+import { eq, desc, and, inArray, sql, or, ne } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
@@ -1240,7 +1240,7 @@ export class DatabaseStorage implements IStorage {
 
   // Admin operations for live data
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    return await db.select().from(users).where(ne(users.accountStatus, 'deleted'));
   }
 
   async getAllIncidents(): Promise<Incident[]> {
