@@ -107,9 +107,9 @@ export function registerHoneypotRoutes(app: Express): void {
     '/.git/config', '/backup.sql', '/dump.sql',
   ];
 
-  // Generic admin probes
+  // Generic admin probes — NOTE: '/admin' is intentionally excluded (real app route)
   const adminPaths = [
-    '/admin', '/administrator', '/adminpanel', '/admin-panel',
+    '/administrator', '/adminpanel', '/admin-panel',
     '/cpanel', '/plesk', '/webadmin', '/manage', '/panel',
   ];
 
