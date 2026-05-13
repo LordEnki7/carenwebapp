@@ -849,6 +849,137 @@ export default function SimpleAdminDashboard() {
                   </div>
                 </div>
               </div>
+
+              {/* ── 7-Day Signup Trend ── */}
+              {(() => {
+                const days = Array.from({ length: 7 }, (_, i) => {
+                  const d = new Date();
+                  d.setDate(d.getDate() - (6 - i));
+                  d.setHours(0, 0, 0, 0);
+                  return d;
+                });
+                const realUsers = allUsers.filter(u =>
+                  !u.id.startsWith('attorney_') &&
+                  !u.id.startsWith('demo-user') &&
+                  !u.id.startsWith('seed-') &&
+                  !u.email?.includes('demo@') &&
+                  !u.email?.includes('applereview@')
+                );
+                const counts = days.map(day => {
+                  const next = new Date(day); next.setDate(next.getDate() + 1);
+                  return {
+                    label: day.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' }),
+                    count: realUsers.filter(u => {
+                      const t = new Date(u.createdAt ?? 0).getTime();
+                      return t >= day.getTime() && t < next.getTime();
+                    }).length,
+                  };
+                });
+                const max = Math.max(...counts.map(c => c.count), 1);
+                return (
+                  <div className="mt-6">
+                    <h4 className="font-semibold text-white mb-3">Signups — Last 7 Days</h4>
+                    <div className="flex items-end gap-2 h-24">
+                      {counts.map((c, i) => (
+                        <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                          <span className="text-xs text-cyan-400 font-bold">{c.count > 0 ? c.count : ''}</span>
+                          <div
+                            className="w-full rounded-t"
+                            style={{
+                              height: `${Math.max((c.count / max) * 64, c.count > 0 ? 8 : 2)}px`,
+                              background: c.count > 0 ? 'linear-gradient(to top, #0891b2, #06b6d4)' : '#374151',
+                            }}
+                          />
+                          <span className="text-xs text-gray-500 text-center leading-tight">{c.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* ── Recent Signups Feed ── */}
+              {(() => {
+                const TIER_COLORS: Record<string, string> = {
+                  free: 'text-gray-400',
+                  basic_guard: 'text-green-400',
+                  safety_pro: 'text-blue-400',
+                  constitutional_pro: 'text-purple-400',
+                  family_protection: 'text-yellow-400',
+                  enterprise_fleet: 'text-red-400',
+                };
+                const TIER_SHORT: Record<string, string> = {
+                  free: 'Free',
+                  basic_guard: 'Community',
+                  safety_pro: 'Standard',
+                  constitutional_pro: 'Legal Shield',
+                  family_protection: 'Family',
+                  enterprise_fleet: 'Fleet',
+                };
+                const timeAgo = (iso: string) => {
+                  const diff = Date.now() - new Date(iso).getTime();
+                  const m = Math.floor(diff / 60000);
+                  if (m < 1) return 'just now';
+                  if (m < 60) return `${m}m ago`;
+                  const h = Math.floor(m / 60);
+                  if (h < 24) return `${h}h ago`;
+                  const d = Math.floor(h / 24);
+                  return `${d}d ago`;
+                };
+                const recent = allUsers
+                  .filter(u =>
+                    u.createdAt &&
+                    !u.id.startsWith('attorney_') &&
+                    !u.id.startsWith('demo-user') &&
+                    !u.id.startsWith('seed-') &&
+                    !u.email?.includes('demo@') &&
+                    !u.email?.includes('applereview@')
+                  )
+                  .sort((a, b) => new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime())
+                  .slice(0, 20);
+                return (
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-white">Recent Signups</h4>
+                      <span className="text-xs text-gray-500">{recent.length} most recent accounts</span>
+                    </div>
+                    {recent.length === 0 ? (
+                      <p className="text-gray-500 text-sm">No signups yet.</p>
+                    ) : (
+                      <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                        {recent.map((u, i) => {
+                          const initials = `${(u.firstName || '?')[0]}${(u.lastName || '?')[0]}`.toUpperCase();
+                          const tier = u.subscriptionTier || 'free';
+                          return (
+                            <div key={u.id} className="flex items-center gap-3 bg-gray-700/50 rounded-lg px-3 py-2.5 hover:bg-gray-700 transition-colors">
+                              <div className="w-8 h-8 rounded-full bg-cyan-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                                {initials}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-white text-sm font-medium truncate">
+                                    {u.firstName || ''} {u.lastName || ''}
+                                  </span>
+                                  {i === 0 && (
+                                    <span className="text-xs px-1.5 py-0.5 rounded bg-cyan-600/30 text-cyan-300 flex-shrink-0">newest</span>
+                                  )}
+                                </div>
+                                <span className="text-gray-400 text-xs truncate block">{u.email}</span>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <div className={`text-xs font-semibold ${TIER_COLORS[tier] || 'text-gray-400'}`}>
+                                  {TIER_SHORT[tier] || tier}
+                                </div>
+                                <div className="text-gray-500 text-xs">{timeAgo(u.createdAt!)}</div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </TabsContent>
             
             <TabsContent value="sessions" className="p-6">
