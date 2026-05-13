@@ -9,8 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Sparkles, Send, CheckCircle2, XCircle, Clock, Trophy,
-  RefreshCw, Zap, Instagram, Facebook, BarChart2, Eye,
-  ThumbsUp, MessageCircle, Share2, AlertCircle, ChevronDown, ChevronUp, Trash2
+  RefreshCw, Zap, Instagram, Facebook, BarChart2,
+  ThumbsUp, MessageCircle, Share2, AlertCircle, ChevronDown, ChevronUp, Trash2, Linkedin
 } from "lucide-react";
 
 const ADMIN_KEY = "CAREN_ADMIN_2025_PRODUCTION";
@@ -24,11 +24,13 @@ const VIDEOS = [
 const PLATFORM_ICONS: Record<string, any> = {
   instagram: Instagram,
   facebook: Facebook,
+  linkedin: Linkedin,
 };
 
 const PLATFORM_COLORS: Record<string, string> = {
   instagram: "text-pink-400 bg-pink-500/10 border-pink-500/30",
   facebook: "text-blue-400 bg-blue-500/10 border-blue-500/30",
+  linkedin: "text-sky-400 bg-sky-500/10 border-sky-500/30",
 };
 
 const LANE_COLORS: Record<string, string> = {
@@ -145,13 +147,27 @@ function DraftCard({ post, onApprove, onSkip, onDelete }: {
 }
 
 // ── Approved Card ──────────────────────────────────────────────────────────────
-function ApprovedCard({ post, onPublish, publishing, metaReady }: {
+const PLATFORM_GRADIENTS: Record<string, string> = {
+  instagram: "from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700",
+  facebook:  "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800",
+  linkedin:  "from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800",
+};
+
+function ApprovedCard({ post, onPublish, publishing, metaReady, linkedinReady }: {
   post: any;
   onPublish: (id: number) => void;
   publishing: boolean;
   metaReady: boolean;
+  linkedinReady: boolean;
 }) {
   const PlatformIcon = PLATFORM_ICONS[post.platform] || Zap;
+  const isLinkedIn = post.platform === "linkedin";
+  const canPost = isLinkedIn ? linkedinReady : metaReady;
+  const blockerMsg = isLinkedIn
+    ? "Add LINKEDIN_ACCESS_TOKEN to Secrets to enable posting"
+    : "Add META_PAGE_ACCESS_TOKEN to Secrets to enable posting";
+  const gradient = PLATFORM_GRADIENTS[post.platform] || PLATFORM_GRADIENTS.instagram;
+
   return (
     <Card className="bg-gray-800/60 border-green-700/30">
       <CardContent className="p-4">
@@ -168,14 +184,14 @@ function ApprovedCard({ post, onPublish, publishing, metaReady }: {
         <p className="text-white font-semibold text-sm mb-1">{post.hook}</p>
         <p className="text-gray-400 text-xs line-clamp-2 mb-3">{post.caption}</p>
 
-        {metaReady ? (
-          <Button size="sm" onClick={() => onPublish(post.id)} disabled={publishing} className="w-full bg-gradient-to-r from-pink-600 to-blue-600 hover:from-pink-700 hover:to-blue-700">
+        {canPost ? (
+          <Button size="sm" onClick={() => onPublish(post.id)} disabled={publishing} className={`w-full bg-gradient-to-r ${gradient}`}>
             {publishing ? <><RefreshCw className="w-3 h-3 mr-1 animate-spin" /> Posting…</> : <><Send className="w-3 h-3 mr-1" /> Post to {post.platform}</>}
           </Button>
         ) : (
           <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-900/20 rounded px-3 py-2">
             <AlertCircle className="w-3 h-3 flex-shrink-0" />
-            Add META_PAGE_ACCESS_TOKEN to Secrets to enable posting
+            {blockerMsg}
           </div>
         )}
       </CardContent>
@@ -300,6 +316,7 @@ export default function PromoEngine() {
   const toggleLane = (l: string) => setLanes(prev => prev.includes(l) ? prev.filter(x => x !== l) : [...prev, l]);
 
   const metaReady = !!(metaStatus?.connected && metaStatus?.hasPageId);
+  const linkedinReady = !!(metaStatus?.linkedinConnected);
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-6">
@@ -315,7 +332,7 @@ export default function PromoEngine() {
               <h1 className="text-2xl font-bold text-white">C.A.R.E.N. Promo Engine</h1>
               <p className="text-gray-400 text-sm">AI-powered content → you approve → Meta auto-posts</p>
             </div>
-            <div className="ml-auto flex items-center gap-2">
+            <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
               {metaReady ? (
                 <span className="flex items-center gap-1.5 text-xs text-green-400 bg-green-900/30 px-3 py-1.5 rounded-full border border-green-700/40">
                   <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
@@ -324,7 +341,18 @@ export default function PromoEngine() {
               ) : (
                 <span className="flex items-center gap-1.5 text-xs text-amber-400 bg-amber-900/20 px-3 py-1.5 rounded-full border border-amber-700/40">
                   <AlertCircle className="w-3 h-3" />
-                  Token Pending
+                  Meta Pending
+                </span>
+              )}
+              {metaStatus?.linkedinConnected ? (
+                <span className="flex items-center gap-1.5 text-xs text-sky-400 bg-sky-900/30 px-3 py-1.5 rounded-full border border-sky-700/40">
+                  <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                  LinkedIn Connected
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-xs text-gray-500 bg-gray-800/50 px-3 py-1.5 rounded-full border border-gray-700/40">
+                  <Linkedin className="w-3 h-3" />
+                  LinkedIn Pending
                 </span>
               )}
             </div>
@@ -383,10 +411,11 @@ export default function PromoEngine() {
                 {/* Platform */}
                 <div>
                   <label className="text-sm font-medium text-gray-300 mb-3 block">Platforms</label>
-                  <div className="flex gap-3">
+                  <div className="flex gap-3 flex-wrap">
                     {[
                       { id: "instagram", label: "Instagram", Icon: Instagram, color: "border-pink-500/50 text-pink-400 bg-pink-500/10" },
                       { id: "facebook",  label: "Facebook",  Icon: Facebook,  color: "border-blue-500/50 text-blue-400 bg-blue-500/10" },
+                      { id: "linkedin",  label: "LinkedIn",  Icon: Linkedin,  color: "border-sky-500/50 text-sky-400 bg-sky-500/10" },
                     ].map(({ id, label, Icon, color }) => (
                       <button
                         key={id}
@@ -524,6 +553,7 @@ export default function PromoEngine() {
                     onPublish={handlePublish}
                     publishing={publishingId === post.id}
                     metaReady={metaReady}
+                    linkedinReady={linkedinReady}
                   />
                 ))}
               </div>

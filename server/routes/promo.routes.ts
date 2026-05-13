@@ -40,6 +40,12 @@ const PLATFORM_GUIDES: Record<string, { tone: string; hookStyle: string; caption
     captionStyle: "Tell a micro-story or pose a situation. 3-4 short paragraphs. Speak to family safety. End with link to download.",
     maxHashtags: 8,
   },
+  linkedin: {
+    tone: "professional, thought-leadership, mission-driven",
+    hookStyle: "Lead with a bold insight, statistic, or mission statement about legal rights, family safety, or civic tech. Under 20 words. No fluff.",
+    captionStyle: "Frame around the problem (rights, safety, emergency response), then introduce C.A.R.E.N.™ Alert as the solution. 3–4 paragraphs. Reference the attorney network and AI features for professionals. End with a call to share or download. Include the app link.",
+    maxHashtags: 5,
+  },
 };
 
 const AUDIENCE_CONTEXT: Record<string, string> = {
@@ -162,6 +168,41 @@ async function postToInstagram(token: string, igUserId: string, caption: string,
   return { postUrl: `https://www.instagram.com/p/${pubData.id}` };
 }
 
+async function postToLinkedIn(caption: string, articleUrl: string): Promise<{ postUrl: string }> {
+  const token = process.env.LINKEDIN_ACCESS_TOKEN;
+  const companyUrn = process.env.LINKEDIN_COMPANY_URN; // urn:li:organization:114084274
+  if (!token) throw new Error("LINKEDIN_ACCESS_TOKEN not configured");
+  if (!companyUrn) throw new Error("LINKEDIN_COMPANY_URN not configured");
+
+  const body = {
+    author: companyUrn,
+    lifecycleState: "PUBLISHED",
+    specificContent: {
+      "com.linkedin.ugc.ShareContent": {
+        shareCommentary: { text: caption },
+        shareMediaCategory: "ARTICLE",
+        media: [{
+          status: "READY",
+          description: { text: "Download C.A.R.E.N.™ Alert — know your rights on every road." },
+          originalUrl: articleUrl,
+          title: { text: "C.A.R.E.N.™ Alert — Family Protection Platform" },
+        }],
+      },
+    },
+    visibility: { "com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC" },
+  };
+
+  const r = await fetch("https://api.linkedin.com/v2/ugcPosts", {
+    method: "POST",
+    headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json", "X-Restli-Protocol-Version": "2.0.0" },
+    body: JSON.stringify(body),
+  });
+  const data = await r.json() as any;
+  if (!r.ok) throw new Error(data?.message || "LinkedIn post failed");
+  const postId = data.id?.replace(/^urn:li:ugcPost:/, "") || data.id;
+  return { postUrl: `https://www.linkedin.com/company/114084274/` };
+}
+
 // ── Route registration ─────────────────────────────────────────────────────────
 
 export async function registerPromoRoutes(app: Express) {
@@ -171,12 +212,15 @@ export async function registerPromoRoutes(app: Express) {
   app.get("/api/promo/meta-status", requireAdminKey, async (_req: Request, res: Response) => {
     const config = await getMetaConfig();
     const pageId = process.env.META_PAGE_ID || null;
+    const linkedinReady = !!(process.env.LINKEDIN_ACCESS_TOKEN && process.env.LINKEDIN_COMPANY_URN);
     res.json({
       connected: !!config?.token,
       hasPageId: !!pageId,
       hasIgUserId: !!config?.igUserId,
       pageId,
       igUserId: config?.igUserId || null,
+      linkedinConnected: linkedinReady,
+      linkedinCompanyUrn: process.env.LINKEDIN_COMPANY_URN || null,
     });
   });
 
@@ -328,21 +372,25 @@ No markdown, no extra text. Just the JSON array.`;
       if (post.status !== "approved") return res.status(400).json({ error: "Post must be approved before publishing" });
 
       const config = await getMetaConfig();
-      if (!config?.token) {
-        return res.status(503).json({ error: "META_PAGE_ACCESS_TOKEN not configured yet. Add it to Secrets." });
-      }
-
       const video = VIDEOS.find(v => v.file === post.videoFile) || VIDEOS[0];
       const fullCaption = `${post.hook}\n\n${post.caption}\n\n${post.hashtags}`;
 
       let postUrl = "";
-      if (post.platform === "facebook") {
-        const result = await postToFacebook(config.token, config.pageId, fullCaption, video.publicUrl);
+      if (post.platform === "linkedin") {
+        const result = await postToLinkedIn(fullCaption, APP_STORE_LINK);
         postUrl = result.postUrl;
-      } else if (post.platform === "instagram") {
-        if (!config.igUserId) return res.status(503).json({ error: "META_IG_USER_ID not found. Make sure your Instagram Business Account is linked to your Facebook Page." });
-        const result = await postToInstagram(config.token, config.igUserId, fullCaption, video.publicUrl);
-        postUrl = result.postUrl;
+      } else {
+        if (!config?.token) {
+          return res.status(503).json({ error: "META_PAGE_ACCESS_TOKEN not configured yet. Add it to Secrets." });
+        }
+        if (post.platform === "facebook") {
+          const result = await postToFacebook(config.token, config.pageId, fullCaption, video.publicUrl);
+          postUrl = result.postUrl;
+        } else if (post.platform === "instagram") {
+          if (!config.igUserId) return res.status(503).json({ error: "META_IG_USER_ID not found. Make sure your Instagram Business Account is linked to your Facebook Page." });
+          const result = await postToInstagram(config.token, config.igUserId, fullCaption, video.publicUrl);
+          postUrl = result.postUrl;
+        }
       }
 
       const [updated] = await db.update(promoPosts).set({
