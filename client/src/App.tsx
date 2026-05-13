@@ -128,6 +128,7 @@ const DirectorInvite = lazy(() => import("@/pages/DirectorInvite"));
 const DirectorPlaybook = lazy(() => import("@/pages/DirectorPlaybook"));
 const AttorneyDirectory = lazy(() => import("@/pages/AttorneyDirectory"));
 const SocialMediaAgent = lazy(() => import("@/pages/SocialMediaAgent"));
+const PromoEngine = lazy(() => import("@/pages/PromoEngine"));
 const Founders = lazy(() => import("@/pages/Founders"));
 const ShareStory = lazy(() => import("@/pages/ShareStory"));
 const AdminStories = lazy(() => import("@/pages/AdminStories"));
@@ -262,6 +263,7 @@ function Router() {
             <Route path="/founders" component={Founders} />
             <Route path="/share-story" component={ShareStory} />
             <Route path="/social-agent" component={SocialMediaAgent} />
+            <Route path="/promo-engine" component={PromoEngine} />
             <Route path="/support-admin" component={SupportAdmin} />
             <Route path="/announcements-admin" component={AnnouncementsAdmin} />
             <Route path="/agent-dashboard" component={AgentDashboard} />
@@ -352,6 +354,7 @@ function Router() {
             <Route path="/director-playbook" component={DirectorPlaybook} />
             <Route path="/find-attorney" component={AttorneyDirectory} />
             <Route path="/social-agent" component={SocialMediaAgent} />
+            <Route path="/promo-engine" component={PromoEngine} />
             <Route path="/founders" component={Founders} />
             <Route path="/share-story" component={ShareStory} />
             <Route path="/admin/stories" component={AdminStories} />

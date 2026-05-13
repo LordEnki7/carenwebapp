@@ -2988,3 +2988,30 @@ export const insertConnectedVehicleSchema = createInsertSchema(connectedVehicles
 });
 export type InsertConnectedVehicle = z.infer<typeof insertConnectedVehicleSchema>;
 export type ConnectedVehicle = typeof connectedVehicles.$inferSelect;
+
+// ── C.A.R.E.N. Promo Engine Posts ────────────────────────────────────────────
+export const promoPosts = pgTable("promo_posts", {
+  id: serial("id").primaryKey(),
+  platform: varchar("platform").notNull(), // instagram | facebook
+  audienceLane: varchar("audience_lane").notNull().default("broad"), // primary | broad
+  videoFile: varchar("video_file").notNull(),
+  hook: text("hook").notNull(),
+  caption: text("caption").notNull(),
+  hashtags: text("hashtags").notNull(),
+  status: varchar("status").notNull().default("draft"), // draft | approved | posted | skipped
+  scheduledAt: timestamp("scheduled_at"),
+  postedAt: timestamp("posted_at"),
+  postUrl: varchar("post_url"),
+  errorMessage: text("error_message"),
+  reach: integer("reach"),
+  likes: integer("likes"),
+  comments: integer("comments"),
+  shares: integer("shares"),
+  isWinner: boolean("is_winner").default(false),
+  batchId: varchar("batch_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertPromoPostSchema = createInsertSchema(promoPosts).omit({ id: true, createdAt: true, postedAt: true });
+export type InsertPromoPost = z.infer<typeof insertPromoPostSchema>;
+export type PromoPost = typeof promoPosts.$inferSelect;
