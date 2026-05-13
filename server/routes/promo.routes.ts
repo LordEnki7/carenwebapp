@@ -5,17 +5,16 @@
  * Platforms: Instagram (Reels) + Facebook Page
  */
 
-import { Express, Request, Response } from "express";
+import { Express, Request, Response, NextFunction } from "express";
 import { db } from "../db";
 import { promoPosts } from "@shared/schema";
 import { eq, desc, and, inArray } from "drizzle-orm";
 const ADMIN_KEY = process.env.CAREN_ADMIN_KEY || "CAREN_ADMIN_2025_PRODUCTION";
 
-function requireAdminKey(req: Request, res: Response): boolean {
+function requireAdminKey(req: Request, res: Response, next: NextFunction): void {
   const provided = (req.headers as any)["x-admin-key"] || (req.query as any)?.adminKey || (req.body as any)?.adminKey;
-  if (provided === ADMIN_KEY) return true;
+  if (provided === ADMIN_KEY) { next(); return; }
   res.status(403).json({ error: "Unauthorized" });
-  return false;
 }
 
 const APP_STORE_LINK = "https://apps.apple.com/us/app/c-a-r-e-n-alert/id6745207980";
@@ -96,11 +95,14 @@ async function getMetaConfig(): Promise<{ token: string; pageId: string; igUserI
   // Auto-fetch Instagram User ID from page if not cached
   if (!igUserId && pageId) {
     try {
-      const r = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=instagram_business_account&access_token=${token}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
+      const r = await fetch(`https://graph.facebook.com/v19.0/${pageId}?fields=instagram_business_account&access_token=${token}`, { signal: controller.signal });
+      clearTimeout(timeout);
       const data = await r.json() as any;
       igUserId = data?.instagram_business_account?.id || null;
       if (igUserId) process.env.META_IG_USER_ID = igUserId;
-    } catch { /* ignore */ }
+    } catch { /* ignore — IG account may not be linked yet */ }
   }
 
   return { token, pageId, igUserId };
