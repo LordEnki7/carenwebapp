@@ -28,43 +28,14 @@ echo -e "\n${BOLD}━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BOLD}  C.A.R.E.N.™ Pre-Push Validation${RESET}"
 echo -e "${BOLD}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 
-# ── 0. Build info sync check ─────────────────────────────────
-# In Replit, commits are created automatically by the checkpoint system — not by
-# the developer. This means the pre-push script cannot update build-info.json and
-# Dockerfile AND have those changes committed in the same push. Instead we use a
-# two-step guard:
-#
-#   Push 1: build info is stale → script updates the files and BLOCKS the push.
-#           Replit auto-commits the updates via checkpoint.
-#   Push 2: build info matches HEAD → push is allowed through. Dokploy gets the
-#           correct commit hash baked into the Docker image.
-#
-# This makes it structurally impossible to deploy with a stale commit hash.
+# ── 0. Build info ────────────────────────────────────────────
+# build-info.json is generated inside Docker at build time by write-build-info.cjs,
+# which calls "git rev-parse HEAD" using the .git/HEAD + .git/refs files included in
+# the Docker build context via .dockerignore negation rules. No committed file needs
+# to be patched on every push — the cycle is broken permanently.
 header "Build info"
 FULL_COMMIT=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
-BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
-COMMITTED_COMMIT=$(node -e "try{const f=require('./client/public/build-info.json');console.log(f.commit)}catch(e){console.log('missing')}" 2>/dev/null || echo "missing")
-
-if [ "$COMMITTED_COMMIT" != "$FULL_COMMIT" ]; then
-  # Files are stale — update them now so Replit can checkpoint them.
-  NOW_TS=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-  node scripts/write-build-info.cjs > /dev/null 2>&1
-  sed -i "s|RUN echo \"BUILD_TIMESTAMP: .*\"|RUN echo \"BUILD_TIMESTAMP: ${NOW_TS}\"|" Dockerfile
-  sed -i "s|ENV CAREN_GIT_COMMIT=.*|ENV CAREN_GIT_COMMIT=${FULL_COMMIT}|" Dockerfile
-  sed -i "s|ENV CAREN_GIT_BRANCH=.*|ENV CAREN_GIT_BRANCH=${BRANCH}|" Dockerfile
-  echo ""
-  echo -e "  ${YELLOW}${BOLD}⚠  Build info was stale and has been updated:${RESET}"
-  echo -e "     build-info.json  →  ${FULL_COMMIT:0:7}"
-  echo -e "     Dockerfile ENV   →  ${FULL_COMMIT:0:7}"
-  echo ""
-  echo -e "  ${CYAN}Replit will auto-commit these changes via checkpoint.${RESET}"
-  echo -e "  ${CYAN}Wait ~10 seconds, then run the push command again.${RESET}"
-  echo -e "  ${CYAN}The second push will go straight through.${RESET}"
-  echo ""
-  FAIL=$((FAIL+1))
-else
-  ok "build-info.json is current — commit=${FULL_COMMIT:0:7} (Dockerfile in sync)"
-fi
+ok "Commit ${FULL_COMMIT:0:7} will be stamped by Docker at build time (no patch needed)"
 
 # ── 1. TypeScript check ──────────────────────────────────────
 header "TypeScript"

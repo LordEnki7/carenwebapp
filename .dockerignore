@@ -1,5 +1,11 @@
 node_modules
+# Exclude almost all of .git (3GB) but keep the tiny files git needs to resolve HEAD.
+# This lets "RUN node scripts/write-build-info.cjs" call "git rev-parse HEAD" inside
+# Docker and get the real commit hash — no more hardcoded ENV in the Dockerfile.
 .git
+!.git/HEAD
+!.git/refs
+!.git/packed-refs
 .github
 dist/index.js
 dist/index.js.map
