@@ -147,29 +147,61 @@ function DraftCard({ post, onApprove, onSkip, onDelete }: {
 }
 
 // ── Approved Card ──────────────────────────────────────────────────────────────
-const PLATFORM_GRADIENTS: Record<string, string> = {
-  instagram: "from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700",
-  facebook:  "from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800",
-  linkedin:  "from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800",
-};
+function getTimeSlots() {
+  const now = new Date();
+  const slots: { label: string; iso: string }[] = [];
 
-function ApprovedCard({ post, onPublish, publishing, metaReady, linkedinReady }: {
+  const at = (hour: number, daysAhead: number) => {
+    const d = new Date();
+    d.setDate(d.getDate() + daysAhead);
+    d.setHours(hour, 0, 0, 0);
+    return d;
+  };
+
+  const tonight7 = at(19, 0);
+  if (tonight7 > now) slots.push({ label: "Tonight 7 pm", iso: tonight7.toISOString() });
+
+  const tomorrow8 = at(8, 1);
+  slots.push({ label: "Tomorrow 8 am", iso: tomorrow8.toISOString() });
+
+  const tomorrow12 = at(12, 1);
+  slots.push({ label: "Tomorrow noon", iso: tomorrow12.toISOString() });
+
+  const tomorrow7 = at(19, 1);
+  slots.push({ label: "Tomorrow 7 pm", iso: tomorrow7.toISOString() });
+
+  return slots;
+}
+
+function fmtScheduled(iso: string) {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = d.getTime() - now.getTime();
+  const diffH = Math.round(diffMs / 3600000);
+  if (diffH < 1) return "in < 1 hour";
+  if (diffH < 24) return `in ~${diffH}h`;
+  const diffD = Math.round(diffH / 24);
+  return `in ~${diffD}d`;
+}
+
+function ApprovedCard({ post, onPublish, onSchedule, onUnschedule, publishing, scheduling, metaReady, linkedinReady }: {
   post: any;
   onPublish: (id: number) => void;
+  onSchedule: (id: number, iso: string) => void;
+  onUnschedule: (id: number) => void;
   publishing: boolean;
+  scheduling: boolean;
   metaReady: boolean;
   linkedinReady: boolean;
 }) {
   const PlatformIcon = PLATFORM_ICONS[post.platform] || Zap;
   const isLinkedIn = post.platform === "linkedin";
   const canPost = isLinkedIn ? linkedinReady : metaReady;
-  const blockerMsg = isLinkedIn
-    ? "Add LINKEDIN_ACCESS_TOKEN to Secrets to enable posting"
-    : "Add META_PAGE_ACCESS_TOKEN to Secrets to enable posting";
-  const gradient = PLATFORM_GRADIENTS[post.platform] || PLATFORM_GRADIENTS.instagram;
+  const isScheduled = !!post.scheduledAt;
+  const slots = getTimeSlots();
 
   return (
-    <Card className="bg-gray-800/60 border-green-700/30">
+    <Card className={`border transition-colors ${isScheduled ? "bg-indigo-900/10 border-indigo-700/40" : "bg-gray-800/60 border-green-700/30"}`}>
       <CardContent className="p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border ${PLATFORM_COLORS[post.platform] || ""}`}>
@@ -179,19 +211,58 @@ function ApprovedCard({ post, onPublish, publishing, metaReady, linkedinReady }:
           <span className={`text-xs px-2 py-1 rounded-full border ${LANE_COLORS[post.audienceLane] || ""}`}>
             {LANE_LABELS[post.audienceLane] || post.audienceLane}
           </span>
-          <Badge className="ml-auto bg-green-700/30 text-green-300 border-green-700/50 text-xs">Approved</Badge>
+          {isScheduled ? (
+            <span className="ml-auto flex items-center gap-1 text-xs text-indigo-300 bg-indigo-500/10 border border-indigo-500/30 px-2 py-1 rounded-full">
+              <Clock className="w-3 h-3" />
+              Fires {fmtScheduled(post.scheduledAt)}
+            </span>
+          ) : (
+            <Badge className="ml-auto bg-green-700/30 text-green-300 border-green-700/50 text-xs">Approved</Badge>
+          )}
         </div>
+
         <p className="text-white font-semibold text-sm mb-1">{post.hook}</p>
         <p className="text-gray-400 text-xs line-clamp-2 mb-3">{post.caption}</p>
 
-        {canPost ? (
-          <Button size="sm" onClick={() => onPublish(post.id)} disabled={publishing} className={`w-full bg-gradient-to-r ${gradient}`}>
-            {publishing ? <><RefreshCw className="w-3 h-3 mr-1 animate-spin" /> Posting…</> : <><Send className="w-3 h-3 mr-1" /> Post to {post.platform}</>}
-          </Button>
-        ) : (
+        {!canPost ? (
           <div className="flex items-center gap-2 text-xs text-amber-400 bg-amber-900/20 rounded px-3 py-2">
             <AlertCircle className="w-3 h-3 flex-shrink-0" />
-            {blockerMsg}
+            {isLinkedIn ? "Add LINKEDIN_ACCESS_TOKEN to post" : "Add META_PAGE_ACCESS_TOKEN to post"}
+          </div>
+        ) : isScheduled ? (
+          <div className="space-y-2">
+            <p className="text-xs text-indigo-300 text-center">
+              Auto-posts {new Date(post.scheduledAt).toLocaleString("en-US", { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+            </p>
+            <div className="flex gap-2">
+              <Button size="sm" onClick={() => onPublish(post.id)} disabled={publishing} className="flex-1 bg-green-700 hover:bg-green-600 text-xs">
+                {publishing ? <RefreshCw className="w-3 h-3 animate-spin" /> : <><Send className="w-3 h-3 mr-1" />Post Now</>}
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => onUnschedule(post.id)} disabled={scheduling} className="flex-1 border-gray-600 text-gray-400 hover:bg-gray-700 text-xs">
+                Cancel Schedule
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <p className="text-xs text-gray-500 mb-1">Schedule for:</p>
+            <div className="grid grid-cols-2 gap-1.5">
+              {slots.map(slot => (
+                <Button
+                  key={slot.iso}
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onSchedule(post.id, slot.iso)}
+                  disabled={scheduling}
+                  className="border-indigo-700/50 text-indigo-300 hover:bg-indigo-900/30 text-xs py-1.5"
+                >
+                  <Clock className="w-3 h-3 mr-1" />{slot.label}
+                </Button>
+              ))}
+            </div>
+            <Button size="sm" onClick={() => onPublish(post.id)} disabled={publishing} className="w-full bg-green-700 hover:bg-green-600 text-xs mt-1">
+              {publishing ? <><RefreshCw className="w-3 h-3 mr-1 animate-spin" />Posting…</> : <><Send className="w-3 h-3 mr-1" />Post Right Now</>}
+            </Button>
           </div>
         )}
       </CardContent>
@@ -210,6 +281,7 @@ export default function PromoEngine() {
   const [videoFile, setVideoFile] = useState("caren-short.mp4");
   const [generating, setGenerating] = useState(false);
   const [publishingId, setPublishingId] = useState<number | null>(null);
+  const [schedulingId, setSchedulingId] = useState<number | null>(null);
 
   const { data: metaStatus } = useQuery<any>({
     queryKey: ["/api/promo/meta-status"],
@@ -231,6 +303,7 @@ export default function PromoEngine() {
   const { data: approved = [] } = useQuery<any[]>({
     queryKey: ["/api/promo/approved"],
     queryFn: () => adminFetch("/api/promo/approved").then(r => r.json()),
+    refetchInterval: 30000,
   });
 
   const { data: posted = [] } = useQuery<any[]>({
@@ -262,6 +335,25 @@ export default function PromoEngine() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/promo/drafts"] });
       queryClient.invalidateQueries({ queryKey: ["/api/promo/stats"] });
+    },
+  });
+
+  const scheduleMutation = useMutation({
+    mutationFn: ({ id, scheduledAt }: { id: number; scheduledAt: string }) =>
+      adminFetch(`/api/promo/${id}/schedule`, { method: "PATCH", body: JSON.stringify({ scheduledAt }) }).then(r => r.json()),
+    onSuccess: (_, { scheduledAt }) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/promo/approved"] });
+      const d = new Date(scheduledAt);
+      toast({ title: "Scheduled!", description: `Will auto-post ${d.toLocaleString("en-US", { weekday: "short", hour: "numeric", minute: "2-digit" })}` });
+    },
+    onError: (e: any) => toast({ title: "Schedule failed", description: e.message, variant: "destructive" }),
+  });
+
+  const unscheduleMutation = useMutation({
+    mutationFn: (id: number) => adminFetch(`/api/promo/${id}/unschedule`, { method: "PATCH" }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/promo/approved"] });
+      toast({ title: "Schedule cancelled", description: "Post is back in your queue." });
     },
   });
 
@@ -310,6 +402,18 @@ export default function PromoEngine() {
     } finally {
       setPublishingId(null);
     }
+  };
+
+  const handleSchedule = async (id: number, iso: string) => {
+    setSchedulingId(id);
+    await scheduleMutation.mutateAsync({ id, scheduledAt: iso });
+    setSchedulingId(null);
+  };
+
+  const handleUnschedule = async (id: number) => {
+    setSchedulingId(id);
+    await unscheduleMutation.mutateAsync(id);
+    setSchedulingId(null);
   };
 
   const togglePlatform = (p: string) => setPlatforms(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
@@ -551,7 +655,10 @@ export default function PromoEngine() {
                     key={post.id}
                     post={post}
                     onPublish={handlePublish}
+                    onSchedule={handleSchedule}
+                    onUnschedule={handleUnschedule}
                     publishing={publishingId === post.id}
+                    scheduling={schedulingId === post.id}
                     metaReady={metaReady}
                     linkedinReady={linkedinReady}
                   />

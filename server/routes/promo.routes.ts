@@ -8,7 +8,7 @@
 import { Express, Request, Response, NextFunction } from "express";
 import { db } from "../db";
 import { promoPosts } from "@shared/schema";
-import { eq, desc, and, inArray } from "drizzle-orm";
+import { eq, desc, and, inArray, lte, isNotNull } from "drizzle-orm";
 const ADMIN_KEY = process.env.CAREN_ADMIN_KEY || "CAREN_ADMIN_2025_PRODUCTION";
 
 function requireAdminKey(req: Request, res: Response, next: NextFunction): void {
@@ -203,6 +203,77 @@ async function postToLinkedIn(caption: string, articleUrl: string): Promise<{ po
   return { postUrl: `https://www.linkedin.com/company/114084274/` };
 }
 
+// ── Shared publish logic (used by manual endpoint + scheduler) ─────────────────
+
+async function autoPublishPost(postId: number): Promise<string> {
+  const [post] = await db.select().from(promoPosts).where(eq(promoPosts.id, postId));
+  if (!post) throw new Error("Post not found");
+  if (post.status !== "approved") throw new Error("Post is not in approved state");
+
+  const video = VIDEOS.find(v => v.file === post.videoFile) || VIDEOS[0];
+  const fullCaption = `${post.hook}\n\n${post.caption}\n\n${post.hashtags}`;
+  let postUrl = "";
+
+  if (post.platform === "linkedin") {
+    const result = await postToLinkedIn(fullCaption, APP_STORE_LINK);
+    postUrl = result.postUrl;
+  } else {
+    const config = await getMetaConfig();
+    if (!config?.token) throw new Error("META_PAGE_ACCESS_TOKEN not configured");
+    if (post.platform === "facebook") {
+      const result = await postToFacebook(config.token, config.pageId, fullCaption, video.publicUrl);
+      postUrl = result.postUrl;
+    } else if (post.platform === "instagram") {
+      if (!config.igUserId) throw new Error("Instagram Business Account not linked to Facebook Page");
+      const result = await postToInstagram(config.token, config.igUserId, fullCaption, video.publicUrl);
+      postUrl = result.postUrl;
+    }
+  }
+
+  await db.update(promoPosts).set({
+    status: "posted",
+    postedAt: new Date(),
+    postUrl,
+    errorMessage: null,
+    scheduledAt: null,
+  }).where(eq(promoPosts.id, postId));
+
+  console.log(`[PROMO] Published post ${postId} → ${post.platform}: ${postUrl}`);
+  return postUrl;
+}
+
+// ── Scheduler: fires approved posts when scheduledAt <= now ────────────────────
+
+function startPromoScheduler() {
+  setInterval(async () => {
+    try {
+      const due = await db.select().from(promoPosts).where(
+        and(
+          eq(promoPosts.status, "approved"),
+          isNotNull(promoPosts.scheduledAt),
+          lte(promoPosts.scheduledAt, new Date()),
+        )
+      );
+      if (due.length === 0) return;
+
+      console.log(`[PROMO_SCHEDULER] ${due.length} post(s) due — publishing now`);
+      for (const post of due) {
+        try {
+          await autoPublishPost(post.id);
+        } catch (e: any) {
+          console.error(`[PROMO_SCHEDULER] Post ${post.id} failed: ${e.message}`);
+          await db.update(promoPosts)
+            .set({ status: "failed", errorMessage: e.message })
+            .where(eq(promoPosts.id, post.id));
+        }
+      }
+    } catch (e) {
+      console.error("[PROMO_SCHEDULER] Scheduler error:", e);
+    }
+  }, 60_000);
+  console.log("[PROMO_SCHEDULER] Running — checks every 60s for due posts");
+}
+
 // ── Route registration ─────────────────────────────────────────────────────────
 
 export async function registerPromoRoutes(app: Express) {
@@ -363,48 +434,50 @@ No markdown, no extra text. Just the JSON array.`;
     }
   });
 
-  // POST: publish an approved post to Meta NOW
+  // POST: publish an approved post immediately (bypasses scheduler)
   app.post("/api/promo/:id/publish", requireAdminKey, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
-      const [post] = await db.select().from(promoPosts).where(eq(promoPosts.id, id));
-      if (!post) return res.status(404).json({ error: "Post not found" });
-      if (post.status !== "approved") return res.status(400).json({ error: "Post must be approved before publishing" });
-
-      const config = await getMetaConfig();
-      const video = VIDEOS.find(v => v.file === post.videoFile) || VIDEOS[0];
-      const fullCaption = `${post.hook}\n\n${post.caption}\n\n${post.hashtags}`;
-
-      let postUrl = "";
-      if (post.platform === "linkedin") {
-        const result = await postToLinkedIn(fullCaption, APP_STORE_LINK);
-        postUrl = result.postUrl;
-      } else {
-        if (!config?.token) {
-          return res.status(503).json({ error: "META_PAGE_ACCESS_TOKEN not configured yet. Add it to Secrets." });
-        }
-        if (post.platform === "facebook") {
-          const result = await postToFacebook(config.token, config.pageId, fullCaption, video.publicUrl);
-          postUrl = result.postUrl;
-        } else if (post.platform === "instagram") {
-          if (!config.igUserId) return res.status(503).json({ error: "META_IG_USER_ID not found. Make sure your Instagram Business Account is linked to your Facebook Page." });
-          const result = await postToInstagram(config.token, config.igUserId, fullCaption, video.publicUrl);
-          postUrl = result.postUrl;
-        }
-      }
-
-      const [updated] = await db.update(promoPosts).set({
-        status: "posted",
-        postedAt: new Date(),
-        postUrl,
-        errorMessage: null,
-      }).where(eq(promoPosts.id, id)).returning();
-
-      console.log(`[PROMO] Published post ${id} to ${post.platform}: ${postUrl}`);
+      await autoPublishPost(id);
+      const [updated] = await db.select().from(promoPosts).where(eq(promoPosts.id, id));
       res.json(updated);
     } catch (e: any) {
       console.error("[PROMO] Publish error:", e);
       await db.update(promoPosts).set({ status: "failed", errorMessage: e.message }).where(eq(promoPosts.id, parseInt(req.params.id)));
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // PATCH: schedule an approved post for a future time
+  app.patch("/api/promo/:id/schedule", requireAdminKey, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { scheduledAt } = req.body;
+      if (!scheduledAt) return res.status(400).json({ error: "scheduledAt is required" });
+
+      const [updated] = await db.update(promoPosts)
+        .set({ scheduledAt: new Date(scheduledAt) })
+        .where(and(eq(promoPosts.id, id), eq(promoPosts.status, "approved")))
+        .returning();
+
+      if (!updated) return res.status(404).json({ error: "Post not found or not in approved state" });
+      console.log(`[PROMO] Post ${id} scheduled for ${scheduledAt}`);
+      res.json(updated);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // PATCH: cancel a scheduled post (keeps it approved, clears time)
+  app.patch("/api/promo/:id/unschedule", requireAdminKey, async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      const [updated] = await db.update(promoPosts)
+        .set({ scheduledAt: null })
+        .where(and(eq(promoPosts.id, id), eq(promoPosts.status, "approved")))
+        .returning();
+      res.json(updated);
+    } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
   });
@@ -469,5 +542,6 @@ No markdown, no extra text. Just the JSON array.`;
     }
   });
 
+  startPromoScheduler();
   console.log("[PROMO] Promo Engine routes registered");
 }
