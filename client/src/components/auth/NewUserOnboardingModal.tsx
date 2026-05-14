@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Users, Phone, Heart, ChevronRight, SkipForward, CheckCircle, MapPin, Bell, Scale, Search } from 'lucide-react';
+import { Users, Phone, Heart, ChevronRight, SkipForward, CheckCircle, MapPin, Bell, Scale, Search, Zap, Shield, Video, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -24,7 +24,7 @@ const US_STATES = [
   "South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming","District of Columbia",
 ];
 
-type Step = 'walkthrough' | 'state-check' | 'contact';
+type Step = 'walkthrough' | 'state-check' | 'contact' | 'trial-started';
 
 export default function NewUserOnboardingModal({
   isOpen,
@@ -133,20 +133,72 @@ export default function NewUserOnboardingModal({
         priority: 'primary',
       } as any);
       setSubmitted(true);
-      setTimeout(() => { onComplete(); }, 1800);
+      setTimeout(() => { setCurrentStep('trial-started'); }, 1200);
     } catch {
       toast({
         title: "Couldn't save contact",
         description: "You can add contacts later from your dashboard.",
         variant: "destructive"
       });
-      onComplete();
+      setCurrentStep('trial-started');
     }
   };
 
-  const handleSkipContact = () => { onComplete(); };
+  const handleSkipContact = () => { setCurrentStep('trial-started'); };
 
   if (!isOpen) return null;
+
+  // ── Trial started step ────────────────────────────────────────────────────
+  if (currentStep === 'trial-started') {
+    return (
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-lg bg-gray-900/95 backdrop-blur-xl border border-indigo-500/30 rounded-2xl shadow-2xl overflow-hidden">
+          <div className="flex flex-col items-center pt-10 pb-6 px-8 text-center">
+            <div className="w-24 h-24 rounded-full bg-indigo-500/20 flex items-center justify-center mb-5">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg">
+                <Zap className="w-8 h-8 text-white" />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-white mb-2">Your Free Trial Is Live!</h2>
+            <p className="text-indigo-300 text-sm font-semibold mb-1">7 days of full premium access — no charge today</p>
+            <p className="text-gray-400 text-sm mb-6">
+              You have everything unlocked until your trial ends. After 7 days, choose a plan to keep your protection active.
+            </p>
+
+            <div className="w-full grid grid-cols-2 gap-3 mb-6">
+              {[
+                { icon: Shield, label: "Legal Rights", sub: "All 50 states + DC" },
+                { icon: Video, label: "Dashcam", sub: "10-min rolling buffer" },
+                { icon: MessageSquare, label: "AI Legal Assistant", sub: "Ask anything" },
+                { icon: Users, label: "Attorney Network", sub: "Direct connections" },
+              ].map(({ icon: Icon, label, sub }) => (
+                <div key={label} className="flex items-center gap-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-3">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center shrink-0">
+                    <Icon className="w-4 h-4 text-indigo-400" />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <p className="text-white text-xs font-semibold truncate">{label}</p>
+                    <p className="text-gray-500 text-xs truncate">{sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Button
+              onClick={onComplete}
+              className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold text-base py-3 rounded-xl"
+            >
+              Start Exploring C.A.R.E.N.™
+              <ChevronRight className="w-5 h-5 ml-1" />
+            </Button>
+            <p className="text-xs text-gray-500 mt-3">
+              A reminder will appear when your trial is about to end
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // ── Walkthrough step ──────────────────────────────────────────────────────
   if (currentStep === 'walkthrough') {

@@ -50,6 +50,7 @@ export const users = pgTable("users", {
   banReason: text("ban_reason"),
   bannedAt: timestamp("banned_at"),
   deletedAt: timestamp("deleted_at"), // soft delete — row is kept for audit trail
+  trialEndsAt: timestamp("trial_ends_at"), // 7-day free trial expiry — null means no trial started or already paid
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

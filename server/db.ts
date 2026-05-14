@@ -824,6 +824,7 @@ export async function runAutoMigrations(): Promise<void> {
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW()`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT NOW()`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMP`,
+    `ALTER TABLE users ADD COLUMN IF NOT EXISTS trial_ends_at TIMESTAMP`,
     // users — founders / incentive system
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS is_founding_member BOOLEAN DEFAULT FALSE`,
     `ALTER TABLE users ADD COLUMN IF NOT EXISTS premium_expires_at TIMESTAMP`,

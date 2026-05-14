@@ -3005,6 +3005,38 @@ setInterval(load, 15000);
     }
   });
 
+  // Authenticated: get the current user's trial status
+  app.get("/api/subscription/trial-status", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.session?.userId || req.user?.id;
+      const user = await storage.getUser(userId);
+      if (!user) return res.status(404).json({ error: "User not found" });
+
+      const trialEndsAt = (user as any).trialEndsAt;
+      const tier = (user as any).subscriptionTier;
+
+      if (!trialEndsAt || tier !== 'trial') {
+        return res.json({ onTrial: false, daysLeft: 0, trialEndsAt: null, expired: false });
+      }
+
+      const now = new Date();
+      const end = new Date(trialEndsAt);
+      const msLeft = end.getTime() - now.getTime();
+      const daysLeft = Math.ceil(msLeft / (1000 * 60 * 60 * 24));
+      const expired = msLeft <= 0;
+
+      // Auto-expire: if trial ended, downgrade to free tier
+      if (expired) {
+        await storage.updateUserProfile(userId, { subscriptionTier: 'free' } as any);
+        return res.json({ onTrial: false, daysLeft: 0, trialEndsAt: trialEndsAt, expired: true });
+      }
+
+      return res.json({ onTrial: true, daysLeft, trialEndsAt, expired: false });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   // Public: verify a Stripe session status (used on payment-success page before login)
   app.get("/api/subscription/session-status", async (req: any, res) => {
     try {

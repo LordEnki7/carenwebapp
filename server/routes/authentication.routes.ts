@@ -51,6 +51,7 @@ export function registerAuthenticationRoutes(app: Express) {
       // Create user in database
       let newUser: any;
       try {
+        const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         newUser = await (storage.createUser as any)({
           id: newUserId,
           email,
@@ -59,7 +60,8 @@ export function registerAuthenticationRoutes(app: Express) {
           lastName: lastName || '',
           phone: phone || null,
           preferredLanguage: preferredLanguage || 'en',
-          subscriptionTier: 'free',
+          subscriptionTier: 'trial',
+          trialEndsAt,
           agreedToTerms: true,
           termsAgreedAt: new Date(),
         });
@@ -67,6 +69,7 @@ export function registerAuthenticationRoutes(app: Express) {
       } catch (dbErr) {
         console.error('[REGISTER] DB create error, falling back to in-memory:', dbErr);
         // Fallback: create a minimal in-memory user object
+        const trialEndsAtFallback = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
         newUser = {
           id: newUserId,
           email,
@@ -74,7 +77,8 @@ export function registerAuthenticationRoutes(app: Express) {
           lastName: lastName || '',
           phone: phone || null,
           preferredLanguage: preferredLanguage || 'en',
-          subscriptionTier: 'free',
+          subscriptionTier: 'trial',
+          trialEndsAt: trialEndsAtFallback,
           agreedToTerms: true,
           termsAgreedAt: new Date(),
           role: 'user',

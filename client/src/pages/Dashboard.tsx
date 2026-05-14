@@ -12,6 +12,7 @@ import { useGeolocation } from "@/hooks/useGeolocation";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { getTimeContext, trackFeatureUsage } from "@/utils/contextualIntelligence";
 import { DemoStatusBanner } from "@/components/DemoStatusBanner";
+import { TrialBanner } from "@/components/TrialBanner";
 import { useEmergencyContacts } from "@/hooks/useEmergencyContacts";
 import { QuickLegalChat } from "@/components/QuickLegalChat";
 import { useLocation } from "wouter";
@@ -101,11 +102,13 @@ export default function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 
-  // Paywall gate — free-tier users must choose a plan before accessing the dashboard
+  // Paywall gate — free-tier users must choose a plan; trial users pass through
   useEffect(() => {
     if (!authLoading && isAuthenticated && user) {
       const tier = (user as any).subscriptionTier;
-      if (!tier || tier === 'free') {
+      const trialEndsAt = (user as any).trialEndsAt;
+      const trialActive = tier === 'trial' && trialEndsAt && new Date(trialEndsAt) > new Date();
+      if (!tier || (tier === 'free' && !trialActive)) {
         window.location.href = '/plans?new=true';
       }
     }
@@ -225,6 +228,9 @@ export default function Dashboard() {
           ← Back to Quick Actions
         </button>
         
+        {/* Trial Status Banner */}
+        <TrialBanner />
+
         {/* Demo Status Banner */}
         <DemoStatusBanner />
 
