@@ -1124,10 +1124,11 @@ export default function DirectorPortal() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {[
-                  { label: "Attorney Application Form", href: "/attorney-apply", desc: "Direct link — send to any attorney you recruit" },
-                  { label: "C.A.R.E.N.™ Alert Homepage", href: "/", desc: "Share this with users and businesses" },
-                  { label: "Legal Rights Database", href: "/rights", desc: "Show prospects what the platform covers" },
-                  { label: "Record an Encounter", href: "/record", desc: "Demo the core product feature (requires sign-in)" },
+                  { label: "Attorney Application Form", href: "https://carenalert.com/attorney-apply", desc: "Direct link — send to any attorney you recruit" },
+                  { label: "C.A.R.E.N.™ Alert Homepage", href: "https://carenalert.com", desc: "Share this with users and businesses" },
+                  { label: "Legal Rights Database", href: "https://carenalert.com/rights", desc: "Show prospects what the platform covers" },
+                  { label: "Plans & Pricing", href: "https://carenalert.com/pricing", desc: "Show prospects subscription options and pricing" },
+                  { label: "Director Playbook", href: "https://carenalert.com/director-playbook", desc: "Your full outreach guide — open or print anytime" },
                 ].map((r, i) => (
                   <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
@@ -1153,8 +1154,9 @@ export default function DirectorPortal() {
           <CardContent className="space-y-2">
             {[
               { label: "Attorney Application Form", href: "https://carenalert.com/attorney-apply", desc: "Send this link to attorneys you recruit" },
-              { label: "Record an Encounter", href: "https://carenalert.com/record", desc: "Know the product you're promoting (requires sign-in)" },
-              { label: "Legal Rights Database", href: "https://carenalert.com/rights", desc: "Review state-specific protections" },
+              { label: "Legal Rights Database", href: "https://carenalert.com/rights", desc: "Review state-specific protections for every state" },
+              { label: "C.A.R.E.N.™ Alert Plans & Pricing", href: "https://carenalert.com/pricing", desc: "Show prospects what's included at each tier" },
+              { label: "Director Playbook", href: "https://carenalert.com/director-playbook", desc: "Your full outreach guide — scripts, tips, and strategy" },
             ].map((r, i) => (
               <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
