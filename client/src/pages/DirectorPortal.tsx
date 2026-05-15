@@ -418,7 +418,7 @@ export default function DirectorPortal() {
             </Button>
           </div>
           <p className="text-center text-gray-500 text-xs">
-            Don't have a PIN? Contact C.A.R.E.N.™ Alert administration after your application is approved.
+            Don't have a PIN yet? Check your approval email for a <span className="text-cyan-400">Complete My Director Setup</span> button — click it to create your PIN.
           </p>
           <div className="text-center">
             <Link href="/become-director">

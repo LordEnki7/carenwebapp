@@ -444,7 +444,7 @@ export function registerDirectorRoutes(app: Express) {
       if (!rows.length) return res.status(404).json({ error: "No director account found with that email" });
 
       const director = rows[0];
-      if (!director.portalPin) return res.status(403).json({ error: "No PIN set for this account. Contact your administrator." });
+      if (!director.portalPin) return res.status(403).json({ error: "Your PIN hasn't been set up yet. Check your approval email for a setup link — click 'Complete My Director Setup' to create your PIN." });
       if (director.portalPin !== pin.toString().trim()) return res.status(401).json({ error: "Incorrect PIN" });
       if (director.status === "rejected") return res.status(403).json({ error: "Your director application was not approved." });
 
@@ -616,11 +616,8 @@ export function registerDirectorRoutes(app: Express) {
         .set({ status, adminNotes: adminNotes || null, updatedAt: new Date() })
         .where(eq(regionalDirectors.id, id))
         .returning();
-      // Fire approval email + auto-generate invite link so they can set their PIN immediately
+      // On approval: generate invite token and send ONE combined approval + setup email
       if (status === "approved" && updated) {
-        sendApprovalEmail(updated).catch(err => console.error("[DIRECTOR] Approval email failed:", err));
-
-        // Auto-send invite link so director can set their portal PIN without a separate admin step
         (async () => {
           try {
             const { randomBytes } = await import("crypto");
@@ -630,25 +627,43 @@ export function registerDirectorRoutes(app: Express) {
               .set({ inviteToken: token, inviteTokenExpiry: expiry, inviteSentAt: new Date(), updatedAt: new Date() })
               .where(eq(regionalDirectors.id, id));
             const inviteUrl = `https://carenalert.com/director-invite/${token}`;
+            const directorCode = updated.directorCode || "";
+            const referralLink = `https://carenalert.com/?dref=${directorCode}`;
             await sendEmail({
               to: updated.email,
-              subject: "Action Required: Complete Your C.A.R.E.N.™ Alert Director Setup",
-              html: `<div style="font-family:Arial,sans-serif;background:#0a0f1a;color:#e2e8f0;padding:32px;max-width:560px;margin:0 auto;border-radius:12px;">
-                <h2 style="color:#00e5ff;margin:0 0 4px;">One More Step, ${updated.name}</h2>
-                <p style="color:#94a3b8;margin:0 0 20px;font-size:13px;">C.A.R.E.N.™ Alert Regional Director Program</p>
-                <p style="color:#e2e8f0;line-height:1.7;">Your director account is approved. To activate your Director Portal access, click the button below to complete your setup and create your personal 6-digit PIN.</p>
-                <div style="text-align:center;margin:32px 0;">
-                  <a href="${inviteUrl}" style="background:#00e5ff;color:#0a0f1a;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;">Complete My Director Setup →</a>
+              subject: "You're Approved — Complete Your C.A.R.E.N.™ Alert Director Setup",
+              html: `
+                <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#ffffff;color:#1a1a1a;padding:40px 36px;border-radius:8px;border:1px solid #e5e7eb;">
+                  <div style="margin-bottom:24px;">
+                    <h2 style="color:#0e7490;font-size:22px;margin:0 0 4px;">C.A.R.E.N.™ Alert</h2>
+                    <p style="color:#6b7280;font-size:12px;margin:0;">Citizen Assistance for Roadside Emergencies and Navigation</p>
+                  </div>
+                  <p style="font-size:15px;margin-bottom:16px;">Hello ${updated.name},</p>
+                  <p style="line-height:1.7;">Your application has been reviewed and <strong style="color:#0e7490;">you are officially approved</strong> as a Regional Director for C.A.R.E.N.™ Alert${updated.city ? ` in <strong>${updated.city}${updated.state ? ", " + updated.state : ""}</strong>` : ""}.
+
+                  <div style="background:#f0f9ff;border-left:4px solid #0e7490;padding:20px 24px;margin:24px 0;border-radius:4px;">
+                    <p style="font-weight:bold;margin:0 0 6px;color:#0e7490;">Your Director Code</p>
+                    <p style="font-family:monospace;font-size:20px;letter-spacing:2px;background:#e0f2fe;padding:4px 12px;border-radius:4px;display:inline-block;margin:0 0 12px;">${directorCode}</p>
+                    <p style="margin:4px 0;font-size:13px;color:#374151;"><strong>Referral link:</strong> <a href="${referralLink}" style="color:#0e7490;">${referralLink}</a></p>
+                  </div>
+
+                  <p style="line-height:1.7;font-weight:600;color:#111827;">To access your Director Portal, you must complete your setup first:</p>
+                  <div style="text-align:center;margin:28px 0;">
+                    <a href="${inviteUrl}" style="background:#0e7490;color:#ffffff;padding:16px 36px;border-radius:8px;text-decoration:none;font-weight:bold;font-size:16px;display:inline-block;">Complete My Director Setup →</a>
+                  </div>
+                  <p style="color:#6b7280;font-size:13px;text-align:center;">This link expires in 72 hours. After setup, you will log into the portal at<br/><a href="https://carenalert.com/director-portal" style="color:#0e7490;">carenalert.com/director-portal</a> using your email and the PIN you set.</p>
+                  <p style="color:#9ca3af;font-size:12px;text-align:center;margin-top:8px;">If the button doesn't work: ${inviteUrl}</p>
+                  <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0;"/>
+                  <p style="line-height:1.7;margin-top:28px;">Welcome to the team.<br/><br/>Respectfully,<br/><strong>Shawn Williams</strong><br/><span style="color:#6b7280;font-size:13px;">Founder, C.A.R.E.N.™ Alert</span></p>
+                  <hr style="border:none;border-top:1px solid #e5e7eb;margin:28px 0;"/>
+                  <p style="color:#9ca3af;font-size:11px;text-align:center;">C.A.R.E.N.™ Alert · carenalert.com</p>
                 </div>
-                <p style="color:#475569;font-size:12px;text-align:center;margin-top:8px;">This link expires in 72 hours.<br/>${inviteUrl}</p>
-                <hr style="border:none;border-top:1px solid #1e293b;margin:24px 0;"/>
-                <p style="color:#475569;font-size:12px;text-align:center;">Once setup is complete, log in at <a href="https://carenalert.com/director-portal" style="color:#00e5ff;">carenalert.com/director-portal</a> with your email and PIN.</p>
-              </div>`,
-              text: `Hi ${updated.name},\n\nComplete your director setup here:\n${inviteUrl}\n\nThis link expires in 72 hours.\n\nAfter setup, log in at carenalert.com/director-portal with your email and PIN.`,
+              `,
+              text: `Hello ${updated.name},\n\nYou are approved as a C.A.R.E.N.™ Alert Regional Director!\n\nYour Director Code: ${directorCode}\nReferral Link: ${referralLink}\n\nIMPORTANT: Before you can log into the portal, you must complete your setup here:\n${inviteUrl}\n\nThis link expires in 72 hours.\n\nAfter setup, log in at carenalert.com/director-portal with your email and the PIN you set.\n\nWelcome to the team.\n— Shawn Williams, Founder`,
             });
-            console.log(`[DIRECTOR] Auto-sent setup invite to ${updated.email} on approval`);
+            console.log(`[DIRECTOR] Sent combined approval + setup email to ${updated.email}`);
           } catch (err) {
-            console.error("[DIRECTOR] Auto-invite send failed:", err);
+            console.error("[DIRECTOR] Approval+setup email failed:", err);
           }
         })();
       }
