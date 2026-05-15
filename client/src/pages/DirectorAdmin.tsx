@@ -657,20 +657,30 @@ export default function DirectorAdmin() {
                               {d.phone && <p className="text-gray-400 text-sm mt-3">📞 {d.phone}</p>}
                               <p className="text-gray-500 text-xs mt-2">Applied: {new Date(d.createdAt).toLocaleDateString()}</p>
 
-                              {/* Invite Status */}
-                              {d.inviteSentAt && (
-                                <div className={`mt-3 rounded-lg p-3 border flex items-center justify-between gap-3 flex-wrap ${d.portalPin ? "border-green-500/20 bg-green-900/10" : "border-yellow-500/20 bg-yellow-900/10"}`}>
+                              {/* Invite / PIN Status — always shown for approved directors */}
+                              {d.status === "approved" && (
+                                <div className={`mt-3 rounded-lg p-3 border flex items-center justify-between gap-3 flex-wrap ${
+                                  d.portalPin
+                                    ? "border-green-500/20 bg-green-900/10"
+                                    : "border-red-500/30 bg-red-900/10"
+                                }`}>
                                   <div>
                                     <p className="text-xs font-semibold mb-0.5">
-                                      {d.portalPin ? <span className="text-green-400">✅ Invite Completed</span> : <span className="text-yellow-400">📧 Invite Sent — Awaiting Setup</span>}
+                                      {d.portalPin
+                                        ? <span className="text-green-400">✅ Portal Access Active — PIN is set</span>
+                                        : <span className="text-red-400">🚨 No PIN — Director cannot log in yet</span>
+                                      }
                                     </p>
-                                    <p className="text-gray-500 text-xs">Sent: {new Date(d.inviteSentAt).toLocaleString()}</p>
+                                    {d.inviteSentAt
+                                      ? <p className="text-gray-500 text-xs">Setup link sent: {new Date(d.inviteSentAt).toLocaleString()}</p>
+                                      : !d.portalPin && <p className="text-gray-500 text-xs">No setup link sent yet</p>
+                                    }
                                   </div>
                                   {!d.portalPin && (
                                     <Button size="sm" variant="outline"
                                       onClick={() => resendInvite(d.id, d.email)}
-                                      className="border-yellow-500/30 text-yellow-400 hover:bg-yellow-900/20 text-xs h-8 gap-1.5">
-                                      <Send className="w-3 h-3" /> Resend Invite
+                                      className="border-red-500/30 text-red-400 hover:bg-red-900/20 text-xs h-8 gap-1.5">
+                                      <Send className="w-3 h-3" /> Send Setup Link
                                     </Button>
                                   )}
                                 </div>
