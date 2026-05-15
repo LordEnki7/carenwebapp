@@ -1,1 +1,0 @@
-import{r as a,u as e}from"./index-C6Qn-SdT.js";function s(){const[t,n]=a.useState(null);return a.useState(null),a.useState(!1),e(),{location:t,error:null,isLoading:!1,getCurrentLocation:async()=>null,watchLocation:()=>{},clearWatch:()=>{},geocodeAddress:async()=>({}),setManualLocation:()=>{},calibrateGPS:async()=>null,calculateDistance:()=>0,refetch:async()=>null}}export{s as u};

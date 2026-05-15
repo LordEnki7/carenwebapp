@@ -251,11 +251,11 @@ function SystemHealthTab() {
 }
 
 function DirectorPortalAdminTab() {
-  const [previewDirector, setPreviewDirector] = useState<any>(null);
+  const [activeDirector, setActiveDirector] = useState<any>(null);
   const [iframeKey, setIframeKey] = useState(0);
   const adminKey = sessionStorage.getItem('carenAdminAuth') || '';
 
-  const { data: directors, isLoading, refetch } = useQuery<any[]>({
+  const { data: directors, isLoading } = useQuery<any[]>({
     queryKey: ['/api/director/admin/all', adminKey],
     queryFn: async () => {
       const res = await fetch('/api/director/admin/all', {
@@ -267,132 +267,119 @@ function DirectorPortalAdminTab() {
     enabled: !!adminKey,
   });
 
-  function previewAs(director: any) {
-    if (!director.portalPin) {
-      alert(`${director.name} has no PIN set yet. Assign one in Director Admin first.`);
-      return;
+  // Auto-select the first director with a PIN when data loads
+  useEffect(() => {
+    if (directors && directors.length > 0 && !activeDirector) {
+      const first = directors.find((d: any) => d.portalPin) || directors[0];
+      selectDirector(first);
     }
-    const session = { email: director.email.toLowerCase(), pin: director.portalPin };
-    localStorage.setItem('directorPortalSession', JSON.stringify(session));
-    setPreviewDirector(director);
+  }, [directors]);
+
+  function selectDirector(director: any) {
+    if (director.portalPin) {
+      const session = { email: director.email.toLowerCase(), pin: director.portalPin };
+      localStorage.setItem('directorPortalSession', JSON.stringify(session));
+    } else {
+      localStorage.removeItem('directorPortalSession');
+    }
+    setActiveDirector(director);
     setIframeKey(k => k + 1);
   }
 
-  function openInNewTab(director: any) {
-    if (!director.portalPin) {
-      alert(`${director.name} has no PIN set yet.`);
-      return;
+  function openInNewTab() {
+    if (!activeDirector) return;
+    if (activeDirector.portalPin) {
+      const session = { email: activeDirector.email.toLowerCase(), pin: activeDirector.portalPin };
+      localStorage.setItem('directorPortalSession', JSON.stringify(session));
     }
-    const session = { email: director.email.toLowerCase(), pin: director.portalPin };
-    localStorage.setItem('directorPortalSession', JSON.stringify(session));
     window.open('/director-portal', '_blank');
   }
 
-  function clearPreview() {
-    localStorage.removeItem('directorPortalSession');
-    setPreviewDirector(null);
-  }
-
   const statusColor: Record<string, string> = {
-    approved: 'bg-green-900/50 text-green-300 border-green-800',
-    pending: 'bg-yellow-900/50 text-yellow-300 border-yellow-800',
-    rejected: 'bg-red-900/50 text-red-300 border-red-800',
+    approved: 'bg-green-900/50 text-green-300 border-green-700',
+    pending: 'bg-yellow-900/50 text-yellow-300 border-yellow-700',
+    rejected: 'bg-red-900/50 text-red-300 border-red-700',
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-4">
+      {/* Header + director pills */}
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h3 className="text-xl font-semibold text-white">Director Portal — Admin View</h3>
-          <p className="text-sm text-gray-400 mt-1">
-            Click <strong className="text-cyan-400">Preview</strong> to load any director's portal right here and click through exactly what they see.
-            Click <strong className="text-cyan-400">New Tab</strong> to open it separately.
-          </p>
+          <p className="text-sm text-gray-400 mt-0.5">Live view of exactly what each director sees in their portal.</p>
         </div>
-        <Button onClick={() => refetch()} variant="outline" className="border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/10">
-          ↻ Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          {activeDirector && (
+            <Button size="sm" variant="outline" onClick={openInNewTab}
+              className="border-gray-600 text-gray-300 hover:bg-gray-700 text-xs">
+              Open in New Tab ↗
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Director list */}
-      <Card className="bg-gray-900 border-gray-700">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-white text-sm">All Directors</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading && <p className="text-gray-400 text-sm">Loading directors…</p>}
-          {!isLoading && (!directors || directors.length === 0) && (
-            <p className="text-gray-500 text-sm">No directors found.</p>
-          )}
-          {directors && directors.length > 0 && (
-            <div className="space-y-2">
-              {directors.map((d: any) => (
-                <div key={d.id} className={`flex items-center justify-between bg-gray-800 rounded-lg px-4 py-3 border ${previewDirector?.id === d.id ? 'border-cyan-500/60' : 'border-gray-700'}`}>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-white font-medium text-sm">{d.name}</span>
-                      <Badge className={statusColor[d.status] || 'bg-gray-800 text-gray-300 border-gray-600'}>{d.status}</Badge>
-                      {d.portalPin ? (
-                        <span className="text-xs font-mono text-cyan-300 bg-cyan-900/30 px-2 py-0.5 rounded">PIN: {d.portalPin}</span>
-                      ) : (
-                        <span className="text-xs text-gray-500 italic">No PIN set</span>
-                      )}
-                    </div>
-                    <p className="text-gray-400 text-xs mt-0.5 truncate">{d.email}</p>
-                    {d.territory && <p className="text-gray-500 text-xs">{d.territory}</p>}
-                  </div>
-                  <div className="flex items-center gap-2 ml-4 flex-shrink-0">
-                    <Button
-                      size="sm"
-                      onClick={() => previewAs(d)}
-                      disabled={!d.portalPin}
-                      className="bg-cyan-600 hover:bg-cyan-500 text-black text-xs font-bold disabled:opacity-40"
-                    >
-                      Preview ↓
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => openInNewTab(d)}
-                      disabled={!d.portalPin}
-                      className="border-gray-600 text-gray-300 hover:bg-gray-700 text-xs disabled:opacity-40"
-                    >
-                      New Tab ↗
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Director selector */}
+      {isLoading && <p className="text-gray-400 text-sm">Loading directors…</p>}
+      {!isLoading && directors && directors.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {directors.map((d: any) => (
+            <button
+              key={d.id}
+              onClick={() => selectDirector(d)}
+              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all ${
+                activeDirector?.id === d.id
+                  ? 'bg-cyan-900/50 border-cyan-500 text-white'
+                  : 'bg-gray-800 border-gray-700 text-gray-300 hover:border-gray-500'
+              }`}
+            >
+              <span className="font-medium">{d.name}</span>
+              <span className={`text-xs px-1.5 py-0.5 rounded border ${statusColor[d.status] || 'bg-gray-700 text-gray-400 border-gray-600'}`}>
+                {d.status}
+              </span>
+              {d.portalPin
+                ? <span className="text-xs font-mono text-cyan-400">PIN ✓</span>
+                : <span className="text-xs text-gray-500 italic">no PIN</span>
+              }
+            </button>
+          ))}
+        </div>
+      )}
 
-      {/* Inline iframe preview */}
-      {previewDirector && (
-        <Card className="bg-gray-900 border-cyan-500/40">
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-cyan-300 text-sm">
-                Previewing: {previewDirector.name}
-              </CardTitle>
-              <p className="text-gray-400 text-xs mt-0.5">
-                You are seeing the portal exactly as <strong>{previewDirector.email}</strong> sees it. Click any link or button to test it.
-              </p>
-            </div>
-            <Button size="sm" variant="outline" onClick={clearPreview} className="border-gray-600 text-gray-400 hover:bg-gray-700 text-xs">
-              ✕ Close Preview
-            </Button>
-          </CardHeader>
-          <CardContent className="p-0">
-            <iframe
-              key={iframeKey}
-              src="/director-portal"
-              className="w-full rounded-b-lg border-0"
-              style={{ height: '700px' }}
-              title="Director Portal Preview"
-            />
-          </CardContent>
-        </Card>
+      {/* No PIN warning */}
+      {activeDirector && !activeDirector.portalPin && (
+        <div className="bg-yellow-900/20 border border-yellow-700/40 rounded-lg px-4 py-3 text-sm text-yellow-300">
+          <strong>{activeDirector.name}</strong> has no PIN set yet — portal will show the login screen. Assign a PIN in Director Admin first.
+        </div>
+      )}
+
+      {/* Full-height portal iframe */}
+      {activeDirector && (
+        <div className="rounded-xl overflow-hidden border border-cyan-500/30 bg-gray-950">
+          <div className="flex items-center justify-between px-4 py-2 bg-gray-900 border-b border-gray-800">
+            <span className="text-xs text-gray-400">
+              Viewing as: <strong className="text-cyan-300">{activeDirector.name}</strong>
+              <span className="text-gray-500 ml-2">({activeDirector.email})</span>
+            </span>
+            <button
+              onClick={() => setIframeKey(k => k + 1)}
+              className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            >
+              ↻ Reload
+            </button>
+          </div>
+          <iframe
+            key={iframeKey}
+            src="/director-portal"
+            className="w-full border-0"
+            style={{ height: '850px' }}
+            title={`Director Portal — ${activeDirector.name}`}
+          />
+        </div>
+      )}
+
+      {!activeDirector && !isLoading && (
+        <div className="text-center py-16 text-gray-500">No directors found. Add a director application first.</div>
       )}
     </div>
   );
