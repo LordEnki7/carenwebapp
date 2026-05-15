@@ -1,6 +1,8 @@
 node_modules/
 dist/index.js
 dist/index.js.map
+# Frontend is built inside Docker — no need to commit dist/public to git
+dist/public
 .cache/
 *.log
 *.map

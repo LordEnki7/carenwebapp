@@ -6,7 +6,7 @@ C.A.R.E.N.™ Alert is a family protection platform with GPS-enabled legal right
 - **Dev server**: `npm run dev` (Express + Vite on port 5000)
 - **Typecheck**: `npx tsc --noEmit`
 - **Pre-push check**: `bash scripts/pre-push-check.sh`
-- **Push to production**: `git push github fresh-main:main` — then trigger **Dokploy redeploy** in the Dokploy dashboard (user must click this manually)
+- **Push to production**: `git push github fresh-main:main` — then trigger **Dokploy redeploy** in the Dokploy dashboard (user must click this manually). Dokploy now runs `vite build` inside Docker — no manual pre-build needed.
 - **Confirm production live**: check `https://carenalert.com/api/version` — commit hash must match local HEAD
 - **Do NOT use**: `bash scripts/deploy-to-dokploy.sh` (causes git lock issues in Replit sandbox) or Replit Publish button (wrong deploy method)
 - **Admin dashboard**: `/admin` — key is stored as env secret, never hardcode or display it

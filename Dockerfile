@@ -27,7 +27,20 @@ COPY . .
 # build-info.json without any hardcoded value in this file.
 RUN node scripts/write-build-info.cjs
 
-# Only build the server-side bundle here — Vite MUST NOT run in Docker (no VITE_* env vars).
+# Build args for VITE_* env vars — pass these from Dokploy's Build Arguments panel.
+# Without them Vite still compiles, it just falls back to its runtime defaults.
+ARG VITE_STRIPE_PUBLIC_KEY
+ARG VITE_REVENUECAT_IOS_API_KEY
+ARG VITE_PRODUCTION_API_URL=https://carenalert.com
+
+ENV VITE_STRIPE_PUBLIC_KEY=$VITE_STRIPE_PUBLIC_KEY
+ENV VITE_REVENUECAT_IOS_API_KEY=$VITE_REVENUECAT_IOS_API_KEY
+ENV VITE_PRODUCTION_API_URL=$VITE_PRODUCTION_API_URL
+
+# Build the frontend inside Docker — no more committing dist/public/ to git.
+RUN npx vite build
+
+# Build the server-side bundle.
 RUN npx esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
 
 EXPOSE 5000

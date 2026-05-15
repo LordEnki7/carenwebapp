@@ -10,6 +10,8 @@ node_modules
 .github
 dist/index.js
 dist/index.js.map
+# dist/public is built inside Docker by `npx vite build` — exclude the pre-built copy
+dist/public
 .env
 .env.local
 .env.*.local

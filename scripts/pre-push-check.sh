@@ -180,13 +180,7 @@ if [ -z "$RC_KEY" ]; then
 elif [[ "$RC_KEY" == test_* ]]; then
   fail "VITE_REVENUECAT_IOS_API_KEY is a TEST key ($RC_KEY) — real purchases will be rejected. Update it to the production 'appl_...' key in Replit Secrets."
 elif [[ "$RC_KEY" == appl_* ]]; then
-  ok "VITE_REVENUECAT_IOS_API_KEY is a production key (appl_...)"
-  # Also verify it's actually embedded in the built bundle
-  if grep -rl "appl_" dist/public/assets/*.js > /dev/null 2>&1; then
-    ok "Production key is embedded in the built bundle (dist/public/assets/)"
-  else
-    fail "Production key is NOT in the built bundle — run: npx vite build  before deploying"
-  fi
+  ok "VITE_REVENUECAT_IOS_API_KEY is a production key (appl_...) — Dokploy will bake it in during Docker build"
 else
   warn "VITE_REVENUECAT_IOS_API_KEY format unrecognized ($RC_KEY) — expected 'appl_...' for iOS"
 fi
