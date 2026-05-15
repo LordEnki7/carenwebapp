@@ -370,7 +370,9 @@ function DirectorPortalAdminTab() {
           </div>
           <iframe
             key={iframeKey}
-            src="/director-portal"
+            src={activeDirector.portalPin
+              ? `/director-portal?ae=${encodeURIComponent(activeDirector.email.toLowerCase())}&ap=${encodeURIComponent(activeDirector.portalPin)}`
+              : '/director-portal'}
             className="w-full border-0"
             style={{ height: '850px' }}
             title={`Director Portal — ${activeDirector.name}`}

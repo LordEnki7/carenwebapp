@@ -209,7 +209,14 @@ export default function DirectorPortal() {
 
   // ── Standalone PIN auth — completely separate from C.A.R.E.N.™ Alert app login ──
   const [portalSession, setPortalSession] = useState<{ email: string; pin: string } | null>(() => {
-    try { return JSON.parse(localStorage.getItem("directorPortalSession") || "null"); } catch { return null; }
+    // Admin preview: credentials passed via URL params take priority (admin iframe embed)
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ae = params.get("ae");
+      const ap = params.get("ap");
+      if (ae && ap) return { email: ae, pin: ap };
+      return JSON.parse(localStorage.getItem("directorPortalSession") || "null");
+    } catch { return null; }
   });
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPin, setLoginPin] = useState("");
