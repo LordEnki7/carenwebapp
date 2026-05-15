@@ -10,6 +10,7 @@ import {
   insertAttorneyOutreachSchema,
   userPersonalAttorneys,
   insertUserPersonalAttorneySchema,
+  users,
 } from "@shared/schema";
 import { getOpenAIClient } from "../aiService";
 import nodemailer from "nodemailer";
@@ -232,6 +233,35 @@ export function registerAttorneyNetworkRoutes(app: Express) {
         console.warn("[ATTORNEY NETWORK] Admin email failed:", emailErr);
       }
 
+      // Confirmation email to the attorney
+      try {
+        await transporter.sendMail({
+          from: '"C.A.R.E.N.™ Alert Network" <info@carenalert.com>',
+          to: data.email,
+          subject: "We received your C.A.R.E.N.™ Alert Attorney Network application",
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:580px;margin:0 auto;background:#0a0f1a;color:#e2e8f0;padding:36px;border-radius:10px;">
+              <h2 style="color:#00e5ff;margin:0 0 6px;">Application Received, ${data.firstName}</h2>
+              <p style="color:#94a3b8;font-size:13px;margin:0 0 24px;">C.A.R.E.N.™ Alert Legal Access Network</p>
+              <p style="line-height:1.7;">Thank you for applying to the <strong>C.A.R.E.N.™ Alert Legal Access Network</strong>. We have received your application and our team will review it within <strong>1–3 business days</strong>.</p>
+              <div style="background:#0f172a;border:1px solid #1e293b;border-radius:8px;padding:20px;margin:24px 0;">
+                <p style="margin:0 0 10px;font-weight:bold;color:#00e5ff;">Your Application Summary</p>
+                <p style="margin:4px 0;font-size:14px;"><strong>Name:</strong> ${data.firstName} ${data.lastName}</p>
+                <p style="margin:4px 0;font-size:14px;"><strong>Firm:</strong> ${data.firmName}</p>
+                <p style="margin:4px 0;font-size:14px;"><strong>Bar Number:</strong> ${data.barNumber}</p>
+                <p style="margin:4px 0;font-size:14px;"><strong>States:</strong> ${(data.statesLicensed as string[]).join(", ")}</p>
+              </div>
+              <p style="line-height:1.7;">We will email you at <strong>${data.email}</strong> once a decision has been made. If approved, you will receive instructions on how to access your attorney portal.</p>
+              <p style="line-height:1.7;color:#94a3b8;font-size:13px;">Questions? Reply to this email or contact us at info@carenalert.com</p>
+              <hr style="border:none;border-top:1px solid #1e293b;margin:24px 0;"/>
+              <p style="color:#475569;font-size:11px;text-align:center;">C.A.R.E.N.™ Alert · carenalert.com</p>
+            </div>
+          `,
+        });
+      } catch (emailErr) {
+        console.warn("[ATTORNEY NETWORK] Attorney confirmation email failed:", emailErr);
+      }
+
       res.json({ success: true, message: "Application submitted successfully. We will review and contact you within 3 business days.", id: application.id });
     } catch (error: any) {
       console.error("[ATTORNEY NETWORK] Apply error:", error);
@@ -357,26 +387,32 @@ export function registerAttorneyNetworkRoutes(app: Express) {
           });
         }
 
-        // Send approval email to attorney
+        // Send approval email to attorney with clear account setup instructions
         try {
           await transporter.sendMail({
             from: '"C.A.R.E.N.™ Alert Network" <info@carenalert.com>',
             to: updated.email,
-            subject: "Welcome to the C.A.R.E.N.™ Alert Attorney Network!",
+            subject: "You're Approved — Welcome to the C.A.R.E.N.™ Alert Attorney Network",
             html: `
-              <h2>Welcome, ${updated.firstName}!</h2>
-              <p>Your application to join the <strong>C.A.R.E.N.™ Alert Legal Access Network</strong> has been approved.</p>
-              <p>Your profile is now active in our verified attorney directory.</p>
-              <p>Next steps:</p>
-              <ul>
-                <li>Log in to your attorney portal to complete your profile</li>
-                <li>Set your availability status</li>
-                <li>Add your coverage areas and counties</li>
-              </ul>
-              <p>Visit: <a href="https://carenalert.com/attorney-portal">Attorney Portal →</a></p>
-              <br/>
-              <p>Questions? Email us at info@carenalert.com</p>
-              <p>— The C.A.R.E.N.™ Alert Team</p>
+              <div style="font-family:Arial,sans-serif;max-width:580px;margin:0 auto;background:#0a0f1a;color:#e2e8f0;padding:36px;border-radius:10px;">
+                <h2 style="color:#00e5ff;margin:0 0 6px;">You're Approved, ${updated.firstName}!</h2>
+                <p style="color:#94a3b8;font-size:13px;margin:0 0 24px;">C.A.R.E.N.™ Alert Legal Access Network</p>
+                <p style="line-height:1.7;">Your application to join the <strong>C.A.R.E.N.™ Alert Legal Access Network</strong> has been approved. Your profile is now active in our verified attorney directory.</p>
+
+                <div style="background:#0f172a;border:1px solid #00e5ff33;border-radius:8px;padding:20px;margin:24px 0;">
+                  <p style="margin:0 0 12px;font-weight:bold;color:#00e5ff;font-size:15px;">How to Access Your Attorney Portal</p>
+                  <p style="margin:0 0 8px;color:#e2e8f0;line-height:1.7;"><strong style="color:#00e5ff;">Step 1:</strong> Create a free C.A.R.E.N.™ Alert account at <a href="https://carenalert.com/signin" style="color:#00e5ff;">carenalert.com/signin</a> — <strong>use this exact email address: ${updated.email}</strong></p>
+                  <p style="margin:0 0 8px;color:#e2e8f0;line-height:1.7;"><strong style="color:#00e5ff;">Step 2:</strong> Once signed in, go to <a href="https://carenalert.com/attorney-portal" style="color:#00e5ff;">carenalert.com/attorney-portal</a></p>
+                  <p style="margin:0;color:#e2e8f0;line-height:1.7;"><strong style="color:#00e5ff;">Step 3:</strong> Your profile and case requests will be waiting for you there</p>
+                </div>
+
+                <p style="line-height:1.7;color:#94a3b8;font-size:13px;"><strong style="color:#e2e8f0;">Important:</strong> You must sign up using <strong>${updated.email}</strong> so your attorney profile links to your account automatically. If you use a different email, your profile won't appear.</p>
+
+                <p style="line-height:1.7;margin-top:16px;">Questions? Email us at <a href="mailto:info@carenalert.com" style="color:#00e5ff;">info@carenalert.com</a></p>
+                <p style="line-height:1.7;">— The C.A.R.E.N.™ Alert Team</p>
+                <hr style="border:none;border-top:1px solid #1e293b;margin:24px 0;"/>
+                <p style="color:#475569;font-size:11px;text-align:center;">C.A.R.E.N.™ Alert · carenalert.com</p>
+              </div>
             `,
           });
         } catch (emailErr) {
@@ -418,15 +454,34 @@ export function registerAttorneyNetworkRoutes(app: Express) {
 
   // ── PHASE 3: ATTORNEY PORTAL (attorney-facing) ──────────────────────────
 
-  // Get own profile (attorney who is also a user)
+  // Get own profile (attorney who is also a user) — auto-links by email for externally-applied attorneys
   app.get("/api/attorney-network/my-profile", isAuthenticated, async (req: any, res) => {
     try {
       const userId = (req.session as any)?.userId || (req.session as any)?.user?.id || req.user?.claims?.sub;
-      const [attorney] = await db
-        .select()
-        .from(attorneys)
-        .where(eq(attorneys.userId, userId))
-        .limit(1);
+
+      // First try to find by userId (fast path for already-linked attorneys)
+      let [attorney] = await db.select().from(attorneys).where(eq(attorneys.userId, userId)).limit(1);
+
+      // If not found, look up the user's email and check if there's an approved attorney record
+      // that was created from an external application (userId not yet set)
+      if (!attorney) {
+        const [userRow] = await db.select({ email: users.email }).from(users).where(eq(users.id, userId)).limit(1);
+        if (userRow?.email) {
+          const [byEmail] = await db
+            .select()
+            .from(attorneys)
+            .where(and(eq(attorneys.email, userRow.email), eq(attorneys.profileStatus, "approved")))
+            .limit(1);
+          if (byEmail && !byEmail.userId) {
+            // Auto-link: set userId on the attorney record so future lookups are instant
+            await db.update(attorneys).set({ userId }).where(eq(attorneys.id, byEmail.id));
+            attorney = { ...byEmail, userId };
+            console.log(`[ATTORNEY] Auto-linked attorney ${byEmail.id} (${userRow.email}) to user ${userId}`);
+          } else if (byEmail) {
+            attorney = byEmail;
+          }
+        }
+      }
 
       if (!attorney) return res.status(404).json({ message: "Attorney profile not found" });
       res.json(attorney);
