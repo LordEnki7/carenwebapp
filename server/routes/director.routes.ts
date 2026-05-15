@@ -160,6 +160,38 @@ function calcScore(attorneys: number, users: number, partnerships: number, strea
 
 export function registerDirectorRoutes(app: Express) {
 
+  // ── ADMIN: List all directors (for admin dashboard debug view) ─────────────
+  app.get("/api/director/admin/all", async (req: any, res) => {
+    try {
+      const adminKey = req.headers["x-admin-key"] || req.query.adminKey;
+      const validKey = process.env.ADMIN_KEY;
+      if (!adminKey || adminKey !== validKey) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+      const directors = await db
+        .select({
+          id: regionalDirectors.id,
+          name: regionalDirectors.name,
+          email: regionalDirectors.email,
+          phone: regionalDirectors.phone,
+          city: regionalDirectors.city,
+          state: regionalDirectors.state,
+          territory: regionalDirectors.territory,
+          status: regionalDirectors.status,
+          level: regionalDirectors.level,
+          directorCode: regionalDirectors.directorCode,
+          portalPin: regionalDirectors.portalPin,
+          adminNotes: regionalDirectors.adminNotes,
+          createdAt: regionalDirectors.createdAt,
+        })
+        .from(regionalDirectors)
+        .orderBy(desc(regionalDirectors.createdAt));
+      res.json(directors);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // ── PUBLIC: Submit director application ────────────────────────────────────
   app.post("/api/director/apply", async (req: any, res) => {
     try {

@@ -253,14 +253,18 @@ function SystemHealthTab() {
 function DirectorPortalAdminTab() {
   const [previewDirector, setPreviewDirector] = useState<any>(null);
   const [iframeKey, setIframeKey] = useState(0);
+  const adminKey = sessionStorage.getItem('carenAdminAuth') || '';
 
   const { data: directors, isLoading, refetch } = useQuery<any[]>({
-    queryKey: ['/api/director/admin/all'],
+    queryKey: ['/api/director/admin/all', adminKey],
     queryFn: async () => {
-      const res = await fetch('/api/director/admin/all');
+      const res = await fetch('/api/director/admin/all', {
+        headers: { 'x-admin-key': adminKey },
+      });
       if (!res.ok) throw new Error('Failed to load directors');
       return res.json();
     },
+    enabled: !!adminKey,
   });
 
   function previewAs(director: any) {
