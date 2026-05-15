@@ -16,6 +16,10 @@ const ADMIN_PANELS = [
   { label: "Story Spotlight Admin", description: "Review, approve and feature user story submissions", href: "/admin/stories", icon: Star, color: "border-green-500/40 hover:border-green-400 hover:bg-green-500/10", badge: "Stories" },
 ];
 
+const ADMIN_TAB_PANELS = [
+  { label: "🎯 Director Portal", description: "Preview any director's portal, click links as them to debug issues", tab: "directors", color: "border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10", badge: "Debug" },
+];
+
 interface UserStats {
   totalUsers: number;
   activeUsers: number;
@@ -778,6 +782,20 @@ export default function SimpleAdminDashboard() {
                 <p className="text-cyan-400 text-xs mt-3 group-hover:underline">Open →</p>
               </a>
             ))}
+            <button
+              onClick={() => { setActiveTab('directors'); setTimeout(() => document.getElementById('admin-tabs')?.scrollIntoView({ behavior: 'smooth' }), 50); }}
+              className="block bg-gray-800/60 border border-cyan-500/40 hover:border-cyan-400 hover:bg-cyan-500/10 rounded-xl p-4 transition-all cursor-pointer group text-left w-full"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform text-xl">
+                  🎯
+                </div>
+                <span className="text-xs font-medium text-gray-400 bg-white/10 px-2 py-0.5 rounded-full">Debug</span>
+              </div>
+              <p className="text-white font-semibold text-sm mb-1">Director Portal</p>
+              <p className="text-gray-400 text-xs leading-snug">Preview any director's portal and click through exactly what they see</p>
+              <p className="text-cyan-400 text-xs mt-3 group-hover:underline">Open below →</p>
+            </button>
           </div>
         </div>
 
@@ -944,7 +962,7 @@ export default function SimpleAdminDashboard() {
         </Card>
 
         {/* Dashboard Tabs */}
-        <Card className="bg-gray-800 border-gray-700">
+        <Card id="admin-tabs" className="bg-gray-800 border-gray-700">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
               <TabsList className="flex w-max min-w-full bg-gray-700 rounded-none">
