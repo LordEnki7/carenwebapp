@@ -258,6 +258,7 @@ function Router() {
             <Route path="/director-admin" component={DirectorAdmin} />
             <Route path="/director-invite/:token" component={DirectorInvite} />
             <Route path="/director-playbook" component={DirectorPlaybook} />
+            <Route path="/attorney-apply" component={AttorneyApply} />
             <Route path="/find-attorney" component={AttorneyDirectory} />
             <Route path="/reset-password" component={ResetPassword} />
             <Route path="/mobile-preview" component={MobilePreview} />

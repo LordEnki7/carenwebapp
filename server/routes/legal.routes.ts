@@ -17,22 +17,16 @@ import { insertLegalDocumentTemplateSchema } from "../../shared/schema";
 export function registerLegalRoutes(app: Express) {
   console.log('[ROUTES] Registering legal routes...');
 
-  // Legal rights endpoint
+  // Legal rights endpoint — uses storage (same as main routes.ts)
   app.get('/api/legal-rights', async (req: any, res) => {
     try {
       const { state } = req.query;
-      
-      if (!state) {
-        return res.status(400).json({ message: 'State parameter is required' });
+      let rights;
+      if (state) {
+        rights = await storage.getLegalRightsByState(state as string);
+      } else {
+        rights = await storage.getAllLegalRights();
       }
-
-      const legalDb = new FastLegalDatabase();
-      const rights = (legalDb as any).getLegalRights(state);
-      
-      if (!rights) {
-        return res.status(404).json({ message: `Legal rights not found for state: ${state}` });
-      }
-
       res.json(rights);
     } catch (error) {
       console.error('Error fetching legal rights:', error);

@@ -1124,10 +1124,10 @@ export default function DirectorPortal() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {[
-                  { label: "Attorney Application Form", href: "/attorney-application", desc: "Direct link — send to any attorney you recruit" },
+                  { label: "Attorney Application Form", href: "/attorney-apply", desc: "Direct link — send to any attorney you recruit" },
                   { label: "C.A.R.E.N.™ Alert Homepage", href: "/", desc: "Share this with users and businesses" },
                   { label: "Legal Rights Database", href: "/rights", desc: "Show prospects what the platform covers" },
-                  { label: "Record an Encounter", href: "/record", desc: "Demo the core product feature" },
+                  { label: "Record an Encounter", href: "/record", desc: "Demo the core product feature (requires sign-in)" },
                 ].map((r, i) => (
                   <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
@@ -1152,8 +1152,8 @@ export default function DirectorPortal() {
           </CardHeader>
           <CardContent className="space-y-2">
             {[
-              { label: "Attorney Application Form", href: "/attorney-application", desc: "Send this link to attorneys you recruit" },
-              { label: "Record an Encounter", href: "/record", desc: "Know the product you're promoting" },
+              { label: "Attorney Application Form", href: "/attorney-apply", desc: "Send this link to attorneys you recruit" },
+              { label: "Record an Encounter", href: "/record", desc: "Know the product you're promoting (requires sign-in)" },
               { label: "Legal Rights Database", href: "/rights", desc: "Review state-specific protections" },
             ].map((r, i) => (
               <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
