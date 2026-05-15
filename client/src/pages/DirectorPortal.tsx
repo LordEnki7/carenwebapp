@@ -443,16 +443,11 @@ export default function DirectorPortal() {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 flex items-center justify-center p-6">
         <div className="max-w-md text-center space-y-4">
           <Shield className="w-16 h-16 text-gray-600 mx-auto" />
-          <h2 className="text-2xl font-bold text-white">No Director Profile Found</h2>
-          <p className="text-gray-400">Profile not found or your session has expired. Please sign in again.</p>
-          <div className="flex gap-3 justify-center">
-            <Button onClick={handleLogout} className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold">Sign In Again</Button>
-            <Link href="/become-director">
-              <Button variant="outline" className="border-white/20 text-white">Apply Now</Button>
-            </Link>
-            <Link href="/">
-              <Button variant="outline" className="border-white/20 text-white">Dashboard</Button>
-            </Link>
+          <h2 className="text-2xl font-bold text-white">Unable to Load Profile</h2>
+          <p className="text-gray-400">There was a problem loading your director profile. Try again — if the problem continues, sign out and sign back in.</p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["/api/director/portal-profile", email, pin] })} className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold">Try Again</Button>
+            <Button onClick={handleLogout} variant="outline" className="border-white/20 text-white">Sign Out</Button>
           </div>
         </div>
       </div>
@@ -1076,11 +1071,11 @@ export default function DirectorPortal() {
                   <Briefcase className="w-5 h-5 text-cyan-400" />
                   <h2 className="text-white font-bold text-base">Director Toolkit</h2>
                 </div>
-                <Link href="/director-playbook">
+                <a href="/director-playbook" target="_blank" rel="noopener noreferrer">
                   <Button size="sm" className="bg-cyan-500 hover:bg-cyan-600 text-black font-bold h-8 text-xs gap-1.5">
                     📄 Full Playbook PDF
                   </Button>
-                </Link>
+                </a>
               </div>
               <p className="text-gray-400 text-sm">Copy-ready scripts for recruiting attorneys, partnering with businesses, and growing your user base. Tap any script to expand it, then copy with one click.</p>
             </div>
@@ -1134,7 +1129,7 @@ export default function DirectorPortal() {
                   { label: "Legal Rights Database", href: "/rights", desc: "Show prospects what the platform covers" },
                   { label: "Record an Encounter", href: "/record", desc: "Demo the core product feature" },
                 ].map((r, i) => (
-                  <Link key={i} href={r.href}>
+                  <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
                     <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
                       <div>
                         <p className="text-white font-medium text-sm">{r.label}</p>
@@ -1142,7 +1137,7 @@ export default function DirectorPortal() {
                       </div>
                       <ChevronRightIcon className="w-4 h-4 text-gray-500" />
                     </div>
-                  </Link>
+                  </a>
                 ))}
               </CardContent>
             </Card>
@@ -1161,7 +1156,7 @@ export default function DirectorPortal() {
               { label: "Record an Encounter", href: "/record", desc: "Know the product you're promoting" },
               { label: "Legal Rights Database", href: "/rights", desc: "Review state-specific protections" },
             ].map((r, i) => (
-              <Link key={i} href={r.href}>
+              <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
                   <div>
                     <p className="text-white font-medium text-sm">{r.label}</p>
@@ -1169,7 +1164,7 @@ export default function DirectorPortal() {
                   </div>
                   <ChevronRightIcon className="w-4 h-4 text-gray-500" />
                 </div>
-              </Link>
+              </a>
             ))}
           </CardContent>
         </Card>
