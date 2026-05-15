@@ -186,7 +186,9 @@ export function registerDirectorRoutes(app: Express) {
         })
         .from(regionalDirectors)
         .orderBy(desc(regionalDirectors.createdAt));
-      res.json(directors);
+      // Exclude seed/test accounts (example.com emails)
+      const real = directors.filter((d) => !d.email?.endsWith("@example.com"));
+      res.json(real);
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }

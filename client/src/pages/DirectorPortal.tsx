@@ -486,9 +486,32 @@ export default function DirectorPortal() {
 
   const myRank = leaderboard.find((d: any) => d.id === profile.id)?.rank;
 
+  // Detect admin preview mode (opened via admin dashboard "Open in New Tab")
+  const isAdminPreview = (() => {
+    try {
+      const p = new URLSearchParams(window.location.search);
+      return !!(p.get("ae") && p.get("ap"));
+    } catch { return false; }
+  })();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-cyan-950 to-slate-900 p-4 md:p-6 pb-20">
       <div className="max-w-4xl mx-auto space-y-6">
+
+        {/* Admin preview banner */}
+        {isAdminPreview && (
+          <div className="flex items-center justify-between bg-yellow-900/30 border border-yellow-600/40 rounded-lg px-4 py-2.5">
+            <span className="text-yellow-300 text-xs font-medium">
+              👁 Admin Preview — viewing as {profile.name}
+            </span>
+            <a
+              href="/admin"
+              className="text-xs bg-yellow-600/30 hover:bg-yellow-600/50 border border-yellow-600/50 text-yellow-200 px-3 py-1 rounded-md transition-colors font-medium"
+            >
+              ← Back to Admin
+            </a>
+          </div>
+        )}
 
         {/* Header */}
         <div className="flex items-start justify-between">
