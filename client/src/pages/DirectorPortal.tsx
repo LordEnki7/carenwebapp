@@ -1152,9 +1152,9 @@ export default function DirectorPortal() {
           </CardHeader>
           <CardContent className="space-y-2">
             {[
-              { label: "Attorney Application Form", href: "/attorney-apply", desc: "Send this link to attorneys you recruit" },
-              { label: "Record an Encounter", href: "/record", desc: "Know the product you're promoting (requires sign-in)" },
-              { label: "Legal Rights Database", href: "/rights", desc: "Review state-specific protections" },
+              { label: "Attorney Application Form", href: "https://carenalert.com/attorney-apply", desc: "Send this link to attorneys you recruit" },
+              { label: "Record an Encounter", href: "https://carenalert.com/record", desc: "Know the product you're promoting (requires sign-in)" },
+              { label: "Legal Rights Database", href: "https://carenalert.com/rights", desc: "Review state-specific protections" },
             ].map((r, i) => (
               <a key={i} href={r.href} target="_blank" rel="noopener noreferrer">
                 <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-colors cursor-pointer">
@@ -1170,9 +1170,9 @@ export default function DirectorPortal() {
         </Card>
         )}
 
-        <Link href="/">
-          <Button variant="ghost" className="text-gray-400 hover:text-white w-full">← Back to Dashboard</Button>
-        </Link>
+        <a href="https://carenalert.com" target="_blank" rel="noopener noreferrer">
+          <Button variant="ghost" className="text-gray-400 hover:text-white w-full">← Back to C.A.R.E.N.™ Alert</Button>
+        </a>
       </div>
     </div>
   );
