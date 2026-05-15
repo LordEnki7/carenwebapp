@@ -138,6 +138,7 @@ const MobilePreview = lazy(() => import("@/pages/MobilePreview"));
 const AutoScreenshot = lazy(() => import("@/pages/AutoScreenshot"));
 const EVConnect = lazy(() => import("@/pages/EVConnect"));
 const CarMode = lazy(() => import("@/pages/CarMode"));
+const EvidenceVault = lazy(() => import("@/pages/EvidenceVault"));
 
 function Router() {
   // ── Google OAuth redirect handler ──────────────────────────────────────
@@ -329,6 +330,7 @@ function Router() {
             <Route path="/translation" component={TranslationHub} />
             <Route path="/attorney-matching" component={AttorneyMatching} />
             <Route path="/evidence-catalog" component={EvidenceCatalog} />
+            <Route path="/evidence-vault" component={EvidenceVault} />
             <Route path="/accessibility" component={AccessibilityEnhancer} />
             <Route path="/payment" component={Payment} />
             <Route path="/payment-success" component={PaymentSuccess} />

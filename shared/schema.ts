@@ -3016,3 +3016,41 @@ export const promoPosts = pgTable("promo_posts", {
 export const insertPromoPostSchema = createInsertSchema(promoPosts).omit({ id: true, createdAt: true, postedAt: true });
 export type InsertPromoPost = z.infer<typeof insertPromoPostSchema>;
 export type PromoPost = typeof promoPosts.$inferSelect;
+
+// ── Evidence Vault ────────────────────────────────────────────────────────────
+export const evidencePackages = pgTable("evidence_packages", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  incidentId: varchar("incident_id"),
+  title: varchar("title", { length: 255 }).notNull(),
+  status: varchar("status", { length: 50 }).default("pending").notNull(), // pending | analyzing | sealed
+  sourceType: varchar("source_type", { length: 50 }).default("photos").notNull(),
+  uploadedPhotoUrls: jsonb("uploaded_photo_urls").$type<string[]>().default([]),
+  fileHash: varchar("file_hash", { length: 64 }),
+  summary: text("summary"),
+  findingsCount: integer("findings_count").default(0),
+  sharedWithAttorneyId: integer("shared_with_attorney_id"),
+  sharedAt: timestamp("shared_at"),
+  sealedAt: timestamp("sealed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const evidenceFindings = pgTable("evidence_findings", {
+  id: serial("id").primaryKey(),
+  packageId: integer("package_id").notNull(),
+  imageUrl: varchar("image_url", { length: 1000 }),
+  frameLabel: varchar("frame_label", { length: 100 }),
+  category: varchar("category", { length: 100 }).notNull(), // officer_id | vehicle | use_of_force | weapon | bystander | environmental
+  description: text("description").notNull(),
+  confidence: varchar("confidence", { length: 20 }).notNull(), // high | medium | low
+  details: jsonb("details").$type<Record<string, string>>().default({}),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertEvidencePackageSchema = createInsertSchema(evidencePackages).omit({ id: true, createdAt: true, updatedAt: true, sealedAt: true, fileHash: true, findingsCount: true, sharedAt: true });
+export const insertEvidenceFindingSchema = createInsertSchema(evidenceFindings).omit({ id: true, createdAt: true });
+export type InsertEvidencePackage = z.infer<typeof insertEvidencePackageSchema>;
+export type EvidencePackage = typeof evidencePackages.$inferSelect;
+export type InsertEvidenceFinding = z.infer<typeof insertEvidenceFindingSchema>;
+export type EvidenceFinding = typeof evidenceFindings.$inferSelect;

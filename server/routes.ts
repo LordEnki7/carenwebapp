@@ -63,6 +63,7 @@ import { registerCommunityRoutes } from "./routes/community.routes";
 import { registerDirectorRoutes } from "./routes/director.routes";
 import { registerSocialMediaRoutes } from "./routes/social-media.routes";
 import { registerPromoRoutes } from "./routes/promo.routes";
+import { registerEvidenceRoutes } from "./routes/evidence.routes";
 import { registerVideoCallRoutes } from "./routes/video-calls.routes";
 import foundersRouter from "./routes/founders.routes";
 import storySubmissionsRouter from "./routes/story-submissions.routes";
@@ -303,6 +304,7 @@ GUIDELINES:
   registerWebhookRoutes(app);
   registerSocialMediaRoutes(app);
   await registerPromoRoutes(app);
+  await registerEvidenceRoutes(app);
   registerVideoCallRoutes(app);
   app.use("/api/founders", foundersRouter);
   console.log("[ROUTES] Founders incentive routes registered");

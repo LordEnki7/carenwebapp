@@ -868,6 +868,36 @@ export async function runAutoMigrations(): Promise<void> {
     // Geographic unlock — lat/lng on attorneys table
     `ALTER TABLE attorneys ADD COLUMN IF NOT EXISTS lat DOUBLE PRECISION`,
     `ALTER TABLE attorneys ADD COLUMN IF NOT EXISTS lng DOUBLE PRECISION`,
+
+    // ── Evidence Vault tables ────────────────────────────────────────────────
+    `CREATE TABLE IF NOT EXISTS evidence_packages (
+      id SERIAL PRIMARY KEY,
+      user_id VARCHAR NOT NULL,
+      incident_id VARCHAR,
+      title VARCHAR(255) NOT NULL,
+      status VARCHAR(50) NOT NULL DEFAULT 'pending',
+      source_type VARCHAR(50) NOT NULL DEFAULT 'photos',
+      uploaded_photo_urls JSONB DEFAULT '[]',
+      file_hash VARCHAR(64),
+      summary TEXT,
+      findings_count INTEGER DEFAULT 0,
+      shared_with_attorney_id INTEGER,
+      shared_at TIMESTAMP,
+      sealed_at TIMESTAMP,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )`,
+    `CREATE TABLE IF NOT EXISTS evidence_findings (
+      id SERIAL PRIMARY KEY,
+      package_id INTEGER NOT NULL,
+      image_url VARCHAR(1000),
+      frame_label VARCHAR(100),
+      category VARCHAR(100) NOT NULL,
+      description TEXT NOT NULL,
+      confidence VARCHAR(20) NOT NULL,
+      details JSONB DEFAULT '{}',
+      created_at TIMESTAMP NOT NULL DEFAULT NOW()
+    )`,
   ];
 
   const allMigrations = [...createTables, ...addMissingColumns];

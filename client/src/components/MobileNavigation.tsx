@@ -5,7 +5,7 @@ import {
   Car, VideoIcon, VolumeX, Zap, Map, FileText, UserCheck, Scale,
   MessageCircle, Wrench, Brain, Cloud, Sliders, MessageSquarePlus,
   ClipboardList, HelpCircle, Monitor, LifeBuoy, ChevronDown, ChevronRight,
-  Lock, Search, CreditCard, MessageCircleHeart
+  Lock, Search, CreditCard, MessageCircleHeart, ShieldCheck
 } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { useAuth, performLogout } from '@/hooks/useAuth';
@@ -34,6 +34,7 @@ const navGroups = [
     bgColor: 'bg-cyan-500/10',
     items: [
       { name: 'Dashboard', href: '/', icon: Home },
+      { name: 'Evidence Vault', href: '/evidence-vault', icon: ShieldCheck },
       { name: 'Legal Rights Map', href: '/legal-rights-map', icon: Map },
       { name: 'File Complaint', href: '/file-complaint', icon: FileText },
       { name: 'Attorneys', href: '/attorneys', icon: UserCheck },
