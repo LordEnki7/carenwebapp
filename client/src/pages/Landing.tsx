@@ -169,6 +169,28 @@ export default function Landing() {
           </Card>
         </div>
 
+        {/* Evidence Vault Feature Section */}
+        <div className="mb-16">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+              <img
+                src="/evidence-vault-promo.png"
+                alt="C.A.R.E.N. Evidence Vault — Their word against your word. Do you have proof?"
+                className="w-full object-cover"
+              />
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/20 to-transparent">
+                <a
+                  href="/evidence-vault"
+                  className="inline-block bg-red-600 hover:bg-red-500 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors shadow-lg"
+                  onClick={handleSignIn}
+                >
+                  Access Your Evidence Vault →
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Social Proof Photo Section */}
         <div className="mb-16">
           <div className="text-center mb-8">

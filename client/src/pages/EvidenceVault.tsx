@@ -273,22 +273,35 @@ export default function EvidenceVault() {
   // ── Paywall ──────────────────────────────────────────────────────────────
   if (!hasAccess) {
     return (
-      <div className="min-h-screen bg-gray-950 flex items-center justify-center p-6">
-        <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 bg-amber-500/10 border border-amber-500/30 rounded-2xl flex items-center justify-center mx-auto mb-6">
-            <Lock size={40} className="text-amber-400" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Evidence Vault™</h1>
-          <p className="text-amber-400 text-sm font-medium mb-4">Powered by Evidence AI™</p>
-          <p className="text-gray-400 mb-6">
-            C.A.R.E.N. Evidence Vault™ transforms raw encounter footage into organized, court-ready evidence powered by AI. Available on Constitutional Pro and above.
+      <div className="min-h-screen bg-black flex flex-col">
+        {/* Full-bleed marketing image */}
+        <div className="relative flex-1">
+          <img
+            src="/evidence-vault-promo.png"
+            alt="C.A.R.E.N. Evidence Vault — Their word against your word. Do you have proof?"
+            className="w-full h-full object-cover object-top"
+            style={{ minHeight: "70vh" }}
+          />
+          {/* Gradient overlay at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black to-transparent" />
+        </div>
+
+        {/* CTA panel */}
+        <div className="bg-black px-6 pt-4 pb-8 text-center">
+          <p className="text-amber-400 text-xs font-bold uppercase tracking-widest mb-2">
+            Constitutional Pro &amp; Above
+          </p>
+          <h2 className="text-white text-xl font-bold mb-1">Evidence Vault™ is locked</h2>
+          <p className="text-gray-400 text-sm mb-6 leading-relaxed">
+            AI-powered evidence analysis, tamper-proof chain of custody, and one-tap attorney sharing — available on Constitutional Pro and above.
           </p>
           <Button
-            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold"
+            className="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 text-base rounded-xl"
             onClick={() => window.location.href = "/plans"}
           >
-            Upgrade to Constitutional Pro
+            Upgrade Now — Be Ready Before You Need To Be
           </Button>
+          <p className="text-gray-600 text-xs mt-3">Record. Protect. Prove.</p>
         </div>
       </div>
     );
