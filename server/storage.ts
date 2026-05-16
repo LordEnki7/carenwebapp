@@ -297,11 +297,16 @@ export interface IStorage {
   }>;
 
   getPlatformLearningInsights(): Promise<{
-    userEngagementTrends: any[];
-    popularContent: any[];
-    commonLearningPaths: any[];
-    effectiveFeatures: any[];
-    improvementAreas: any[];
+    loginMethods: { method: string; count: number }[];
+    subscriptionBreakdown: { tier: string; count: number }[];
+    signupTrend30d: { date: string; count: number }[];
+    loginTrend30d: { date: string; count: number }[];
+    referralStats: { total: number; converted: number; pending: number; rewardsGranted: number };
+    totalDirectors: number;
+    activeUsers7d: number;
+    totalLogins: number;
+    paidUsers: number;
+    totalRealUsers: number;
   }>;
 
   // Legal Navigation operations
@@ -1766,47 +1771,60 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPlatformLearningInsights(): Promise<{
-    userEngagementTrends: any[];
-    popularContent: any[];
-    commonLearningPaths: any[];
-    effectiveFeatures: any[];
-    improvementAreas: any[];
+    loginMethods: { method: string; count: number }[];
+    subscriptionBreakdown: { tier: string; count: number }[];
+    signupTrend30d: { date: string; count: number }[];
+    loginTrend30d: { date: string; count: number }[];
+    referralStats: { total: number; converted: number; pending: number; rewardsGranted: number };
+    totalDirectors: number;
+    activeUsers7d: number;
+    totalLogins: number;
+    paidUsers: number;
+    totalRealUsers: number;
   }> {
-    const safeQuery = async (query: ReturnType<typeof sql>, label: string): Promise<any[]> => {
+    const safe = async <T>(query: ReturnType<typeof sql>, fallback: T): Promise<T> => {
       try {
-        const result = await db.execute(query);
-        return result.rows;
+        const r = await db.execute(query);
+        return r.rows as unknown as T;
       } catch (err) {
-        console.warn(`[LearningInsights] Skipping "${label}" — ${(err as any)?.message ?? err}`);
-        return [];
+        console.warn('[PlatformStats] query failed:', (err as any)?.message ?? err);
+        return fallback;
       }
     };
 
-    const [userEngagementTrends, popularContent, commonLearningPaths, effectiveFeatures, improvementAreas] =
+    const EXCLUDE = `id NOT LIKE 'attorney_%' AND id NOT LIKE 'demo-user%' AND id NOT LIKE 'seed-%' AND email NOT LIKE '%demo@%'`;
+
+    const [loginMethodRows, subBreakdownRows, signupTrendRows, loginTrendRows, refRows, dirRows, activeRows, loginCountRows, paidRows, totalRows] =
       await Promise.all([
-        safeQuery(
-          sql`SELECT DATE(timestamp) as date, COUNT(*) as actions FROM user_actions WHERE timestamp >= NOW() - INTERVAL '30 days' GROUP BY DATE(timestamp) ORDER BY date`,
-          'userEngagementTrends'
-        ),
-        safeQuery(
-          sql`SELECT content_type, content_title, COUNT(*) as views FROM content_engagement WHERE completed = true GROUP BY content_type, content_title ORDER BY views DESC LIMIT 10`,
-          'popularContent'
-        ),
-        safeQuery(
-          sql`SELECT category, skill_area, AVG(level) as avg_level, COUNT(*) as users FROM learning_progress GROUP BY category, skill_area ORDER BY users DESC LIMIT 10`,
-          'commonLearningPaths'
-        ),
-        safeQuery(
-          sql`SELECT feature, SUM(usage_count) as total_usage, COUNT(DISTINCT user_id) as user_count FROM feature_usage GROUP BY feature ORDER BY total_usage DESC LIMIT 10`,
-          'effectiveFeatures'
-        ),
-        safeQuery(
-          sql`SELECT skill_area, AVG(level) as avg_level, COUNT(*) as user_count FROM learning_progress WHERE level < 5 GROUP BY skill_area ORDER BY avg_level ASC LIMIT 5`,
-          'improvementAreas'
-        ),
+        safe<any[]>(sql`SELECT login_method as method, COUNT(*)::int as count FROM login_activity GROUP BY login_method ORDER BY count DESC`, []),
+        safe<any[]>(sql`SELECT subscription_tier as tier, COUNT(*)::int as count FROM users WHERE id NOT LIKE 'attorney_%' AND id NOT LIKE 'demo-user%' AND id NOT LIKE 'seed-%' AND email NOT LIKE '%demo@%' GROUP BY subscription_tier ORDER BY count DESC`, []),
+        safe<any[]>(sql`SELECT TO_CHAR(DATE(created_at), 'YYYY-MM-DD') as date, COUNT(*)::int as count FROM users WHERE created_at >= NOW() - INTERVAL '30 days' AND id NOT LIKE 'attorney_%' AND id NOT LIKE 'demo-user%' AND id NOT LIKE 'seed-%' GROUP BY DATE(created_at) ORDER BY date`, []),
+        safe<any[]>(sql`SELECT TO_CHAR(DATE(created_at), 'YYYY-MM-DD') as date, COUNT(*)::int as count FROM login_activity WHERE created_at >= NOW() - INTERVAL '30 days' GROUP BY DATE(created_at) ORDER BY date`, []),
+        safe<any[]>(sql`SELECT status, COUNT(*)::int as count, SUM(CASE WHEN reward_granted THEN 1 ELSE 0 END)::int as rewards FROM referrals GROUP BY status`, []),
+        safe<any[]>(sql`SELECT COUNT(*)::int as count FROM regional_directors`, []),
+        safe<any[]>(sql`SELECT COUNT(DISTINCT email)::int as count FROM login_activity WHERE created_at >= NOW() - INTERVAL '7 days'`, []),
+        safe<any[]>(sql`SELECT COUNT(*)::int as count FROM login_activity`, []),
+        safe<any[]>(sql`SELECT COUNT(*)::int as count FROM users WHERE subscription_tier != 'free' AND id NOT LIKE 'attorney_%' AND id NOT LIKE 'demo-user%' AND id NOT LIKE 'seed-%'`, []),
+        safe<any[]>(sql`SELECT COUNT(*)::int as count FROM users WHERE id NOT LIKE 'attorney_%' AND id NOT LIKE 'demo-user%' AND id NOT LIKE 'seed-%' AND email NOT LIKE '%demo@%'`, []),
       ]);
 
-    return { userEngagementTrends, popularContent, commonLearningPaths, effectiveFeatures, improvementAreas };
+    const refTotal = refRows.reduce((s: number, r: any) => s + (r.count || 0), 0);
+    const refConverted = refRows.filter((r: any) => r.status === 'converted').reduce((s: number, r: any) => s + (r.count || 0), 0);
+    const refPending = refRows.filter((r: any) => r.status === 'pending').reduce((s: number, r: any) => s + (r.count || 0), 0);
+    const refRewards = refRows.reduce((s: number, r: any) => s + (r.rewards || 0), 0);
+
+    return {
+      loginMethods: loginMethodRows,
+      subscriptionBreakdown: subBreakdownRows,
+      signupTrend30d: signupTrendRows,
+      loginTrend30d: loginTrendRows,
+      referralStats: { total: refTotal, converted: refConverted, pending: refPending, rewardsGranted: refRewards },
+      totalDirectors: dirRows[0]?.count ?? 0,
+      activeUsers7d: activeRows[0]?.count ?? 0,
+      totalLogins: loginCountRows[0]?.count ?? 0,
+      paidUsers: paidRows[0]?.count ?? 0,
+      totalRealUsers: totalRows[0]?.count ?? 0,
+    };
   }
 
   // Legal Navigation operations

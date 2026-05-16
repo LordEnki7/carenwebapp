@@ -1285,196 +1285,206 @@ export default function SimpleAdminDashboard() {
             </TabsContent>
             
             <TabsContent value="learning" className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-white flex items-center gap-2">
-                  <Brain className="h-6 w-6 text-cyan-400" />
-                  Learning Analytics - How CAREN Learns from Users
-                </h3>
-                <Button 
-                  onClick={loadDashboardData} 
-                  disabled={loading}
-                  className="bg-cyan-600 hover:bg-cyan-700"
-                >
-                  {loading ? 'Refreshing...' : 'Refresh Analytics'}
-                </Button>
-              </div>
-              
-              {/* Learning Overview Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card className="bg-gradient-to-br from-cyan-900/40 to-blue-900/40 backdrop-blur-sm border-cyan-700/50">
-                  <CardContent className="p-6">
+              {(() => {
+                const d = learningInsights?.insights ?? learningInsights;
+                const totalUsers = d?.totalRealUsers ?? 0;
+                const paidUsers = d?.paidUsers ?? 0;
+                const paidRate = totalUsers > 0 ? Math.round((paidUsers / totalUsers) * 100) : 0;
+                const totalLogins = d?.totalLogins ?? 0;
+                const active7d = d?.activeUsers7d ?? 0;
+                const refTotal = d?.referralStats?.total ?? 0;
+                const refConverted = d?.referralStats?.converted ?? 0;
+                const refPending = d?.referralStats?.pending ?? 0;
+                const loginMethods: { method: string; count: number }[] = d?.loginMethods ?? [];
+                const subBreakdown: { tier: string; count: number }[] = d?.subscriptionBreakdown ?? [];
+                const signupTrend: { date: string; count: number }[] = d?.signupTrend30d ?? [];
+                const totalDirs = d?.totalDirectors ?? 0;
+
+                const TIER_LABELS: Record<string, string> = {
+                  free: 'Free',
+                  basic_guard: 'Community Guard',
+                  safety_pro: 'Safety Pro',
+                  constitutional_pro: 'Legal Shield',
+                  family_protection: 'Family Protection',
+                  enterprise_fleet: 'Fleet Enterprise',
+                  community_guardian: 'Community Guardian',
+                };
+                const TIER_COLOR: Record<string, string> = {
+                  free: 'bg-gray-500',
+                  basic_guard: 'bg-green-500',
+                  safety_pro: 'bg-blue-500',
+                  constitutional_pro: 'bg-purple-500',
+                  family_protection: 'bg-yellow-500',
+                  enterprise_fleet: 'bg-red-500',
+                  community_guardian: 'bg-cyan-500',
+                };
+                const maxSub = Math.max(...subBreakdown.map(s => s.count), 1);
+                const maxSignup = Math.max(...signupTrend.map(s => s.count), 1);
+
+                return (
+                  <div className="space-y-6">
                     <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-cyan-300 mb-2">User Engagement Patterns</h4>
-                        <p className="text-2xl font-bold text-white">
-                          {learningInsights?.insights?.userEngagementTrends?.length || 0}
-                        </p>
-                        <p className="text-sm text-gray-400">Learning patterns identified</p>
-                      </div>
-                      <TrendingUp className="h-8 w-8 text-cyan-400" />
+                      <h3 className="text-xl font-semibold text-white flex items-center gap-2">
+                        <TrendingUp className="h-6 w-6 text-cyan-400" />
+                        Platform Activity
+                      </h3>
+                      <Button onClick={loadDashboardData} disabled={loading} className="bg-cyan-600 hover:bg-cyan-700">
+                        {loading ? 'Refreshing...' : 'Refresh'}
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-gradient-to-br from-purple-900/40 to-pink-900/40 backdrop-blur-sm border-purple-700/50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-purple-300 mb-2">Content Effectiveness</h4>
-                        <p className="text-2xl font-bold text-white">
-                          {learningInsights?.insights?.popularContent?.length || 0}
-                        </p>
-                        <p className="text-sm text-gray-400">Popular content areas</p>
-                      </div>
-                      <Target className="h-8 w-8 text-purple-400" />
+
+                    {/* Top stat cards */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card className="bg-gray-800 border-gray-700">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-3xl font-bold text-green-400">{paidRate}%</p>
+                          <p className="text-xs text-gray-400 mt-1">Paid Conversion</p>
+                          <p className="text-xs text-gray-500">{paidUsers} of {totalUsers} users</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-gray-800 border-gray-700">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-3xl font-bold text-cyan-400">{totalLogins}</p>
+                          <p className="text-xs text-gray-400 mt-1">Total Logins</p>
+                          <p className="text-xs text-gray-500">{active7d} active last 7d</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-gray-800 border-gray-700">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-3xl font-bold text-yellow-400">{refTotal}</p>
+                          <p className="text-xs text-gray-400 mt-1">Referrals</p>
+                          <p className="text-xs text-gray-500">{refConverted} converted · {refPending} pending</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="bg-gray-800 border-gray-700">
+                        <CardContent className="p-4 text-center">
+                          <p className="text-3xl font-bold text-purple-400">{totalDirs}</p>
+                          <p className="text-xs text-gray-400 mt-1">Directors</p>
+                          <p className="text-xs text-gray-500">Regional network</p>
+                        </CardContent>
+                      </Card>
                     </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-gradient-to-br from-green-900/40 to-emerald-900/40 backdrop-blur-sm border-green-700/50">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-green-300 mb-2">Learning Paths</h4>
-                        <p className="text-2xl font-bold text-white">
-                          {learningInsights?.insights?.commonLearningPaths?.length || 0}
-                        </p>
-                        <p className="text-sm text-gray-400">Common user journeys</p>
-                      </div>
-                      <BookOpen className="h-8 w-8 text-green-400" />
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Subscription breakdown */}
+                      <Card className="bg-gray-800/50 border-gray-700">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-white text-sm flex items-center gap-2">
+                            <DollarSign className="h-4 w-4 text-green-400" /> Subscription Breakdown
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {subBreakdown.length === 0 ? (
+                            <p className="text-gray-500 text-sm">No data yet.</p>
+                          ) : subBreakdown.map(s => (
+                            <div key={s.tier}>
+                              <div className="flex justify-between text-xs mb-1">
+                                <span className="text-gray-300">{TIER_LABELS[s.tier] || s.tier}</span>
+                                <span className="text-white font-semibold">{s.count}</span>
+                              </div>
+                              <div className="w-full bg-gray-700 rounded-full h-2">
+                                <div
+                                  className={`h-2 rounded-full ${TIER_COLOR[s.tier] || 'bg-gray-500'}`}
+                                  style={{ width: `${Math.max((s.count / maxSub) * 100, 4)}%` }}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </CardContent>
+                      </Card>
+
+                      {/* Login method breakdown */}
+                      <Card className="bg-gray-800/50 border-gray-700">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-white text-sm flex items-center gap-2">
+                            <Activity className="h-4 w-4 text-cyan-400" /> Login Methods
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3">
+                          {loginMethods.length === 0 ? (
+                            <p className="text-gray-500 text-sm">No login data yet.</p>
+                          ) : (() => {
+                            const maxLogin = Math.max(...loginMethods.map(l => l.count), 1);
+                            return loginMethods.map(l => (
+                              <div key={l.method}>
+                                <div className="flex justify-between text-xs mb-1">
+                                  <span className="text-gray-300 capitalize">{l.method}</span>
+                                  <span className="text-white font-semibold">{l.count}</span>
+                                </div>
+                                <div className="w-full bg-gray-700 rounded-full h-2">
+                                  <div
+                                    className="h-2 rounded-full bg-cyan-500"
+                                    style={{ width: `${Math.max((l.count / maxLogin) * 100, 4)}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ));
+                          })()}
+                        </CardContent>
+                      </Card>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Learning Insights Details */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Activity className="h-5 w-5 text-cyan-400" />
-                      User Learning Patterns
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-cyan-300">How Users Learn:</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Legal Rights Discovery</span>
-                          <span className="text-cyan-400 font-semibold">High Engagement</span>
+
+                    {/* 30-day signup trend */}
+                    <Card className="bg-gray-800/50 border-gray-700">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-white text-sm flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4 text-purple-400" /> Signups — Last 30 Days
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        {signupTrend.length === 0 ? (
+                          <p className="text-gray-500 text-sm">No signups in last 30 days.</p>
+                        ) : (
+                          <div className="flex items-end gap-1 h-20">
+                            {signupTrend.map((s, i) => (
+                              <div key={i} className="flex-1 flex flex-col items-center gap-1 min-w-0" title={`${s.date}: ${s.count}`}>
+                                <span className="text-xs text-cyan-400 font-bold">{s.count > 0 ? s.count : ''}</span>
+                                <div
+                                  className="w-full rounded-t"
+                                  style={{
+                                    height: `${Math.max((s.count / maxSignup) * 56, s.count > 0 ? 6 : 2)}px`,
+                                    background: s.count > 0 ? 'linear-gradient(to top, #7c3aed, #a855f7)' : '#374151',
+                                  }}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    {/* Referral pipeline */}
+                    <Card className="bg-gray-800/50 border-gray-700">
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-white text-sm flex items-center gap-2">
+                          <Share2 className="h-4 w-4 text-yellow-400" /> Referral Pipeline
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          <div>
+                            <p className="text-2xl font-bold text-yellow-400">{refTotal}</p>
+                            <p className="text-xs text-gray-400">Total Referrals</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-orange-400">{refPending}</p>
+                            <p className="text-xs text-gray-400">Pending</p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-green-400">{refConverted}</p>
+                            <p className="text-xs text-gray-400">Converted</p>
+                          </div>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Emergency Procedure Practice</span>
-                          <span className="text-green-400 font-semibold">Active Learning</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Voice Command Training</span>
-                          <span className="text-purple-400 font-semibold">Skill Building</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Community Forum Participation</span>
-                          <span className="text-yellow-400 font-semibold">Knowledge Sharing</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-4 border-t border-gray-700">
-                      <h4 className="font-semibold text-cyan-300 mb-2">Learning Effectiveness:</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">User Knowledge Retention:</span>
-                          <span className="text-green-400 font-semibold">85%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Feature Adoption Rate:</span>
-                          <span className="text-blue-400 font-semibold">72%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Emergency Readiness Score:</span>
-                          <span className="text-purple-400 font-semibold">78%</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-gray-800/50 border-gray-700">
-                  <CardHeader>
-                    <CardTitle className="text-white flex items-center gap-2">
-                      <Brain className="h-5 w-5 text-purple-400" />
-                      AI Learning Insights
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-purple-300">How CAREN Learns:</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Usage Pattern Recognition</span>
-                          <span className="text-cyan-400 font-semibold">Real-time</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Content Optimization</span>
-                          <span className="text-green-400 font-semibold">Adaptive</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Emergency Response Tuning</span>
-                          <span className="text-purple-400 font-semibold">Predictive</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-300">• Personalization Engine</span>
-                          <span className="text-yellow-400 font-semibold">Machine Learning</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="pt-4 border-t border-gray-700">
-                      <h4 className="font-semibold text-purple-300 mb-2">Learning Metrics:</h4>
-                      <div className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Model Accuracy:</span>
-                          <span className="text-green-400 font-semibold">94%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Prediction Success:</span>
-                          <span className="text-blue-400 font-semibold">88%</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-300">Adaptation Speed:</span>
-                          <span className="text-purple-400 font-semibold">Real-time</span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              {/* Learning Data Status */}
-              <Card className="bg-gradient-to-r from-blue-900/30 to-cyan-900/30 backdrop-blur-sm border-blue-700/50 mt-6">
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Database className="h-6 w-6 text-blue-400" />
-                    <h4 className="font-semibold text-blue-300">Learning Analytics Data Status</h4>
+                        {refTotal > 0 && refConverted === 0 && (
+                          <p className="text-xs text-yellow-600 mt-3 text-center">
+                            {refTotal} referrals are pending — none have converted to paid accounts yet.
+                          </p>
+                        )}
+                      </CardContent>
+                    </Card>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">User Actions Tracked:</span>
-                      <span className="text-cyan-400 font-semibold">
-                        {learningInsights ? 'Live Data' : 'Initializing...'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Learning Models:</span>
-                      <span className="text-green-400 font-semibold">Active</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-300">Data Collection:</span>
-                      <span className="text-purple-400 font-semibold">Continuous</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                );
+              })()}
             </TabsContent>
 
             <TabsContent value="platform" className="p-6">
