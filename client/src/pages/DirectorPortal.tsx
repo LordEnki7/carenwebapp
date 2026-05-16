@@ -141,22 +141,31 @@ C.A.R.E.N.™ Alert Regional Director — [City], [State]`,
         content: `"Hey [Name]! I wanted to share something I think you'd find valuable. It's called C.A.R.E.N.™ Alert — an app that protects you during traffic stops and roadside situations. It records the encounter, tells you your legal rights in real time, and connects you to an attorney if needed. Plans start at under $5/month. I'm actually a Regional Director for them now. Check it out: carenalert.com — let me know if you have questions!"`,
       },
       {
-        title: "Social Media Caption",
-        content: `Do you know your rights when you're pulled over? 🚗
+        title: "📸 Instagram Caption",
+        content: `They didn't tell you your rights. We will. 🚔
 
-Most people don't — and that's exactly why I joined C.A.R.E.N.™ Alert
+C.A.R.E.N.™ Alert protects you the moment you're pulled over:
+📹 Auto-records the encounter
+⚖️ Shows your legal rights in real time
+🔔 Alerts your family instantly
+👨‍⚖️ Connects you to an attorney
 
-C.A.R.E.N.™ Alert is a real-time protection app for drivers that:
-✅ Records your encounter automatically
-✅ Tells you your legal rights state-by-state
-✅ Connects you to a local attorney instantly
-✅ Notifies your family in an emergency
+Plans start at $0.99/month.
+Download now 👉 carenalert.com
 
-Plans start at $0.99/month. This is the protection everyone needs but nobody talks about.
+#CARENAlert #KnowYourRights #BlackLivesMatter #DrivingWhileBlack #RoadsideSafety #DriverProtection #LegalRights #CivilRights #KnowYourRights #TrafficStop #FamilySafety #ProtectYourself #BlackDrivers #LegalHelp #AttorneyNetwork #EmergencyApp #RoadSafety #CommunityProtection #PoliceEncounter #YouHaveRights #SafetyFirst #BlackCommunity #StayProtected #DownloadNow #CARENAlert`,
+      },
+      {
+        title: "📘 Facebook Caption",
+        content: `Do you know your rights when you're pulled over? Most people don't — and that's why I joined C.A.R.E.N.™ Alert as a Regional Director.
 
-👉 carenalert.com
+C.A.R.E.N.™ Alert is a real-time protection app for drivers that automatically records your encounter, tells you your legal rights state-by-state, connects you to a local attorney instantly, and notifies your family in an emergency.
 
-#CAREN #KnowYourRights #RoadsideSafety #DriverProtection #LegalRights`,
+Plans start at $0.99/month. This is the protection every driver needs but nobody talks about.
+
+👉 Download at carenalert.com
+
+#CARENAlert #KnowYourRights #RoadsideSafety #DriverProtection #FamilySafety`,
       },
       {
         title: "Community Event / Tabling Script",
